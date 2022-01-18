@@ -5,18 +5,24 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
+import java.io.File;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.Flow;
 
 public class CodePageController implements Initializable {
+    @FXML
+    private AnchorPane rootLayout;
     @FXML
     private MenuBar menuBar;
     @FXML
@@ -59,7 +65,7 @@ public class CodePageController implements Initializable {
     private void onNewModelClick(ActionEvent event) {
         System.out.println("Model");
         Tab tab = new Tab("untitled.model");
-        tab.setOnClosed(event1 -> {
+        tab.setOnClosed(e -> {
             System.out.println(tab.getText() + " closed");
         });
 
@@ -70,10 +76,29 @@ public class CodePageController implements Initializable {
         GridPane gridPane = new GridPane();
         gridPane.setPrefWidth(800);
         gridPane.setPrefWidth(800);
-        gridPane.setBackground(new Background(new BackgroundFill(Color.rgb(255, 0, 0), null, null)));
+        gridPane.setPadding(new Insets(30, 0, 0, 40));
+//        gridPane.setBackground(new Background(new BackgroundFill(Color.rgb(255, 0, 0), null, null)));
+
+        Label lbMap = new Label("Map: ");
+        FlowPane flowPane0 = new FlowPane();
+        Button btMap = new Button("Choose File");
+        Label lbFileName = new Label();
+        flowPane0.getChildren().addAll(lbFileName, btMap);
+        btMap.setOnMouseClicked(e -> {
+            Stage stage = (Stage) rootLayout.getScene().getWindow();
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Open Resource File");
+            File file = fileChooser.showOpenDialog(stage);
+            lbFileName.setText(file.getName());
+        });
+
+        Label lbWeather = new Label("Weather: ");
+        TextField tfWeather = new TextField();
+
+        gridPane.addRow(0, lbMap, flowPane0);
+        gridPane.addRow(1, lbWeather, tfWeather);
 
         scrollPane.setContent(gridPane);
-
         tab.setContent(scrollPane);
         tabPane.getTabs().add(tab);
     }
@@ -81,7 +106,7 @@ public class CodePageController implements Initializable {
     private void onNewTreeClick(ActionEvent event) {
         System.out.println("Tree");
         Tab tab = new Tab("untitled.tree");
-        tab.setOnClosed(event1 -> {
+        tab.setOnClosed(e -> {
             System.out.println(tab.getText() + " closed");
         });
 
