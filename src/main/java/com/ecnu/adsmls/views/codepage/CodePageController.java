@@ -1,4 +1,4 @@
-package com.ecnu.adsmls;
+package com.ecnu.adsmls.views.codepage;
 
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -16,7 +16,7 @@ import javafx.scene.paint.Color;
 import java.net.URL;
 import java.util.*;
 
-public class AppController implements Initializable {
+public class CodePageController implements Initializable {
     @FXML
     private MenuBar menuBar;
     @FXML
