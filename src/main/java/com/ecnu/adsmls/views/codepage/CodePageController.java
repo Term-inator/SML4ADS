@@ -17,6 +17,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 
 import java.io.File;
 import java.net.URL;
@@ -86,7 +87,7 @@ public class CodePageController implements Initializable {
         GridPane gridPane = new GridPane();
         gridPane.setPrefWidth(800);
         gridPane.setPrefWidth(800);
-        gridPane.setPadding(new Insets(30, 0, 0, 40));
+        gridPane.setPadding(new Insets(30, 40, 30, 40));
 //        gridPane.setBackground(new Background(new BackgroundFill(Color.rgb(255, 0, 0), null, null)));
 
         ArrayList<Node[]> page = new ArrayList<>();
@@ -104,6 +105,54 @@ public class CodePageController implements Initializable {
 
         Label lbCars = new Label("Cars: ");
         Button btNewCar = new Button("New Car");
+        btNewCar.setOnMouseClicked(e -> {
+            Node source = (Node) e.getSource();
+            int row = GridPane.getRowIndex(source);
+            GridPane gridPaneCar = new GridPane();
+            gridPaneCar.setPadding(new Insets(0, 0, 0, 20));
+
+            Label lbName = new Label("name: ");
+            TextField tfName = new TextField();
+
+            Label lbModel = new Label("model: ");
+            String models[] = {"random", "vehicle.audi.a2"};
+            ComboBox cbModel = new ComboBox(FXCollections.observableArrayList(models));
+            cbModel.getSelectionModel().select(0);
+
+            Label lbMaxSpeed = new Label("max speed: ");
+            TextField tfMaxSpeed = new TextField();
+
+            Label lbInitSpeed = new Label("initial speed: ");
+            TextField tfInitSpeed = new TextField();
+
+            // TODO macAcc?
+
+            Label lbLocation = new Label("location: ");
+
+            Label lbHeading = new Label("heading: ");
+            ComboBox cbHeading = new ComboBox(FXCollections.observableArrayList("same", "opposite"));
+            cbHeading.getSelectionModel().select(0);
+
+            Label lbRoadDeviation = new Label("road deviation: ");
+            TextField tfRoadDeviation = new TextField();
+
+            gridPaneCar.addRow(0, lbName, tfName);
+            gridPaneCar.addRow(1, lbModel, cbModel);
+            gridPaneCar.addRow(2, lbMaxSpeed, tfMaxSpeed);
+            gridPaneCar.addRow(3, lbInitSpeed, tfInitSpeed);
+            gridPaneCar.addRow(5, lbLocation);
+            gridPaneCar.addRow(6, lbHeading, cbHeading);
+            gridPaneCar.addRow(7, lbRoadDeviation, tfRoadDeviation);
+
+            page.add(row, new Node[] {gridPaneCar});
+            this.updateGridPane(gridPane, page);
+        });
+
+        Label lbPedestrians = new Label("Pedestrians: ");
+        Button btNewPedestrian = new Button("New Pedestrian");
+
+        Label lbObstacles = new Label("Obstacles: ");
+        Button btNewObstacle = new Button("New Obstacle");
 
         Label lbDynamic = new Label("Dynamic: ");
         Button btNewDynamic = new Button("New");
@@ -113,6 +162,10 @@ public class CodePageController implements Initializable {
         page.add(new Node[] {lbSource, btSource});
         page.add(new Node[] {lbCars});
         page.add(new Node[] {btNewCar});
+        page.add(new Node[] {lbPedestrians});
+        page.add(new Node[] {btNewPedestrian});
+        page.add(new Node[] {lbObstacles});
+        page.add(new Node[] {btNewObstacle});
         page.add(new Node[] {lbDynamic});
         page.add(new Node[] {btNewDynamic});
 
