@@ -1,5 +1,6 @@
 package com.ecnu.adsmls.views.codepage;
 
+import com.ecnu.adsmls.components.ChooseFileButton;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -9,6 +10,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -63,6 +65,13 @@ public class CodePageController implements Initializable {
         System.out.println("Run");
     }
 
+    private void updateGridPane(GridPane gridPane, ArrayList<Node[]> page) {
+        gridPane.getChildren().clear();
+        for(int r = 0; r < page.size(); ++r) {
+            gridPane.addRow(r, page.get(r));
+        }
+    }
+
     private void onNewModelClick(ActionEvent event) {
         System.out.println("Model");
         Tab tab = new Tab("untitled.model");
@@ -80,33 +89,34 @@ public class CodePageController implements Initializable {
         gridPane.setPadding(new Insets(30, 0, 0, 40));
 //        gridPane.setBackground(new Background(new BackgroundFill(Color.rgb(255, 0, 0), null, null)));
 
+        ArrayList<Node[]> page = new ArrayList<>();
+
         Label lbMap = new Label("Map: ");
-        HBox hBox0 = new HBox();
-        hBox0.setAlignment(Pos.CENTER_LEFT);
-        Button btMap = new Button("Choose File");
-        Label lbFileName = new Label();
-        hBox0.getChildren().addAll(lbFileName, btMap);
-        btMap.setOnMouseClicked(e -> {
-            Stage stage = (Stage) rootLayout.getScene().getWindow();
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Open Resource File");
-            File file = fileChooser.showOpenDialog(stage);
-            if(file != null) {
-                lbFileName.setText(file.getName());
-            }
-        });
+        Node btMap = new ChooseFileButton(rootLayout).getNode();
 
         Label lbWeather = new Label("Weather: ");
         String weathers[] = {"clear", "rainy", "foggy"};
         ComboBox cbWeather = new ComboBox(FXCollections.observableArrayList(weathers));
         cbWeather.getSelectionModel().select(0);
 
-        Label lbActors = new Label("Actors: ");
-        Button btNewActor = new Button("New");
+        Label lbSource = new Label("Actor Source: ");
+        Node btSource = new ChooseFileButton(rootLayout).getNode();
 
-        gridPane.addRow(0, lbMap, hBox0);
-        gridPane.addRow(1, lbWeather, cbWeather);
-        gridPane.addRow(2, lbActors, btNewActor);
+        Label lbCars = new Label("Cars: ");
+        Button btNewCar = new Button("New Car");
+
+        Label lbDynamic = new Label("Dynamic: ");
+        Button btNewDynamic = new Button("New");
+
+        page.add(new Node[] {lbMap, btMap});
+        page.add(new Node[] {lbWeather, cbWeather});
+        page.add(new Node[] {lbSource, btSource});
+        page.add(new Node[] {lbCars});
+        page.add(new Node[] {btNewCar});
+        page.add(new Node[] {lbDynamic});
+        page.add(new Node[] {btNewDynamic});
+
+        this.updateGridPane(gridPane, page);
 
         scrollPane.setContent(gridPane);
         tab.setContent(scrollPane);
