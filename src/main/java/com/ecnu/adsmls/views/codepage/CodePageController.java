@@ -81,24 +81,32 @@ public class CodePageController implements Initializable {
 //        gridPane.setBackground(new Background(new BackgroundFill(Color.rgb(255, 0, 0), null, null)));
 
         Label lbMap = new Label("Map: ");
-        FlowPane flowPane0 = new FlowPane();
+        HBox hBox0 = new HBox();
+        hBox0.setAlignment(Pos.CENTER_LEFT);
         Button btMap = new Button("Choose File");
         Label lbFileName = new Label();
-        flowPane0.getChildren().addAll(lbFileName, btMap);
+        hBox0.getChildren().addAll(lbFileName, btMap);
         btMap.setOnMouseClicked(e -> {
             Stage stage = (Stage) rootLayout.getScene().getWindow();
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Open Resource File");
             File file = fileChooser.showOpenDialog(stage);
-            lbFileName.setText(file.getName());
+            if(file != null) {
+                lbFileName.setText(file.getName());
+            }
         });
 
         Label lbWeather = new Label("Weather: ");
         String weathers[] = {"clear", "rainy", "foggy"};
         ComboBox cbWeather = new ComboBox(FXCollections.observableArrayList(weathers));
+        cbWeather.getSelectionModel().select(0);
 
-        gridPane.addRow(0, lbMap, flowPane0);
+        Label lbActors = new Label("Actors: ");
+        Button btNewActor = new Button("New");
+
+        gridPane.addRow(0, lbMap, hBox0);
         gridPane.addRow(1, lbWeather, cbWeather);
+        gridPane.addRow(2, lbActors, btNewActor);
 
         scrollPane.setContent(gridPane);
         tab.setContent(scrollPane);
