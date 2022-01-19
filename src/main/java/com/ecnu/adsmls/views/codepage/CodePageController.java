@@ -89,9 +89,11 @@ public class CodePageController implements Initializable {
         gridPane.setPrefWidth(800);
         gridPane.setPadding(new Insets(30, 40, 30, 40));
         gridPane.setVgap(8);
-//        gridPane.setBackground(new Background(new BackgroundFill(Color.rgb(255, 0, 0), null, null)));
 
         ArrayList<Node[]> page = new ArrayList<>();
+
+        GridPane props = new GridPane();
+        props.setVgap(8);
 
         Label lbMap = new Label("Map: ");
         Node btMap = new ChooseFileButton(rootLayout).getNode();
@@ -103,6 +105,10 @@ public class CodePageController implements Initializable {
 
         Label lbSource = new Label("Actor Source: ");
         Node btSource = new ChooseFileButton(rootLayout).getNode();
+
+        props.addRow(0, lbMap, btMap);
+        props.addRow(1, lbWeather, cbWeather);
+        props.addRow(2, lbSource, btSource);
 
         Label lbCars = new Label("Cars: ");
         Button btNewCar = new Button("New Car");
@@ -161,9 +167,7 @@ public class CodePageController implements Initializable {
         Label lbObstacles = new Label("Obstacles: ");
         Button btNewObstacle = new Button("New Obstacle");
 
-        page.add(new Node[] {lbMap, btMap});
-        page.add(new Node[] {lbWeather, cbWeather});
-        page.add(new Node[] {lbSource, btSource});
+        page.add(new Node[] {props});
         page.add(new Node[] {lbCars});
         page.add(new Node[] {btNewCar});
         page.add(new Node[] {lbPedestrians});
