@@ -88,6 +88,7 @@ public class CodePageController implements Initializable {
         gridPane.setPrefWidth(800);
         gridPane.setPrefWidth(800);
         gridPane.setPadding(new Insets(30, 40, 30, 40));
+        gridPane.setVgap(8);
 //        gridPane.setBackground(new Background(new BackgroundFill(Color.rgb(255, 0, 0), null, null)));
 
         ArrayList<Node[]> page = new ArrayList<>();
@@ -109,13 +110,14 @@ public class CodePageController implements Initializable {
             Node source = (Node) e.getSource();
             int row = GridPane.getRowIndex(source);
             GridPane gridPaneCar = new GridPane();
-            gridPaneCar.setPadding(new Insets(0, 0, 0, 20));
+            gridPaneCar.setPadding(new Insets(8, 0, 8, 20));
+            gridPaneCar.setVgap(8);
 
             Label lbName = new Label("name: ");
             TextField tfName = new TextField();
 
             Label lbModel = new Label("model: ");
-            String models[] = {"random", "vehicle.audi.a2"};
+            String[] models = {"random", "vehicle.audi.a2"};
             ComboBox cbModel = new ComboBox(FXCollections.observableArrayList(models));
             cbModel.getSelectionModel().select(0);
 
@@ -136,6 +138,10 @@ public class CodePageController implements Initializable {
             Label lbRoadDeviation = new Label("road deviation: ");
             TextField tfRoadDeviation = new TextField();
 
+            Label lbDynamic = new Label("Dynamic: ");
+            String[] trees = {"test.tree"};
+            Node btDynamic = new ChooseFileButton(rootLayout).getNode();
+
             gridPaneCar.addRow(0, lbName, tfName);
             gridPaneCar.addRow(1, lbModel, cbModel);
             gridPaneCar.addRow(2, lbMaxSpeed, tfMaxSpeed);
@@ -143,6 +149,7 @@ public class CodePageController implements Initializable {
             gridPaneCar.addRow(5, lbLocation);
             gridPaneCar.addRow(6, lbHeading, cbHeading);
             gridPaneCar.addRow(7, lbRoadDeviation, tfRoadDeviation);
+            gridPaneCar.addRow(8, lbDynamic, btDynamic);
 
             page.add(row, new Node[] {gridPaneCar});
             this.updateGridPane(gridPane, page);
@@ -154,9 +161,6 @@ public class CodePageController implements Initializable {
         Label lbObstacles = new Label("Obstacles: ");
         Button btNewObstacle = new Button("New Obstacle");
 
-        Label lbDynamic = new Label("Dynamic: ");
-        Button btNewDynamic = new Button("New");
-
         page.add(new Node[] {lbMap, btMap});
         page.add(new Node[] {lbWeather, cbWeather});
         page.add(new Node[] {lbSource, btSource});
@@ -166,8 +170,6 @@ public class CodePageController implements Initializable {
         page.add(new Node[] {btNewPedestrian});
         page.add(new Node[] {lbObstacles});
         page.add(new Node[] {btNewObstacle});
-        page.add(new Node[] {lbDynamic});
-        page.add(new Node[] {btNewDynamic});
 
         this.updateGridPane(gridPane, page);
 
