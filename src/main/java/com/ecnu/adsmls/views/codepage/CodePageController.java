@@ -1,5 +1,6 @@
 package com.ecnu.adsmls.views.codepage;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -93,10 +94,11 @@ public class CodePageController implements Initializable {
         });
 
         Label lbWeather = new Label("Weather: ");
-        TextField tfWeather = new TextField();
+        String weathers[] = {"clear", "rainy", "foggy"};
+        ComboBox cbWeather = new ComboBox(FXCollections.observableArrayList(weathers));
 
         gridPane.addRow(0, lbMap, flowPane0);
-        gridPane.addRow(1, lbWeather, tfWeather);
+        gridPane.addRow(1, lbWeather, cbWeather);
 
         scrollPane.setContent(gridPane);
         tab.setContent(scrollPane);
