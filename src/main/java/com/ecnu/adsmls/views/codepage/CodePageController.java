@@ -1,6 +1,7 @@
 package com.ecnu.adsmls.views.codepage;
 
 import com.ecnu.adsmls.components.ChooseFileButton;
+import com.ecnu.adsmls.components.editor.TreeEditor;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -193,12 +194,11 @@ public class CodePageController implements Initializable {
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
 
-        SplitPane splitPane = new SplitPane();
-        splitPane.setPrefWidth(800);
-        splitPane.setPrefWidth(800);
-        splitPane.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 255), null, null)));
+        AnchorPane anchorPane = new AnchorPane();
+        TreeEditor editor = new TreeEditor();
+        anchorPane.getChildren().add(editor.getNode());
 
-        scrollPane.setContent(splitPane);
+        scrollPane.setContent(anchorPane);
 
         tab.setContent(scrollPane);
         tabPane.getTabs().add(tab);
