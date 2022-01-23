@@ -1,11 +1,11 @@
 package com.ecnu.adsmls.components.editor;
 
-import javafx.scene.Cursor;
+
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.input.MouseEvent;
 
-public class TreeComponent {
+
+public abstract class TreeComponent {
     protected Group graphicNode;
     protected Position position;
 
@@ -14,7 +14,5 @@ public class TreeComponent {
         this.position = position;
     }
 
-    public Node getNode() {
-        return null;
-    }
+    public abstract Node getNode();
 }
