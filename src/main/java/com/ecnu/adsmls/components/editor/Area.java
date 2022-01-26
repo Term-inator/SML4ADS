@@ -4,8 +4,8 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 
-public abstract class ClosedShape extends TreeComponent implements Draggable {
-    public ClosedShape(Position position) {
+public abstract class Area extends TreeComponent implements Draggable {
+    public Area(Position position) {
         super(position);
     }
 
