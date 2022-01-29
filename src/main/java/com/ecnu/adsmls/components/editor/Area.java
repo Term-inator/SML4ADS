@@ -1,12 +1,20 @@
 package com.ecnu.adsmls.components.editor;
 
+import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 
 public abstract class Area extends TreeComponent implements Draggable {
+    protected Position position;
+
     public Area(Position position) {
-        super(position);
+        super();
+        this.position = position;
+    }
+
+    public Position getLinkPoint(Position nextPoint) {
+        return null;
     }
 
     @Override

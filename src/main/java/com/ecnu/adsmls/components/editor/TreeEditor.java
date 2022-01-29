@@ -4,15 +4,11 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 
 import java.util.Objects;
 
@@ -21,6 +17,8 @@ public class TreeEditor {
     final ToggleGroup group = new ToggleGroup();
     private String componentSelected;
     private Pane canvas;
+
+    private Group componentChose;
 
     public TreeEditor() {
         palette = new GridPane();
@@ -76,9 +74,17 @@ public class TreeEditor {
                     Behavior behavior = new Behavior(position);
                     canvas.getChildren().add(behavior.getNode());
                 }
+                if(Objects.equals(componentSelected, "Transition")) {
+                    Transition transition = new Transition();
+                    canvas.getChildren().add(transition.getNode());
+                }
                 // TODO
             }
         });
+    }
+
+    public void setComponentChose(Group componentChose) {
+        this.componentChose = componentChose;
     }
 
     public Node getNode() {

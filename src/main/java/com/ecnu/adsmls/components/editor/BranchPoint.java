@@ -2,7 +2,7 @@ package com.ecnu.adsmls.components.editor;
 
 import javafx.scene.Node;
 
-public class BranchPoint extends TreeComponent {
+public class BranchPoint extends Area {
     public BranchPoint(Position position) {
         super(position);
     }

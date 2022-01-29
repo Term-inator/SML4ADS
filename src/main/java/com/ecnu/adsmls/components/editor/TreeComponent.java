@@ -7,11 +7,9 @@ import javafx.scene.Node;
 
 public abstract class TreeComponent {
     protected Group graphicNode;
-    protected Position position;
 
-    public TreeComponent(Position position) {
+    public TreeComponent() {
         graphicNode = new Group();
-        this.position = position;
     }
 
     public abstract Node getNode();
