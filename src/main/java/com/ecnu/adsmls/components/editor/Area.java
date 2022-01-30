@@ -1,12 +1,24 @@
 package com.ecnu.adsmls.components.editor;
 
+import com.ecnu.adsmls.utils.Position;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 
-public abstract class ClosedShape extends TreeComponent implements Draggable {
-    public ClosedShape(Position position) {
-        super(position);
+public abstract class Area extends TreeComponent implements Draggable {
+    protected Position position;
+
+    public Area(long id, Position position) {
+        super(id);
+        this.position = position;
+    }
+
+    public Position getLinkPoint(Position nextPoint) {
+        return null;
+    }
+
+    public Position getCenterPoint() {
+        return null;
     }
 
     @Override

@@ -135,7 +135,10 @@ public class CodePageController implements Initializable {
             TextField tfInitSpeed = new TextField();
 
             // TODO macAcc?
-
+            /** TODO location
+             *  1. 确定lane (filter函数 / 3 个 id)
+             *  2. 数值 距离 lane 起始位置的偏移量
+             */
             Label lbLocation = new Label("location: ");
 
             Label lbHeading = new Label("heading: ");

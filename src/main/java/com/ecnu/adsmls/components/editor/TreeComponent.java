@@ -6,12 +6,16 @@ import javafx.scene.Node;
 
 
 public abstract class TreeComponent {
+    private long id;
     protected Group graphicNode;
-    protected Position position;
 
-    public TreeComponent(Position position) {
+    public TreeComponent(long id) {
+        this.id = id;
         graphicNode = new Group();
-        this.position = position;
+    }
+
+    public long getId() {
+        return id;
     }
 
     public abstract Node getNode();
