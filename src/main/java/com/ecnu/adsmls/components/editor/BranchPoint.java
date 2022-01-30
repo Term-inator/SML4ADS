@@ -4,8 +4,8 @@ import com.ecnu.adsmls.utils.Position;
 import javafx.scene.Node;
 
 public class BranchPoint extends Area {
-    public BranchPoint(Position position) {
-        super(position);
+    public BranchPoint(long id, Position position) {
+        super(id, position);
     }
 
     @Override

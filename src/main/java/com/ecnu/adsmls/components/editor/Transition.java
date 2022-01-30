@@ -2,6 +2,7 @@ package com.ecnu.adsmls.components.editor;
 
 import com.ecnu.adsmls.utils.Position;
 import javafx.scene.Node;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
@@ -14,27 +15,41 @@ public class Transition extends TreeComponent {
 
     private ArrayList<Position> positions = new ArrayList<>();
 
-    public Transition() {
-        super();
+    public Transition(long id) {
+        super(id);
+    }
+
+    public Area getSource() {
+        return source;
     }
 
     public void setSource(Area source) {
         this.source = source;
     }
 
+    public Area getTarget() {
+        return target;
+    }
+
     public void setTarget(Area target) {
         this.target = target;
     }
 
+    public ArrayList<Position> getPositions() {
+        return positions;
+    }
+
     @Override
     public Node getNode() {
-//        Position sp = this.source.getLinkPoint(positions.get(0));
-//        Position tp = this.target.getLinkPoint(positions.get(positions.size() - 1));
 
         Path path = new Path();
-        path.getElements().add(new MoveTo(0.0f, 50.0f));
-        path.getElements().add(new LineTo(100.0f, 100.0f));
-        path.getElements().add(new LineTo(100.0f, 200.0f));
+        path.getElements().add(new MoveTo(this.positions.get(0).x, this.positions.get(0).y));
+        for (Position p : this.positions) {
+//            path.getElements().add(new MoveTo(p.x, p.y));
+            path.getElements().add(new LineTo(p.x, p.y));
+        }
+        path.setStrokeWidth(2);
+        path.setStroke(Color.BLACK);
 
         graphicNode.getChildren().addAll(path);
 

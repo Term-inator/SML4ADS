@@ -8,12 +8,16 @@ import javafx.scene.input.MouseEvent;
 public abstract class Area extends TreeComponent implements Draggable {
     protected Position position;
 
-    public Area(Position position) {
-        super();
+    public Area(long id, Position position) {
+        super(id);
         this.position = position;
     }
 
     public Position getLinkPoint(Position nextPoint) {
+        return null;
+    }
+
+    public Position getCenterPoint() {
         return null;
     }
 
