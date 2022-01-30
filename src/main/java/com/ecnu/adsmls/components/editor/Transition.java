@@ -1,7 +1,7 @@
 package com.ecnu.adsmls.components.editor;
 
+import com.ecnu.adsmls.utils.Position;
 import javafx.scene.Node;
-import javafx.scene.shape.Line;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;

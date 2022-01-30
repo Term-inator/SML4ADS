@@ -1,5 +1,6 @@
 package com.ecnu.adsmls.components.editor;
 
+import com.ecnu.adsmls.utils.Position;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;

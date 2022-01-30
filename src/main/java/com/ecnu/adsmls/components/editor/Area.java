@@ -1,6 +1,6 @@
 package com.ecnu.adsmls.components.editor;
 
-import javafx.geometry.Point2D;
+import com.ecnu.adsmls.utils.Position;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
