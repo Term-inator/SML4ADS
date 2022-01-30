@@ -39,7 +39,7 @@ public class Behavior extends Area {
         circle.setRadius(this.r);
         circle.setFill(Color.WHITE);
         circle.setStrokeWidth(2);
-        circle.setStroke(Color.LIGHTBLUE);
+        circle.setStroke(Color.ROYALBLUE);
 
         graphicNode.getChildren().addAll(circle);
         this.enableDrag(graphicNode);
