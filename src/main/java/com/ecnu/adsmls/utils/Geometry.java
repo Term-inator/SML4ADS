@@ -9,8 +9,8 @@ public class Geometry {
     public static double radWithXAxis(Position p1, Position p2) {
         double r = distanceBetween(p1, p2);
         double rad = Math.acos((p2.x - p1.x) / r);
-        if(p2.y < p1.y) {
-            rad += Math.PI;
+        if(p2.y > p1.y) {
+            rad = 2 * Math.PI - rad;
         }
         return rad;
     }

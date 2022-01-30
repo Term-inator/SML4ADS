@@ -103,6 +103,7 @@ public class TreeEditor {
                             transition.get().setTarget(target);
                             transition.get().getPositions().add(target.getCenterPoint());
                             linkFinish.set(true);
+                            System.out.println("finish");
                         }
                     }
                     else {
@@ -128,7 +129,7 @@ public class TreeEditor {
                 }
                 if(linkFinish.get()) {
                     transition.set(new Transition(this.componentId++));
-                    linkFinish.set(true);
+                    linkFinish.set(false);
                 }
             }
         });
