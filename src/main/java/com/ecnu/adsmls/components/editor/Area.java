@@ -5,6 +5,9 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 
+/**
+ * 封闭图形
+ */
 public abstract class Area extends TreeComponent implements Draggable {
     protected Position position;
 
