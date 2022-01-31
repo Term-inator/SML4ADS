@@ -7,6 +7,7 @@ public class Position {
     public Position() {
 
     }
+
     public Position(double x, double y) {
         this.x = x;
         this.y = y;

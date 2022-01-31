@@ -3,6 +3,7 @@ package com.ecnu.adsmls.components.editor;
 import com.ecnu.adsmls.components.Arrow;
 import com.ecnu.adsmls.utils.Geometry;
 import com.ecnu.adsmls.utils.Position;
+import com.ecnu.adsmls.utils.Vector2D;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
@@ -79,8 +80,9 @@ public class Transition extends TreeComponent {
         if(this.target != null) {
             Position p1 = this.positions.get(size - 2);
             Position p2 = this.positions.get(size - 1);
+            Vector2D vector = new Vector2D(p2, p1);
             // 以末端为原点
-            double rad = Geometry.radWithXAxis(p2, p1);
+            double rad = vector.radWithXAxis();
             Node arrow = new Arrow(p2, rad, 12).getNode();
             graphicNode.getChildren().addAll(path, arrow);
         }
