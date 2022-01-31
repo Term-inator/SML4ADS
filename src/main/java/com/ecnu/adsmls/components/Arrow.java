@@ -37,8 +37,7 @@ public class Arrow {
         double y1 = - this.arrowLen * Math.sin(rad1) + this.endPoint.y;
         double x2 = this.arrowLen * Math.cos(rad2) + this.endPoint.x;
         double y2 = - this.arrowLen * Math.sin(rad2) + this.endPoint.y;
-        System.out.println(this.rad);
-        System.out.println(Math.cos(rad1));
+
         Path path = new Path();
         path.getElements().add(new MoveTo(x1, y1));
         path.getElements().add(new LineTo(this.endPoint.x, this.endPoint.y));

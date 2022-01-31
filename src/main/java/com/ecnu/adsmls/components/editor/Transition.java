@@ -48,7 +48,7 @@ public class Transition extends TreeComponent {
      * 修正第一个点的坐标为 source 的连接点
      */
     private void modifyFirstPoint() {
-        if (this.positions.size() == 2) {
+        if (this.positions.size() >= 2) {
             this.positions.get(0).relocate(this.source.getLinkPoint(this.positions.get(1)));
         }
     }
@@ -60,15 +60,13 @@ public class Transition extends TreeComponent {
         if(this.target != null) {
             int size = this.positions.size();
             if (size >= 2) {
-                System.out.println("modifying");
                 Position p = this.target.getLinkPoint(this.positions.get(size - 2));
                 this.positions.get(size - 1).relocate(this.target.getLinkPoint(this.positions.get(size - 2)));
             }
         }
     }
 
-    @Override
-    public Node getNode() {
+    public void updateNode() {
         this.modifyFirstPoint();
         this.modifyLastPoint();
 
@@ -97,7 +95,11 @@ public class Transition extends TreeComponent {
         else {
             graphicNode.getChildren().addAll(path);
         }
+    }
 
+    @Override
+    public Node getNode() {
+        this.updateNode();
         return graphicNode;
     }
 }

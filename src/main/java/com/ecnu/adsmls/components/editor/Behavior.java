@@ -2,7 +2,6 @@ package com.ecnu.adsmls.components.editor;
 
 import com.ecnu.adsmls.utils.Position;
 import com.ecnu.adsmls.utils.Vector2D;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -15,7 +14,7 @@ public class Behavior extends Area {
     private final double r = 16;
 
     private List<Transition> inTransitions = new ArrayList<>();
-    private List<Transition> outTransition = new ArrayList<>();
+    private List<Transition> outTransitions = new ArrayList<>();
 
     public Behavior(long id, Position position) {
         super(id, position);
@@ -26,7 +25,7 @@ public class Behavior extends Area {
     }
 
     public void addOutTransition(Transition transition) {
-        this.outTransition.add(transition);
+        this.outTransitions.add(transition);
     }
 
     @Override
@@ -44,6 +43,22 @@ public class Behavior extends Area {
         double x = this.position.x + this.r;
         double y = this.position.y + this.r;
         return new Position(x, y);
+    }
+
+    @Override
+    public void enableDrag(Node node) {
+        super.enableDrag(node);
+        // Transition 跟随拖动
+        this.graphicNode.addEventHandler(MouseEvent.MOUSE_DRAGGED, e -> {
+            for (Transition t : this.inTransitions) {
+                t.getPositions().get(t.getPositions().size() - 1).relocate(this.getCenterPoint());
+                t.updateNode();
+            }
+            for (Transition t : this.outTransitions) {
+                t.getPositions().get(0).relocate(this.getCenterPoint());
+                t.updateNode();
+            }
+        });
     }
 
     @Override
