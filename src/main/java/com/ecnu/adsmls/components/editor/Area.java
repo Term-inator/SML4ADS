@@ -8,7 +8,7 @@ import javafx.scene.input.MouseEvent;
 /**
  * 封闭图形
  */
-public abstract class Area extends TreeComponent implements Draggable {
+public abstract class Area extends TreeComponent implements Draggable, Linkable {
     protected Position position;
 
     public Area(long id, Position position) {
@@ -16,7 +16,8 @@ public abstract class Area extends TreeComponent implements Draggable {
         this.position = position;
     }
 
-    public Position getLinkPoint(Position nextPoint) {
+    @Override
+    public Position getLinkPoint(Position adjacentPoint) {
         return null;
     }
 

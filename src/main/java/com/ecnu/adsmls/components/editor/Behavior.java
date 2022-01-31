@@ -10,7 +10,7 @@ import javafx.scene.shape.Circle;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Behavior extends Area {
+public class Behavior extends Area implements Linkable {
     private final double r = 16;
 
     private List<Transition> inTransitions = new ArrayList<>();

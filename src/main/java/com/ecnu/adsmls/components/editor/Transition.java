@@ -1,6 +1,5 @@
 package com.ecnu.adsmls.components.editor;
 
-import com.ecnu.adsmls.components.Arrow;
 import com.ecnu.adsmls.utils.Position;
 import com.ecnu.adsmls.utils.Vector2D;
 import javafx.scene.Node;
