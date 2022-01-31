@@ -70,9 +70,11 @@ public class TreeEditor {
         AtomicReference<Transition> transition = new AtomicReference<>(new Transition(this.componentId++));
         AtomicReference<Boolean> linkFinish = new AtomicReference<>(false);
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            // 点击空白区域
             if(event.getTarget() instanceof Pane) {
                 this.componentChose = null;
             }
+            // 未选择画板上的组件
             if(componentSelected == null) {
                 return;
             }
@@ -107,6 +109,7 @@ public class TreeEditor {
                         }
                     }
                     else {
+                        // 有 source 才有后面的连线
                         if(transition.get().getSource() == null) {
                             return;
                         }
@@ -118,6 +121,7 @@ public class TreeEditor {
                     lambdaContext.node.setUserData(transition);
                 }
                 // TODO
+                // TODO 避免重复添加相同节点，不够优雅
                 if(lambdaContext.node != null) {
                     try {
                         canvas.getChildren().remove(lambdaContext.node);
@@ -133,10 +137,6 @@ public class TreeEditor {
                 }
             }
         });
-    }
-
-    public void setComponentChose(Group componentChose) {
-        this.componentChose = componentChose;
     }
 
     public Node getNode() {

@@ -44,12 +44,18 @@ public class Transition extends TreeComponent {
         return positions;
     }
 
+    /**
+     * 修正第一个点的坐标为 source 的连接点
+     */
     private void modifyFirstPoint() {
         if (this.positions.size() == 2) {
             this.positions.set(0, this.source.getLinkPoint(this.positions.get(1)));
         }
     }
 
+    /**
+     * 修正最后一个点的坐标为 source 的连接点
+     */
     private void modifyLastPoint() {
         if(this.target != null) {
             int size = this.positions.size();

@@ -1,5 +1,8 @@
 package com.ecnu.adsmls.utils;
 
+/**
+ * 平面向量
+ */
 public class Vector2D {
     public Position start;
     public Position end;

@@ -1,6 +1,5 @@
 package com.ecnu.adsmls.components.editor;
 
-import com.ecnu.adsmls.utils.Geometry;
 import com.ecnu.adsmls.utils.Position;
 import com.ecnu.adsmls.utils.Vector2D;
 import javafx.scene.Node;
@@ -8,7 +7,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
 public class Behavior extends Area {
-    private double r = 16;
+    private final double r = 16;
 
     public Behavior(long id, Position position) {
         super(id, position);
