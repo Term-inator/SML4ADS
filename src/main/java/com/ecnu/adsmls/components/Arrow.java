@@ -25,6 +25,11 @@ public class Arrow {
         this.arrowLen = arrowLen;
     }
 
+    public void relocate(Position endPoint, double rad) {
+        this.endPoint = endPoint;
+        this.rad = rad;
+    }
+
     public Node getNode() {
         double rad1 = this.rad - Math.PI / 6;
         double rad2 = this.rad + Math.PI / 6;

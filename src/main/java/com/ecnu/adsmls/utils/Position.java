@@ -25,4 +25,8 @@ public class Position {
         this.x = x;
         this.y = y;
     }
+
+    public void relocate(Position position) {
+        this.relocate(position.x, position.y);
+    }
 }

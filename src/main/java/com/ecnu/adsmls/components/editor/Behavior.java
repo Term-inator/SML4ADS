@@ -2,15 +2,31 @@ package com.ecnu.adsmls.components.editor;
 
 import com.ecnu.adsmls.utils.Position;
 import com.ecnu.adsmls.utils.Vector2D;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Behavior extends Area {
     private final double r = 16;
 
+    private List<Transition> inTransitions = new ArrayList<>();
+    private List<Transition> outTransition = new ArrayList<>();
+
     public Behavior(long id, Position position) {
         super(id, position);
+    }
+
+    public void addInTransition(Transition transition) {
+        this.inTransitions.add(transition);
+    }
+
+    public void addOutTransition(Transition transition) {
+        this.outTransition.add(transition);
     }
 
     @Override

@@ -124,6 +124,7 @@ public class TreeEditor {
                 // TODO 避免重复添加相同节点，不够优雅
                 if(lambdaContext.node != null) {
                     try {
+                        System.out.println("removing");
                         canvas.getChildren().remove(lambdaContext.node);
                     }
                     catch (Exception e) {
