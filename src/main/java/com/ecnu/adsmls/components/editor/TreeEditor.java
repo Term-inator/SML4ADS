@@ -96,12 +96,12 @@ public class TreeEditor {
                     System.out.println(this.componentChose);
                     if(this.componentChose != null) {
                         if(transition.get().getSource() == null) {
-                            Area source = (Area) this.componentChose.getUserData();
+                            TreeArea source = (TreeArea) this.componentChose.getUserData();
                             transition.get().setSource(source);
                             transition.get().getPositions().add(source.getCenterPoint());
                         }
                         else {
-                            Area target = (Area) this.componentChose.getUserData();
+                            TreeArea target = (TreeArea) this.componentChose.getUserData();
                             transition.get().setTarget(target);
                             transition.get().getPositions().add(target.getCenterPoint());
                             linkFinish.set(true);
