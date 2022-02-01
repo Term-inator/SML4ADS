@@ -1,17 +1,13 @@
-package com.ecnu.adsmls.components;
+package com.ecnu.adsmls.components.editor;
 
-import com.ecnu.adsmls.utils.Geometry;
 import com.ecnu.adsmls.utils.Position;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 
-public class Arrow {
-    private Group graphicNode;
-
+public class Arrow extends Component {
     private Position endPoint;
     private double rad;
     private double arrowLen;
@@ -19,7 +15,7 @@ public class Arrow {
     private double angle = Math.PI / 3;
 
     public Arrow(Position endPoint, double rad, double arrowLen) {
-        graphicNode = new Group();
+        super();
         this.endPoint = endPoint;
         this.rad = rad;
         this.arrowLen = arrowLen;
@@ -30,6 +26,7 @@ public class Arrow {
         this.rad = rad;
     }
 
+    @Override
     public Node getNode() {
         double rad1 = this.rad - Math.PI / 6;
         double rad2 = this.rad + Math.PI / 6;
