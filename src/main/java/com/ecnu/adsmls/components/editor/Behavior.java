@@ -3,12 +3,9 @@ package com.ecnu.adsmls.components.editor;
 import com.ecnu.adsmls.utils.Position;
 import com.ecnu.adsmls.utils.Vector2D;
 import javafx.scene.Node;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class Behavior extends TreeArea {
     private final double r = 16;
@@ -32,6 +29,16 @@ public class Behavior extends TreeArea {
         double x = this.position.x + this.r;
         double y = this.position.y + this.r;
         return new Position(x, y);
+    }
+
+    @Override
+    public void active() {
+
+    }
+
+    @Override
+    public void inactive() {
+
     }
 
     @Override

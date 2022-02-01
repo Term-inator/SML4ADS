@@ -14,6 +14,16 @@ public class BranchPoint extends TreeArea {
     }
 
     @Override
+    public void active() {
+
+    }
+
+    @Override
+    public void inactive() {
+
+    }
+
+    @Override
     public Node getNode() {
         return null;
     }

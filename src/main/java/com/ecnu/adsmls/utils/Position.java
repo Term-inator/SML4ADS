@@ -29,4 +29,12 @@ public class Position {
     public void relocate(Position position) {
         this.relocate(position.x, position.y);
     }
+
+    @Override
+    public String toString() {
+        return "Position{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
+    }
 }

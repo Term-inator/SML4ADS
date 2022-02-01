@@ -4,37 +4,21 @@ import com.ecnu.adsmls.utils.Position;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * 封闭图形
- */
-public abstract class TreeArea extends TreeComponent implements Draggable, Linkable {
+public class TreeLinkPoint extends Component implements Draggable {
     protected Position position;
+    private TreeLink treeLink;
+    private double r = 5;
 
-    private List<TreeLink> inTransitions = new ArrayList<>();
-    private List<TreeLink> outTransitions = new ArrayList<>();
-
-    public TreeArea(long id, Position position) {
-        super(id);
+    /**
+     * @param position 中心坐标
+     * @param treeLink 所在的 link
+     */
+    public TreeLinkPoint(Position position, TreeLink treeLink) {
         this.position = position;
-    }
-
-    public void addInTransition(TreeLink treeLink) {
-        this.inTransitions.add(treeLink);
-    }
-
-    public void addOutTransition(TreeLink treeLink) {
-        this.outTransitions.add(treeLink);
-    }
-
-    @Override
-    public abstract Position getLinkPoint(Position adjacentPoint);
-
-    public Position getCenterPoint() {
-        return null;
+        this.treeLink = treeLink;
     }
 
     @Override
@@ -64,18 +48,36 @@ public abstract class TreeArea extends TreeComponent implements Draggable, Linka
             double y = this.position.y + disY;
 
             // 计算出 x、y 后将结点重定位到指定坐标点 (x, y)
-            node.relocate(x, y);
+            node.relocate(x - this.r, y - this.r);
             this.position.relocate(x, y);
-
-            // Transition 跟随拖动
-            for (TreeLink l : this.inTransitions) {
-                l.getLinkPoints().get(l.getLinkPoints().size() - 1).position.relocate(this.getCenterPoint());
-                l.updateNode();
-            }
-            for (TreeLink l : this.outTransitions) {
-                l.getLinkPoints().get(0).position.relocate(this.getCenterPoint());
-                l.updateNode();
-            }
+            // 更新对应的 link
+            this.treeLink.updateNode();
         });
+    }
+
+    @Override
+    public void active() {
+
+    }
+
+    @Override
+    public void inactive() {
+
+    }
+
+    @Override
+    public Node getNode() {
+        Circle circle = new Circle();
+        circle.setCenterX(this.position.x);
+        circle.setCenterY(this.position.y);
+        circle.setRadius(this.r);
+        circle.setFill(Color.WHITE);
+        circle.setStrokeWidth(2);
+        circle.setStroke(Color.ROYALBLUE);
+
+        graphicNode.getChildren().addAll(circle);
+        this.enableDrag(graphicNode);
+
+        return graphicNode;
     }
 }

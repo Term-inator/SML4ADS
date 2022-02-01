@@ -10,5 +10,9 @@ public abstract class Component {
         this.graphicNode = new Group();
     }
 
+    public abstract void active();
+
+    public abstract void inactive();
+
     public abstract Node getNode();
 }
