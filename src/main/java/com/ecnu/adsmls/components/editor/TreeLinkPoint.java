@@ -13,6 +13,16 @@ public class TreeLinkPoint extends Area {
     }
 
     @Override
+    public void active() {
+
+    }
+
+    @Override
+    public void inactive() {
+
+    }
+
+    @Override
     public Node getNode() {
         Circle circle = new Circle();
         this.position.x -= this.r;

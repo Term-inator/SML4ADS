@@ -68,6 +68,16 @@ public abstract class TreeLink extends TreeComponent {
         }
     }
 
+    @Override
+    public void active() {
+
+    }
+
+    @Override
+    public void inactive() {
+
+    }
+
     public void updateNode() {
         this.graphicNode.getChildren().clear();
 

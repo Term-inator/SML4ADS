@@ -9,6 +9,16 @@ public class Transition extends TreeLink {
     }
 
     @Override
+    public void active() {
+        super.active();
+    }
+
+    @Override
+    public void inactive() {
+        super.inactive();
+    }
+
+    @Override
     public Node getNode() {
         this.updateNode();
         return graphicNode;

@@ -27,6 +27,16 @@ public class Arrow extends Component {
     }
 
     @Override
+    public void active() {
+
+    }
+
+    @Override
+    public void inactive() {
+
+    }
+
+    @Override
     public Node getNode() {
         double rad1 = this.rad - Math.PI / 6;
         double rad2 = this.rad + Math.PI / 6;
