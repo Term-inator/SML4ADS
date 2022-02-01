@@ -98,12 +98,14 @@ public class TreeEditor {
                         if(transition.get().getSource() == null) {
                             TreeArea source = (TreeArea) this.componentChose.getUserData();
                             transition.get().setSource(source);
-                            transition.get().getPositions().add(source.getCenterPoint());
+                            transition.get().getLinkPoints().add(new TreeLinkPoint(source.getCenterPoint()));
+                            // 创建时压入 Pane 中即可
+                            lambdaContext.node = transition.get().getNode();
                         }
                         else {
                             TreeArea target = (TreeArea) this.componentChose.getUserData();
                             transition.get().setTarget(target);
-                            transition.get().getPositions().add(target.getCenterPoint());
+                            transition.get().getLinkPoints().add(new TreeLinkPoint(target.getCenterPoint()));
                             linkFinish.set(true);
                             System.out.println("finish");
                         }
@@ -114,22 +116,12 @@ public class TreeEditor {
                             return;
                         }
                         System.out.println("linking");
-                        transition.get().getPositions().add(new Position(event.getX(), event.getY()));
+                        transition.get().getLinkPoints().add(new TreeLinkPoint(new Position(event.getX(), event.getY())));
                     }
-                    System.out.println(transition.get().getId());
-                    lambdaContext.node = transition.get().getNode();
-                    lambdaContext.node.setUserData(transition);
+                    transition.get().updateNode();
                 }
                 // TODO
-                // TODO 避免重复添加相同节点，不够优雅
                 if(lambdaContext.node != null) {
-                    try {
-                        System.out.println("removing");
-                        canvas.getChildren().remove(lambdaContext.node);
-                    }
-                    catch (Exception e) {
-
-                    }
                     canvas.getChildren().add(lambdaContext.node);
                 }
                 if(linkFinish.get()) {
