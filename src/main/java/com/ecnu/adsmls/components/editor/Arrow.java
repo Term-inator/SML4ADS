@@ -12,7 +12,9 @@ public class Arrow extends Component {
     private double rad;
     private double arrowLen;
 
-    private double angle = Math.PI / 3;
+    private final double angle = Math.PI / 3;
+
+    private Path path = new Path();
 
     public Arrow(Position endPoint, double rad, double arrowLen) {
         super();
@@ -24,6 +26,22 @@ public class Arrow extends Component {
     public void relocate(Position endPoint, double rad) {
         this.endPoint = endPoint;
         this.rad = rad;
+        this.generatePath();
+    }
+
+    private void generatePath() {
+        double rad1 = this.rad - Math.PI / 6;
+        double rad2 = this.rad + Math.PI / 6;
+        double x1 = this.arrowLen * Math.cos(rad1) + this.endPoint.x;
+        double y1 = - this.arrowLen * Math.sin(rad1) + this.endPoint.y;
+        double x2 = this.arrowLen * Math.cos(rad2) + this.endPoint.x;
+        double y2 = - this.arrowLen * Math.sin(rad2) + this.endPoint.y;
+
+        this.path.getElements().clear();
+
+        this.path.getElements().add(new MoveTo(x1, y1));
+        this.path.getElements().add(new LineTo(this.endPoint.x, this.endPoint.y));
+        this.path.getElements().add(new LineTo(x2, y2));
     }
 
     @Override
@@ -38,22 +56,14 @@ public class Arrow extends Component {
 
     @Override
     public Node getNode() {
-        double rad1 = this.rad - Math.PI / 6;
-        double rad2 = this.rad + Math.PI / 6;
-        double x1 = this.arrowLen * Math.cos(rad1) + this.endPoint.x;
-        double y1 = - this.arrowLen * Math.sin(rad1) + this.endPoint.y;
-        double x2 = this.arrowLen * Math.cos(rad2) + this.endPoint.x;
-        double y2 = - this.arrowLen * Math.sin(rad2) + this.endPoint.y;
+        this.generatePath();
 
-        Path path = new Path();
-        path.getElements().add(new MoveTo(x1, y1));
-        path.getElements().add(new LineTo(this.endPoint.x, this.endPoint.y));
-        path.getElements().add(new LineTo(x2, y2));
+        this.path.setStrokeWidth(2);
+        this.path.setStroke(Color.ROYALBLUE);
 
-        path.setStrokeWidth(2);
-        path.setStroke(Color.ROYALBLUE);
-
-        graphicNode.getChildren().addAll(path);
+        if(!this.graphicNode.getChildren().contains(this.path)) {
+            this.graphicNode.getChildren().addAll(this.path);
+        }
 
         return graphicNode;
     }
