@@ -29,11 +29,6 @@ public abstract class TreeLink extends TreeComponent {
 
     public TreeLink(long id) {
         super(id);
-
-        // TODO
-        // 提示用户该结点可点击
-        this.graphicNode.addEventHandler(MouseEvent.MOUSE_ENTERED, e -> this.graphicNode.setCursor(Cursor.HAND));
-        this.graphicNode.addEventHandler(MouseEvent.MOUSE_EXITED, e -> this.graphicNode.setCursor(Cursor.DEFAULT));
     }
 
     public TreeArea getSource() {
@@ -95,15 +90,11 @@ public abstract class TreeLink extends TreeComponent {
     private void generatePoints() {
         for (int i = 1; i < this.linkPoints.size() - 1; ++i) {
             this.linkPointLayer.getChildren().add(this.linkPoints.get(i).getNode());
-            System.out.println(this.linkPoints.get(i).position.toString());
         }
-        System.out.println(this.linkPointLayer.getChildren());
     }
 
     private void showPoints() {
-        if(!this.graphicNode.getChildren().contains(this.linkPointLayer)) {
-            this.graphicNode.getChildren().add(this.linkPointLayer);
-        }
+        this.addNode(this.linkPointLayer);
     }
 
     private void hidePoints() {
@@ -148,19 +139,10 @@ public abstract class TreeLink extends TreeComponent {
                 this.arrow.relocate(p2, rad);
             }
 
-            // TODO 封装
-            if(!this.graphicNode.getChildren().contains(path)) {
-                this.graphicNode.getChildren().addAll(path);
-            }
-
-            if(!this.graphicNode.getChildren().contains(this.arrow.getNode())) {
-                this.graphicNode.getChildren().addAll(this.arrow.getNode());
-            }
+            this.addNodes(path, this.arrow.getNode());
         }
         else {
-            if(!this.graphicNode.getChildren().contains(path)) {
-                this.graphicNode.getChildren().addAll(path);
-            }
+            this.addNode(path);
         }
     }
 }

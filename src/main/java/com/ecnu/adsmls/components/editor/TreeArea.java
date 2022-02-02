@@ -41,10 +41,6 @@ public abstract class TreeArea extends TreeComponent implements Draggable, Linka
     public void enableDrag(Node node) {
         final Position pos = new Position();
 
-        // 提示用户该结点可点击
-        node.addEventHandler(MouseEvent.MOUSE_ENTERED, e -> node.setCursor(Cursor.HAND));
-        node.addEventHandler(MouseEvent.MOUSE_EXITED, e -> node.setCursor(Cursor.DEFAULT));
-
         // 提示用户该结点可拖拽
         node.addEventHandler(MouseEvent.MOUSE_PRESSED, e -> {
             node.setCursor(Cursor.MOVE);

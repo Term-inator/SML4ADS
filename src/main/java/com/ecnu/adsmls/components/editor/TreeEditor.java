@@ -36,6 +36,14 @@ public class TreeEditor {
         initCanvas();
     }
 
+    private void chooseComponent(Group component) {
+        if(componentChose != null) {
+            ((Component) this.componentChose.getUserData()).inactive();
+        }
+        this.componentChose = component;
+        ((Component) this.componentChose.getUserData()).active();
+    }
+
     private void initPalette() {
         ToggleButton tb0 = new ToggleButton("Behavior");
         tb0.setUserData("Behavior");
@@ -95,12 +103,7 @@ public class TreeEditor {
                     lambdaContext.node.setUserData(behavior);
                     lambdaContext.node.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
                         System.out.println("choose behavior");
-                        // TODO 封装
-                        if(componentChose != null) {
-                            ((Component) this.componentChose.getUserData()).inactive();
-                        }
-                        this.componentChose = (Group) lambdaContext.node;
-                        ((Component) this.componentChose.getUserData()).active();
+                        this.chooseComponent((Group) lambdaContext.node);
                     });
                 }
                 else if(Objects.equals(componentSelected, "Transition")) {
@@ -115,12 +118,7 @@ public class TreeEditor {
                             lambdaContext.node.setUserData(transition.get());
                             lambdaContext.node.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
                                 System.out.println("choose transition");
-                                // TODO 封装
-                                if(componentChose != null) {
-                                    ((Component) this.componentChose.getUserData()).inactive();
-                                }
-                                this.componentChose = (Group) lambdaContext.node;
-                                ((Component) this.componentChose.getUserData()).active();
+                                this.chooseComponent((Group) lambdaContext.node);
                             });
                         }
                         else {
@@ -140,12 +138,11 @@ public class TreeEditor {
                     }
                     transition.get().updateNode();
                 }
-                // TODO
+                // TODO 其他组件
+
                 if(lambdaContext.node != null) {
-                    ((Component) lambdaContext.node.getUserData()).active();
                     canvas.getChildren().add(lambdaContext.node);
-                    this.componentChose = (Group) lambdaContext.node;
-                    ((Component) this.componentChose.getUserData()).active();
+                    this.chooseComponent((Group) lambdaContext.node);
                 }
                 if(transition.get().getFinish()) {
                     transition.set(new Transition(this.componentId++));
