@@ -11,6 +11,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
+import javafx.scene.shape.StrokeLineJoin;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,15 +26,11 @@ public abstract class TreeLink extends TreeComponent {
     private Arrow arrow;
     private Group linkPointLayer = new Group();
 
+    private boolean loop = true;
     private boolean finish = false;
 
     public TreeLink(long id) {
         super(id);
-
-        // TODO
-        // 提示用户该结点可点击
-        this.graphicNode.addEventHandler(MouseEvent.MOUSE_ENTERED, e -> this.graphicNode.setCursor(Cursor.HAND));
-        this.graphicNode.addEventHandler(MouseEvent.MOUSE_EXITED, e -> this.graphicNode.setCursor(Cursor.DEFAULT));
     }
 
     public TreeArea getSource() {
@@ -42,16 +39,20 @@ public abstract class TreeLink extends TreeComponent {
 
     public void setSource(TreeArea source) {
         this.source = source;
-        this.source.addOutTransition(this);
+        this.linkPoints.add(new TreeLinkPoint(this.source.getCenterPoint(), this));
     }
 
     public TreeArea getTarget() {
         return target;
     }
 
-    public void setTarget(TreeArea target) {
+    public boolean setTarget(TreeArea target) {
+        if(!loop && this.source == target) {
+            return false;
+        }
         this.target = target;
-        this.target.addInTransition(this);
+        this.linkPoints.add(new TreeLinkPoint(this.target.getCenterPoint(), this));
+        return true;
     }
 
     public List<TreeLinkPoint> getLinkPoints() {
@@ -63,11 +64,28 @@ public abstract class TreeLink extends TreeComponent {
             return;
         }
         this.finish = true;
+        // 整个 Transition 完成了才更新到 source 和 target ，便于中途取消
+        this.source.addOutTransition(this);
+        this.target.addInTransition(this);
         this.generatePoints();
     }
 
     public boolean getFinish() {
         return finish;
+    }
+
+    /**
+     * 禁止环路
+     */
+    public void disableLoop() {
+        this.loop = false;
+    }
+
+    /**
+     * 变成虚线
+     */
+    public void dashed() {
+        this.path.getStrokeDashArray().addAll(10d);
     }
 
     /**
@@ -87,7 +105,7 @@ public abstract class TreeLink extends TreeComponent {
             int size = this.linkPoints.size();
             if (size >= 2) {
                 Position p = this.target.getLinkPoint(this.linkPoints.get(size - 2).position);
-                this.linkPoints.get(size - 1).position.relocate(this.target.getLinkPoint(this.linkPoints.get(size - 2).position));
+                this.linkPoints.get(size - 1).position.relocate(p);
             }
         }
     }
@@ -95,15 +113,11 @@ public abstract class TreeLink extends TreeComponent {
     private void generatePoints() {
         for (int i = 1; i < this.linkPoints.size() - 1; ++i) {
             this.linkPointLayer.getChildren().add(this.linkPoints.get(i).getNode());
-            System.out.println(this.linkPoints.get(i).position.toString());
         }
-        System.out.println(this.linkPointLayer.getChildren());
     }
 
     private void showPoints() {
-        if(!this.graphicNode.getChildren().contains(this.linkPointLayer)) {
-            this.graphicNode.getChildren().add(this.linkPointLayer);
-        }
+        this.addNode(this.linkPointLayer);
     }
 
     private void hidePoints() {
@@ -133,6 +147,7 @@ public abstract class TreeLink extends TreeComponent {
         }
         this.path.setStrokeWidth(2);
         this.path.setStroke(Color.ROYALBLUE);
+        this.path.setStrokeLineJoin(StrokeLineJoin.ROUND);
 
         if(size >= 2) {
             Position p1 = this.linkPoints.get(size - 2).position;
@@ -148,19 +163,27 @@ public abstract class TreeLink extends TreeComponent {
                 this.arrow.relocate(p2, rad);
             }
 
-            // TODO 封装
-            if(!this.graphicNode.getChildren().contains(path)) {
-                this.graphicNode.getChildren().addAll(path);
-            }
-
-            if(!this.graphicNode.getChildren().contains(this.arrow.getNode())) {
-                this.graphicNode.getChildren().addAll(this.arrow.getNode());
-            }
+            this.addNodes(path, this.arrow.getNode());
         }
         else {
-            if(!this.graphicNode.getChildren().contains(path)) {
-                this.graphicNode.getChildren().addAll(path);
-            }
+            this.addNode(path);
         }
+    }
+
+    public void rollback() {
+        this.source = null;
+        this.target = null;
+
+        linkPoints.clear();
+        linkPointLayer.getChildren().clear();
+    }
+
+    @Override
+    public List<Node> remove() {
+        List<Node> res = new ArrayList<>();
+        this.source.getOutTransitions().remove(this);
+        this.target.getInTransitions().remove(this);
+        res.add(this.graphicNode);
+        return res;
     }
 }

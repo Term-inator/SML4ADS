@@ -8,13 +8,19 @@ import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class TreeEditor {
+    // TODO 在 canvas 上绑定键盘事件好像不起作用，先用它的父节点替代
+    private AnchorPane parentPane;
+
     private GridPane palette;
     final ToggleGroup group = new ToggleGroup();
     private String componentSelected;
@@ -23,7 +29,9 @@ public class TreeEditor {
     private long componentId = 0;
     private Group componentChose;
 
-    public TreeEditor() {
+    public TreeEditor(AnchorPane parentPane) {
+        this.parentPane = parentPane;
+
         palette = new GridPane();
         palette.setPadding(new Insets(8, 0, 0, 0));
         palette.setVgap(8);
@@ -34,6 +42,14 @@ public class TreeEditor {
         canvas.setPrefHeight(800);
         initPalette();
         initCanvas();
+    }
+
+    private void chooseComponent(Group component) {
+        if(componentChose != null) {
+            ((Component) this.componentChose.getUserData()).inactive();
+        }
+        this.componentChose = component;
+        ((Component) this.componentChose.getUserData()).active();
     }
 
     private void initPalette() {
@@ -67,10 +83,26 @@ public class TreeEditor {
     }
 
     public void initCanvas() {
-        AtomicReference<Transition> transition = new AtomicReference<>(new Transition(this.componentId++));
-//        AtomicReference<Boolean> linkFinish = new AtomicReference<>(false);
+        parentPane.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            System.out.println(e);
+            if(e.getCode() == KeyCode.DELETE) {
+                if(this.componentChose == null) {
+                    return;
+                }
+                System.out.println("delete");
+                // 递归删除
+                List<Node> nodes = ((TreeComponent) this.componentChose.getUserData()).remove();
+                this.canvas.getChildren().removeAll(nodes);
+                this.componentChose = null;
+            }
+        });
+
+        AtomicReference<Transition> transition = new AtomicReference<>();
+
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             System.out.println("click: " + event.getTarget().toString());
+            // 点击 canvas 就激活键盘事件
+            parentPane.requestFocus();
             // 点击空白区域
             if(event.getTarget() instanceof Pane) {
                 System.out.println("click nothing");
@@ -88,51 +120,44 @@ public class TreeEditor {
                 var lambdaContext = new Object() {
                     Node node = null;
                 };
-                if(Objects.equals(componentSelected, "Behavior")) {
-                    Position position = new Position(event.getX(), event.getY());
-                    Behavior behavior = new Behavior(this.componentId++, position);
-                    lambdaContext.node = behavior.getNode();
-                    lambdaContext.node.setUserData(behavior);
-                    lambdaContext.node.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-                        System.out.println("choose behavior");
-                        // TODO 封装
-                        if(componentChose != null) {
-                            ((Component) this.componentChose.getUserData()).inactive();
-                        }
-                        this.componentChose = (Group) lambdaContext.node;
-                        ((Component) this.componentChose.getUserData()).active();
-                    });
-                }
-                else if(Objects.equals(componentSelected, "Transition")) {
+                if(Objects.equals(componentSelected, "Transition")) {
                     System.out.println(this.componentChose);
                     if(this.componentChose != null) {
-                        if(transition.get().getSource() == null) {
+                        // 未实例化 || 未选起点
+                        if(transition.get() == null || transition.get().getSource() == null) {
+                            // 必须实现 Linkable
+                            if(!(this.componentChose.getUserData() instanceof Linkable)) {
+                                System.out.println("not linkable");
+                                return;
+                            }
                             TreeArea source = (TreeArea) this.componentChose.getUserData();
+                            if(source instanceof Behavior) {
+                                transition.set(new CommonTransition(this.componentId++));
+                            }
+                            else if(source instanceof BranchPoint) {
+                                transition.set(new ProbabilityTransition(this.componentId++));
+                            }
                             transition.get().setSource(source);
-                            transition.get().getLinkPoints().add(new TreeLinkPoint(source.getCenterPoint(), transition.get()));
                             // 创建时压入 Pane 中即可
+                            transition.get().updateNode();
                             lambdaContext.node = transition.get().getNode();
                             lambdaContext.node.setUserData(transition.get());
                             lambdaContext.node.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
                                 System.out.println("choose transition");
-                                // TODO 封装
-                                if(componentChose != null) {
-                                    ((Component) this.componentChose.getUserData()).inactive();
-                                }
-                                this.componentChose = (Group) lambdaContext.node;
-                                ((Component) this.componentChose.getUserData()).active();
+                                this.chooseComponent((Group) lambdaContext.node);
                             });
                         }
                         else {
                             TreeArea target = (TreeArea) this.componentChose.getUserData();
-                            transition.get().setTarget(target);
-                            transition.get().getLinkPoints().add(new TreeLinkPoint(target.getCenterPoint(), transition.get()));
-                            transition.get().finish();
+                            boolean success = transition.get().setTarget(target);
+                            if(success) {
+                                transition.get().finish();
+                            }
                         }
                     }
                     else {
-                        // 有 source 才有后面的连线
-                        if(transition.get().getSource() == null) {
+                        // 未实例化 或 未选起点
+                        if(transition.get() == null || transition.get().getSource() == null) {
                             return;
                         }
                         System.out.println("linking");
@@ -140,16 +165,43 @@ public class TreeEditor {
                     }
                     transition.get().updateNode();
                 }
-                // TODO
-                if(lambdaContext.node != null) {
-                    ((Component) lambdaContext.node.getUserData()).active();
-                    canvas.getChildren().add(lambdaContext.node);
-                    this.componentChose = (Group) lambdaContext.node;
-                    ((Component) this.componentChose.getUserData()).active();
+                else {
+                    // 已经创建了 Transition
+                    if(transition.get() != null) {
+                        System.out.println("remove unfinished transition");
+                        this.canvas.getChildren().remove(transition.get().getNode());
+                        transition.get().rollback();
+                    }
+                    if (Objects.equals(componentSelected, "Behavior")) {
+                        Position position = new Position(event.getX(), event.getY());
+                        Behavior behavior = new Behavior(this.componentId++, position);
+                        lambdaContext.node = behavior.getNode();
+                        lambdaContext.node.setUserData(behavior);
+                        lambdaContext.node.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+                            System.out.println("choose behavior");
+                            this.chooseComponent((Group) lambdaContext.node);
+                        });
+                    } else if (Objects.equals(componentSelected, "BranchPoint")) {
+                        Position position = new Position(event.getX(), event.getY());
+                        BranchPoint branchPoint = new BranchPoint(this.componentId++, position);
+                        lambdaContext.node = branchPoint.getNode();
+                        lambdaContext.node.setUserData(branchPoint);
+                        lambdaContext.node.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+                            System.out.println("choose branch point");
+                            this.chooseComponent((Group) lambdaContext.node);
+                        });
+                    }
                 }
-                if(transition.get().getFinish()) {
-                    transition.set(new Transition(this.componentId++));
-                    System.out.println("finish");
+
+                if(lambdaContext.node != null) {
+                    canvas.getChildren().add(lambdaContext.node);
+                    this.chooseComponent((Group) lambdaContext.node);
+                }
+                else {
+                    if (transition.get().getFinish()) {
+                        transition.set(null);
+                        System.out.println("finish");
+                    }
                 }
             }
         });

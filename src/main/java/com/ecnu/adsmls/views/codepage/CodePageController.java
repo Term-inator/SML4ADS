@@ -5,25 +5,16 @@ import com.ecnu.adsmls.components.editor.TreeEditor;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-import javafx.util.Pair;
 
-import java.io.File;
 import java.net.URL;
 import java.util.*;
-import java.util.concurrent.Flow;
+
 
 public class CodePageController implements Initializable {
     @FXML
@@ -198,7 +189,7 @@ public class CodePageController implements Initializable {
         scrollPane.setFitToHeight(true);
 
         AnchorPane anchorPane = new AnchorPane();
-        TreeEditor editor = new TreeEditor();
+        TreeEditor editor = new TreeEditor(anchorPane);
         anchorPane.getChildren().add(editor.getNode());
 
         scrollPane.setContent(anchorPane);
