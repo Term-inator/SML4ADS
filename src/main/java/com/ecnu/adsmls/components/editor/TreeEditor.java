@@ -75,7 +75,7 @@ public class TreeEditor {
     }
 
     public void initCanvas() {
-        AtomicReference<Transition> transition = new AtomicReference<>(new Transition(this.componentId++));
+        AtomicReference<Transition> transition = new AtomicReference<>();
 //        AtomicReference<Boolean> linkFinish = new AtomicReference<>(false);
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             System.out.println("click: " + event.getTarget().toString());
@@ -106,11 +106,31 @@ public class TreeEditor {
                         this.chooseComponent((Group) lambdaContext.node);
                     });
                 }
+                else if(Objects.equals(componentSelected, "BranchPoint")) {
+                    Position position = new Position(event.getX(), event.getY());
+                    BranchPoint branchPoint = new BranchPoint(this.componentId++, position);
+                    lambdaContext.node = branchPoint.getNode();
+                    lambdaContext.node.setUserData(branchPoint);
+                    lambdaContext.node.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+                        System.out.println("choose branch point");
+                        this.chooseComponent((Group) lambdaContext.node);
+                    });
+                }
                 else if(Objects.equals(componentSelected, "Transition")) {
                     System.out.println(this.componentChose);
                     if(this.componentChose != null) {
-                        if(transition.get().getSource() == null) {
+                        if(transition.get() == null) {
+                            if(!(this.componentChose.getUserData() instanceof Linkable)) {
+                                System.out.println("not linkable");
+                                return;
+                            }
                             TreeArea source = (TreeArea) this.componentChose.getUserData();
+                            if(source instanceof Behavior) {
+                                transition.set(new CommonTransition(this.componentId++));
+                            }
+                            else if(source instanceof BranchPoint) {
+                                transition.set(new ProbabilityTransition(this.componentId++));
+                            }
                             transition.get().setSource(source);
                             transition.get().getLinkPoints().add(new TreeLinkPoint(source.getCenterPoint(), transition.get()));
                             // 创建时压入 Pane 中即可
@@ -130,7 +150,7 @@ public class TreeEditor {
                     }
                     else {
                         // 有 source 才有后面的连线
-                        if(transition.get().getSource() == null) {
+                        if(transition.get() == null) {
                             return;
                         }
                         System.out.println("linking");
@@ -144,9 +164,11 @@ public class TreeEditor {
                     canvas.getChildren().add(lambdaContext.node);
                     this.chooseComponent((Group) lambdaContext.node);
                 }
-                if(transition.get().getFinish()) {
-                    transition.set(new Transition(this.componentId++));
-                    System.out.println("finish");
+                else {
+                    if (transition.get().getFinish()) {
+                        transition.set(null);
+                        System.out.println("finish");
+                    }
                 }
             }
         });

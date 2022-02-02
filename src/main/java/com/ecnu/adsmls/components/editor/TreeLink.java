@@ -11,6 +11,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
+import javafx.scene.shape.StrokeLineJoin;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,6 +64,13 @@ public abstract class TreeLink extends TreeComponent {
 
     public boolean getFinish() {
         return finish;
+    }
+
+    /**
+     * 变成虚线
+     */
+    public void dashed() {
+        this.path.getStrokeDashArray().addAll(10d);
     }
 
     /**
@@ -124,6 +132,7 @@ public abstract class TreeLink extends TreeComponent {
         }
         this.path.setStrokeWidth(2);
         this.path.setStroke(Color.ROYALBLUE);
+        this.path.setStrokeLineJoin(StrokeLineJoin.ROUND);
 
         if(size >= 2) {
             Position p1 = this.linkPoints.get(size - 2).position;
