@@ -132,7 +132,6 @@ public class TreeEditor {
                                 transition.set(new ProbabilityTransition(this.componentId++));
                             }
                             transition.get().setSource(source);
-                            transition.get().getLinkPoints().add(new TreeLinkPoint(source.getCenterPoint(), transition.get()));
                             // 创建时压入 Pane 中即可
                             lambdaContext.node = transition.get().getNode();
                             lambdaContext.node.setUserData(transition.get());
@@ -143,9 +142,10 @@ public class TreeEditor {
                         }
                         else {
                             TreeArea target = (TreeArea) this.componentChose.getUserData();
-                            transition.get().setTarget(target);
-                            transition.get().getLinkPoints().add(new TreeLinkPoint(target.getCenterPoint(), transition.get()));
-                            transition.get().finish();
+                            boolean success = transition.get().setTarget(target);
+                            if(success) {
+                                transition.get().finish();
+                            }
                         }
                     }
                     else {

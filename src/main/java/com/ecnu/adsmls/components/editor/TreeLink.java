@@ -26,6 +26,7 @@ public abstract class TreeLink extends TreeComponent {
     private Arrow arrow;
     private Group linkPointLayer = new Group();
 
+    private boolean loop = true;
     private boolean finish = false;
 
     public TreeLink(long id) {
@@ -39,15 +40,21 @@ public abstract class TreeLink extends TreeComponent {
     public void setSource(TreeArea source) {
         this.source = source;
         this.source.addOutTransition(this);
+        this.linkPoints.add(new TreeLinkPoint(this.source.getCenterPoint(), this));
     }
 
     public TreeArea getTarget() {
         return target;
     }
 
-    public void setTarget(TreeArea target) {
+    public boolean setTarget(TreeArea target) {
+        if(!loop && this.source == target) {
+            return false;
+        }
         this.target = target;
         this.target.addInTransition(this);
+        this.linkPoints.add(new TreeLinkPoint(this.target.getCenterPoint(), this));
+        return true;
     }
 
     public List<TreeLinkPoint> getLinkPoints() {
@@ -64,6 +71,13 @@ public abstract class TreeLink extends TreeComponent {
 
     public boolean getFinish() {
         return finish;
+    }
+
+    /**
+     * 禁止环路
+     */
+    public void disableLoop() {
+        this.loop = false;
     }
 
     /**
