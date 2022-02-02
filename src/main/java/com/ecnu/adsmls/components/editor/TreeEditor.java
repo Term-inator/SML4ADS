@@ -8,13 +8,19 @@ import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class TreeEditor {
+    // TODO 在 canvas 上绑定键盘事件好像不起作用，先用它的父节点替代
+    private AnchorPane parentPane;
+
     private GridPane palette;
     final ToggleGroup group = new ToggleGroup();
     private String componentSelected;
@@ -23,7 +29,9 @@ public class TreeEditor {
     private long componentId = 0;
     private Group componentChose;
 
-    public TreeEditor() {
+    public TreeEditor(AnchorPane parentPane) {
+        this.parentPane = parentPane;
+
         palette = new GridPane();
         palette.setPadding(new Insets(8, 0, 0, 0));
         palette.setVgap(8);
@@ -75,10 +83,26 @@ public class TreeEditor {
     }
 
     public void initCanvas() {
+        parentPane.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            System.out.println(e);
+            if(e.getCode() == KeyCode.DELETE) {
+                if(this.componentChose == null) {
+                    return;
+                }
+                System.out.println("delete");
+                // 递归删除
+                List<Node> nodes = ((TreeComponent) this.componentChose.getUserData()).remove();
+                this.canvas.getChildren().removeAll(nodes);
+                this.componentChose = null;
+            }
+        });
+
         AtomicReference<Transition> transition = new AtomicReference<>();
 
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             System.out.println("click: " + event.getTarget().toString());
+            // 点击 canvas 就激活键盘事件
+            parentPane.requestFocus();
             // 点击空白区域
             if(event.getTarget() instanceof Pane) {
                 System.out.println("click nothing");
@@ -101,6 +125,7 @@ public class TreeEditor {
                     if(this.componentChose != null) {
                         // 未实例化 || 未选起点
                         if(transition.get() == null || transition.get().getSource() == null) {
+                            // 必须实现 Linkable
                             if(!(this.componentChose.getUserData() instanceof Linkable)) {
                                 System.out.println("not linkable");
                                 return;
@@ -114,6 +139,7 @@ public class TreeEditor {
                             }
                             transition.get().setSource(source);
                             // 创建时压入 Pane 中即可
+                            transition.get().updateNode();
                             lambdaContext.node = transition.get().getNode();
                             lambdaContext.node.setUserData(transition.get());
                             lambdaContext.node.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
@@ -165,7 +191,6 @@ public class TreeEditor {
                             this.chooseComponent((Group) lambdaContext.node);
                         });
                     }
-                    // TODO 其他组件
                 }
 
                 if(lambdaContext.node != null) {

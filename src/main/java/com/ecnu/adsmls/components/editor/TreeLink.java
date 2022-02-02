@@ -177,4 +177,13 @@ public abstract class TreeLink extends TreeComponent {
         linkPoints.clear();
         linkPointLayer.getChildren().clear();
     }
+
+    @Override
+    public List<Node> remove() {
+        List<Node> res = new ArrayList<>();
+        this.source.getOutTransitions().remove(this);
+        this.target.getInTransitions().remove(this);
+        res.add(this.graphicNode);
+        return res;
+    }
 }

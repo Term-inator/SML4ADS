@@ -30,6 +30,14 @@ public abstract class TreeArea extends TreeComponent implements Draggable, Linka
         this.outTransitions.add(treeLink);
     }
 
+    public List<TreeLink> getInTransitions() {
+        return inTransitions;
+    }
+
+    public List<TreeLink> getOutTransitions() {
+        return outTransitions;
+    }
+
     @Override
     public abstract Position getLinkPoint(Position adjacentPoint);
 
@@ -73,5 +81,18 @@ public abstract class TreeArea extends TreeComponent implements Draggable, Linka
                 l.updateNode();
             }
         });
+    }
+
+    @Override
+    public List<Node> remove() {
+        List<Node> res = new ArrayList<>();
+        res.add(this.graphicNode);
+        for(int i = this.inTransitions.size() - 1; i >= 0; --i) {
+            res.addAll(this.inTransitions.get(i).remove());
+        }
+        for(int i = this.outTransitions.size() - 1; i >= 0; --i) {
+            res.addAll(this.outTransitions.get(i).remove());
+        }
+        return res;
     }
 }

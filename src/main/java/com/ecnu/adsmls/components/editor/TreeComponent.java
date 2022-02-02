@@ -1,5 +1,9 @@
 package com.ecnu.adsmls.components.editor;
 
+import javafx.scene.Node;
+
+import java.util.List;
+
 public abstract class TreeComponent extends Component {
     private final long id;
 
@@ -11,4 +15,6 @@ public abstract class TreeComponent extends Component {
     public long getId() {
         return id;
     }
+
+    public abstract List<Node> remove();
 }

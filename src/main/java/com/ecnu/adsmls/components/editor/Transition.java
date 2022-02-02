@@ -19,7 +19,6 @@ public class Transition extends TreeLink {
 
     @Override
     public Node getNode() {
-        this.updateNode();
         return graphicNode;
     }
 }

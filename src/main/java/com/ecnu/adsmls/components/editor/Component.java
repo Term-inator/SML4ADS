@@ -5,6 +5,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 
+
 public abstract class Component {
     protected Group graphicNode;
 
