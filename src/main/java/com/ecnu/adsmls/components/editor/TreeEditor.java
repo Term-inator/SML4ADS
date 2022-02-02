@@ -76,7 +76,7 @@ public class TreeEditor {
 
     public void initCanvas() {
         AtomicReference<Transition> transition = new AtomicReference<>();
-//        AtomicReference<Boolean> linkFinish = new AtomicReference<>(false);
+
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             System.out.println("click: " + event.getTarget().toString());
             // 点击空白区域
@@ -96,30 +96,11 @@ public class TreeEditor {
                 var lambdaContext = new Object() {
                     Node node = null;
                 };
-                if(Objects.equals(componentSelected, "Behavior")) {
-                    Position position = new Position(event.getX(), event.getY());
-                    Behavior behavior = new Behavior(this.componentId++, position);
-                    lambdaContext.node = behavior.getNode();
-                    lambdaContext.node.setUserData(behavior);
-                    lambdaContext.node.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-                        System.out.println("choose behavior");
-                        this.chooseComponent((Group) lambdaContext.node);
-                    });
-                }
-                else if(Objects.equals(componentSelected, "BranchPoint")) {
-                    Position position = new Position(event.getX(), event.getY());
-                    BranchPoint branchPoint = new BranchPoint(this.componentId++, position);
-                    lambdaContext.node = branchPoint.getNode();
-                    lambdaContext.node.setUserData(branchPoint);
-                    lambdaContext.node.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-                        System.out.println("choose branch point");
-                        this.chooseComponent((Group) lambdaContext.node);
-                    });
-                }
-                else if(Objects.equals(componentSelected, "Transition")) {
+                if(Objects.equals(componentSelected, "Transition")) {
                     System.out.println(this.componentChose);
                     if(this.componentChose != null) {
-                        if(transition.get() == null) {
+                        // 未实例化 || 未选起点
+                        if(transition.get() == null || transition.get().getSource() == null) {
                             if(!(this.componentChose.getUserData() instanceof Linkable)) {
                                 System.out.println("not linkable");
                                 return;
@@ -149,8 +130,8 @@ public class TreeEditor {
                         }
                     }
                     else {
-                        // 有 source 才有后面的连线
-                        if(transition.get() == null) {
+                        // 未实例化 或 未选起点
+                        if(transition.get() == null || transition.get().getSource() == null) {
                             return;
                         }
                         System.out.println("linking");
@@ -158,7 +139,34 @@ public class TreeEditor {
                     }
                     transition.get().updateNode();
                 }
-                // TODO 其他组件
+                else {
+                    // 已经创建了 Transition
+                    if(transition.get() != null) {
+                        System.out.println("remove unfinished transition");
+                        this.canvas.getChildren().remove(transition.get().getNode());
+                        transition.get().rollback();
+                    }
+                    if (Objects.equals(componentSelected, "Behavior")) {
+                        Position position = new Position(event.getX(), event.getY());
+                        Behavior behavior = new Behavior(this.componentId++, position);
+                        lambdaContext.node = behavior.getNode();
+                        lambdaContext.node.setUserData(behavior);
+                        lambdaContext.node.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+                            System.out.println("choose behavior");
+                            this.chooseComponent((Group) lambdaContext.node);
+                        });
+                    } else if (Objects.equals(componentSelected, "BranchPoint")) {
+                        Position position = new Position(event.getX(), event.getY());
+                        BranchPoint branchPoint = new BranchPoint(this.componentId++, position);
+                        lambdaContext.node = branchPoint.getNode();
+                        lambdaContext.node.setUserData(branchPoint);
+                        lambdaContext.node.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+                            System.out.println("choose branch point");
+                            this.chooseComponent((Group) lambdaContext.node);
+                        });
+                    }
+                    // TODO 其他组件
+                }
 
                 if(lambdaContext.node != null) {
                     canvas.getChildren().add(lambdaContext.node);

@@ -39,7 +39,6 @@ public abstract class TreeLink extends TreeComponent {
 
     public void setSource(TreeArea source) {
         this.source = source;
-        this.source.addOutTransition(this);
         this.linkPoints.add(new TreeLinkPoint(this.source.getCenterPoint(), this));
     }
 
@@ -52,7 +51,6 @@ public abstract class TreeLink extends TreeComponent {
             return false;
         }
         this.target = target;
-        this.target.addInTransition(this);
         this.linkPoints.add(new TreeLinkPoint(this.target.getCenterPoint(), this));
         return true;
     }
@@ -66,6 +64,9 @@ public abstract class TreeLink extends TreeComponent {
             return;
         }
         this.finish = true;
+        // 整个 Transition 完成了才更新到 source 和 target ，便于中途取消
+        this.source.addOutTransition(this);
+        this.target.addInTransition(this);
         this.generatePoints();
     }
 
@@ -104,7 +105,7 @@ public abstract class TreeLink extends TreeComponent {
             int size = this.linkPoints.size();
             if (size >= 2) {
                 Position p = this.target.getLinkPoint(this.linkPoints.get(size - 2).position);
-                this.linkPoints.get(size - 1).position.relocate(this.target.getLinkPoint(this.linkPoints.get(size - 2).position));
+                this.linkPoints.get(size - 1).position.relocate(p);
             }
         }
     }
@@ -167,5 +168,13 @@ public abstract class TreeLink extends TreeComponent {
         else {
             this.addNode(path);
         }
+    }
+
+    public void rollback() {
+        this.source = null;
+        this.target = null;
+
+        linkPoints.clear();
+        linkPointLayer.getChildren().clear();
     }
 }
