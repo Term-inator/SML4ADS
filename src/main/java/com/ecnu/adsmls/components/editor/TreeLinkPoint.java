@@ -7,8 +7,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
-import java.util.List;
-
+/**
+ * 控制 TreeLink 的点
+ */
 public class TreeLinkPoint extends Component implements Draggable {
     protected Position position;
     private TreeLink treeLink;

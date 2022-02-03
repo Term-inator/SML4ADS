@@ -1,5 +1,6 @@
 package com.ecnu.adsmls.components.editor;
 
+import com.ecnu.adsmls.components.editor.impl.*;
 import com.ecnu.adsmls.utils.Position;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -18,8 +19,8 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class TreeEditor {
-    // TODO 在 canvas 上绑定键盘事件好像不起作用，先用它的父节点替代
-    private AnchorPane parentPane;
+    private AnchorPane paletteWrapper;
+    private AnchorPane canvasWrapper;
 
     private GridPane palette;
     final ToggleGroup group = new ToggleGroup();
@@ -29,9 +30,7 @@ public class TreeEditor {
     private long componentId = 0;
     private Group componentChose;
 
-    public TreeEditor(AnchorPane parentPane) {
-        this.parentPane = parentPane;
-
+    public TreeEditor() {
         palette = new GridPane();
         palette.setPadding(new Insets(8, 0, 0, 0));
         palette.setVgap(8);
@@ -40,16 +39,20 @@ public class TreeEditor {
         canvas = new Pane();
         canvas.setPrefWidth(1200);
         canvas.setPrefHeight(800);
+
+        paletteWrapper = new AnchorPane(palette);
+        canvasWrapper = new AnchorPane(canvas);
+
         initPalette();
         initCanvas();
     }
 
     private void chooseComponent(Group component) {
         if(componentChose != null) {
-            ((Component) this.componentChose.getUserData()).inactive();
+            ((TreeComponent) this.componentChose.getUserData()).inactive();
         }
         this.componentChose = component;
-        ((Component) this.componentChose.getUserData()).active();
+        ((TreeComponent) this.componentChose.getUserData()).active();
     }
 
     private void initPalette() {
@@ -83,7 +86,7 @@ public class TreeEditor {
     }
 
     public void initCanvas() {
-        parentPane.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+        canvasWrapper.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             System.out.println(e);
             if(e.getCode() == KeyCode.DELETE) {
                 if(this.componentChose == null) {
@@ -102,13 +105,13 @@ public class TreeEditor {
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             System.out.println("click: " + event.getTarget().toString());
             // 点击 canvas 就激活键盘事件
-            parentPane.requestFocus();
+            canvasWrapper.requestFocus();
             // 点击空白区域
             if(event.getTarget() instanceof Pane) {
                 System.out.println("click nothing");
                 if(this.componentChose != null) {
                     System.out.println("inactive");
-                    ((Component) this.componentChose.getUserData()).inactive();
+                    ((TreeComponent) this.componentChose.getUserData()).inactive();
                 }
                 this.componentChose = null;
             }
@@ -126,11 +129,14 @@ public class TreeEditor {
                         // 未实例化 || 未选起点
                         if(transition.get() == null || transition.get().getSource() == null) {
                             // 必须实现 Linkable
-                            if(!(this.componentChose.getUserData() instanceof Linkable)) {
+                            TreeArea source;
+                            try {
+                                source = (TreeArea) this.componentChose.getUserData();
+                            }
+                            catch (ClassCastException e) {
                                 System.out.println("not linkable");
                                 return;
                             }
-                            TreeArea source = (TreeArea) this.componentChose.getUserData();
                             if(source instanceof Behavior) {
                                 transition.set(new CommonTransition(this.componentId++));
                             }
@@ -148,7 +154,14 @@ public class TreeEditor {
                             });
                         }
                         else {
-                            TreeArea target = (TreeArea) this.componentChose.getUserData();
+                            TreeArea target;
+                            try {
+                                target = (TreeArea) this.componentChose.getUserData();
+                            }
+                            catch (ClassCastException e) {
+                                System.out.println("not linkable");
+                                return;
+                            }
                             boolean success = transition.get().setTarget(target);
                             if(success) {
                                 transition.get().finish();
@@ -209,7 +222,8 @@ public class TreeEditor {
 
     public Node getNode() {
         SplitPane splitPane = new SplitPane();
-        splitPane.getItems().addAll(palette, canvas);
+
+        splitPane.getItems().addAll(paletteWrapper, canvasWrapper);
         splitPane.setDividerPositions(.1f);
 //        splitPane.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 255), null, null)));
         return splitPane;

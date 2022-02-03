@@ -2,11 +2,8 @@ package com.ecnu.adsmls.components.editor;
 
 import com.ecnu.adsmls.utils.Position;
 import com.ecnu.adsmls.utils.Vector2D;
-import javafx.collections.ListChangeListener;
-import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
@@ -14,9 +11,11 @@ import javafx.scene.shape.Path;
 import javafx.scene.shape.StrokeLineJoin;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
+/**
+ * 树的边
+ */
 public abstract class TreeLink extends TreeComponent {
     private TreeArea source;
     private TreeArea target;
@@ -26,7 +25,8 @@ public abstract class TreeLink extends TreeComponent {
     private Arrow arrow;
     private Group linkPointLayer = new Group();
 
-    private boolean loop = true;
+    // 默认支持自环
+    protected boolean loop = true;
     private boolean finish = false;
 
     public TreeLink(long id) {
@@ -75,7 +75,7 @@ public abstract class TreeLink extends TreeComponent {
     }
 
     /**
-     * 禁止环路
+     * 禁止自环
      */
     public void disableLoop() {
         this.loop = false;
