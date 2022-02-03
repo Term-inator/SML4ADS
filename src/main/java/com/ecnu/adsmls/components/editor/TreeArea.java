@@ -46,21 +46,21 @@ public abstract class TreeArea extends TreeComponent implements Draggable, Linka
     }
 
     @Override
-    public void enableDrag(Node node) {
+    public void enableDrag() {
         final Position pos = new Position();
 
         // 提示用户该结点可拖拽
-        node.addEventHandler(MouseEvent.MOUSE_PRESSED, e -> {
-            node.setCursor(Cursor.MOVE);
+        this.graphicNode.addEventHandler(MouseEvent.MOUSE_PRESSED, e -> {
+            this.graphicNode.setCursor(Cursor.MOVE);
 
             // 当按压事件发生时，缓存事件发生的位置坐标
             pos.x = e.getX();
             pos.y = e.getY();
         });
-        node.addEventHandler(MouseEvent.MOUSE_RELEASED, e -> node.setCursor(Cursor.DEFAULT));
+        this.graphicNode.addEventHandler(MouseEvent.MOUSE_RELEASED, e -> this.graphicNode.setCursor(Cursor.DEFAULT));
 
         // 实现拖拽功能
-        node.addEventHandler(MouseEvent.MOUSE_DRAGGED, e -> {
+        this.graphicNode.addEventHandler(MouseEvent.MOUSE_DRAGGED, e -> {
             double disX = e.getX() - pos.x;
             double disY = e.getY() - pos.y;
 
@@ -68,7 +68,7 @@ public abstract class TreeArea extends TreeComponent implements Draggable, Linka
             double y = this.position.y + disY;
 
             // 计算出 x、y 后将结点重定位到指定坐标点 (x, y)
-            node.relocate(x, y);
+            this.graphicNode.relocate(x, y);
             this.position.relocate(x, y);
 
             // Transition 跟随拖动

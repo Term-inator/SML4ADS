@@ -1,27 +1,17 @@
 package com.ecnu.adsmls.components.editor;
 
 import com.ecnu.adsmls.utils.Position;
+import javafx.event.Event;
+import javafx.event.EventType;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 
-/**
- * 控制 TreeLink 的点
- */
-public class TreeLinkPoint extends Component implements Draggable {
+public abstract class Area extends Component implements Draggable {
     protected Position position;
-    private TreeLink treeLink;
-    private double r = 5;
 
-    /**
-     * @param position 中心坐标
-     * @param treeLink 所在的 link
-     */
-    public TreeLinkPoint(Position position, TreeLink treeLink) {
+    public Area(Position position) {
         this.position = position;
-        this.treeLink = treeLink;
     }
 
     @Override
@@ -47,36 +37,8 @@ public class TreeLinkPoint extends Component implements Draggable {
             double y = this.position.y + disY;
 
             // 计算出 x、y 后将结点重定位到指定坐标点 (x, y)
-            this.graphicNode.relocate(x - this.r, y - this.r);
+            this.graphicNode.relocate(x, y);
             this.position.relocate(x, y);
-            // 更新对应的 link
-            this.treeLink.updateNode();
         });
-    }
-
-    @Override
-    public void active() {
-
-    }
-
-    @Override
-    public void inactive() {
-
-    }
-
-    @Override
-    public Node getNode() {
-        Circle circle = new Circle();
-        circle.setCenterX(this.position.x);
-        circle.setCenterY(this.position.y);
-        circle.setRadius(this.r);
-        circle.setFill(Color.WHITE);
-        circle.setStrokeWidth(2);
-        circle.setStroke(Color.ROYALBLUE);
-
-        graphicNode.getChildren().addAll(circle);
-        this.enableDrag();
-
-        return graphicNode;
     }
 }

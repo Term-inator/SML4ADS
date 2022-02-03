@@ -1,6 +1,7 @@
 package com.ecnu.adsmls.components.editor.impl;
 
 import com.ecnu.adsmls.components.editor.TreeArea;
+import com.ecnu.adsmls.components.editor.TreeText;
 import com.ecnu.adsmls.utils.Position;
 import com.ecnu.adsmls.utils.Vector2D;
 import javafx.scene.Node;
@@ -17,6 +18,8 @@ public class Behavior extends TreeArea {
 
     private String name;
     private List<Pair<String, String>> params = new ArrayList<>();
+
+    private TreeText text;
 
     public Behavior(long id, Position position) {
         super(id, position);
@@ -37,6 +40,14 @@ public class Behavior extends TreeArea {
         double x = this.position.x + this.r;
         double y = this.position.y + this.r;
         return new Position(x, y);
+    }
+
+    public TreeText getText() {
+        return text;
+    }
+
+    public void setText(TreeText text) {
+        this.text = text;
     }
 
     @Override
@@ -62,7 +73,7 @@ public class Behavior extends TreeArea {
         circle.setStroke(Color.ROYALBLUE);
 
         graphicNode.getChildren().addAll(circle);
-        this.enableDrag(graphicNode);
+        this.enableDrag();
 
         return graphicNode;
     }
