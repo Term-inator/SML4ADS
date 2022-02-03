@@ -227,8 +227,16 @@ public class TreeEditor {
                         lambdaContext.node = behavior.getNode();
                         lambdaContext.node.setUserData(behavior);
                         lambdaContext.node.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-                            System.out.println("choose behavior");
-                            this.chooseComponent((Group) lambdaContext.node);
+                            int clickCount = e.getClickCount();
+                            if(clickCount == 1) {
+                                System.out.println("choose behavior");
+                                this.chooseComponent((Group) lambdaContext.node);
+                            }
+                            else if(clickCount == 2) {
+                                System.out.println("set behavior");
+                                BehaviorModifier bm = new BehaviorModifier();
+                                bm.getWindow().show();
+                            }
                         });
                     } else if (Objects.equals(componentSelected, "BranchPoint")) {
                         Position position = new Position(event.getX(), event.getY());
