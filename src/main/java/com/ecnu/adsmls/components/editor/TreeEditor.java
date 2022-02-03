@@ -129,11 +129,14 @@ public class TreeEditor {
                         // 未实例化 || 未选起点
                         if(transition.get() == null || transition.get().getSource() == null) {
                             // 必须实现 Linkable
-                            if(!(this.componentChose.getUserData() instanceof Linkable)) {
+                            TreeArea source;
+                            try {
+                                source = (TreeArea) this.componentChose.getUserData();
+                            }
+                            catch (ClassCastException e) {
                                 System.out.println("not linkable");
                                 return;
                             }
-                            TreeArea source = (TreeArea) this.componentChose.getUserData();
                             if(source instanceof Behavior) {
                                 transition.set(new CommonTransition(this.componentId++));
                             }
@@ -151,7 +154,14 @@ public class TreeEditor {
                             });
                         }
                         else {
-                            TreeArea target = (TreeArea) this.componentChose.getUserData();
+                            TreeArea target;
+                            try {
+                                target = (TreeArea) this.componentChose.getUserData();
+                            }
+                            catch (ClassCastException e) {
+                                System.out.println("not linkable");
+                                return;
+                            }
                             boolean success = transition.get().setTarget(target);
                             if(success) {
                                 transition.get().finish();

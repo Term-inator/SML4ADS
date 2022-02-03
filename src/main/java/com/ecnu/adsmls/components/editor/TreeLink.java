@@ -26,7 +26,7 @@ public abstract class TreeLink extends TreeComponent {
     private Group linkPointLayer = new Group();
 
     // 默认支持自环
-    private boolean loop = true;
+    protected boolean loop = true;
     private boolean finish = false;
 
     public TreeLink(long id) {
