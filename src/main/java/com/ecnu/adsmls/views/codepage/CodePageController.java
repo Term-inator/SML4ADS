@@ -189,7 +189,7 @@ public class CodePageController implements Initializable {
         scrollPane.setFitToHeight(true);
 
         AnchorPane anchorPane = new AnchorPane();
-        TreeEditor editor = new TreeEditor(anchorPane);
+        TreeEditor editor = new TreeEditor();
         anchorPane.getChildren().add(editor.getNode());
 
         scrollPane.setContent(anchorPane);

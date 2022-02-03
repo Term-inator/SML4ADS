@@ -26,6 +26,7 @@ public abstract class TreeLink extends TreeComponent {
     private Arrow arrow;
     private Group linkPointLayer = new Group();
 
+    // 默认支持自环
     private boolean loop = true;
     private boolean finish = false;
 
@@ -75,7 +76,7 @@ public abstract class TreeLink extends TreeComponent {
     }
 
     /**
-     * 禁止环路
+     * 禁止自环
      */
     public void disableLoop() {
         this.loop = false;

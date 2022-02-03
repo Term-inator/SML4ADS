@@ -18,8 +18,8 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class TreeEditor {
-    // TODO 在 canvas 上绑定键盘事件好像不起作用，先用它的父节点替代
-    private AnchorPane parentPane;
+    private AnchorPane paletteWrapper;
+    private AnchorPane canvasWrapper;
 
     private GridPane palette;
     final ToggleGroup group = new ToggleGroup();
@@ -29,9 +29,7 @@ public class TreeEditor {
     private long componentId = 0;
     private Group componentChose;
 
-    public TreeEditor(AnchorPane parentPane) {
-        this.parentPane = parentPane;
-
+    public TreeEditor() {
         palette = new GridPane();
         palette.setPadding(new Insets(8, 0, 0, 0));
         palette.setVgap(8);
@@ -40,16 +38,20 @@ public class TreeEditor {
         canvas = new Pane();
         canvas.setPrefWidth(1200);
         canvas.setPrefHeight(800);
+
+        paletteWrapper = new AnchorPane(palette);
+        canvasWrapper = new AnchorPane(canvas);
+
         initPalette();
         initCanvas();
     }
 
     private void chooseComponent(Group component) {
         if(componentChose != null) {
-            ((Component) this.componentChose.getUserData()).inactive();
+            ((TreeComponent) this.componentChose.getUserData()).inactive();
         }
         this.componentChose = component;
-        ((Component) this.componentChose.getUserData()).active();
+        ((TreeComponent) this.componentChose.getUserData()).active();
     }
 
     private void initPalette() {
@@ -83,7 +85,7 @@ public class TreeEditor {
     }
 
     public void initCanvas() {
-        parentPane.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+        canvasWrapper.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             System.out.println(e);
             if(e.getCode() == KeyCode.DELETE) {
                 if(this.componentChose == null) {
@@ -102,13 +104,13 @@ public class TreeEditor {
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             System.out.println("click: " + event.getTarget().toString());
             // 点击 canvas 就激活键盘事件
-            parentPane.requestFocus();
+            canvasWrapper.requestFocus();
             // 点击空白区域
             if(event.getTarget() instanceof Pane) {
                 System.out.println("click nothing");
                 if(this.componentChose != null) {
                     System.out.println("inactive");
-                    ((Component) this.componentChose.getUserData()).inactive();
+                    ((TreeComponent) this.componentChose.getUserData()).inactive();
                 }
                 this.componentChose = null;
             }
@@ -209,7 +211,8 @@ public class TreeEditor {
 
     public Node getNode() {
         SplitPane splitPane = new SplitPane();
-        splitPane.getItems().addAll(palette, canvas);
+
+        splitPane.getItems().addAll(paletteWrapper, canvasWrapper);
         splitPane.setDividerPositions(.1f);
 //        splitPane.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 255), null, null)));
         return splitPane;
