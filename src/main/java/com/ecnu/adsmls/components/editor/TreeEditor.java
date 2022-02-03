@@ -13,6 +13,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.util.Pair;
 
 import java.util.List;
 import java.util.Objects;
@@ -43,8 +44,43 @@ public class TreeEditor {
         paletteWrapper = new AnchorPane(palette);
         canvasWrapper = new AnchorPane(canvas);
 
+        initBehavior();
+
         initPalette();
         initCanvas();
+    }
+
+    private void initBehavior() {
+        BehaviorRegister.register(
+                "Keep",
+                new Pair<>("duration", "int")
+        );
+        BehaviorRegister.register(
+                "Accelerate",
+                new Pair<>("acceleration", "double"),
+                new Pair<>("target speed", "double"),
+                new Pair<>("duration", "int")
+        );
+        BehaviorRegister.register(
+                "ChangeLeft",
+                new Pair<>("acceleration", "double"),
+                new Pair<>("target speed", "double")
+        );
+        BehaviorRegister.register(
+                "ChangeRight",
+                new Pair<>("acceleration", "double"),
+                new Pair<>("target speed", "double")
+        );
+        BehaviorRegister.register(
+                "TurnLeft",
+                new Pair<>("acceleration", "double"),
+                new Pair<>("target speed", "double")
+        );
+        BehaviorRegister.register(
+                "TurnRight",
+                new Pair<>("acceleration", "double"),
+                new Pair<>("target speed", "double")
+        );
     }
 
     private void chooseComponent(Group component) {
@@ -191,8 +227,16 @@ public class TreeEditor {
                         lambdaContext.node = behavior.getNode();
                         lambdaContext.node.setUserData(behavior);
                         lambdaContext.node.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-                            System.out.println("choose behavior");
-                            this.chooseComponent((Group) lambdaContext.node);
+                            int clickCount = e.getClickCount();
+                            if(clickCount == 1) {
+                                System.out.println("choose behavior");
+                                this.chooseComponent((Group) lambdaContext.node);
+                            }
+                            else if(clickCount == 2) {
+                                System.out.println("set behavior");
+                                BehaviorModifier bm = new BehaviorModifier();
+                                bm.getWindow().show();
+                            }
                         });
                     } else if (Objects.equals(componentSelected, "BranchPoint")) {
                         Position position = new Position(event.getX(), event.getY());

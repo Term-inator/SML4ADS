@@ -54,7 +54,7 @@ public class BranchPoint extends TreeArea {
         circle.setStroke(Color.ROYALBLUE);
 
         graphicNode.getChildren().addAll(circle);
-        this.enableDrag(graphicNode);
+        this.enableDrag();
 
         return graphicNode;
     }
