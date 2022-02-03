@@ -93,7 +93,7 @@ public abstract class TreeLink extends TreeComponent {
      */
     private void modifyFirstPoint() {
         if (this.linkPoints.size() >= 2) {
-            this.linkPoints.get(0).position.relocate(this.source.getLinkPoint(this.linkPoints.get(1).position));
+            this.linkPoints.get(0).setPosition(this.source.getLinkPoint(this.linkPoints.get(1).getCenterPoint()));
         }
     }
 
@@ -104,8 +104,8 @@ public abstract class TreeLink extends TreeComponent {
         if(this.target != null) {
             int size = this.linkPoints.size();
             if (size >= 2) {
-                Position p = this.target.getLinkPoint(this.linkPoints.get(size - 2).position);
-                this.linkPoints.get(size - 1).position.relocate(p);
+                Position p = this.target.getLinkPoint(this.linkPoints.get(size - 2).getCenterPoint());
+                this.linkPoints.get(size - 1).setPosition(p);
             }
         }
     }
@@ -139,10 +139,10 @@ public abstract class TreeLink extends TreeComponent {
         this.modifyLastPoint();
 
         this.path.getElements().clear();
-        this.path.getElements().add(new MoveTo(this.linkPoints.get(0).position.x, this.linkPoints.get(0).position.y));
+        this.path.getElements().add(new MoveTo(this.linkPoints.get(0).getCenterPoint().x, this.linkPoints.get(0).getCenterPoint().y));
         int size = this.linkPoints.size();
         for (int i = 1; i < size; ++i) {
-            Position p = this.linkPoints.get(i).position;
+            Position p = this.linkPoints.get(i).getCenterPoint();
             this.path.getElements().add(new LineTo(p.x, p.y));
         }
         this.path.setStrokeWidth(2);
@@ -150,8 +150,8 @@ public abstract class TreeLink extends TreeComponent {
         this.path.setStrokeLineJoin(StrokeLineJoin.ROUND);
 
         if(size >= 2) {
-            Position p1 = this.linkPoints.get(size - 2).position;
-            Position p2 = this.linkPoints.get(size - 1).position;
+            Position p1 = this.linkPoints.get(size - 2).getCenterPoint();
+            Position p2 = this.linkPoints.get(size - 1).getCenterPoint();
             Vector2D vector = new Vector2D(p2, p1);
             // 以末端为原点
             double rad = vector.radWithXAxis();

@@ -6,14 +6,25 @@ import javafx.scene.text.Text;
 
 
 public class TreeText extends Area {
+    private TreeComponent component;
+
     private String text;
 
     public TreeText(Position position) {
         super(position);
     }
 
+    public String getText() {
+        return text;
+    }
+
     public void setText(String text) {
         this.text = text;
+    }
+
+    @Override
+    public Position getCenterPoint() {
+        return null;
     }
 
     @Override

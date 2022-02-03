@@ -1,7 +1,6 @@
 package com.ecnu.adsmls.components.editor;
 
 import com.ecnu.adsmls.utils.Position;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -10,45 +9,36 @@ import javafx.scene.shape.Circle;
 /**
  * 控制 TreeLink 的点
  */
-public class TreeLinkPoint extends Component implements Draggable {
-    protected Position position;
+public class TreeLinkPoint extends Area {
+    private Position position;
     private TreeLink treeLink;
-    private double r = 5;
+    private final double r = 5;
 
-    /**
-     * @param position 中心坐标
-     * @param treeLink 所在的 link
-     */
     public TreeLinkPoint(Position position, TreeLink treeLink) {
+        super(position);
         this.position = position;
         this.treeLink = treeLink;
     }
 
+    public Position getPosition() {
+        return position;
+    }
+
+    public void setPosition(Position position) {
+        this.position.relocate(position);
+        this.position.x -= this.r;
+        this.position.y -= this.r;
+    }
+
+    @Override
+    public Position getCenterPoint() {
+        return new Position(this.position.x + this.r, this.position.y + this.r);
+    }
+
     @Override
     public void enableDrag() {
-        final Position pos = new Position();
-
-        // 提示用户该结点可拖拽
-        this.graphicNode.addEventHandler(MouseEvent.MOUSE_PRESSED, e -> {
-            this.graphicNode.setCursor(Cursor.MOVE);
-
-            // 当按压事件发生时，缓存事件发生的位置坐标
-            pos.x = e.getX();
-            pos.y = e.getY();
-        });
-        this.graphicNode.addEventHandler(MouseEvent.MOUSE_RELEASED, e -> this.graphicNode.setCursor(Cursor.DEFAULT));
-
-        // 实现拖拽功能
+        super.enableDrag();
         this.graphicNode.addEventHandler(MouseEvent.MOUSE_DRAGGED, e -> {
-            double disX = e.getX() - pos.x;
-            double disY = e.getY() - pos.y;
-
-            double x = this.position.x + disX;
-            double y = this.position.y + disY;
-
-            // 计算出 x、y 后将结点重定位到指定坐标点 (x, y)
-            this.graphicNode.relocate(x - this.r, y - this.r);
-            this.position.relocate(x, y);
             // 更新对应的 link
             this.treeLink.updateNode();
         });
@@ -67,8 +57,10 @@ public class TreeLinkPoint extends Component implements Draggable {
     @Override
     public Node getNode() {
         Circle circle = new Circle();
-        circle.setCenterX(this.position.x);
-        circle.setCenterY(this.position.y);
+        this.position.x -= this.r;
+        this.position.y -= this.r;
+        circle.setCenterX(this.position.x + this.r);
+        circle.setCenterY(this.position.y + this.r);
         circle.setRadius(this.r);
         circle.setFill(Color.WHITE);
         circle.setStrokeWidth(2);

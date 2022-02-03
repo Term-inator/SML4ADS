@@ -73,11 +73,11 @@ public abstract class TreeArea extends TreeComponent implements Draggable, Linka
 
             // Transition 跟随拖动
             for (TreeLink l : this.inTransitions) {
-                l.getLinkPoints().get(l.getLinkPoints().size() - 1).position.relocate(this.getCenterPoint());
+                l.getLinkPoints().get(l.getLinkPoints().size() - 1).setPosition(this.getCenterPoint());
                 l.updateNode();
             }
             for (TreeLink l : this.outTransitions) {
-                l.getLinkPoints().get(0).position.relocate(this.getCenterPoint());
+                l.getLinkPoints().get(0).setPosition(this.getCenterPoint());
                 l.updateNode();
             }
         });

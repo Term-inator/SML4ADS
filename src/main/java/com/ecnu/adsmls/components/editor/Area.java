@@ -1,10 +1,7 @@
 package com.ecnu.adsmls.components.editor;
 
 import com.ecnu.adsmls.utils.Position;
-import javafx.event.Event;
-import javafx.event.EventType;
 import javafx.scene.Cursor;
-import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 
 public abstract class Area extends Component implements Draggable {
@@ -13,6 +10,8 @@ public abstract class Area extends Component implements Draggable {
     public Area(Position position) {
         this.position = position;
     }
+
+    public abstract Position getCenterPoint();
 
     @Override
     public void enableDrag() {
