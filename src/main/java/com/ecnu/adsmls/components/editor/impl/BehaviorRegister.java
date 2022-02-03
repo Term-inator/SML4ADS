@@ -10,6 +10,7 @@ public class BehaviorRegister {
     // 行为名，参数名，参数类型
     private static Map<String, List<Pair<String, String>>> behaviorFunctions = new HashMap<>();
 
+    @SafeVarargs
     public static void register(String behaviorName, Pair<String, String>... params) {
         if(behaviorFunctions.containsKey(behaviorName)) {
             return;

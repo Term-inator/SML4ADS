@@ -13,6 +13,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.util.Pair;
 
 import java.util.List;
 import java.util.Objects;
@@ -50,7 +51,36 @@ public class TreeEditor {
     }
 
     private void initBehavior() {
-        // TODO 初始化内置 Behavior
+        BehaviorRegister.register(
+                "Keep",
+                new Pair<>("duration", "int")
+        );
+        BehaviorRegister.register(
+                "Accelerate",
+                new Pair<>("acceleration", "double"),
+                new Pair<>("target speed", "double"),
+                new Pair<>("duration", "int")
+        );
+        BehaviorRegister.register(
+                "ChangeLeft",
+                new Pair<>("acceleration", "double"),
+                new Pair<>("target speed", "double")
+        );
+        BehaviorRegister.register(
+                "ChangeRight",
+                new Pair<>("acceleration", "double"),
+                new Pair<>("target speed", "double")
+        );
+        BehaviorRegister.register(
+                "TurnLeft",
+                new Pair<>("acceleration", "double"),
+                new Pair<>("target speed", "double")
+        );
+        BehaviorRegister.register(
+                "TurnRight",
+                new Pair<>("acceleration", "double"),
+                new Pair<>("target speed", "double")
+        );
     }
 
     private void chooseComponent(Group component) {
