@@ -43,8 +43,14 @@ public class TreeEditor {
         paletteWrapper = new AnchorPane(palette);
         canvasWrapper = new AnchorPane(canvas);
 
+        initBehavior();
+
         initPalette();
         initCanvas();
+    }
+
+    private void initBehavior() {
+        // TODO 初始化内置 Behavior
     }
 
     private void chooseComponent(Group component) {

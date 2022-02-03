@@ -6,10 +6,17 @@ import com.ecnu.adsmls.utils.Vector2D;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.util.Pair;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class Behavior extends TreeArea {
     private final double r = 16;
+
+    private String name;
+    private List<Pair<String, String>> params = new ArrayList<>();
 
     public Behavior(long id, Position position) {
         super(id, position);
