@@ -1,15 +1,17 @@
-package com.ecnu.adsmls.components.editor;
+package com.ecnu.adsmls.components.editor.impl;
 
+import com.ecnu.adsmls.components.editor.TreeArea;
 import com.ecnu.adsmls.utils.Position;
 import com.ecnu.adsmls.utils.Vector2D;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
-public class BranchPoint extends TreeArea {
-    private final double r = 8;
 
-    public BranchPoint(long id, Position position) {
+public class Behavior extends TreeArea {
+    private final double r = 16;
+
+    public Behavior(long id, Position position) {
         super(id, position);
     }
 

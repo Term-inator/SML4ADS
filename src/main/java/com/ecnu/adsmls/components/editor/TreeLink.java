@@ -2,11 +2,8 @@ package com.ecnu.adsmls.components.editor;
 
 import com.ecnu.adsmls.utils.Position;
 import com.ecnu.adsmls.utils.Vector2D;
-import javafx.collections.ListChangeListener;
-import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
@@ -14,9 +11,11 @@ import javafx.scene.shape.Path;
 import javafx.scene.shape.StrokeLineJoin;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
+/**
+ * 树的边
+ */
 public abstract class TreeLink extends TreeComponent {
     private TreeArea source;
     private TreeArea target;

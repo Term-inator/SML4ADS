@@ -1,9 +1,11 @@
 package com.ecnu.adsmls.components.editor;
 
 import javafx.scene.Node;
-
 import java.util.List;
 
+/**
+ * 树组件
+ */
 public abstract class TreeComponent extends Component {
     private final long id;
 

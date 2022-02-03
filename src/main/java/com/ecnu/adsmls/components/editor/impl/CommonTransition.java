@@ -1,4 +1,4 @@
-package com.ecnu.adsmls.components.editor;
+package com.ecnu.adsmls.components.editor.impl;
 
 public class CommonTransition extends Transition {
 

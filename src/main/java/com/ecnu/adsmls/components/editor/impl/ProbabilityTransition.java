@@ -1,4 +1,5 @@
-package com.ecnu.adsmls.components.editor;
+package com.ecnu.adsmls.components.editor.impl;
+
 
 public class ProbabilityTransition extends Transition {
     public ProbabilityTransition(long id) {
