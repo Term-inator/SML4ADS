@@ -14,7 +14,6 @@ import javafx.scene.paint.Stop;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Pair;
 
 import java.util.*;
 
@@ -43,6 +42,26 @@ public class BehaviorModal {
         this.behaviorName = behavior.getName();
         this.paramsValue = behavior.getParams();
 
+        for(Map.Entry<String, String> param : paramsValue.entrySet()) {
+            Label lbParamName = new Label(param.getKey());
+            TextField tfParamValue = new TextField(param.getValue());
+            this.behaviorParamsPage.add(new Node[] {lbParamName, tfParamValue});
+        }
+    }
+
+    public String getBehaviorName() {
+        return this.behaviorName;
+    }
+
+    public LinkedHashMap<String, String> getParamsValue() {
+        return paramsValue;
+    }
+
+    public boolean isConfirm() {
+        return this.confirm;
+    }
+
+    private void createWindow() {
         window = new Stage(StageStyle.TRANSPARENT);
         window.initModality(Modality.APPLICATION_MODAL);
         window.setOpacity(0.87);
@@ -75,12 +94,6 @@ public class BehaviorModal {
             }
             this.updateGridPane();
         });
-
-        for(Map.Entry<String, String> param : paramsValue.entrySet()) {
-            Label lbParamName = new Label(param.getKey());
-            TextField tfParamValue = new TextField(param.getValue());
-            this.behaviorParamsPage.add(new Node[] {lbParamName, tfParamValue});
-        }
 
         Button btConfirm = new Button("Confirm");
         btConfirm.setOnAction(e -> {
@@ -122,13 +135,6 @@ public class BehaviorModal {
         window.sizeToScene();
     }
 
-    public String getBehaviorName() {
-        return this.behaviorName;
-    }
-
-    public void setBehaviorName(String behaviorName) {
-        this.behaviorName = behaviorName;
-    }
 
     public void updateParamsValue() {
         this.paramsValue.clear();
@@ -145,14 +151,6 @@ public class BehaviorModal {
         }
     }
 
-    public LinkedHashMap<String, String> getParamsValue() {
-        return paramsValue;
-    }
-
-    public void setParamsValue(LinkedHashMap<String, String> paramsValue) {
-        this.paramsValue = paramsValue;
-    }
-
     public void checkParams() {
         for(Map.Entry<String, String> param : paramsValue.entrySet()) {
             if(Objects.equals(param.getValue(), "")) {
@@ -163,10 +161,7 @@ public class BehaviorModal {
         }
     }
 
-    public boolean isConfirm() {
-        return this.confirm;
-    }
-
+    // 显示在界面上的字符串
     public String getBehaviorVO() {
         StringBuilder res = new StringBuilder();
         res.append(this.behaviorName).append("\n");
@@ -177,6 +172,7 @@ public class BehaviorModal {
     }
 
     public Stage getWindow() {
+        this.createWindow();
         return window;
     }
 }
