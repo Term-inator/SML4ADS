@@ -88,6 +88,12 @@ public abstract class TreeLink extends TreeComponent {
         this.path.getStrokeDashArray().addAll(10d);
     }
 
+    @Override
+    public Position getTextPosition() {
+        // TODO
+        return this.source.position;
+    }
+
     /**
      * 修正第一个点的坐标为 source 的连接点
      */

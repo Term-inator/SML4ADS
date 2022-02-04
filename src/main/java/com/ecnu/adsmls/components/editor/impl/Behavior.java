@@ -19,8 +19,6 @@ public class Behavior extends TreeArea {
     private String name;
     private List<Pair<String, String>> params = new ArrayList<>();
 
-    private TreeText text;
-
     public Behavior(long id, Position position) {
         super(id, position);
     }
@@ -40,14 +38,6 @@ public class Behavior extends TreeArea {
         double x = this.position.x + this.r;
         double y = this.position.y + this.r;
         return new Position(x, y);
-    }
-
-    public TreeText getText() {
-        return text;
-    }
-
-    public void setText(TreeText text) {
-        this.text = text;
     }
 
     @Override

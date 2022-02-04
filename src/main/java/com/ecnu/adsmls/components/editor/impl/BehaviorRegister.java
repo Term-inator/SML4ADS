@@ -2,6 +2,7 @@ package com.ecnu.adsmls.components.editor.impl;
 
 import javafx.util.Pair;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,10 @@ public class BehaviorRegister {
             return;
         }
         behaviorFunctions.put(behaviorName, List.of(params));
+    }
+
+    public static List<String> getBehaviorNames() {
+        return new ArrayList<>(behaviorFunctions.keySet());
     }
 
     public static List<Pair<String, String>> getParams(String behaviorName) {

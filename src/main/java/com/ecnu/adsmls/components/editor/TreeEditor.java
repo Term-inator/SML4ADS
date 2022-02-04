@@ -108,15 +108,12 @@ public class TreeEditor {
             }
         }
 
-        group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-            @Override
-            public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
-                if(newValue == null) {
-                    componentSelected = null;
-                }
-                else {
-                    componentSelected = (String) newValue.getUserData();
-                }
+        group.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue == null) {
+                componentSelected = null;
+            }
+            else {
+                componentSelected = (String) newValue.getUserData();
             }
         });
     }
@@ -235,7 +232,10 @@ public class TreeEditor {
                             else if(clickCount == 2) {
                                 System.out.println("set behavior");
                                 BehaviorModifier bm = new BehaviorModifier();
-                                bm.getWindow().show();
+
+                                bm.getWindow().showAndWait();
+
+                                behavior.getTreeText().setText(bm.getBehaviorVO());
                             }
                         });
                     } else if (Objects.equals(componentSelected, "BranchPoint")) {
@@ -252,6 +252,8 @@ public class TreeEditor {
 
                 if(lambdaContext.node != null) {
                     canvas.getChildren().add(lambdaContext.node);
+                    TreeText treeText = new TreeText((TreeComponent) lambdaContext.node.getUserData());
+                    canvas.getChildren().add(treeText.getNode());
                     this.chooseComponent((Group) lambdaContext.node);
                 }
                 else {
