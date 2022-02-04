@@ -10,16 +10,16 @@ import javafx.scene.shape.Circle;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class Behavior extends TreeArea {
     private final double r = 16;
 
-    private String name;
-    private List<Pair<String, String>> params = new ArrayList<>();
-
-    private TreeText text;
+    private String name = "";
+    private Map<String, String> params = new LinkedHashMap<>();
 
     public Behavior(long id, Position position) {
         super(id, position);
@@ -42,12 +42,20 @@ public class Behavior extends TreeArea {
         return new Position(x, y);
     }
 
-    public TreeText getText() {
-        return text;
+    public String getName() {
+        return name;
     }
 
-    public void setText(TreeText text) {
-        this.text = text;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Map<String, String > getParams() {
+        return params;
+    }
+
+    public void setParams(Map<String, String> params) {
+        this.params = params;
     }
 
     @Override

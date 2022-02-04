@@ -15,7 +15,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.util.Pair;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -51,36 +53,24 @@ public class TreeEditor {
     }
 
     private void initBehavior() {
-        BehaviorRegister.register(
-                "Keep",
-                new Pair<>("duration", "int")
-        );
-        BehaviorRegister.register(
-                "Accelerate",
-                new Pair<>("acceleration", "double"),
-                new Pair<>("target speed", "double"),
-                new Pair<>("duration", "int")
-        );
-        BehaviorRegister.register(
-                "ChangeLeft",
-                new Pair<>("acceleration", "double"),
-                new Pair<>("target speed", "double")
-        );
-        BehaviorRegister.register(
-                "ChangeRight",
-                new Pair<>("acceleration", "double"),
-                new Pair<>("target speed", "double")
-        );
-        BehaviorRegister.register(
-                "TurnLeft",
-                new Pair<>("acceleration", "double"),
-                new Pair<>("target speed", "double")
-        );
-        BehaviorRegister.register(
-                "TurnRight",
-                new Pair<>("acceleration", "double"),
-                new Pair<>("target speed", "double")
-        );
+        Map<String, String> params = new LinkedHashMap<>();
+
+        params.put("duration", "int");
+        BehaviorRegister.register("Keep", Map.copyOf(params));
+
+        params.clear();
+        params.put("acceleration", "double");
+        params.put("target speed", "double");
+        params.put("duration", "int");
+        BehaviorRegister.register("Accelerate", Map.copyOf(params));
+
+        params.clear();
+        params.put("acceleration", "double");
+        params.put("target speed", "double");
+        BehaviorRegister.register("ChangeLeft", Map.copyOf(params));
+        BehaviorRegister.register("ChangeRight", Map.copyOf(params));
+        BehaviorRegister.register("TurnLeft", Map.copyOf(params));
+        BehaviorRegister.register("TurnRight", Map.copyOf(params));
     }
 
     private void chooseComponent(Group component) {
@@ -108,15 +98,12 @@ public class TreeEditor {
             }
         }
 
-        group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-            @Override
-            public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
-                if(newValue == null) {
-                    componentSelected = null;
-                }
-                else {
-                    componentSelected = (String) newValue.getUserData();
-                }
+        group.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue == null) {
+                componentSelected = null;
+            }
+            else {
+                componentSelected = (String) newValue.getUserData();
             }
         });
     }
@@ -234,8 +221,16 @@ public class TreeEditor {
                             }
                             else if(clickCount == 2) {
                                 System.out.println("set behavior");
-                                BehaviorModifier bm = new BehaviorModifier();
-                                bm.getWindow().show();
+
+                                BehaviorModifier bm = new BehaviorModifier(behavior);
+                                bm.getWindow().showAndWait();
+
+                                if(!bm.isConfirm()) {
+                                    return;
+                                }
+                                behavior.setName(bm.getBehaviorName());
+                                behavior.setParams(bm.getParamsValue());
+                                behavior.getTreeText().setText(bm.getBehaviorVO());
                             }
                         });
                     } else if (Objects.equals(componentSelected, "BranchPoint")) {
@@ -252,6 +247,8 @@ public class TreeEditor {
 
                 if(lambdaContext.node != null) {
                     canvas.getChildren().add(lambdaContext.node);
+                    TreeText treeText = new TreeText((TreeComponent) lambdaContext.node.getUserData());
+                    canvas.getChildren().add(treeText.getNode());
                     this.chooseComponent((Group) lambdaContext.node);
                 }
                 else {

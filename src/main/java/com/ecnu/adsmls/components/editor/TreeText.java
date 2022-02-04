@@ -8,18 +8,21 @@ import javafx.scene.text.Text;
 public class TreeText extends Area {
     private TreeComponent component;
 
-    private String text;
+    private Text text = new Text();
 
-    public TreeText(Position position) {
-        super(position);
+
+    public TreeText(TreeComponent component) {
+        super(component.getTextPosition());
+        this.component = component;
+        component.setTreeText(this);
     }
 
     public String getText() {
-        return text;
+        return text.getText();
     }
 
     public void setText(String text) {
-        this.text = text;
+        this.text.setText(text);
     }
 
     @Override
@@ -39,10 +42,8 @@ public class TreeText extends Area {
 
     @Override
     public Node getNode() {
-        Text text = new Text();
         text.setX(this.position.x);
         text.setY(this.position.y);
-        text.setText(this.text);
 
         this.addNode(text);
         this.enableDrag();

@@ -45,6 +45,13 @@ public abstract class TreeArea extends TreeComponent implements Draggable, Linka
         return null;
     }
 
+
+    @Override
+    public Position getTextPosition() {
+        double width = this.graphicNode.getBoundsInLocal().getWidth();
+        return new Position(this.position.x + width, this.position.y);
+    }
+
     @Override
     public void enableDrag() {
         final Position pos = new Position();
