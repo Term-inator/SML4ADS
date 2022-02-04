@@ -2,6 +2,8 @@ package com.ecnu.adsmls.components.editor;
 
 import com.ecnu.adsmls.utils.Position;
 import javafx.scene.Node;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,5 +33,10 @@ public abstract class TreeComponent extends Component {
         this.treeText = treeText;
     }
 
-    public abstract List<Node> remove();
+    public List<Node> remove() {
+        List<Node> res = new ArrayList<>();
+        res.add(this.graphicNode);
+        res.add(this.treeText.getNode());
+        return res;
+    }
 }

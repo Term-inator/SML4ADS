@@ -4,19 +4,8 @@ package com.ecnu.adsmls.components.editor.impl;
 import com.ecnu.adsmls.components.Modal;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.Stop;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-
 import java.util.*;
 
 
@@ -55,6 +44,7 @@ public class BehaviorModal extends Modal {
     protected void createWindow() {
         super.createWindow();
 
+        Label lbBehaviorName = new Label("behavior");
         List<String> behaviorNames = BehaviorRegister.getBehaviorNames();
         ComboBox cbBehavior = new ComboBox(FXCollections.observableArrayList(behaviorNames));
         cbBehavior.getSelectionModel().select(this.behaviorName);
@@ -70,13 +60,13 @@ public class BehaviorModal extends Modal {
             }
             this.updateGridPane();
         });
-        staticPage.add(0, new Node[] {cbBehavior});
+        staticPage.add(0, new Node[] {lbBehaviorName, cbBehavior});
     }
 
     @Override
     protected void confirm(ActionEvent e) {
         this.updateParamsValue();
-        this.checkParams();
+        this.check();
     }
 
     @Override

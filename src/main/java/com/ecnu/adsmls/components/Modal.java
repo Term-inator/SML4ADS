@@ -57,6 +57,7 @@ public abstract class Modal {
         gridPane = new GridPane();
         gridPane.setPadding(new Insets(15, 20, 15, 20));
         gridPane.setVgap(8);
+        gridPane.setHgap(5);
         //draw special window
         gridPane.setBackground(new Background(
                 new BackgroundFill(

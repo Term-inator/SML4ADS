@@ -169,8 +169,26 @@ public class TreeEditor {
                             lambdaContext.node = transition.get().getNode();
                             lambdaContext.node.setUserData(transition.get());
                             lambdaContext.node.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+                                int clickCount = e.getClickCount();
                                 System.out.println("choose transition");
                                 this.chooseComponent((Group) lambdaContext.node);
+                                if(clickCount == 2) {
+                                    if(lambdaContext.node.getUserData() instanceof CommonTransition) {
+
+                                    }
+                                    else if(lambdaContext.node.getUserData() instanceof ProbabilityTransition) {
+                                        System.out.println("set probability transition");
+
+                                        ProbabilityTransitionModal ptm = new ProbabilityTransitionModal((ProbabilityTransition) transition.get());
+                                        ptm.getWindow().showAndWait();
+
+                                        if(!ptm.isConfirm()) {
+                                            return;
+                                        }
+                                        ((ProbabilityTransition) lambdaContext.node.getUserData()).setWeight(ptm.getWeight());
+                                        ((ProbabilityTransition) lambdaContext.node.getUserData()).getTreeText().setText(ptm.getProbabilityTransitionVO());
+                                    }
+                                }
                             });
                         }
                         else {
@@ -212,11 +230,9 @@ public class TreeEditor {
                         lambdaContext.node.setUserData(behavior);
                         lambdaContext.node.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
                             int clickCount = e.getClickCount();
-                            if(clickCount == 1) {
-                                System.out.println("choose behavior");
-                                this.chooseComponent((Group) lambdaContext.node);
-                            }
-                            else if(clickCount == 2) {
+                            System.out.println("choose behavior");
+                            this.chooseComponent((Group) lambdaContext.node);
+                            if(clickCount == 2) {
                                 System.out.println("set behavior");
 
                                 BehaviorModal bm = new BehaviorModal(behavior);
@@ -244,6 +260,7 @@ public class TreeEditor {
 
                 if(lambdaContext.node != null) {
                     canvas.getChildren().add(lambdaContext.node);
+                    // TODO refactor
                     TreeText treeText = new TreeText((TreeComponent) lambdaContext.node.getUserData());
                     canvas.getChildren().add(treeText.getNode());
                     this.chooseComponent((Group) lambdaContext.node);
