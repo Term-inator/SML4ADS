@@ -2,8 +2,6 @@ package com.ecnu.adsmls.components.editor;
 
 import com.ecnu.adsmls.components.editor.impl.*;
 import com.ecnu.adsmls.utils.Position;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -13,7 +11,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import javafx.util.Pair;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -53,24 +50,24 @@ public class TreeEditor {
     }
 
     private void initBehavior() {
-        Map<String, String> params = new LinkedHashMap<>();
+        LinkedHashMap<String, String> params = new LinkedHashMap<>();
 
         params.put("duration", "int");
-        BehaviorRegister.register("Keep", Map.copyOf(params));
+        BehaviorRegister.register("Keep", (LinkedHashMap<String, String>) params.clone());
 
         params.clear();
         params.put("acceleration", "double");
         params.put("target speed", "double");
         params.put("duration", "int");
-        BehaviorRegister.register("Accelerate", Map.copyOf(params));
+        BehaviorRegister.register("Accelerate", (LinkedHashMap<String, String>) params.clone());
 
         params.clear();
         params.put("acceleration", "double");
         params.put("target speed", "double");
-        BehaviorRegister.register("ChangeLeft", Map.copyOf(params));
-        BehaviorRegister.register("ChangeRight", Map.copyOf(params));
-        BehaviorRegister.register("TurnLeft", Map.copyOf(params));
-        BehaviorRegister.register("TurnRight", Map.copyOf(params));
+        BehaviorRegister.register("ChangeLeft", (LinkedHashMap<String, String>) params.clone());
+        BehaviorRegister.register("ChangeRight", (LinkedHashMap<String, String>) params.clone());
+        BehaviorRegister.register("TurnLeft", (LinkedHashMap<String, String>) params.clone());
+        BehaviorRegister.register("TurnRight",(LinkedHashMap<String, String>) params.clone());
     }
 
     private void chooseComponent(Group component) {
@@ -222,7 +219,7 @@ public class TreeEditor {
                             else if(clickCount == 2) {
                                 System.out.println("set behavior");
 
-                                BehaviorModifier bm = new BehaviorModifier(behavior);
+                                BehaviorModal bm = new BehaviorModal(behavior);
                                 bm.getWindow().showAndWait();
 
                                 if(!bm.isConfirm()) {

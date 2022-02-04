@@ -19,7 +19,7 @@ import javafx.util.Pair;
 import java.util.*;
 
 
-public class BehaviorModifier {
+public class BehaviorModal {
     private Stage window;
 
     private GridPane gridPane;
@@ -29,9 +29,9 @@ public class BehaviorModifier {
     // 行为名
     private String behaviorName = "";
     // 行为参数信息
-    private Map<String, String> paramsInfo = new LinkedHashMap<>();
+    private LinkedHashMap<String, String> paramsInfo = new LinkedHashMap<>();
     // 行为参数值
-    private Map<String, String> paramsValue = new LinkedHashMap<>();
+    private LinkedHashMap<String, String> paramsValue = new LinkedHashMap<>();
 
     // 行为参数填写是否合法
     private boolean valid = true;
@@ -39,7 +39,7 @@ public class BehaviorModifier {
     // 是否点击了确认
     private boolean confirm = true;
 
-    public BehaviorModifier(Behavior behavior) {
+    public BehaviorModal(Behavior behavior) {
         this.behaviorName = behavior.getName();
         this.paramsValue = behavior.getParams();
 
@@ -145,11 +145,11 @@ public class BehaviorModifier {
         }
     }
 
-    public Map<String, String> getParamsValue() {
+    public LinkedHashMap<String, String> getParamsValue() {
         return paramsValue;
     }
 
-    public void setParamsValue(Map<String, String> paramsValue) {
+    public void setParamsValue(LinkedHashMap<String, String> paramsValue) {
         this.paramsValue = paramsValue;
     }
 
