@@ -1,12 +1,8 @@
 package com.ecnu.adsmls.components.editor.impl;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.print.PageRange;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -20,9 +16,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Pair;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 
 public class BehaviorModifier {
@@ -32,13 +26,23 @@ public class BehaviorModifier {
     private ArrayList<Node[]> staticPage = new ArrayList<>();
     private ArrayList<Node[]> behaviorParamsPage = new ArrayList<>();
 
+    // 行为名
     private String behaviorName = "";
-    private List<Pair<String, String>> paramsInfo;
-    private List<Pair<String, String>> paramsValue = new ArrayList<>();
+    // 行为参数信息
+    private Map<String, String> paramsInfo = new LinkedHashMap<>();
+    // 行为参数值
+    private Map<String, String> paramsValue = new LinkedHashMap<>();
 
+    // 行为参数填写是否合法
     private boolean valid = true;
 
-    public BehaviorModifier() {
+    // 是否点击了确认
+    private boolean confirm = true;
+
+    public BehaviorModifier(Behavior behavior) {
+        this.behaviorName = behavior.getName();
+        this.paramsValue = behavior.getParams();
+
         window = new Stage(StageStyle.TRANSPARENT);
         window.initModality(Modality.APPLICATION_MODAL);
         window.setOpacity(0.87);
@@ -58,12 +62,13 @@ public class BehaviorModifier {
 
         List<String> behaviorNames = BehaviorRegister.getBehaviorNames();
         ComboBox cbBehavior = new ComboBox(FXCollections.observableArrayList(behaviorNames));
+        cbBehavior.getSelectionModel().select(this.behaviorName);
         cbBehavior.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             this.behaviorParamsPage.clear();
             this.behaviorName = newValue.toString();
-            paramsInfo = BehaviorRegister.getParams(this.behaviorName);
+            this.paramsInfo = BehaviorRegister.getParams(this.behaviorName);
             // 生成界面
-            for(Pair<String, String> param : paramsInfo) {
+            for(Map.Entry<String, String> param : paramsInfo.entrySet()) {
                 Label lbParamName = new Label(param.getKey());
                 TextField tfParamValue = new TextField();
                 this.behaviorParamsPage.add(new Node[] {lbParamName, tfParamValue});
@@ -71,16 +76,24 @@ public class BehaviorModifier {
             this.updateGridPane();
         });
 
+        for(Map.Entry<String, String> param : paramsValue.entrySet()) {
+            Label lbParamName = new Label(param.getKey());
+            TextField tfParamValue = new TextField(param.getValue());
+            this.behaviorParamsPage.add(new Node[] {lbParamName, tfParamValue});
+        }
+
         Button btConfirm = new Button("Confirm");
         btConfirm.setOnAction(e -> {
-            this.readParamsValue();
+            this.updateParamsValue();
             this.checkParams();
-            this.window.close();
+            if(this.valid) {
+                this.window.close();
+            }
         });
 
         Button btCancel = new Button("Cancel");
         btCancel.setOnAction(e -> {
-            this.valid = false;
+            this.confirm = false;
             this.window.close();
         });
 
@@ -97,26 +110,28 @@ public class BehaviorModifier {
 
     private void updateGridPane() {
         this.gridPane.getChildren().clear();
-        this.gridPane.addRow(0, this.staticPage.get(0));
+        int rowIndex = 0;
+        this.gridPane.addRow(rowIndex++, this.staticPage.get(0));
 
-        int r = 1;
-        for(; r < this.behaviorParamsPage.size(); ++r) {
-            this.gridPane.addRow(r, this.behaviorParamsPage.get(r - 1));
+        for(int r = 0; r < this.behaviorParamsPage.size(); ++r) {
+            this.gridPane.addRow(rowIndex++, this.behaviorParamsPage.get(r));
         }
 
-        this.gridPane.addRow(r, this.staticPage.get(1));
+        this.gridPane.addRow(rowIndex++, this.staticPage.get(1));
 
         window.sizeToScene();
     }
 
     public String getBehaviorName() {
-        if(!valid) {
-            return "";
-        }
         return this.behaviorName;
     }
 
-    public void readParamsValue() {
+    public void setBehaviorName(String behaviorName) {
+        this.behaviorName = behaviorName;
+    }
+
+    public void updateParamsValue() {
+        this.paramsValue.clear();
         String paramName = "";
         String paramValue = "";
         for(Node node : gridPane.getChildren()) {
@@ -125,17 +140,21 @@ public class BehaviorModifier {
             }
             else if(node instanceof TextField) {
                 paramValue = ((TextField) node).getText();
-                this.paramsValue.add(new Pair<>(paramName, paramValue));
+                this.paramsValue.put(paramName, paramValue);
             }
         }
     }
 
-    public List<Pair<String, String>> getParamsValue() {
+    public Map<String, String> getParamsValue() {
         return paramsValue;
     }
 
+    public void setParamsValue(Map<String, String> paramsValue) {
+        this.paramsValue = paramsValue;
+    }
+
     public void checkParams() {
-        for(Pair<String, String> param : this.paramsValue) {
+        for(Map.Entry<String, String> param : paramsValue.entrySet()) {
             if(Objects.equals(param.getValue(), "")) {
                 this.valid = false;
                 break;
@@ -144,13 +163,14 @@ public class BehaviorModifier {
         }
     }
 
+    public boolean isConfirm() {
+        return this.confirm;
+    }
+
     public String getBehaviorVO() {
-        if(!this.valid) {
-            return "";
-        }
         StringBuilder res = new StringBuilder();
         res.append(this.behaviorName).append("\n");
-        for(Pair<String, String> param : this.paramsValue) {
+        for(Map.Entry<String, String> param : paramsValue.entrySet()) {
             res.append(param.getKey()).append(" = ").append(param.getValue()).append("\n");
         }
         return res.toString();
