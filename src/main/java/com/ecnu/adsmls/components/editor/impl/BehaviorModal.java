@@ -1,7 +1,9 @@
 package com.ecnu.adsmls.components.editor.impl;
 
 
+import com.ecnu.adsmls.components.Modal;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -18,11 +20,7 @@ import javafx.stage.StageStyle;
 import java.util.*;
 
 
-public class BehaviorModal {
-    private Stage window;
-
-    private GridPane gridPane;
-    private ArrayList<Node[]> staticPage = new ArrayList<>();
+public class BehaviorModal extends Modal {
     private ArrayList<Node[]> behaviorParamsPage = new ArrayList<>();
 
     // 行为名
@@ -32,13 +30,9 @@ public class BehaviorModal {
     // 行为参数值
     private LinkedHashMap<String, String> paramsValue = new LinkedHashMap<>();
 
-    // 行为参数填写是否合法
-    private boolean valid = true;
-
-    // 是否点击了确认
-    private boolean confirm = true;
 
     public BehaviorModal(Behavior behavior) {
+        super();
         this.behaviorName = behavior.getName();
         this.paramsValue = behavior.getParams();
 
@@ -57,27 +51,9 @@ public class BehaviorModal {
         return paramsValue;
     }
 
-    public boolean isConfirm() {
-        return this.confirm;
-    }
-
-    private void createWindow() {
-        window = new Stage(StageStyle.TRANSPARENT);
-        window.initModality(Modality.APPLICATION_MODAL);
-        window.setOpacity(0.87);
-
-        gridPane = new GridPane();
-        gridPane.setPadding(new Insets(15, 20, 15, 20));
-        gridPane.setVgap(8);
-        //draw special window
-        gridPane.setBackground(new Background(
-                new BackgroundFill(
-                        new LinearGradient(1, 1, 1, 0, true, CycleMethod.REFLECT,
-                                new Stop(0.0, Color.LIGHTBLUE), new Stop(1.0, Color.WHITE)),
-                        new CornerRadii(15),
-                        Insets.EMPTY)));
-
-
+    @Override
+    protected void createWindow() {
+        super.createWindow();
 
         List<String> behaviorNames = BehaviorRegister.getBehaviorNames();
         ComboBox cbBehavior = new ComboBox(FXCollections.observableArrayList(behaviorNames));
@@ -94,34 +70,22 @@ public class BehaviorModal {
             }
             this.updateGridPane();
         });
-
-        Button btConfirm = new Button("Confirm");
-        btConfirm.setOnAction(e -> {
-            this.updateParamsValue();
-            this.checkParams();
-            if(this.valid) {
-                this.window.close();
-            }
-        });
-
-        Button btCancel = new Button("Cancel");
-        btCancel.setOnAction(e -> {
-            this.confirm = false;
-            this.window.close();
-        });
-
-        staticPage.add(new Node[] {cbBehavior});
-        staticPage.add(new Node[] {btConfirm, btCancel});
-
-        this.updateGridPane();
-
-        Scene scene = new Scene(gridPane);
-        scene.setFill(Color.TRANSPARENT);
-
-        window.setScene(scene);
+        staticPage.add(0, new Node[] {cbBehavior});
     }
 
-    private void updateGridPane() {
+    @Override
+    protected void confirm(ActionEvent e) {
+        this.updateParamsValue();
+        this.checkParams();
+    }
+
+    @Override
+    protected void check() {
+        this.checkParams();
+    }
+
+    @Override
+    protected void updateGridPane() {
         this.gridPane.getChildren().clear();
         int rowIndex = 0;
         this.gridPane.addRow(rowIndex++, this.staticPage.get(0));
@@ -169,10 +133,5 @@ public class BehaviorModal {
             res.append(param.getKey()).append(" = ").append(param.getValue()).append("\n");
         }
         return res.toString();
-    }
-
-    public Stage getWindow() {
-        this.createWindow();
-        return window;
     }
 }
