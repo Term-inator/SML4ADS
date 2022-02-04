@@ -2,8 +2,6 @@ package com.ecnu.adsmls.components.editor;
 
 import com.ecnu.adsmls.components.editor.impl.*;
 import com.ecnu.adsmls.utils.Position;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -13,7 +11,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import javafx.util.Pair;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -53,24 +50,24 @@ public class TreeEditor {
     }
 
     private void initBehavior() {
-        Map<String, String> params = new LinkedHashMap<>();
+        LinkedHashMap<String, String> params = new LinkedHashMap<>();
 
         params.put("duration", "int");
-        BehaviorRegister.register("Keep", Map.copyOf(params));
+        BehaviorRegister.register("Keep", (LinkedHashMap<String, String>) params.clone());
 
         params.clear();
         params.put("acceleration", "double");
         params.put("target speed", "double");
         params.put("duration", "int");
-        BehaviorRegister.register("Accelerate", Map.copyOf(params));
+        BehaviorRegister.register("Accelerate", (LinkedHashMap<String, String>) params.clone());
 
         params.clear();
         params.put("acceleration", "double");
         params.put("target speed", "double");
-        BehaviorRegister.register("ChangeLeft", Map.copyOf(params));
-        BehaviorRegister.register("ChangeRight", Map.copyOf(params));
-        BehaviorRegister.register("TurnLeft", Map.copyOf(params));
-        BehaviorRegister.register("TurnRight", Map.copyOf(params));
+        BehaviorRegister.register("ChangeLeft", (LinkedHashMap<String, String>) params.clone());
+        BehaviorRegister.register("ChangeRight", (LinkedHashMap<String, String>) params.clone());
+        BehaviorRegister.register("TurnLeft", (LinkedHashMap<String, String>) params.clone());
+        BehaviorRegister.register("TurnRight",(LinkedHashMap<String, String>) params.clone());
     }
 
     private void chooseComponent(Group component) {
@@ -172,8 +169,26 @@ public class TreeEditor {
                             lambdaContext.node = transition.get().getNode();
                             lambdaContext.node.setUserData(transition.get());
                             lambdaContext.node.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+                                int clickCount = e.getClickCount();
                                 System.out.println("choose transition");
                                 this.chooseComponent((Group) lambdaContext.node);
+                                if(clickCount == 2) {
+                                    if(lambdaContext.node.getUserData() instanceof CommonTransition) {
+
+                                    }
+                                    else if(lambdaContext.node.getUserData() instanceof ProbabilityTransition) {
+                                        System.out.println("set probability transition");
+
+                                        ProbabilityTransitionModal ptm = new ProbabilityTransitionModal((ProbabilityTransition) transition.get());
+                                        ptm.getWindow().showAndWait();
+
+                                        if(!ptm.isConfirm()) {
+                                            return;
+                                        }
+                                        ((ProbabilityTransition) lambdaContext.node.getUserData()).setWeight(ptm.getWeight());
+                                        ((ProbabilityTransition) lambdaContext.node.getUserData()).getTreeText().setText(ptm.getProbabilityTransitionVO());
+                                    }
+                                }
                             });
                         }
                         else {
@@ -215,14 +230,12 @@ public class TreeEditor {
                         lambdaContext.node.setUserData(behavior);
                         lambdaContext.node.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
                             int clickCount = e.getClickCount();
-                            if(clickCount == 1) {
-                                System.out.println("choose behavior");
-                                this.chooseComponent((Group) lambdaContext.node);
-                            }
-                            else if(clickCount == 2) {
+                            System.out.println("choose behavior");
+                            this.chooseComponent((Group) lambdaContext.node);
+                            if(clickCount == 2) {
                                 System.out.println("set behavior");
 
-                                BehaviorModifier bm = new BehaviorModifier(behavior);
+                                BehaviorModal bm = new BehaviorModal(behavior);
                                 bm.getWindow().showAndWait();
 
                                 if(!bm.isConfirm()) {
@@ -247,6 +260,7 @@ public class TreeEditor {
 
                 if(lambdaContext.node != null) {
                     canvas.getChildren().add(lambdaContext.node);
+                    // TODO refactor
                     TreeText treeText = new TreeText((TreeComponent) lambdaContext.node.getUserData());
                     canvas.getChildren().add(treeText.getNode());
                     this.chooseComponent((Group) lambdaContext.node);

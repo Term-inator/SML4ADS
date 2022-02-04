@@ -91,7 +91,7 @@ public abstract class TreeLink extends TreeComponent {
     @Override
     public Position getTextPosition() {
         // TODO
-        return this.source.position;
+        return new Position(this.source.position.x, this.source.position.y);
     }
 
     /**
@@ -187,9 +187,9 @@ public abstract class TreeLink extends TreeComponent {
     @Override
     public List<Node> remove() {
         List<Node> res = new ArrayList<>();
+        res.addAll(super.remove());
         this.source.getOutTransitions().remove(this);
         this.target.getInTransitions().remove(this);
-        res.add(this.graphicNode);
         return res;
     }
 }

@@ -1,17 +1,13 @@
 package com.ecnu.adsmls.components.editor.impl;
 
 import com.ecnu.adsmls.components.editor.TreeArea;
-import com.ecnu.adsmls.components.editor.TreeText;
 import com.ecnu.adsmls.utils.Position;
 import com.ecnu.adsmls.utils.Vector2D;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.util.Pair;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -19,7 +15,7 @@ public class Behavior extends TreeArea {
     private final double r = 16;
 
     private String name = "";
-    private Map<String, String> params = new LinkedHashMap<>();
+    private LinkedHashMap<String, String> params = new LinkedHashMap<>();
 
     public Behavior(long id, Position position) {
         super(id, position);
@@ -50,11 +46,11 @@ public class Behavior extends TreeArea {
         this.name = name;
     }
 
-    public Map<String, String > getParams() {
+    public LinkedHashMap<String, String > getParams() {
         return params;
     }
 
-    public void setParams(Map<String, String> params) {
+    public void setParams(LinkedHashMap<String, String> params) {
         this.params = params;
     }
 

@@ -6,9 +6,9 @@ import java.util.*;
 
 public class BehaviorRegister {
     // 行为名，参数名，参数类型
-    private static Map<String, Map<String, String>> behaviorFunctions = new LinkedHashMap<>();
+    private static LinkedHashMap<String, LinkedHashMap<String, String>> behaviorFunctions = new LinkedHashMap<>();
 
-    public static void register(String behaviorName, Map<String, String> params) {
+    public static void register(String behaviorName, LinkedHashMap<String, String> params) {
         if(behaviorFunctions.containsKey(behaviorName)) {
             return;
         }
@@ -19,7 +19,7 @@ public class BehaviorRegister {
         return new ArrayList<>(behaviorFunctions.keySet());
     }
 
-    public static Map<String, String> getParams(String behaviorName) {
+    public static LinkedHashMap<String, String> getParams(String behaviorName) {
         return behaviorFunctions.get(behaviorName);
     }
 }
