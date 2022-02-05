@@ -82,6 +82,9 @@ public abstract class Modal {
             if(valid) {
                 this.window.close();
             }
+            else {
+                this.valid = true;
+            }
         });
 
         btCancel.setOnAction(e -> {

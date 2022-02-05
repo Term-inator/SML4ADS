@@ -174,12 +174,21 @@ public class TreeEditor {
                                 this.chooseComponent((Group) lambdaContext.node);
                                 if(clickCount == 2) {
                                     if(lambdaContext.node.getUserData() instanceof CommonTransition) {
+                                        System.out.println("set common transition");
 
+                                        CommonTransitionModal ctm = new CommonTransitionModal((CommonTransition) lambdaContext.node.getUserData());
+                                        ctm.getWindow().showAndWait();
+
+                                        if(!ctm.isConfirm()) {
+                                            return;
+                                        }
+                                        ((CommonTransition) lambdaContext.node.getUserData()).setGuards(ctm.getGuards());
+                                        ((CommonTransition) lambdaContext.node.getUserData()).getTreeText().setText(ctm.getCommonTransitionVO());
                                     }
                                     else if(lambdaContext.node.getUserData() instanceof ProbabilityTransition) {
                                         System.out.println("set probability transition");
 
-                                        ProbabilityTransitionModal ptm = new ProbabilityTransitionModal((ProbabilityTransition) transition.get());
+                                        ProbabilityTransitionModal ptm = new ProbabilityTransitionModal((ProbabilityTransition) lambdaContext.node.getUserData());
                                         ptm.getWindow().showAndWait();
 
                                         if(!ptm.isConfirm()) {
@@ -260,9 +269,8 @@ public class TreeEditor {
 
                 if(lambdaContext.node != null) {
                     canvas.getChildren().add(lambdaContext.node);
-                    // TODO refactor
-                    TreeText treeText = new TreeText((TreeComponent) lambdaContext.node.getUserData());
-                    canvas.getChildren().add(treeText.getNode());
+                    ((TreeComponent) lambdaContext.node.getUserData()).initTreeText();
+                    canvas.getChildren().add(((TreeComponent) lambdaContext.node.getUserData()).getTreeText().getNode());
                     this.chooseComponent((Group) lambdaContext.node);
                 }
                 else {

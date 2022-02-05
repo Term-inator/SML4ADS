@@ -25,12 +25,24 @@ public abstract class TreeComponent extends Component {
 
     public abstract Position getTextPosition();
 
+    public void initTreeText() {
+        if(this.treeText == null) {
+            this.treeText = new TreeText(this);
+        }
+    }
+
     public TreeText getTreeText() {
         return treeText;
     }
 
     public void setTreeText(TreeText treeText) {
         this.treeText = treeText;
+    }
+
+    public void updateTreeTextPosition() {
+        Position treeTextPosition = this.getTextPosition();
+        this.getTreeText().position.relocate(treeTextPosition);
+        this.getTreeText().getNode().relocate(treeTextPosition.x, treeTextPosition.y);
     }
 
     public List<Node> remove() {

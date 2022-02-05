@@ -1,5 +1,6 @@
 package com.ecnu.adsmls.components.editor;
 
+import com.ecnu.adsmls.utils.Geometry;
 import com.ecnu.adsmls.utils.Position;
 import com.ecnu.adsmls.utils.Vector2D;
 import javafx.scene.Group;
@@ -90,8 +91,17 @@ public abstract class TreeLink extends TreeComponent {
 
     @Override
     public Position getTextPosition() {
-        // TODO
-        return new Position(this.source.position.x, this.source.position.y);
+        int size = this.linkPoints.size();
+        assert (size >= 2);
+        if(size % 2 == 0) {
+            Position p1 = this.linkPoints.get(size / 2 - 1).getCenterPoint();
+            Position p2 = this.linkPoints.get(size / 2).getCenterPoint();
+            return Geometry.centerOf(p1, p2);
+        }
+        else {
+            Position p = this.linkPoints.get((size - 1) / 2).getCenterPoint();
+            return new Position(p.x, p.y);
+        }
     }
 
     /**
@@ -174,6 +184,7 @@ public abstract class TreeLink extends TreeComponent {
         else {
             this.addNode(path);
         }
+
     }
 
     public void rollback() {

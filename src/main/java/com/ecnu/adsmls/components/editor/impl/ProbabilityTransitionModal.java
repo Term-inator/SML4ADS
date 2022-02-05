@@ -8,25 +8,41 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
 public class ProbabilityTransitionModal extends Modal {
+    private ProbabilityTransition transition;
+
     private String weight;
 
     public ProbabilityTransitionModal(ProbabilityTransition transition) {
         super();
-
-        Label lbGuard = new Label("guard");
-        TextField tfGuard = new TextField();
-
-        staticPage.add(0, new Node[] {lbGuard, tfGuard});
+        this.transition = transition;
+        this.loadData();
     }
 
     public String getWeight() {
         return weight;
     }
 
+    private void loadData() {
+        this.weight = transition.getWeight();
+    }
+
+    @Override
+    protected void createWindow() {
+        super.createWindow();
+
+        Label lbWeight = new Label("weight");
+        TextField tfWeight = new TextField(this.weight);
+
+        staticPage.add(0, new Node[] {lbWeight, tfWeight});
+    }
+
     @Override
     protected void confirm(ActionEvent e) {
         this.updateWeight();
         this.check();
+        if(this.valid) {
+            transition.updateTreeTextPosition();
+        }
     }
 
     @Override

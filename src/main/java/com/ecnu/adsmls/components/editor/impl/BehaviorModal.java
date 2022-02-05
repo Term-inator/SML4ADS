@@ -10,6 +10,8 @@ import java.util.*;
 
 
 public class BehaviorModal extends Modal {
+    private Behavior behavior;
+
     private ArrayList<Node[]> behaviorParamsPage = new ArrayList<>();
 
     // 行为名
@@ -22,14 +24,8 @@ public class BehaviorModal extends Modal {
 
     public BehaviorModal(Behavior behavior) {
         super();
-        this.behaviorName = behavior.getName();
-        this.paramsValue = behavior.getParams();
-
-        for(Map.Entry<String, String> param : paramsValue.entrySet()) {
-            Label lbParamName = new Label(param.getKey());
-            TextField tfParamValue = new TextField(param.getValue());
-            this.behaviorParamsPage.add(new Node[] {lbParamName, tfParamValue});
-        }
+        this.behavior = behavior;
+        this.loadData();
     }
 
     public String getBehaviorName() {
@@ -38,6 +34,17 @@ public class BehaviorModal extends Modal {
 
     public LinkedHashMap<String, String> getParamsValue() {
         return paramsValue;
+    }
+
+    private void loadData() {
+        this.behaviorName = this.behavior.getName();
+        this.paramsValue = this.behavior.getParams();
+
+        for(Map.Entry<String, String> param : paramsValue.entrySet()) {
+            Label lbParamName = new Label(param.getKey());
+            TextField tfParamValue = new TextField(param.getValue());
+            this.behaviorParamsPage.add(new Node[] {lbParamName, tfParamValue});
+        }
     }
 
     @Override
@@ -67,6 +74,9 @@ public class BehaviorModal extends Modal {
     protected void confirm(ActionEvent e) {
         this.updateParamsValue();
         this.check();
+        if(this.valid) {
+            this.behavior.updateTreeTextPosition();
+        }
     }
 
     @Override

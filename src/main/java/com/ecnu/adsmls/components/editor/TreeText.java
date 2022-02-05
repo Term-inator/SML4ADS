@@ -27,6 +27,7 @@ public class TreeText extends Area {
 
     @Override
     public Position getCenterPoint() {
+        // TODO
         return null;
     }
 

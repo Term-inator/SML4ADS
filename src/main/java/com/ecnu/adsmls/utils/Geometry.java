@@ -35,6 +35,16 @@ public class Geometry {
     }
 
     /**
+     * p1 p1 的中点
+     * @param p1
+     * @param p2
+     * @return
+     */
+    public static Position centerOf(Position p1, Position p2) {
+        return new Position((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
+    }
+
+    /**
      * 判断 p 是否在 left right 之间（闭区间）
      * @param p
      * @param left
