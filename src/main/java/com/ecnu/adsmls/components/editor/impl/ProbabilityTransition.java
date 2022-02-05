@@ -4,7 +4,7 @@ import com.ecnu.adsmls.components.editor.TreeArea;
 
 
 public class ProbabilityTransition extends Transition {
-    private String weight;
+    private String weight = "";
 
     public ProbabilityTransition(long id) {
         super(id);

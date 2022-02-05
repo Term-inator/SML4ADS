@@ -174,12 +174,21 @@ public class TreeEditor {
                                 this.chooseComponent((Group) lambdaContext.node);
                                 if(clickCount == 2) {
                                     if(lambdaContext.node.getUserData() instanceof CommonTransition) {
+                                        System.out.println("set common transition");
 
+                                        CommonTransitionModal ctm = new CommonTransitionModal((CommonTransition) lambdaContext.node.getUserData());
+                                        ctm.getWindow().showAndWait();
+
+                                        if(!ctm.isConfirm()) {
+                                            return;
+                                        }
+                                        ((CommonTransition) lambdaContext.node.getUserData()).setGuards(ctm.getGuards());
+                                        ((CommonTransition) lambdaContext.node.getUserData()).getTreeText().setText(ctm.getCommonTransitionVO());
                                     }
                                     else if(lambdaContext.node.getUserData() instanceof ProbabilityTransition) {
                                         System.out.println("set probability transition");
 
-                                        ProbabilityTransitionModal ptm = new ProbabilityTransitionModal((ProbabilityTransition) transition.get());
+                                        ProbabilityTransitionModal ptm = new ProbabilityTransitionModal((ProbabilityTransition) lambdaContext.node.getUserData());
                                         ptm.getWindow().showAndWait();
 
                                         if(!ptm.isConfirm()) {

@@ -13,14 +13,21 @@ public class ProbabilityTransitionModal extends Modal {
     public ProbabilityTransitionModal(ProbabilityTransition transition) {
         super();
 
-        Label lbGuard = new Label("guard");
-        TextField tfGuard = new TextField();
-
-        staticPage.add(0, new Node[] {lbGuard, tfGuard});
+        this.weight = transition.getWeight();
     }
 
     public String getWeight() {
         return weight;
+    }
+
+    @Override
+    protected void createWindow() {
+        super.createWindow();
+
+        Label lbWeight = new Label("weight");
+        TextField tfWeight = new TextField(this.weight);
+
+        staticPage.add(0, new Node[] {lbWeight, tfWeight});
     }
 
     @Override

@@ -9,4 +9,12 @@ public class CommonTransition extends Transition {
     public CommonTransition(long id) {
         super(id);
     }
+
+    public List<String> getGuards() {
+        return guards;
+    }
+
+    public void setGuards(List<String> guards) {
+        this.guards = guards;
+    }
 }

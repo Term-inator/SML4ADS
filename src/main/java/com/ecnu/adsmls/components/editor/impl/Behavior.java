@@ -6,9 +6,7 @@ import com.ecnu.adsmls.utils.Vector2D;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 
 public class Behavior extends TreeArea {
