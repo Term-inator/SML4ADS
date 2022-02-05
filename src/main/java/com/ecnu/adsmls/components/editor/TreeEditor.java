@@ -173,6 +173,10 @@ public class TreeEditor {
                                 System.out.println("choose transition");
                                 this.chooseComponent((Group) lambdaContext.node);
                                 if(clickCount == 2) {
+                                    // 保证 Transition 已经完成
+                                    if(!((TreeLink) lambdaContext.node.getUserData()).isFinish()) {
+                                        return;
+                                    }
                                     if(lambdaContext.node.getUserData() instanceof CommonTransition) {
                                         System.out.println("set common transition");
 
@@ -274,7 +278,7 @@ public class TreeEditor {
                     this.chooseComponent((Group) lambdaContext.node);
                 }
                 else {
-                    if (transition.get().getFinish()) {
+                    if (transition.get().isFinish()) {
                         transition.set(null);
                         System.out.println("finish");
                     }
