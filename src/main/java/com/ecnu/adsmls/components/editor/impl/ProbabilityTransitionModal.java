@@ -8,16 +8,22 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
 public class ProbabilityTransitionModal extends Modal {
+    private ProbabilityTransition transition;
+
     private String weight;
 
     public ProbabilityTransitionModal(ProbabilityTransition transition) {
         super();
-
-        this.weight = transition.getWeight();
+        this.transition = transition;
+        this.loadData();
     }
 
     public String getWeight() {
         return weight;
+    }
+
+    private void loadData() {
+        this.weight = transition.getWeight();
     }
 
     @Override
@@ -34,6 +40,9 @@ public class ProbabilityTransitionModal extends Modal {
     protected void confirm(ActionEvent e) {
         this.updateWeight();
         this.check();
+        if(this.valid) {
+            transition.updateTreeTextPosition();
+        }
     }
 
     @Override

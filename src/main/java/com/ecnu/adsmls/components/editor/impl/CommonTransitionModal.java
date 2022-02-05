@@ -1,6 +1,7 @@
 package com.ecnu.adsmls.components.editor.impl;
 
 import com.ecnu.adsmls.components.Modal;
+import com.ecnu.adsmls.utils.Position;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -11,16 +12,22 @@ import java.util.Objects;
 
 
 public class CommonTransitionModal extends Modal {
+    private CommonTransition transition;
+
     private List<String> guards = new ArrayList<>();
 
     public CommonTransitionModal(CommonTransition transition) {
         super();
-
-        this.guards = transition.getGuards();
+        this.transition = transition;
+        this.loadData();
     }
 
     public List<String> getGuards() {
         return guards;
+    }
+
+    private void loadData() {
+        this.guards = transition.getGuards();
     }
 
     @Override
@@ -39,6 +46,9 @@ public class CommonTransitionModal extends Modal {
     protected void confirm(ActionEvent e) {
         this.updateGuard();
         this.check();
+        if(this.valid) {
+            transition.updateTreeTextPosition();
+        }
     }
 
     @Override
