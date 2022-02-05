@@ -269,9 +269,8 @@ public class TreeEditor {
 
                 if(lambdaContext.node != null) {
                     canvas.getChildren().add(lambdaContext.node);
-                    // TODO refactor
-                    TreeText treeText = new TreeText((TreeComponent) lambdaContext.node.getUserData());
-                    canvas.getChildren().add(treeText.getNode());
+                    ((TreeComponent) lambdaContext.node.getUserData()).initTreeText();
+                    canvas.getChildren().add(((TreeComponent) lambdaContext.node.getUserData()).getTreeText().getNode());
                     this.chooseComponent((Group) lambdaContext.node);
                 }
                 else {
