@@ -287,6 +287,10 @@ public class TreeEditor {
         });
     }
 
+    public List<Node> getTree() {
+        return this.canvas.getChildren();
+    }
+
     public Node getNode() {
         SplitPane splitPane = new SplitPane();
 
