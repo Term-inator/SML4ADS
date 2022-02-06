@@ -71,7 +71,7 @@ public abstract class TreeLink extends TreeComponent {
         this.generatePoints();
     }
 
-    public boolean getFinish() {
+    public boolean isFinish() {
         return finish;
     }
 

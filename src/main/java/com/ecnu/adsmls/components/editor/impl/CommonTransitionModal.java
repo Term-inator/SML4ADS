@@ -36,6 +36,8 @@ public class CommonTransitionModal extends Modal {
 
         Label lbGuard = new Label("guard");
         TextArea taGuard = new TextArea(this.getCommonTransitionVO());
+        taGuard.setPrefRowCount(10);
+        taGuard.setPrefColumnCount(20);
         //自动换行
         taGuard.setWrapText(true);
 

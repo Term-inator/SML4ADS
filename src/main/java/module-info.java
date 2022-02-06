@@ -4,8 +4,12 @@ module com.ecnu.adsmls {
     requires org.kordamp.bootstrapfx.core;
     requires fastjson;
 
-    opens com.ecnu.adsmls to javafx.fxml;
     exports com.ecnu.adsmls;
+    opens com.ecnu.adsmls to javafx.fxml;
+
+    exports com.ecnu.adsmls.model;
+    opens com.ecnu.adsmls.model to fastjson;
+
     exports com.ecnu.adsmls.views.codepage;
     opens com.ecnu.adsmls.views.codepage to javafx.fxml;
 }
