@@ -41,8 +41,8 @@ public abstract class TreeComponent extends Component {
 
     public void updateTreeTextPosition() {
         Position treeTextPosition = this.getTextPosition();
-        this.getTreeText().position.relocate(treeTextPosition);
-        this.getTreeText().getNode().relocate(treeTextPosition.x, treeTextPosition.y);
+        this.treeText.position.relocate(treeTextPosition.x, treeTextPosition.y);
+        this.treeText.getNode().relocate(treeTextPosition.x, treeTextPosition.y);
     }
 
     public List<Node> remove() {

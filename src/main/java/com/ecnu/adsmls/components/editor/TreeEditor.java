@@ -246,6 +246,7 @@ public class TreeEditor {
                             int clickCount = e.getClickCount();
                             System.out.println("choose behavior");
                             this.chooseComponent((Group) lambdaContext.node);
+                            System.out.println(((Behavior) this.componentChose.getUserData()).position);
                             if(clickCount == 2) {
                                 System.out.println("set behavior");
 
