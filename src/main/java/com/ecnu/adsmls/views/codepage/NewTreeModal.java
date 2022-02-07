@@ -30,16 +30,18 @@ public class NewTreeModal extends Modal {
     }
 
     @Override
-    protected void confirm(ActionEvent e) {
-        this.updateFileName();
-        this.check();
-        if(this.valid) {
-        }
+    protected void check() {
+        this.checkFilename();
     }
 
     @Override
-    protected void check() {
-        this.checkFilename();
+    protected void update() {
+        this.updateFileName();
+    }
+
+    @Override
+    protected void then() {
+
     }
 
     private void updateFileName() {

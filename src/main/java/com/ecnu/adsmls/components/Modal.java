@@ -89,8 +89,10 @@ public abstract class Modal {
 
     protected void bindConfirmCancel() {
         btConfirm.setOnAction(e -> {
-            this.confirm(e);
+            this.update();
+            this.check();
             if(valid) {
+                this.then();
                 this.window.close();
             }
             else {
@@ -99,18 +101,25 @@ public abstract class Modal {
         });
 
         btCancel.setOnAction(e -> {
-            this.cancel(e);
+            this.confirm = false;
             this.window.close();
         });
     }
 
-    protected abstract void confirm(ActionEvent e);
+    /**
+     * 更新数据和界面，在 confirm 中调用
+     */
+    protected abstract void update();
 
-    protected void cancel(ActionEvent e) {
-        this.confirm = false;
-    }
-
+    /**
+     * 检查数据是否合法，在 confirm 中调用
+     */
     protected abstract void check();
+
+    /**
+     * confirm 且数据 valid 后执行的操作
+     */
+    protected abstract void then();
 
     protected void updateGridPane() {
         this.gridPane.getChildren().clear();

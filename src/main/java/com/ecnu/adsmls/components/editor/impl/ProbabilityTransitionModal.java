@@ -54,17 +54,18 @@ public class ProbabilityTransitionModal extends Modal {
     }
 
     @Override
-    protected void confirm(ActionEvent e) {
-        this.updateWeight();
-        this.check();
-        if(this.valid) {
-            transition.updateTreeTextPosition();
-        }
+    protected void check() {
+        this.checkGuard();
     }
 
     @Override
-    protected void check() {
-        this.checkGuard();
+    protected void update() {
+        this.updateWeight();
+    }
+
+    @Override
+    protected void then() {
+        this.transition.updateTreeTextPosition();
     }
 
     private void checkGuard() {

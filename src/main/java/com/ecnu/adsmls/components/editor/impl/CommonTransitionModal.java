@@ -63,17 +63,18 @@ public class CommonTransitionModal extends Modal {
     }
 
     @Override
-    protected void confirm(ActionEvent e) {
-        this.updateGuard();
-        this.check();
-        if(this.valid) {
-            transition.updateTreeTextPosition();
-        }
+    protected void check() {
+        this.checkGuard();
     }
 
     @Override
-    protected void check() {
-        this.checkGuard();
+    protected void update() {
+        this.updateGuard();
+    }
+
+    @Override
+    protected void then() {
+        this.transition.updateTreeTextPosition();
     }
 
     private void checkGuard() {

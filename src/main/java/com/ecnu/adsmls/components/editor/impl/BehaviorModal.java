@@ -89,17 +89,19 @@ public class BehaviorModal extends Modal {
     }
 
     @Override
-    protected void confirm(ActionEvent e) {
-        this.updateParamsValue();
-        this.check();
-        if(this.valid) {
-            this.behavior.updateTreeTextPosition();
-        }
+    protected void check() {
+        this.checkParams();
     }
 
     @Override
-    protected void check() {
-        this.checkParams();
+    protected void update() {
+        this.updateGridPane();
+        this.updateParamsValue();
+    }
+
+    @Override
+    protected void then() {
+        this.behavior.updateTreeTextPosition();
     }
 
     @Override
