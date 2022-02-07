@@ -14,11 +14,12 @@ import javafx.scene.layout.*;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class TreeEditor {
+    private String filename;
+
     private AnchorPane paletteWrapper;
     private AnchorPane canvasWrapper;
 
@@ -287,8 +288,12 @@ public class TreeEditor {
         });
     }
 
-    public List<Node> getTree() {
-        return this.canvas.getChildren();
+    public void saveTree() {
+
+    }
+
+    public void loadTree() {
+
     }
 
     public Node getNode() {

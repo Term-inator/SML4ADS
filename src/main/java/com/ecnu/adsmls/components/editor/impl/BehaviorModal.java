@@ -4,8 +4,18 @@ package com.ecnu.adsmls.components.editor.impl;
 import com.ecnu.adsmls.components.Modal;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
+import javafx.stage.StageStyle;
+
 import java.util.*;
 
 
@@ -26,6 +36,14 @@ public class BehaviorModal extends Modal {
         super();
         this.behavior = behavior;
         this.loadData();
+
+        this.setStyle("stageStyle", StageStyle.TRANSPARENT);
+        this.setStyle("opacity", 0.87);
+        this.setStyle("background",
+                new Background(new BackgroundFill(
+                        new LinearGradient(1, 1, 1, 0, true, CycleMethod.REFLECT,
+                                new Stop(0.0, Color.LIGHTBLUE), new Stop(1.0, Color.WHITE)),
+                        new CornerRadii(15), Insets.EMPTY)));
     }
 
     public String getBehaviorName() {
