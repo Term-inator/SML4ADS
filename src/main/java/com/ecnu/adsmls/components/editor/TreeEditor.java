@@ -14,11 +14,12 @@ import javafx.scene.layout.*;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class TreeEditor {
+    private String filename;
+
     private AnchorPane paletteWrapper;
     private AnchorPane canvasWrapper;
 
@@ -245,6 +246,7 @@ public class TreeEditor {
                             int clickCount = e.getClickCount();
                             System.out.println("choose behavior");
                             this.chooseComponent((Group) lambdaContext.node);
+                            System.out.println(((Behavior) this.componentChose.getUserData()).position);
                             if(clickCount == 2) {
                                 System.out.println("set behavior");
 
@@ -287,8 +289,12 @@ public class TreeEditor {
         });
     }
 
-    public List<Node> getTree() {
-        return this.canvas.getChildren();
+    public void saveTree() {
+
+    }
+
+    public void loadTree() {
+
     }
 
     public Node getNode() {

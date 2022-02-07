@@ -36,6 +36,10 @@ public abstract class Modal {
     protected Button btConfirm = new Button("Confirm");;
     protected Button btCancel = new Button("Cancel");;
 
+    private StageStyle stageStyle = StageStyle.DECORATED;
+    private double opacity = 1f;
+    private Background background = null;
+
     // 填写是否合法
     protected boolean valid = true;
     // 是否点击了确认
@@ -49,22 +53,29 @@ public abstract class Modal {
         return this.confirm;
     }
 
+    public void setStyle(String key, Object obj) {
+        if(Objects.equals(key, "stageStyle")) {
+            this.stageStyle = (StageStyle) obj;
+        }
+        else if(Objects.equals(key, "opacity")) {
+            this.opacity = (Double) obj;
+        }
+        else if(Objects.equals(key, "background")) {
+            this.background = (Background) obj;
+        }
+    }
+
     protected void createWindow() {
-        window = new Stage(StageStyle.TRANSPARENT);
+        window = new Stage(this.stageStyle);
         window.initModality(Modality.APPLICATION_MODAL);
-        window.setOpacity(0.87);
+        window.setOpacity(this.opacity);
 
         gridPane = new GridPane();
         gridPane.setPadding(new Insets(15, 20, 15, 20));
         gridPane.setVgap(8);
         gridPane.setHgap(5);
-        //draw special window
-        gridPane.setBackground(new Background(
-                new BackgroundFill(
-                        new LinearGradient(1, 1, 1, 0, true, CycleMethod.REFLECT,
-                                new Stop(0.0, Color.LIGHTBLUE), new Stop(1.0, Color.WHITE)),
-                        new CornerRadii(15),
-                        Insets.EMPTY)));
+
+        gridPane.setBackground(this.background);
 
         staticPage.add(new Node[] {btConfirm, btCancel});
 
@@ -78,8 +89,10 @@ public abstract class Modal {
 
     protected void bindConfirmCancel() {
         btConfirm.setOnAction(e -> {
-            this.confirm(e);
+            this.update();
+            this.check();
             if(valid) {
+                this.then();
                 this.window.close();
             }
             else {
@@ -88,18 +101,25 @@ public abstract class Modal {
         });
 
         btCancel.setOnAction(e -> {
-            this.cancel(e);
+            this.confirm = false;
             this.window.close();
         });
     }
 
-    protected abstract void confirm(ActionEvent e);
+    /**
+     * 更新数据和界面，在 confirm 中调用
+     */
+    protected abstract void update();
 
-    protected void cancel(ActionEvent e) {
-        this.confirm = false;
-    }
-
+    /**
+     * 检查数据是否合法，在 confirm 中调用
+     */
     protected abstract void check();
+
+    /**
+     * confirm 且数据 valid 后执行的操作
+     */
+    protected abstract void then();
 
     protected void updateGridPane() {
         this.gridPane.getChildren().clear();

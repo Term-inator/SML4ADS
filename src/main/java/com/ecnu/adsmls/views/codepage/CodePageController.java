@@ -179,7 +179,14 @@ public class CodePageController implements Initializable {
 
     private void onNewTreeClick(ActionEvent event) {
         System.out.println("Tree");
-        Tab tab = new Tab("untitled.tree");
+
+        NewTreeModal ntm = new NewTreeModal();
+        ntm.getWindow().showAndWait();
+        if(!ntm.isConfirm()) {
+            return;
+        }
+
+        Tab tab = new Tab(ntm.getFilename() + ".json");
         tab.setOnClosed(e -> {
             System.out.println(tab.getText() + " closed");
         });

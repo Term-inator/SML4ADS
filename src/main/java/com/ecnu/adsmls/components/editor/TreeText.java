@@ -1,6 +1,7 @@
 package com.ecnu.adsmls.components.editor;
 
 import com.ecnu.adsmls.utils.Position;
+import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.text.Text;
 
@@ -15,10 +16,15 @@ public class TreeText extends Area {
         super(component.getTextPosition());
         this.component = component;
         component.setTreeText(this);
+
+        text.setX(this.position.x);
+        text.setY(this.position.y + this.text.getBaselineOffset());
+        this.addNode(text);
+        this.enableDrag();
     }
 
-    public String getText() {
-        return text.getText();
+    public Text getText() {
+        return text;
     }
 
     public void setText(String text) {
@@ -43,12 +49,6 @@ public class TreeText extends Area {
 
     @Override
     public Node getNode() {
-        text.setX(this.position.x);
-        text.setY(this.position.y);
-
-        this.addNode(text);
-        this.enableDrag();
-
         return graphicNode;
     }
 }
