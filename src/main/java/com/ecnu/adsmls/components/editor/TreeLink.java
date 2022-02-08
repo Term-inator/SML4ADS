@@ -128,6 +128,7 @@ public abstract class TreeLink extends TreeComponent {
 
     private void generatePoints() {
         for (int i = 1; i < this.linkPoints.size() - 1; ++i) {
+            this.linkPoints.get(i).updateNode();
             this.linkPointLayer.getChildren().add(this.linkPoints.get(i).getNode());
         }
     }
@@ -150,6 +151,7 @@ public abstract class TreeLink extends TreeComponent {
         this.hidePoints();
     }
 
+    @Override
     public void updateNode() {
         this.modifyFirstPoint();
         this.modifyLastPoint();
@@ -179,6 +181,7 @@ public abstract class TreeLink extends TreeComponent {
                 this.arrow.relocate(p2, rad);
             }
 
+            this.arrow.updateNode();
             this.addNodes(path, this.arrow.getNode());
         }
         else {

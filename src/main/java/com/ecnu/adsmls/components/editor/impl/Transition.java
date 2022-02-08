@@ -17,9 +17,4 @@ public class Transition extends TreeLink {
     public void inactive() {
         super.inactive();
     }
-
-    @Override
-    public Node getNode() {
-        return graphicNode;
-    }
 }

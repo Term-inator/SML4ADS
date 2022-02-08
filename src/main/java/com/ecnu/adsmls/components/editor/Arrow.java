@@ -56,7 +56,7 @@ public class Arrow extends Component {
     }
 
     @Override
-    public Node getNode() {
+    public void updateNode() {
         this.generatePath();
 
         this.path.setStrokeWidth(2);
@@ -65,7 +65,5 @@ public class Arrow extends Component {
         if(!this.graphicNode.getChildren().contains(this.path)) {
             this.graphicNode.getChildren().addAll(this.path);
         }
-
-        return graphicNode;
     }
 }

@@ -29,9 +29,13 @@ public abstract class Component {
         }
     }
 
+    public Group getNode() {
+        return graphicNode;
+    }
+
     public abstract void active();
 
     public abstract void inactive();
 
-    public abstract Node getNode();
+    public abstract void updateNode();
 }
