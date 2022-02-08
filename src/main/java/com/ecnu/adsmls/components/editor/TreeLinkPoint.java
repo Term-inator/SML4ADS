@@ -18,6 +18,8 @@ public class TreeLinkPoint extends Area {
         super(position);
         this.position = position;
         this.treeLink = treeLink;
+
+        this.enableDrag();
     }
 
     public Position getPosition() {
@@ -55,7 +57,7 @@ public class TreeLinkPoint extends Area {
     }
 
     @Override
-    public Node getNode() {
+    public void updateNode() {
         Circle circle = new Circle();
         this.position.x -= this.r;
         this.position.y -= this.r;
@@ -67,8 +69,5 @@ public class TreeLinkPoint extends Area {
         circle.setStroke(Color.ROYALBLUE);
 
         graphicNode.getChildren().addAll(circle);
-        this.enableDrag();
-
-        return graphicNode;
     }
 }

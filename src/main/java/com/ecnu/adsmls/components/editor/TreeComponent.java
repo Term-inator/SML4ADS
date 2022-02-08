@@ -28,6 +28,7 @@ public abstract class TreeComponent extends Component {
     public void initTreeText() {
         if(this.treeText == null) {
             this.treeText = new TreeText(this);
+            this.treeText.updateNode();
         }
     }
 

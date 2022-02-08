@@ -240,6 +240,7 @@ public class TreeEditor {
                     if (Objects.equals(componentSelected, "Behavior")) {
                         Position position = new Position(event.getX(), event.getY());
                         Behavior behavior = new Behavior(this.componentId++, position);
+                        behavior.updateNode();
                         lambdaContext.node = behavior.getNode();
                         lambdaContext.node.setUserData(behavior);
                         lambdaContext.node.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
@@ -264,6 +265,7 @@ public class TreeEditor {
                     } else if (Objects.equals(componentSelected, "BranchPoint")) {
                         Position position = new Position(event.getX(), event.getY());
                         BranchPoint branchPoint = new BranchPoint(this.componentId++, position);
+                        branchPoint.updateNode();
                         lambdaContext.node = branchPoint.getNode();
                         lambdaContext.node.setUserData(branchPoint);
                         lambdaContext.node.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {

@@ -12,6 +12,8 @@ public class BranchPoint extends TreeArea {
 
     public BranchPoint(long id, Position position) {
         super(id, position);
+
+        this.enableDrag();
     }
 
     @Override
@@ -42,7 +44,7 @@ public class BranchPoint extends TreeArea {
     }
 
     @Override
-    public Node getNode() {
+    public void updateNode() {
         Circle circle = new Circle();
         this.position.x -= this.r;
         this.position.y -= this.r;
@@ -54,8 +56,5 @@ public class BranchPoint extends TreeArea {
         circle.setStroke(Color.ROYALBLUE);
 
         graphicNode.getChildren().addAll(circle);
-        this.enableDrag();
-
-        return graphicNode;
     }
 }

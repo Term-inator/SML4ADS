@@ -17,6 +17,8 @@ public class Behavior extends TreeArea {
 
     public Behavior(long id, Position position) {
         super(id, position);
+
+        this.enableDrag();
     }
 
     @Override
@@ -63,7 +65,7 @@ public class Behavior extends TreeArea {
     }
 
     @Override
-    public Node getNode() {
+    public void updateNode() {
         Circle circle = new Circle();
         this.position.x -= this.r;
         this.position.y -= this.r;
@@ -75,8 +77,5 @@ public class Behavior extends TreeArea {
         circle.setStroke(Color.ROYALBLUE);
 
         graphicNode.getChildren().addAll(circle);
-        this.enableDrag();
-
-        return graphicNode;
     }
 }

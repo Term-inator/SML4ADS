@@ -17,9 +17,6 @@ public class TreeText extends Area {
         this.component = component;
         component.setTreeText(this);
 
-        text.setX(this.position.x);
-        text.setY(this.position.y + this.text.getBaselineOffset());
-        this.addNode(text);
         this.enableDrag();
     }
 
@@ -48,7 +45,9 @@ public class TreeText extends Area {
     }
 
     @Override
-    public Node getNode() {
-        return graphicNode;
+    public void updateNode() {
+        text.setX(this.position.x);
+        text.setY(this.position.y + this.text.getBaselineOffset());
+        this.addNode(text);
     }
 }
