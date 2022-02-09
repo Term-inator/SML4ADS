@@ -62,8 +62,6 @@ public class Arrow extends Component {
         this.path.setStrokeWidth(2);
         this.path.setStroke(Color.ROYALBLUE);
 
-        if(!this.graphicNode.getChildren().contains(this.path)) {
-            this.graphicNode.getChildren().addAll(this.path);
-        }
+        this.addNode(this.path);
     }
 }

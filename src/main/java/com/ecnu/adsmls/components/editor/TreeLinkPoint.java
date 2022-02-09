@@ -68,6 +68,6 @@ public class TreeLinkPoint extends Area {
         circle.setStrokeWidth(2);
         circle.setStroke(Color.ROYALBLUE);
 
-        graphicNode.getChildren().addAll(circle);
+        this.addNode(circle);
     }
 }
