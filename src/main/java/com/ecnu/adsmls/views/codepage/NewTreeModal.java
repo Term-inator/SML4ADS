@@ -37,6 +37,7 @@ public class NewTreeModal extends Modal {
 
     @Override
     protected void check() {
+        this.checkDirectory();
         this.checkFilename();
     }
 
@@ -53,7 +54,16 @@ public class NewTreeModal extends Modal {
 
     private void updateDirectory() {
         ChooseDirectoryButton btDir = (ChooseDirectoryButton) this.staticPage.get(0)[1].getUserData();
-        this.directory = btDir.getFolder().getAbsolutePath();
+        try {
+            this.directory = btDir.getFolder().getAbsolutePath();
+        }
+        catch (Exception ignored) {
+
+        }
+    }
+
+    private void checkDirectory() {
+        // TODO 路径检查
     }
 
     private void updateFileName() {

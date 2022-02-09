@@ -73,11 +73,8 @@ public class ProbabilityTransitionModal extends Modal {
     }
 
     public void updateWeight() {
-        for(Node node : gridPane.getChildren()) {
-            if(node instanceof TextField) {
-                this.weight = ((TextField) node).getText();
-            }
-        }
+        TextField tfWeight = (TextField) this.staticPage.get(0)[1];
+        this.weight = tfWeight.getText();
     }
 
     public String getProbabilityTransitionVO() {
