@@ -1,7 +1,6 @@
 package com.ecnu.adsmls.components.editor.impl;
 
 import com.ecnu.adsmls.components.editor.TreeLink;
-import javafx.scene.Node;
 
 public class Transition extends TreeLink {
     public Transition(long id) {
