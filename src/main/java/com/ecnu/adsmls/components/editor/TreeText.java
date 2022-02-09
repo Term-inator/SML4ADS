@@ -1,31 +1,29 @@
 package com.ecnu.adsmls.components.editor;
 
 import com.ecnu.adsmls.utils.Position;
-import javafx.geometry.VPos;
-import javafx.scene.Node;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
 
 public class TreeText extends Area {
     private TreeComponent component;
 
-    private Text text = new Text();
-
-
     public TreeText(TreeComponent component) {
         super(component.getTextPosition());
         this.component = component;
         component.setTreeText(this);
 
+        this.createNode();
+        this.inactive();
         this.enableDrag();
     }
 
     public Text getText() {
-        return text;
+        return (Text) this.shape;
     }
 
     public void setText(String text) {
-        this.text.setText(text);
+        ((Text) this.shape).setText(text);
     }
 
     @Override
@@ -36,18 +34,25 @@ public class TreeText extends Area {
 
     @Override
     public void active() {
-
+        this.shape.setFill(Color.ORANGE);
     }
 
     @Override
     public void inactive() {
+        this.shape.setFill(Color.BLACK);
+    }
 
+    @Override
+    public void createNode() {
+        Text text = new Text();
+        text.setX(this.position.x);
+        text.setY(this.position.y + text.getBaselineOffset());
+
+        this.shape = text;
     }
 
     @Override
     public void updateNode() {
-        text.setX(this.position.x);
-        text.setY(this.position.y + this.text.getBaselineOffset());
-        this.addNode(text);
+        this.addNode(this.shape);
     }
 }

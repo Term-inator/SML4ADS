@@ -83,17 +83,14 @@ public class CommonTransitionModal extends Modal {
 
     public void updateGuard() {
         this.guards.clear();
-        for(Node node : gridPane.getChildren()) {
-            if(node instanceof TextArea) {
-                String[] guards = ((TextArea) node).getText().split(";");
-                for(String guard : guards) {
-                    guard = guard.replaceAll("[\r\n]", "");
-                    if(Objects.equals(guard, "")) {
-                        continue;
-                    }
-                    this.guards.add(guard.trim());
-                }
+        TextArea taGuard = (TextArea) this.staticPage.get(0)[1];
+        String[] guards = taGuard.getText().split(";");
+        for(String guard : guards) {
+            guard = guard.replaceAll("[\r\n]", "");
+            if(Objects.equals(guard, "")) {
+                continue;
             }
+            this.guards.add(guard.trim());
         }
     }
 

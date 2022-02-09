@@ -1,5 +1,6 @@
 package com.ecnu.adsmls.views.codepage;
 
+import com.ecnu.adsmls.components.ChooseDirectoryButton;
 import com.ecnu.adsmls.components.Modal;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
@@ -9,6 +10,8 @@ import javafx.scene.control.TextField;
 import java.util.Objects;
 
 public class NewTreeModal extends Modal {
+    private String directory;
+
     private String filename;
 
     public NewTreeModal() {
@@ -23,19 +26,24 @@ public class NewTreeModal extends Modal {
     protected void createWindow() {
         super.createWindow();
 
+        Label lbDirName = new Label("directory");
+        ChooseDirectoryButton btDir = new ChooseDirectoryButton(this.gridPane);
         Label lbFilename = new Label("filename");
         TextField tfFilename = new TextField();
 
-        staticPage.add(0, new Node[] {lbFilename, tfFilename});
+        staticPage.add(0, new Node[] {lbDirName, btDir.getNode()});
+        staticPage.add(1, new Node[] {lbFilename, tfFilename});
     }
 
     @Override
     protected void check() {
+        this.checkDirectory();
         this.checkFilename();
     }
 
     @Override
     protected void update() {
+        this.updateDirectory();
         this.updateFileName();
     }
 
@@ -44,12 +52,23 @@ public class NewTreeModal extends Modal {
 
     }
 
-    private void updateFileName() {
-        for(Node node : gridPane.getChildren()) {
-            if(node instanceof TextField) {
-                this.filename = ((TextField) node).getText();
-            }
+    private void updateDirectory() {
+        ChooseDirectoryButton btDir = (ChooseDirectoryButton) this.staticPage.get(0)[1].getUserData();
+        try {
+            this.directory = btDir.getFolder().getAbsolutePath();
         }
+        catch (Exception ignored) {
+
+        }
+    }
+
+    private void checkDirectory() {
+        // TODO 路径检查
+    }
+
+    private void updateFileName() {
+        TextField tfFilename = (TextField) this.staticPage.get(1)[1];
+        this.filename = tfFilename.getText();
     }
 
     private void checkFilename() {

@@ -12,7 +12,11 @@ public class BranchPoint extends TreeArea {
 
     public BranchPoint(long id, Position position) {
         super(id, position);
+        this.position.x -= this.r;
+        this.position.y -= this.r;
 
+        this.createNode();
+        this.inactive();
         this.enableDrag();
     }
 
@@ -35,26 +39,27 @@ public class BranchPoint extends TreeArea {
 
     @Override
     public void active() {
-
+        super.active();
     }
 
     @Override
     public void inactive() {
-
+        super.inactive();
     }
 
     @Override
-    public void updateNode() {
+    public void createNode() {
         Circle circle = new Circle();
-        this.position.x -= this.r;
-        this.position.y -= this.r;
         circle.setCenterX(this.position.x + this.r);
         circle.setCenterY(this.position.y + this.r);
         circle.setRadius(this.r);
         circle.setFill(Color.WHITE);
         circle.setStrokeWidth(2);
-        circle.setStroke(Color.ROYALBLUE);
+        this.shape = circle;
+    }
 
-        graphicNode.getChildren().addAll(circle);
+    @Override
+    public void updateNode() {
+        this.addNode(this.shape);
     }
 }

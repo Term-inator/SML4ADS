@@ -22,9 +22,11 @@ public abstract class TreeLink extends TreeComponent {
     private TreeArea target;
 
     private List<TreeLinkPoint> linkPoints = new ArrayList<>();
-    private Path path = new Path();
     private Arrow arrow;
     private Group linkPointLayer = new Group();
+
+    // 是否正在被拖动
+    protected boolean dragging = false;
 
     // 默认支持自环
     protected boolean loop = true;
@@ -32,6 +34,9 @@ public abstract class TreeLink extends TreeComponent {
 
     public TreeLink(long id) {
         super(id);
+
+        this.createNode();
+        this.inactive();
     }
 
     public TreeArea getSource() {
@@ -86,7 +91,7 @@ public abstract class TreeLink extends TreeComponent {
      * 变成虚线
      */
     public void dashed() {
-        this.path.getStrokeDashArray().addAll(10d);
+        this.shape.getStrokeDashArray().addAll(10d);
     }
 
     @Override
@@ -138,17 +143,42 @@ public abstract class TreeLink extends TreeComponent {
     }
 
     private void hidePoints() {
-        this.graphicNode.getChildren().remove(this.linkPointLayer);
+        if(!this.dragging) {
+            this.graphicNode.getChildren().remove(this.linkPointLayer);
+        }
     }
 
     @Override
     public void active() {
+        System.out.println("active");
+        super.active();
+        if(arrow != null) {
+            this.arrow.active();
+        }
         this.showPoints();
     }
 
     @Override
     public void inactive() {
+        System.out.println("inactive");
+        super.inactive();
+        if(arrow != null) {
+            this.arrow.inactive();
+        }
         this.hidePoints();
+    }
+
+    @Override
+    public void createNode() {
+        Path path;
+        if(this.shape == null) {
+            path = new Path();
+        }
+        else {
+            path = (Path) this.shape;
+            path.getElements().clear();
+        }
+        this.shape = path;
     }
 
     @Override
@@ -156,16 +186,16 @@ public abstract class TreeLink extends TreeComponent {
         this.modifyFirstPoint();
         this.modifyLastPoint();
 
-        this.path.getElements().clear();
-        this.path.getElements().add(new MoveTo(this.linkPoints.get(0).getCenterPoint().x, this.linkPoints.get(0).getCenterPoint().y));
+        Path path = (Path) this.shape;
+        path.getElements().clear();
+        path.getElements().add(new MoveTo(this.linkPoints.get(0).getCenterPoint().x, this.linkPoints.get(0).getCenterPoint().y));
         int size = this.linkPoints.size();
         for (int i = 1; i < size; ++i) {
             Position p = this.linkPoints.get(i).getCenterPoint();
-            this.path.getElements().add(new LineTo(p.x, p.y));
+            path.getElements().add(new LineTo(p.x, p.y));
         }
-        this.path.setStrokeWidth(2);
-        this.path.setStroke(Color.ROYALBLUE);
-        this.path.setStrokeLineJoin(StrokeLineJoin.ROUND);
+        path.setStrokeWidth(2);
+        path.setStrokeLineJoin(StrokeLineJoin.ROUND);
 
         if(size >= 2) {
             Position p1 = this.linkPoints.get(size - 2).getCenterPoint();
@@ -175,19 +205,17 @@ public abstract class TreeLink extends TreeComponent {
             double rad = vector.radWithXAxis();
 
             if(this.arrow == null) {
-                this.arrow = new Arrow(p2, rad, 12);
+                this.arrow = new Arrow(this, p2, rad, 12);
             }
             else {
                 this.arrow.relocate(p2, rad);
             }
-
             this.arrow.updateNode();
-            this.addNodes(path, this.arrow.getNode());
+            this.addNodes(this.shape, this.arrow.getNode());
         }
         else {
-            this.addNode(path);
+            this.addNode(this.shape);
         }
-
     }
 
     public void rollback() {

@@ -6,39 +6,39 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.stage.FileChooser;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
 
-public class ChooseFileButton {
-    private File file;
+public class ChooseDirectoryButton {
+    private File folder;
     private Pane rootLayout;
 
-    public ChooseFileButton(Pane rootLayout) {
+    public ChooseDirectoryButton(Pane rootLayout) {
         this.rootLayout = rootLayout;
     }
 
     public Node getNode() {
         HBox hBox0 = new HBox();
         hBox0.setAlignment(Pos.CENTER_LEFT);
-        Button button = new Button("Choose File");
-        Label lbFileName = new Label();
-        hBox0.getChildren().addAll(lbFileName, button);
+        Button button = new Button("Choose Directory");
+        Label lbDirName = new Label();
+        hBox0.getChildren().addAll(lbDirName, button);
         button.setOnMouseClicked(e -> {
             Stage stage = (Stage) rootLayout.getScene().getWindow();
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Open Resource File");
-            file = fileChooser.showOpenDialog(stage);
-            if(file != null) {
-                lbFileName.setText(file.getName());
+            DirectoryChooser dirChooser = new DirectoryChooser();
+            dirChooser.setTitle("Choose Directory");
+            folder = dirChooser.showDialog(stage);
+            if(folder != null) {
+                lbDirName.setText(folder.getAbsolutePath());
             }
         });
         hBox0.setUserData(this);
         return hBox0;
     }
 
-    public File getFile() {
-        return file;
+    public File getFolder() {
+        return folder;
     }
 }
