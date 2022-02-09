@@ -7,14 +7,16 @@ import javafx.scene.shape.Path;
 
 
 public class Arrow extends Component {
+    private TreeLink treeLink;
     private Position endPoint;
     private double rad;
     private double arrowLen;
 
     private final double angle = Math.PI / 3;
 
-    public Arrow(Position endPoint, double rad, double arrowLen) {
+    public Arrow(TreeLink treeLink, Position endPoint, double rad, double arrowLen) {
         super();
+        this.treeLink = treeLink;
         this.endPoint = endPoint;
         this.rad = rad;
         this.arrowLen = arrowLen;
@@ -50,6 +52,9 @@ public class Arrow extends Component {
 
     @Override
     public void inactive() {
+        if(this.treeLink.isSelected()) {
+            return;
+        }
         super.inactive();
     }
 

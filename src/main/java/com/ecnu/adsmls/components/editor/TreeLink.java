@@ -150,6 +150,7 @@ public abstract class TreeLink extends TreeComponent {
 
     @Override
     public void active() {
+        System.out.println("active");
         super.active();
         if(arrow != null) {
             this.arrow.active();
@@ -159,6 +160,7 @@ public abstract class TreeLink extends TreeComponent {
 
     @Override
     public void inactive() {
+        System.out.println("inactive");
         super.inactive();
         if(arrow != null) {
             this.arrow.inactive();
@@ -203,7 +205,7 @@ public abstract class TreeLink extends TreeComponent {
             double rad = vector.radWithXAxis();
 
             if(this.arrow == null) {
-                this.arrow = new Arrow(p2, rad, 12);
+                this.arrow = new Arrow(this, p2, rad, 12);
             }
             else {
                 this.arrow.relocate(p2, rad);

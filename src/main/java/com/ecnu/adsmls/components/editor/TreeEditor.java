@@ -73,9 +73,11 @@ public class TreeEditor {
 
     private void chooseComponent(Group component) {
         if(componentChose != null) {
+            ((TreeComponent) this.componentChose.getUserData()).unselect();
             ((TreeComponent) this.componentChose.getUserData()).inactive();
         }
         this.componentChose = component;
+        ((TreeComponent) this.componentChose.getUserData()).select();
         ((TreeComponent) this.componentChose.getUserData()).active();
     }
 
@@ -132,6 +134,7 @@ public class TreeEditor {
                 System.out.println("click nothing");
                 if(this.componentChose != null) {
                     System.out.println("inactive");
+                    ((TreeComponent) this.componentChose.getUserData()).unselect();
                     ((TreeComponent) this.componentChose.getUserData()).inactive();
                 }
                 this.componentChose = null;
@@ -283,6 +286,7 @@ public class TreeEditor {
                 }
                 else {
                     if (transition.get().isFinish()) {
+                        this.chooseComponent(transition.get().getNode());
                         transition.set(null);
                         System.out.println("finish");
                     }

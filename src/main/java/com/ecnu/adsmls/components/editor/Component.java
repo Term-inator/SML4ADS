@@ -12,6 +12,9 @@ public abstract class Component {
     protected Group graphicNode;
     protected Shape shape;
 
+    // 是否被选中
+    private boolean selected = false;
+
     public Component() {
         this.graphicNode = new Group();
 
@@ -19,13 +22,27 @@ public abstract class Component {
         this.graphicNode.addEventHandler(MouseEvent.MOUSE_ENTERED, e -> {
             this.graphicNode.setCursor(Cursor.HAND);
             this.active();
-            this.updateNode();
         });
         this.graphicNode.addEventHandler(MouseEvent.MOUSE_EXITED, e -> {
             this.graphicNode.setCursor(Cursor.DEFAULT);
+            if(this.selected) {
+                System.out.println("selected");
+                return;
+            }
             this.inactive();
-            this.updateNode();
         });
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void select() {
+        this.selected = true;
+    }
+
+    public void unselect() {
+        this.selected = false;
     }
 
     protected void addNode(Node node) {
