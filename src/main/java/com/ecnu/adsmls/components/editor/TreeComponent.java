@@ -48,6 +48,22 @@ public abstract class TreeComponent extends Component {
         this.treeText.getNode().relocate(treeTextPosition.x, treeTextPosition.y);
     }
 
+    @Override
+    public void active() {
+        super.active();
+        if(this.treeText != null) {
+            this.treeText.active();
+        }
+    }
+
+    @Override
+    public void inactive() {
+        super.inactive();
+        if(this.treeText != null) {
+            this.treeText.inactive();
+        }
+    }
+
     public List<Node> remove() {
         List<Node> res = new ArrayList<>();
         res.add(this.graphicNode);
