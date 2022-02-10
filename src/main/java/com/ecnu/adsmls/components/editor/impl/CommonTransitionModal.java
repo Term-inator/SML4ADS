@@ -53,7 +53,7 @@ public class CommonTransitionModal extends Modal {
         super.createWindow();
 
         Label lbGuard = new Label("guard");
-        TextArea taGuard = new TextArea(this.getCommonTransitionVO());
+        TextArea taGuard = new TextArea(this.transition.getInfo());
         taGuard.setPrefRowCount(10);
         taGuard.setPrefColumnCount(20);
         //自动换行
@@ -92,13 +92,5 @@ public class CommonTransitionModal extends Modal {
             }
             this.guards.add(guard.trim());
         }
-    }
-
-    public String getCommonTransitionVO() {
-        StringBuilder res = new StringBuilder();
-        for(String guard : this.guards) {
-            res.append(guard).append(";\n");
-        }
-        return res.toString();
     }
 }

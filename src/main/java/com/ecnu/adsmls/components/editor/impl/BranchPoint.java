@@ -38,6 +38,11 @@ public class BranchPoint extends TreeArea {
     }
 
     @Override
+    public String getInfo() {
+        return "";
+    }
+
+    @Override
     public void active() {
         super.active();
     }

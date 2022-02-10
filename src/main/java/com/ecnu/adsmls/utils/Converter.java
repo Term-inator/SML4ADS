@@ -18,6 +18,10 @@ public class Converter {
         double r = TreeAreaRadius.Behavior.getR();
         position.relocate(position.x + r, position.y + r);
         Behavior behavior = new Behavior(id, position);
+
+        behavior.updateNode();
+        behavior.initTreeText();
+
         behavior.setName(name);
         behavior.setParams(params);
         return behavior;
@@ -53,7 +57,6 @@ public class Converter {
         List<MPosition> mPositionList = mCommonTransition.getLinkPoints();
         List<String> guards = mCommonTransition.getGuards();
         CommonTransition commonTransition = new CommonTransition(id);
-        commonTransition.setGuards(guards);
         TreeArea source = null;
         TreeArea target = null;
         for(TreeArea treeArea : treeAreaList) {
@@ -76,6 +79,11 @@ public class Converter {
             commonTransition.getLinkPoints().add(new TreeLinkPoint(position, commonTransition));
         }
         commonTransition.setTarget(target);
+
+        commonTransition.updateNode();
+        commonTransition.initTreeText();
+
+        commonTransition.setGuards(guards);
         return commonTransition;
     }
 
@@ -98,7 +106,6 @@ public class Converter {
         List<MPosition> mPositionList = mProbabilityTransition.getLinkPoints();
         String weight = mProbabilityTransition.getWeight();
         ProbabilityTransition probabilityTransition = new ProbabilityTransition(id);
-        probabilityTransition.setWeight(weight);
         TreeArea source = null;
         TreeArea target = null;
         for(TreeArea treeArea : treeAreaList) {
@@ -118,6 +125,11 @@ public class Converter {
             probabilityTransition.getLinkPoints().add(new TreeLinkPoint(position, probabilityTransition));
         }
         probabilityTransition.setTarget(target);
+
+        probabilityTransition.updateNode();
+        probabilityTransition.initTreeText();
+
+        probabilityTransition.setWeight(weight);
         return probabilityTransition;
     }
 

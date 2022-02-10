@@ -52,7 +52,6 @@ public class TreeEditor {
         canvasWrapper = new AnchorPane(canvas);
 
         initBehavior();
-
         initPalette();
         initCanvas();
     }
@@ -209,7 +208,6 @@ public class TreeEditor {
                                             return;
                                         }
                                         ((CommonTransition) lambdaContext.node.getUserData()).setGuards(ctm.getGuards());
-                                        ((CommonTransition) lambdaContext.node.getUserData()).getTreeText().setText(ctm.getCommonTransitionVO());
                                     }
                                     else if(lambdaContext.node.getUserData() instanceof ProbabilityTransition) {
                                         System.out.println("set probability transition");
@@ -221,7 +219,6 @@ public class TreeEditor {
                                             return;
                                         }
                                         ((ProbabilityTransition) lambdaContext.node.getUserData()).setWeight(ptm.getWeight());
-                                        ((ProbabilityTransition) lambdaContext.node.getUserData()).getTreeText().setText(ptm.getProbabilityTransitionVO());
                                     }
                                 }
                             });
@@ -280,7 +277,6 @@ public class TreeEditor {
                                 }
                                 behavior.setName(bm.getBehaviorName());
                                 behavior.setParams(bm.getParamsValue());
-                                behavior.getTreeText().setText(bm.getBehaviorVO());
                             }
                         });
                     } else if (Objects.equals(componentSelected, "BranchPoint")) {
@@ -374,7 +370,7 @@ public class TreeEditor {
             treeAreaList.add(behavior);
             Node node = behavior.getNode();
             node.setUserData(behavior);
-            this.canvas.getChildren().add(node);
+            this.canvas.getChildren().addAll(node, behavior.getTreeText().getNode());
         }
         for(MBranchPoint mBranchPoint : mTree.getBranchPoints()) {
             BranchPoint branchPoint = Converter.cast(mBranchPoint);
@@ -390,7 +386,7 @@ public class TreeEditor {
             commonTransition.finish();
             Node node = commonTransition.getNode();
             node.setUserData(commonTransition);
-            this.canvas.getChildren().add(node);
+            this.canvas.getChildren().addAll(node, commonTransition.getTreeText().getNode());
         }
         for(MProbabilityTransition mProbabilityTransition : mTree.getProbabilityTransitions()) {
             ProbabilityTransition probabilityTransition = Converter.cast(treeAreaList, mProbabilityTransition);
@@ -398,7 +394,7 @@ public class TreeEditor {
             probabilityTransition.finish();
             Node node = probabilityTransition.getNode();
             node.setUserData(probabilityTransition);
-            this.canvas.getChildren().add(node);
+            this.canvas.getChildren().addAll(node, probabilityTransition.getTreeText().getNode());
         }
     }
 

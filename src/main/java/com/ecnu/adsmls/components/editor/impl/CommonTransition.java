@@ -16,5 +16,15 @@ public class CommonTransition extends Transition {
 
     public void setGuards(List<String> guards) {
         this.guards = guards;
+        this.getTreeText().setText(this.getInfo());
+    }
+
+    @Override
+    public String getInfo() {
+        StringBuilder res = new StringBuilder();
+        for(String guard : this.guards) {
+            res.append(guard).append(";\n");
+        }
+        return res.toString();
     }
 }

@@ -144,14 +144,4 @@ public class BehaviorModal extends Modal {
             // TODO 类型检查
         }
     }
-
-    // 显示在界面上的字符串
-    public String getBehaviorVO() {
-        StringBuilder res = new StringBuilder();
-        res.append(this.behaviorName).append("\n");
-        for(Map.Entry<String, String> param : paramsValue.entrySet()) {
-            res.append(param.getKey()).append(" = ").append(param.getValue()).append("\n");
-        }
-        return res.toString();
-    }
 }
