@@ -14,12 +14,15 @@ public class MProbabilityTransition {
 
     private String weight;
 
-    public MProbabilityTransition(long id, long sourceId, long targetId, List<MPosition> linkPoints, String weight) {
+    private MPosition treeTextPosition;
+
+    public MProbabilityTransition(long id, long sourceId, long targetId, List<MPosition> linkPoints, String weight, MPosition treeTextPosition) {
         this.id = id;
         this.sourceId = sourceId;
         this.targetId = targetId;
         this.linkPoints = linkPoints;
         this.weight = weight;
+        this.treeTextPosition = treeTextPosition;
     }
 
     public MProbabilityTransition() {}
@@ -62,5 +65,13 @@ public class MProbabilityTransition {
 
     public void setWeight(String weight) {
         this.weight = weight;
+    }
+
+    public MPosition getTreeTextPosition() {
+        return treeTextPosition;
+    }
+
+    public void setTreeTextPosition(MPosition treeTextPosition) {
+        this.treeTextPosition = treeTextPosition;
     }
 }

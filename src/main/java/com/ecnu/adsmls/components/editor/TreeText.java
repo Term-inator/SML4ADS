@@ -53,6 +53,8 @@ public class TreeText extends Area {
 
     @Override
     public void updateNode() {
+        ((Text) this.shape).setX(this.position.x);
+        ((Text) this.shape).setY(this.position.y + this.shape.getBaselineOffset());
         this.addNode(this.shape);
     }
 }
