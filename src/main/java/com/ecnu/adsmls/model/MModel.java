@@ -1,6 +1,6 @@
 package com.ecnu.adsmls.model;
 
-public class Model {
+public class MModel {
     // TODO 其他属性
 
     private String treeFileName;

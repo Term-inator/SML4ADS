@@ -1,6 +1,12 @@
 package com.ecnu.adsmls.components.editor;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.ecnu.adsmls.components.editor.impl.*;
+import com.ecnu.adsmls.model.MBehavior;
+import com.ecnu.adsmls.model.MPosition;
+import com.ecnu.adsmls.model.MTree;
+import com.ecnu.adsmls.utils.Converter;
 import com.ecnu.adsmls.utils.Position;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -120,6 +126,9 @@ public class TreeEditor {
                 List<Node> nodes = ((TreeComponent) this.componentChose.getUserData()).remove();
                 this.canvas.getChildren().removeAll(nodes);
                 this.componentChose = null;
+            }
+            else if(e.isControlDown() && e.getCode() == KeyCode.S) {
+                this.saveTree();
             }
         });
 
@@ -296,7 +305,34 @@ public class TreeEditor {
     }
 
     public void saveTree() {
-
+        List<Node> nodes = this.canvas.getChildren();
+        MTree mTree = new MTree();
+        boolean setRoot = false;
+        for(Node node : nodes) {
+            Component component = (Component) node.getUserData();
+            if(component instanceof Behavior) {
+                Behavior behavior = (Behavior) component;
+                if(!setRoot) {
+                    mTree.setRootId(behavior.getId());
+                    setRoot = true;
+                }
+                mTree.getBehaviors().add(Converter.cast(behavior));
+            }
+            else if(component instanceof BranchPoint) {
+                BranchPoint branchPoint = (BranchPoint) component;
+                mTree.getBranchPoints().add(Converter.cast(branchPoint));
+            }
+            else if(component instanceof CommonTransition) {
+                CommonTransition commonTransition = (CommonTransition) component;
+                mTree.getCommonTransitions().add(Converter.cast(commonTransition));
+            }
+            else if(component instanceof ProbabilityTransition) {
+                ProbabilityTransition probabilityTransition = (ProbabilityTransition) component;
+                mTree.getProbabilityTransitions().add(Converter.cast(probabilityTransition));
+            }
+        }
+        String tree = JSON.toJSONString(mTree);
+        System.out.println(tree);
     }
 
     public void loadTree() {
