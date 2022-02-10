@@ -15,12 +15,15 @@ public class Converter {
         Position position = cast(mBehavior.getPosition());
         String name = mBehavior.getName();
         LinkedHashMap<String, String> params = mBehavior.getParams();
+        Position treeTextPosition = cast(mBehavior.getTreeTextPosition());
         double r = TreeAreaRadius.Behavior.getR();
         position.relocate(position.x + r, position.y + r);
-        Behavior behavior = new Behavior(id, position);
 
+        Behavior behavior = new Behavior(id, position);
         behavior.updateNode();
+
         behavior.initTreeText();
+        behavior.getTreeText().setPosition(treeTextPosition);
 
         behavior.setName(name);
         behavior.setParams(params);
@@ -32,7 +35,8 @@ public class Converter {
         MPosition mPosition = cast(behavior.getPosition());
         String name = behavior.getName();
         LinkedHashMap<String, String> params = behavior.getParams();
-        return new MBehavior(id, mPosition, name, params);
+        MPosition mTreeTextPosition = cast(behavior.getTreeText().getPosition());
+        return new MBehavior(id, mPosition, name, params, mTreeTextPosition);
     }
 
     public static BranchPoint cast(MBranchPoint mBranchPoint) {
@@ -40,7 +44,10 @@ public class Converter {
         Position position = cast(mBranchPoint.getPosition());
         double r = TreeAreaRadius.BranchPoint.getR();
         position.relocate(position.x + r, position.y + r);
+
         BranchPoint branchPoint = new BranchPoint(id, position);
+        branchPoint.updateNode();
+
         return branchPoint;
     }
 
@@ -56,6 +63,7 @@ public class Converter {
         long targetId = mCommonTransition.getTargetId();
         List<MPosition> mPositionList = mCommonTransition.getLinkPoints();
         List<String> guards = mCommonTransition.getGuards();
+        Position treeTextPosition = cast(mCommonTransition.getTreeTextPosition());
         CommonTransition commonTransition = new CommonTransition(id);
         TreeArea source = null;
         TreeArea target = null;
@@ -72,7 +80,7 @@ public class Converter {
         }
         commonTransition.setSource(source);
         double r = TreeAreaRadius.TreeLinkPoint.getR();
-        for(int i = 1; i < mCommonTransition.getLinkPoints().size() - 1; ++i) {
+        for(int i = 1; i < mPositionList.size() - 1; ++i) {
             MPosition mPosition = mCommonTransition.getLinkPoints().get(i);
             Position position = cast(mPosition);
             position.relocate(position.x + r, position.y + r);
@@ -82,8 +90,11 @@ public class Converter {
 
         commonTransition.updateNode();
         commonTransition.initTreeText();
+        commonTransition.getTreeText().setPosition(treeTextPosition);
 
         commonTransition.setGuards(guards);
+
+        commonTransition.finish();
         return commonTransition;
     }
 
@@ -93,10 +104,11 @@ public class Converter {
         long targetId = commonTransition.getTarget().getId();
         List<MPosition> mPositionList = new ArrayList<>();
         List<String> guards = commonTransition.getGuards();
+        MPosition mTreeTextPosition = cast(commonTransition.getTreeText().getPosition());
         for(TreeLinkPoint treeLinkPoint : commonTransition.getLinkPoints()) {
             mPositionList.add(cast(treeLinkPoint.getPosition()));
         }
-        return new MCommonTransition(id, sourceId, targetId, mPositionList, guards);
+        return new MCommonTransition(id, sourceId, targetId, mPositionList, guards, mTreeTextPosition);
     }
 
     public static ProbabilityTransition cast(List<TreeArea> treeAreaList, MProbabilityTransition mProbabilityTransition) {
@@ -105,6 +117,7 @@ public class Converter {
         long targetId = mProbabilityTransition.getTargetId();
         List<MPosition> mPositionList = mProbabilityTransition.getLinkPoints();
         String weight = mProbabilityTransition.getWeight();
+        Position treeTextPosition = cast(mProbabilityTransition.getTreeTextPosition());
         ProbabilityTransition probabilityTransition = new ProbabilityTransition(id);
         TreeArea source = null;
         TreeArea target = null;
@@ -118,7 +131,7 @@ public class Converter {
         }
         probabilityTransition.setSource(source);
         double r = TreeAreaRadius.TreeLinkPoint.getR();
-        for(int i = 1; i < mProbabilityTransition.getLinkPoints().size() - 1; ++i) {
+        for(int i = 1; i < mPositionList.size() - 1; ++i) {
             MPosition mPosition = mProbabilityTransition.getLinkPoints().get(i);
             Position position = cast(mPosition);
             position.relocate(position.x + r, position.y + r);
@@ -128,8 +141,11 @@ public class Converter {
 
         probabilityTransition.updateNode();
         probabilityTransition.initTreeText();
+        probabilityTransition.getTreeText().setPosition(treeTextPosition);
 
         probabilityTransition.setWeight(weight);
+
+        probabilityTransition.finish();
         return probabilityTransition;
     }
 
@@ -139,10 +155,11 @@ public class Converter {
         long targetId = probabilityTransition.getTarget().getId();
         List<MPosition> mPositionList = new ArrayList<>();
         String weight = probabilityTransition.getWeight();
+        MPosition mTreeTextPosition = cast(probabilityTransition.getTreeText().getPosition());
         for(TreeLinkPoint treeLinkPoint : probabilityTransition.getLinkPoints()) {
             mPositionList.add(cast(treeLinkPoint.getPosition()));
         }
-        return new MProbabilityTransition(id, sourceId, targetId, mPositionList, weight);
+        return new MProbabilityTransition(id, sourceId, targetId, mPositionList, weight, mTreeTextPosition);
     }
 
     public static Position cast(MPosition mPosition) {

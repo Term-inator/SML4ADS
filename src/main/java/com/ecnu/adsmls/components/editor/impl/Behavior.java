@@ -3,7 +3,6 @@ package com.ecnu.adsmls.components.editor.impl;
 import com.ecnu.adsmls.components.editor.TreeArea;
 import com.ecnu.adsmls.utils.Position;
 import com.ecnu.adsmls.utils.Vector2D;
-import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import java.util.LinkedHashMap;
@@ -83,8 +82,6 @@ public class Behavior extends TreeArea {
     @Override
     public void createNode() {
         Circle circle = new Circle();
-        circle.setCenterX(this.position.x + this.r);
-        circle.setCenterY(this.position.y + this.r);
         circle.setRadius(this.r);
         circle.setFill(Color.WHITE);
         circle.setStrokeWidth(2);
@@ -92,7 +89,14 @@ public class Behavior extends TreeArea {
     }
 
     @Override
+    public void updatePosition() {
+        ((Circle) this.shape).setCenterX(this.position.x + this.r);
+        ((Circle) this.shape).setCenterY(this.position.y + this.r);
+    }
+
+    @Override
     public void updateNode() {
+        this.updatePosition();
         this.addNode(this.shape);
     }
 }

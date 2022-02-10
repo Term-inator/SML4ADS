@@ -82,7 +82,14 @@ public class TreeLinkPoint extends Area {
     }
 
     @Override
+    public void updatePosition() {
+        ((Circle) this.shape).setCenterX(this.position.x + this.r);
+        ((Circle) this.shape).setCenterY(this.position.y + this.r);
+    }
+
+    @Override
     public void updateNode() {
+        this.updatePosition();
         this.addNode(this.shape);
     }
 }

@@ -39,6 +39,9 @@ public class TreeText extends Area {
 
     @Override
     public void inactive() {
+        if(this.component.isSelected()) {
+            return;
+        }
         this.shape.setFill(Color.BLACK);
     }
 
@@ -52,7 +55,14 @@ public class TreeText extends Area {
     }
 
     @Override
+    public void updatePosition() {
+        ((Text) this.shape).setX(this.position.x);
+        ((Text) this.shape).setY(this.position.y + this.shape.getBaselineOffset());
+    }
+
+    @Override
     public void updateNode() {
+        this.updatePosition();
         this.addNode(this.shape);
     }
 }

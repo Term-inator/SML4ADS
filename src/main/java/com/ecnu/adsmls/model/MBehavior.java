@@ -12,13 +12,16 @@ public class MBehavior {
 
     private LinkedHashMap<String, String> params = new LinkedHashMap<>();
 
+    private MPosition treeTextPosition;
+
     // 通过 Transition 存储的 source 和 target 还原 TreeArea 的 inTransitions 和 outTransitions
 
-    public MBehavior(long id, MPosition position, String name, LinkedHashMap<String, String> params) {
+    public MBehavior(long id, MPosition position, String name, LinkedHashMap<String, String> params, MPosition treeTextPosition) {
         this.id = id;
         this.position = position;
         this.name = name;
         this.params = params;
+        this.treeTextPosition = treeTextPosition;
     }
 
     public MBehavior() {}
@@ -53,5 +56,13 @@ public class MBehavior {
 
     public void setParams(LinkedHashMap<String, String> params) {
         this.params = params;
+    }
+
+    public MPosition getTreeTextPosition() {
+        return treeTextPosition;
+    }
+
+    public void setTreeTextPosition(MPosition treeTextPosition) {
+        this.treeTextPosition = treeTextPosition;
     }
 }
