@@ -2,7 +2,6 @@ package com.ecnu.adsmls.views.codepage;
 
 import com.ecnu.adsmls.components.ChooseDirectoryButton;
 import com.ecnu.adsmls.components.Modal;
-import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -20,6 +19,10 @@ public class NewTreeModal extends Modal {
 
     public String getFilename() {
         return filename;
+    }
+
+    public String getDirectory() {
+        return directory;
     }
 
     @Override

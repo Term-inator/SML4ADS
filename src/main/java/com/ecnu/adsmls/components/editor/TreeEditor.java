@@ -18,12 +18,15 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class TreeEditor {
+    private String directory;
     private String filename;
 
     private AnchorPane paletteWrapper;
@@ -54,6 +57,14 @@ public class TreeEditor {
 
         initPalette();
         initCanvas();
+    }
+
+    public void setDirectory(String directory) {
+        this.directory = directory;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
     private void initBehavior() {
@@ -304,7 +315,7 @@ public class TreeEditor {
         });
     }
 
-    public void saveTree() {
+    public void saveTree(){
         List<Node> nodes = this.canvas.getChildren();
         MTree mTree = new MTree();
         boolean setRoot = false;
@@ -332,7 +343,16 @@ public class TreeEditor {
             }
         }
         String tree = JSON.toJSONString(mTree);
+        String path = this.directory + this.filename + ".json";
         System.out.println(tree);
+        System.out.println(path);
+        try {
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path,false), StandardCharsets.UTF_8));
+            bw.write(tree);
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void loadTree() {
