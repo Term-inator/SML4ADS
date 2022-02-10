@@ -17,7 +17,10 @@ public abstract class Area extends Component implements Draggable {
 
     public void setPosition(Position position) {
         this.position = position;
+        this.updatePosition();
     }
+
+    public abstract void updatePosition();
 
     public abstract Position getCenterPoint();
 

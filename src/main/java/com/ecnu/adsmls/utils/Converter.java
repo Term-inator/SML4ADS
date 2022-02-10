@@ -18,12 +18,12 @@ public class Converter {
         Position treeTextPosition = cast(mBehavior.getTreeTextPosition());
         double r = TreeAreaRadius.Behavior.getR();
         position.relocate(position.x + r, position.y + r);
-        Behavior behavior = new Behavior(id, position);
 
+        Behavior behavior = new Behavior(id, position);
         behavior.updateNode();
+
         behavior.initTreeText();
         behavior.getTreeText().setPosition(treeTextPosition);
-        behavior.getTreeText().updateNode();
 
         behavior.setName(name);
         behavior.setParams(params);
@@ -44,7 +44,10 @@ public class Converter {
         Position position = cast(mBranchPoint.getPosition());
         double r = TreeAreaRadius.BranchPoint.getR();
         position.relocate(position.x + r, position.y + r);
+
         BranchPoint branchPoint = new BranchPoint(id, position);
+        branchPoint.updateNode();
+
         return branchPoint;
     }
 
@@ -88,9 +91,10 @@ public class Converter {
         commonTransition.updateNode();
         commonTransition.initTreeText();
         commonTransition.getTreeText().setPosition(treeTextPosition);
-        commonTransition.getTreeText().updateNode();
 
         commonTransition.setGuards(guards);
+
+        commonTransition.finish();
         return commonTransition;
     }
 
@@ -138,9 +142,10 @@ public class Converter {
         probabilityTransition.updateNode();
         probabilityTransition.initTreeText();
         probabilityTransition.getTreeText().setPosition(treeTextPosition);
-        probabilityTransition.getTreeText().updateNode();
 
         probabilityTransition.setWeight(weight);
+
+        probabilityTransition.finish();
         return probabilityTransition;
     }
 

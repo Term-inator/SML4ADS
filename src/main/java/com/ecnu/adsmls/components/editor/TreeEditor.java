@@ -266,7 +266,7 @@ public class TreeEditor {
             int clickCount = e.getClickCount();
             System.out.println("choose behavior");
             this.chooseComponent((Group) behaviorNode);
-            System.out.println(((Behavior) this.componentChose.getUserData()).position);
+            System.out.println(((Behavior) this.componentChose.getUserData()).getPosition());
             if(clickCount == 2) {
                 System.out.println("set behavior");
 
@@ -382,7 +382,6 @@ public class TreeEditor {
         List<TreeArea> treeAreaList = new ArrayList<>();
         for(MBehavior mBehavior : mTree.getBehaviors()) {
             Behavior behavior = Converter.cast(mBehavior);
-            behavior.updateNode();
             treeAreaList.add(behavior);
             Node node = behavior.getNode();
             node.setUserData(behavior);
@@ -391,7 +390,6 @@ public class TreeEditor {
         }
         for(MBranchPoint mBranchPoint : mTree.getBranchPoints()) {
             BranchPoint branchPoint = Converter.cast(mBranchPoint);
-            branchPoint.updateNode();
             treeAreaList.add(branchPoint);
             Node node = branchPoint.getNode();
             node.setUserData(branchPoint);
@@ -400,8 +398,6 @@ public class TreeEditor {
         }
         for(MCommonTransition mCommonTransition : mTree.getCommonTransitions()) {
             CommonTransition commonTransition = Converter.cast(treeAreaList, mCommonTransition);
-            commonTransition.updateNode();
-            commonTransition.finish();
             Node node = commonTransition.getNode();
             node.setUserData(commonTransition);
             this.transitionBindClick(node);
@@ -409,8 +405,6 @@ public class TreeEditor {
         }
         for(MProbabilityTransition mProbabilityTransition : mTree.getProbabilityTransitions()) {
             ProbabilityTransition probabilityTransition = Converter.cast(treeAreaList, mProbabilityTransition);
-            probabilityTransition.updateNode();
-            probabilityTransition.finish();
             Node node = probabilityTransition.getNode();
             node.setUserData(probabilityTransition);
             this.transitionBindClick(node);

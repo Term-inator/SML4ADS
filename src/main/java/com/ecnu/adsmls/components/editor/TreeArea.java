@@ -26,6 +26,13 @@ public abstract class TreeArea extends TreeComponent implements Draggable, Linka
         return position;
     }
 
+    public void setPosition(Position position) {
+        this.position = position;
+        this.updatePosition();
+    }
+
+    public abstract void updatePosition();
+
     public void addInTransition(TreeLink treeLink) {
         this.inTransitions.add(treeLink);
     }
