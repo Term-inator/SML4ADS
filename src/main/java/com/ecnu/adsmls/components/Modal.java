@@ -1,9 +1,13 @@
 package com.ecnu.adsmls.components;
 
+import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
@@ -32,9 +36,7 @@ public abstract class Modal {
     // 是否点击了确认
     protected boolean confirm = true;
 
-    public Modal() {
-
-    }
+    public Modal() {}
 
     public boolean isConfirm() {
         return this.confirm;
@@ -57,6 +59,13 @@ public abstract class Modal {
         window.initModality(Modality.APPLICATION_MODAL);
         window.setOpacity(this.opacity);
 
+        // Enter -> Confirm
+        this.window.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            if(e.getCode() == KeyCode.ENTER) {
+                this.confirm();
+            }
+        });
+
         gridPane = new GridPane();
         gridPane.setPadding(new Insets(15, 20, 15, 20));
         gridPane.setVgap(8);
@@ -76,21 +85,25 @@ public abstract class Modal {
 
     protected void bindConfirmCancel() {
         btConfirm.setOnAction(e -> {
-            this.update();
-            this.check();
-            if(valid) {
-                this.then();
-                this.window.close();
-            }
-            else {
-                this.valid = true;
-            }
+            this.confirm();
         });
 
         btCancel.setOnAction(e -> {
             this.confirm = false;
             this.window.close();
         });
+    }
+
+    private void confirm() {
+        this.update();
+        this.check();
+        if(valid) {
+            this.then();
+            this.window.close();
+        }
+        else {
+            this.valid = true;
+        }
     }
 
     /**
