@@ -199,6 +199,7 @@ public class CodePageController implements Initializable {
         TreeEditor editor = new TreeEditor();
         editor.setDirectory(ntm.getDirectory());
         editor.setFilename(ntm.getFilename());
+        editor.loadTree();
         anchorPane.getChildren().add(editor.getNode());
 
         scrollPane.setContent(anchorPane);

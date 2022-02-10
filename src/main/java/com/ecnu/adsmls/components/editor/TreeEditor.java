@@ -1,11 +1,8 @@
 package com.ecnu.adsmls.components.editor;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.ecnu.adsmls.components.editor.impl.*;
-import com.ecnu.adsmls.model.MBehavior;
-import com.ecnu.adsmls.model.MPosition;
-import com.ecnu.adsmls.model.MTree;
+import com.ecnu.adsmls.model.*;
 import com.ecnu.adsmls.utils.Converter;
 import com.ecnu.adsmls.utils.Position;
 import javafx.geometry.Insets;
@@ -20,6 +17,7 @@ import javafx.scene.layout.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
@@ -345,7 +343,6 @@ public class TreeEditor {
         String tree = JSON.toJSONString(mTree);
         String path = this.directory + this.filename + ".json";
         System.out.println(tree);
-        System.out.println(path);
         try {
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path,false), StandardCharsets.UTF_8));
             bw.write(tree);
@@ -356,7 +353,53 @@ public class TreeEditor {
     }
 
     public void loadTree() {
-
+        String tree = null;
+        String path = this.directory + this.filename + ".json";
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path), StandardCharsets.UTF_8));
+            tree = br.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        MTree mTree = JSON.parseObject(tree, MTree.class);
+        if(mTree == null) {
+            return;
+        }
+        System.out.println(tree);
+        // TODO TreeText and bug fix
+        List<TreeArea> treeAreaList = new ArrayList<>();
+        for(MBehavior mBehavior : mTree.getBehaviors()) {
+            Behavior behavior = Converter.cast(mBehavior);
+            behavior.updateNode();
+            treeAreaList.add(behavior);
+            Node node = behavior.getNode();
+            node.setUserData(behavior);
+            this.canvas.getChildren().add(node);
+        }
+        for(MBranchPoint mBranchPoint : mTree.getBranchPoints()) {
+            BranchPoint branchPoint = Converter.cast(mBranchPoint);
+            branchPoint.updateNode();
+            treeAreaList.add(branchPoint);
+            Node node = branchPoint.getNode();
+            node.setUserData(branchPoint);
+            this.canvas.getChildren().add(node);
+        }
+        for(MCommonTransition mCommonTransition : mTree.getCommonTransitions()) {
+            CommonTransition commonTransition = Converter.cast(treeAreaList, mCommonTransition);
+            commonTransition.updateNode();
+            commonTransition.finish();
+            Node node = commonTransition.getNode();
+            node.setUserData(commonTransition);
+            this.canvas.getChildren().add(node);
+        }
+        for(MProbabilityTransition mProbabilityTransition : mTree.getProbabilityTransitions()) {
+            ProbabilityTransition probabilityTransition = Converter.cast(treeAreaList, mProbabilityTransition);
+            probabilityTransition.updateNode();
+            probabilityTransition.finish();
+            Node node = probabilityTransition.getNode();
+            node.setUserData(probabilityTransition);
+            this.canvas.getChildren().add(node);
+        }
     }
 
     public Node getNode() {

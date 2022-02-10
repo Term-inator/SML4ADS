@@ -10,7 +10,7 @@ import java.util.LinkedHashMap;
 
 
 public class Behavior extends TreeArea {
-    private final double r = 16;
+    private final double r = TreeAreaRadius.Behavior.getR();
 
     private String name = "";
     private LinkedHashMap<String, String> params = new LinkedHashMap<>();
