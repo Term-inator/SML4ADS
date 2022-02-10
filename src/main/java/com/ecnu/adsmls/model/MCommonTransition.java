@@ -3,24 +3,26 @@ package com.ecnu.adsmls.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CommonTransition {
+public class MCommonTransition {
     private long id;
 
     private long sourceId;
 
     private long targetId;
 
-    private List<Position> linkPoints = new ArrayList<>();
+    private List<MPosition> linkPoints = new ArrayList<>();
 
     private List<String> guards = new ArrayList<>();
 
-    public CommonTransition(long id, long sourceId, long targetId, List<Position> linkPoints, List<String> guards) {
+    public MCommonTransition(long id, long sourceId, long targetId, List<MPosition> linkPoints, List<String> guards) {
         this.id = id;
         this.sourceId = sourceId;
         this.targetId = targetId;
         this.linkPoints = linkPoints;
         this.guards = guards;
     }
+
+    public MCommonTransition() {}
 
     public long getId() {
         return id;
@@ -46,11 +48,11 @@ public class CommonTransition {
         this.targetId = targetId;
     }
 
-    public List<Position> getLinkPoints() {
+    public List<MPosition> getLinkPoints() {
         return linkPoints;
     }
 
-    public void setLinkPoints(List<Position> linkPoints) {
+    public void setLinkPoints(List<MPosition> linkPoints) {
         this.linkPoints = linkPoints;
     }
 

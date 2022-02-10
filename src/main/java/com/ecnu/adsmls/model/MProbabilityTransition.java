@@ -3,24 +3,26 @@ package com.ecnu.adsmls.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProbabilityTransition {
+public class MProbabilityTransition {
     private long id;
 
     private long sourceId;
 
     private long targetId;
 
-    private List<Position> linkPoints = new ArrayList<>();
+    private List<MPosition> linkPoints = new ArrayList<>();
 
     private String weight;
 
-    public ProbabilityTransition(long id, long sourceId, long targetId, List<Position> linkPoints, String weight) {
+    public MProbabilityTransition(long id, long sourceId, long targetId, List<MPosition> linkPoints, String weight) {
         this.id = id;
         this.sourceId = sourceId;
         this.targetId = targetId;
         this.linkPoints = linkPoints;
         this.weight = weight;
     }
+
+    public MProbabilityTransition() {}
 
     public long getId() {
         return id;
@@ -46,11 +48,11 @@ public class ProbabilityTransition {
         this.targetId = targetId;
     }
 
-    public List<Position> getLinkPoints() {
+    public List<MPosition> getLinkPoints() {
         return linkPoints;
     }
 
-    public void setLinkPoints(List<Position> linkPoints) {
+    public void setLinkPoints(List<MPosition> linkPoints) {
         this.linkPoints = linkPoints;
     }
 

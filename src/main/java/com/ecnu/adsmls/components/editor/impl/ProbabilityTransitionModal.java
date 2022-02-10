@@ -76,8 +76,4 @@ public class ProbabilityTransitionModal extends Modal {
         TextField tfWeight = (TextField) this.staticPage.get(0)[1];
         this.weight = tfWeight.getText();
     }
-
-    public String getProbabilityTransitionVO() {
-        return this.weight;
-    }
 }

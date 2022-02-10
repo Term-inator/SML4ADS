@@ -1,6 +1,9 @@
 package com.ecnu.adsmls.components.editor;
 
+import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.editor.impl.*;
+import com.ecnu.adsmls.model.*;
+import com.ecnu.adsmls.utils.Converter;
 import com.ecnu.adsmls.utils.Position;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -12,12 +15,16 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class TreeEditor {
+    private String directory;
     private String filename;
 
     private AnchorPane paletteWrapper;
@@ -45,9 +52,16 @@ public class TreeEditor {
         canvasWrapper = new AnchorPane(canvas);
 
         initBehavior();
-
         initPalette();
         initCanvas();
+    }
+
+    public void setDirectory(String directory) {
+        this.directory = directory;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
     private void initBehavior() {
@@ -121,6 +135,9 @@ public class TreeEditor {
                 this.canvas.getChildren().removeAll(nodes);
                 this.componentChose = null;
             }
+            else if(e.isControlDown() && e.getCode() == KeyCode.S) {
+                this.saveTree();
+            }
         });
 
         AtomicReference<Transition> transition = new AtomicReference<>();
@@ -172,41 +189,8 @@ public class TreeEditor {
                             transition.get().updateNode();
                             lambdaContext.node = transition.get().getNode();
                             lambdaContext.node.setUserData(transition.get());
-                            lambdaContext.node.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-                                int clickCount = e.getClickCount();
-                                System.out.println("choose transition");
-                                this.chooseComponent((Group) lambdaContext.node);
-                                if(clickCount == 2) {
-                                    // 保证 Transition 已经完成
-                                    if(!((TreeLink) lambdaContext.node.getUserData()).isFinish()) {
-                                        return;
-                                    }
-                                    if(lambdaContext.node.getUserData() instanceof CommonTransition) {
-                                        System.out.println("set common transition");
 
-                                        CommonTransitionModal ctm = new CommonTransitionModal((CommonTransition) lambdaContext.node.getUserData());
-                                        ctm.getWindow().showAndWait();
-
-                                        if(!ctm.isConfirm()) {
-                                            return;
-                                        }
-                                        ((CommonTransition) lambdaContext.node.getUserData()).setGuards(ctm.getGuards());
-                                        ((CommonTransition) lambdaContext.node.getUserData()).getTreeText().setText(ctm.getCommonTransitionVO());
-                                    }
-                                    else if(lambdaContext.node.getUserData() instanceof ProbabilityTransition) {
-                                        System.out.println("set probability transition");
-
-                                        ProbabilityTransitionModal ptm = new ProbabilityTransitionModal((ProbabilityTransition) lambdaContext.node.getUserData());
-                                        ptm.getWindow().showAndWait();
-
-                                        if(!ptm.isConfirm()) {
-                                            return;
-                                        }
-                                        ((ProbabilityTransition) lambdaContext.node.getUserData()).setWeight(ptm.getWeight());
-                                        ((ProbabilityTransition) lambdaContext.node.getUserData()).getTreeText().setText(ptm.getProbabilityTransitionVO());
-                                    }
-                                }
-                            });
+                            this.transitionBindClick(lambdaContext.node);
                         }
                         else {
                             TreeArea target;
@@ -246,35 +230,17 @@ public class TreeEditor {
                         behavior.updateNode();
                         lambdaContext.node = behavior.getNode();
                         lambdaContext.node.setUserData(behavior);
-                        lambdaContext.node.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-                            int clickCount = e.getClickCount();
-                            System.out.println("choose behavior");
-                            this.chooseComponent((Group) lambdaContext.node);
-                            System.out.println(((Behavior) this.componentChose.getUserData()).position);
-                            if(clickCount == 2) {
-                                System.out.println("set behavior");
 
-                                BehaviorModal bm = new BehaviorModal(behavior);
-                                bm.getWindow().showAndWait();
+                        this.behaviorBindClick(lambdaContext.node);
 
-                                if(!bm.isConfirm()) {
-                                    return;
-                                }
-                                behavior.setName(bm.getBehaviorName());
-                                behavior.setParams(bm.getParamsValue());
-                                behavior.getTreeText().setText(bm.getBehaviorVO());
-                            }
-                        });
                     } else if (Objects.equals(componentSelected, "BranchPoint")) {
                         Position position = new Position(event.getX(), event.getY());
                         BranchPoint branchPoint = new BranchPoint(this.componentId++, position);
                         branchPoint.updateNode();
                         lambdaContext.node = branchPoint.getNode();
                         lambdaContext.node.setUserData(branchPoint);
-                        lambdaContext.node.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-                            System.out.println("choose branch point");
-                            this.chooseComponent((Group) lambdaContext.node);
-                        });
+
+                        this.branchPointBindClick(lambdaContext.node);
                     }
                 }
 
@@ -295,12 +261,161 @@ public class TreeEditor {
         });
     }
 
-    public void saveTree() {
+    private void behaviorBindClick(Node behaviorNode) {
+        behaviorNode.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+            int clickCount = e.getClickCount();
+            System.out.println("choose behavior");
+            this.chooseComponent((Group) behaviorNode);
+            System.out.println(((Behavior) this.componentChose.getUserData()).position);
+            if(clickCount == 2) {
+                System.out.println("set behavior");
 
+                BehaviorModal bm = new BehaviorModal((Behavior) behaviorNode.getUserData());
+                bm.getWindow().showAndWait();
+
+                if(!bm.isConfirm()) {
+                    return;
+                }
+                ((Behavior) behaviorNode.getUserData()).setName(bm.getBehaviorName());
+                ((Behavior) behaviorNode.getUserData()).setParams(bm.getParamsValue());
+            }
+        });
+    }
+
+    private void branchPointBindClick(Node branchPointNode) {
+        branchPointNode.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+            System.out.println("choose branch point");
+            this.chooseComponent((Group) branchPointNode);
+        });
+    }
+
+    private void transitionBindClick(Node transitionNode) {
+        transitionNode.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+            int clickCount = e.getClickCount();
+            System.out.println("choose transition");
+            this.chooseComponent((Group) transitionNode);
+            if(clickCount == 2) {
+                // 保证 Transition 已经完成
+                if(!((TreeLink) transitionNode.getUserData()).isFinish()) {
+                    return;
+                }
+                if(transitionNode.getUserData() instanceof CommonTransition) {
+                    System.out.println("set common transition");
+
+                    CommonTransitionModal ctm = new CommonTransitionModal((CommonTransition) transitionNode.getUserData());
+                    ctm.getWindow().showAndWait();
+
+                    if(!ctm.isConfirm()) {
+                        return;
+                    }
+                    ((CommonTransition) transitionNode.getUserData()).setGuards(ctm.getGuards());
+                }
+                else if(transitionNode.getUserData() instanceof ProbabilityTransition) {
+                    System.out.println("set probability transition");
+
+                    ProbabilityTransitionModal ptm = new ProbabilityTransitionModal((ProbabilityTransition) transitionNode.getUserData());
+                    ptm.getWindow().showAndWait();
+
+                    if(!ptm.isConfirm()) {
+                        return;
+                    }
+                    ((ProbabilityTransition) transitionNode.getUserData()).setWeight(ptm.getWeight());
+                }
+            }
+        });
+    }
+
+    public void saveTree(){
+        List<Node> nodes = this.canvas.getChildren();
+        MTree mTree = new MTree();
+        boolean setRoot = false;
+        for(Node node : nodes) {
+            Component component = (Component) node.getUserData();
+            if(component instanceof Behavior) {
+                Behavior behavior = (Behavior) component;
+                if(!setRoot) {
+                    mTree.setRootId(behavior.getId());
+                    setRoot = true;
+                }
+                mTree.getBehaviors().add(Converter.cast(behavior));
+            }
+            else if(component instanceof BranchPoint) {
+                BranchPoint branchPoint = (BranchPoint) component;
+                mTree.getBranchPoints().add(Converter.cast(branchPoint));
+            }
+            else if(component instanceof CommonTransition) {
+                CommonTransition commonTransition = (CommonTransition) component;
+                mTree.getCommonTransitions().add(Converter.cast(commonTransition));
+            }
+            else if(component instanceof ProbabilityTransition) {
+                ProbabilityTransition probabilityTransition = (ProbabilityTransition) component;
+                mTree.getProbabilityTransitions().add(Converter.cast(probabilityTransition));
+            }
+        }
+        String tree = JSON.toJSONString(mTree);
+        String path = this.directory + this.filename + ".json";
+        System.out.println(tree);
+        try {
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path,false), StandardCharsets.UTF_8));
+            bw.write(tree);
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void loadTree() {
+        String tree = null;
+        String path = this.directory + this.filename + ".json";
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path), StandardCharsets.UTF_8));
+            tree = br.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        MTree mTree = JSON.parseObject(tree, MTree.class);
+        if(mTree == null) {
+            return;
+        }
+        System.out.println(tree);
 
+        List<TreeArea> treeAreaList = new ArrayList<>();
+        for(MBehavior mBehavior : mTree.getBehaviors()) {
+            Behavior behavior = Converter.cast(mBehavior);
+            behavior.updateNode();
+            treeAreaList.add(behavior);
+            Node node = behavior.getNode();
+            node.setUserData(behavior);
+            this.behaviorBindClick(node);
+            this.canvas.getChildren().addAll(node, behavior.getTreeText().getNode());
+        }
+        for(MBranchPoint mBranchPoint : mTree.getBranchPoints()) {
+            BranchPoint branchPoint = Converter.cast(mBranchPoint);
+            branchPoint.updateNode();
+            treeAreaList.add(branchPoint);
+            Node node = branchPoint.getNode();
+            node.setUserData(branchPoint);
+            this.branchPointBindClick(node);
+            this.canvas.getChildren().add(node);
+        }
+        for(MCommonTransition mCommonTransition : mTree.getCommonTransitions()) {
+            CommonTransition commonTransition = Converter.cast(treeAreaList, mCommonTransition);
+            commonTransition.updateNode();
+            commonTransition.finish();
+            Node node = commonTransition.getNode();
+            node.setUserData(commonTransition);
+            this.transitionBindClick(node);
+            this.canvas.getChildren().addAll(node, commonTransition.getTreeText().getNode());
+        }
+        for(MProbabilityTransition mProbabilityTransition : mTree.getProbabilityTransitions()) {
+            ProbabilityTransition probabilityTransition = Converter.cast(treeAreaList, mProbabilityTransition);
+            probabilityTransition.updateNode();
+            probabilityTransition.finish();
+            Node node = probabilityTransition.getNode();
+            node.setUserData(probabilityTransition);
+            this.transitionBindClick(node);
+            this.canvas.getChildren().addAll(node, probabilityTransition.getTreeText().getNode());
+        }
     }
 
     public Node getNode() {

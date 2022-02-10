@@ -40,6 +40,8 @@ public abstract class TreeComponent extends Component {
         this.treeText = treeText;
     }
 
+    public abstract String getInfo();
+
     public void updateTreeTextPosition() {
         Position treeTextPosition = this.getTextPosition();
         this.treeText.position.relocate(treeTextPosition.x, treeTextPosition.y);

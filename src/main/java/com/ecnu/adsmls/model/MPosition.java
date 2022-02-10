@@ -2,12 +2,12 @@ package com.ecnu.adsmls.model;
 
 import com.alibaba.fastjson.annotation.JSONField;
 
-public class Position {
+public class MPosition {
     private double x;
 
     private double y;
 
-    public Position(double x, double y) {
+    public MPosition(double x, double y) {
         this.x = x;
         this.y = y;
     }

@@ -2,7 +2,7 @@ package com.ecnu.adsmls.components.editor.impl;
 
 import com.ecnu.adsmls.components.editor.TreeLink;
 
-public class Transition extends TreeLink {
+public abstract class Transition extends TreeLink {
     public Transition(long id) {
         super(id);
     }

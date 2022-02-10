@@ -186,7 +186,7 @@ public class CodePageController implements Initializable {
             return;
         }
 
-        Tab tab = new Tab(ntm.getFilename() + ".json");
+        Tab tab = new Tab(ntm.getFilename() + ".tree");
         tab.setOnClosed(e -> {
             System.out.println(tab.getText() + " closed");
         });
@@ -197,6 +197,9 @@ public class CodePageController implements Initializable {
 
         AnchorPane anchorPane = new AnchorPane();
         TreeEditor editor = new TreeEditor();
+        editor.setDirectory(ntm.getDirectory());
+        editor.setFilename(ntm.getFilename());
+        editor.loadTree();
         anchorPane.getChildren().add(editor.getNode());
 
         scrollPane.setContent(anchorPane);

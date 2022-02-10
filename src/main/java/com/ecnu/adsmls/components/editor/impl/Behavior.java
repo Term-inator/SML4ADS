@@ -7,10 +7,11 @@ import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 public class Behavior extends TreeArea {
-    private final double r = 16;
+    private final double r = TreeAreaRadius.Behavior.getR();
 
     private String name = "";
     private LinkedHashMap<String, String> params = new LinkedHashMap<>();
@@ -56,6 +57,17 @@ public class Behavior extends TreeArea {
 
     public void setParams(LinkedHashMap<String, String> params) {
         this.params = params;
+        this.getTreeText().setText(this.getInfo());
+    }
+
+    @Override
+    public String getInfo() {
+        StringBuilder res = new StringBuilder();
+        res.append(this.name).append("\n");
+        for(Map.Entry<String, String> param : params.entrySet()) {
+            res.append(param.getKey()).append(" = ").append(param.getValue()).append("\n");
+        }
+        return res.toString();
     }
 
     @Override

@@ -11,6 +11,14 @@ public abstract class Area extends Component implements Draggable {
         this.position = position;
     }
 
+    public Position getPosition() {
+        return position;
+    }
+
+    public void setPosition(Position position) {
+        this.position = position;
+    }
+
     public abstract Position getCenterPoint();
 
     @Override

@@ -1,5 +1,6 @@
 package com.ecnu.adsmls.components.editor;
 
+import com.ecnu.adsmls.components.editor.impl.TreeAreaRadius;
 import com.ecnu.adsmls.utils.Position;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
@@ -12,7 +13,7 @@ import javafx.scene.shape.Circle;
 public class TreeLinkPoint extends Area {
     private Position position;
     private TreeLink treeLink;
-    private final double r = 5;
+    private final double r = TreeAreaRadius.TreeLinkPoint.getR();
 
     public TreeLinkPoint(Position position, TreeLink treeLink) {
         super(position);

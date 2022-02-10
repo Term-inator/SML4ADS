@@ -3,10 +3,10 @@ package com.ecnu.adsmls.model;
 
 import java.util.LinkedHashMap;
 
-public class Behavior {
+public class MBehavior {
     private long id;
 
-    private Position position;
+    private MPosition position;
 
     private String name;
 
@@ -14,12 +14,14 @@ public class Behavior {
 
     // 通过 Transition 存储的 source 和 target 还原 TreeArea 的 inTransitions 和 outTransitions
 
-    public Behavior(long id, Position position, String name, LinkedHashMap<String, String> params) {
+    public MBehavior(long id, MPosition position, String name, LinkedHashMap<String, String> params) {
         this.id = id;
         this.position = position;
         this.name = name;
         this.params = params;
     }
+
+    public MBehavior() {}
 
     public long getId() {
         return id;
@@ -29,11 +31,11 @@ public class Behavior {
         this.id = id;
     }
 
-    public Position getPosition() {
+    public MPosition getPosition() {
         return position;
     }
 
-    public void setPosition(Position position) {
+    public void setPosition(MPosition position) {
         this.position = position;
     }
 

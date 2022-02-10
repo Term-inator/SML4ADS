@@ -8,7 +8,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
 public class BranchPoint extends TreeArea {
-    private final double r = 8;
+    private final double r = TreeAreaRadius.BranchPoint.getR();
 
     public BranchPoint(long id, Position position) {
         super(id, position);
@@ -35,6 +35,11 @@ public class BranchPoint extends TreeArea {
         double x = this.position.x + this.r;
         double y = this.position.y + this.r;
         return new Position(x, y);
+    }
+
+    @Override
+    public String getInfo() {
+        return "";
     }
 
     @Override

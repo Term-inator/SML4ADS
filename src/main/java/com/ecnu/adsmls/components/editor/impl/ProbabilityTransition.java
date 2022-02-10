@@ -27,5 +27,11 @@ public class ProbabilityTransition extends Transition {
 
     public void setWeight(String weight) {
         this.weight = weight;
+        this.getTreeText().setText(this.getInfo());
+    }
+
+    @Override
+    public String getInfo() {
+        return this.weight;
     }
 }
