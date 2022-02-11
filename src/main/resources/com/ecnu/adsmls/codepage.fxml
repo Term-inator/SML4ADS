@@ -11,6 +11,7 @@
             <items>
                   <Menu mnemonicParsing="false" text="New">
                     <items>
+                        <MenuItem mnemonicParsing="false" text="Project" />
                         <MenuItem mnemonicParsing="false" text="Model" />
                       <MenuItem mnemonicParsing="false" text="Tree" />
                     </items>
@@ -43,25 +44,7 @@
                <children>
                   <ScrollPane fx:id="menu" fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <content>
-                        <Accordion>
-                          <panes>
-                            <TitledPane animated="false" text="untitled 1">
-                              <content>
-                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                              </content>
-                            </TitledPane>
-                            <TitledPane animated="false" text="untitled 2">
-                              <content>
-                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                              </content>
-                            </TitledPane>
-                            <TitledPane animated="false" text="untitled 3">
-                              <content>
-                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                              </content>
-                            </TitledPane>
-                          </panes>
-                        </Accordion>
+                        <Accordion fx:id="structure" />
                      </content></ScrollPane>
                </children></AnchorPane>
           <AnchorPane minWidth="-Infinity" prefHeight="340.0" prefWidth="233.0">

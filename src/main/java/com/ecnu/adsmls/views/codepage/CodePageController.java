@@ -10,6 +10,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 
 import java.net.URL;
@@ -21,6 +22,8 @@ public class CodePageController implements Initializable {
     private AnchorPane rootLayout;
     @FXML
     private MenuBar menuBar;
+    @FXML
+    private Accordion structure;
     @FXML
     private TabPane tabPane;
 
@@ -42,7 +45,10 @@ public class CodePageController implements Initializable {
                 }
                 else {
                     String menuItemName = menuItem.getText();
-                    if(Objects.equals(menuItemName, "Model")) {
+                    if(Objects.equals(menuItemName, "Project")) {
+                        menuItem.setOnAction(this::onNewProjectClick);
+                    }
+                    else if(Objects.equals(menuItemName, "Model")) {
                         menuItem.setOnAction(this::onNewModelClick);
                     }
                     else if(Objects.equals(menuItemName, "Tree")) {
@@ -63,6 +69,19 @@ public class CodePageController implements Initializable {
         for(int r = 0; r < page.size(); ++r) {
             gridPane.addRow(r, page.get(r));
         }
+    }
+
+    private void onNewProjectClick(ActionEvent event) {
+        System.out.println("Project");
+        AnchorPane anchorPane = new AnchorPane();
+        TitledPane titledPane = new TitledPane("project name", anchorPane);
+        titledPane.setOnMouseClicked(e -> {
+            MouseButton button = e.getButton();
+            if(button == MouseButton.SECONDARY) {
+                System.out.println("secondary");
+            }
+        });
+        structure.getPanes().add(titledPane);
     }
 
     private void onNewModelClick(ActionEvent event) {
@@ -130,6 +149,7 @@ public class CodePageController implements Initializable {
              *  1. 确定lane (filter函数 / 3 个 id)
              *  2. 数值 距离 lane 起始位置的偏移量
              */
+            // TODO time step
             Label lbLocation = new Label("location: ");
 
             Label lbHeading = new Label("heading: ");
