@@ -14,6 +14,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.kordamp.bootstrapfx.BootstrapFX;
 
 import java.util.*;
 
@@ -59,6 +60,11 @@ public abstract class Modal {
         window.initModality(Modality.APPLICATION_MODAL);
         window.setOpacity(this.opacity);
 
+        // Close -> Cancel
+        window.setOnCloseRequest(e -> {
+            this.cancel();
+        });
+
         // Enter -> Confirm
         this.window.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             if(e.getCode() == KeyCode.ENTER) {
@@ -81,6 +87,7 @@ public abstract class Modal {
         scene.setFill(Color.TRANSPARENT);
 
         window.setScene(scene);
+        window.getScene().getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());
     }
 
     protected void bindConfirmCancel() {
@@ -89,8 +96,7 @@ public abstract class Modal {
         });
 
         btCancel.setOnAction(e -> {
-            this.confirm = false;
-            this.window.close();
+            this.cancel();
         });
     }
 
@@ -104,6 +110,11 @@ public abstract class Modal {
         else {
             this.valid = true;
         }
+    }
+
+    private void cancel() {
+        this.confirm = false;
+        this.window.close();
     }
 
     /**

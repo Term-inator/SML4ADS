@@ -40,13 +40,7 @@
       </ToolBar>
       <SplitPane dividerPositions="0.298" layoutX="75.0" layoutY="114.0" prefHeight="342.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="59.0">
         <items>
-          <AnchorPane minWidth="-Infinity" prefHeight="340.0" prefWidth="129.0">
-               <children>
-                  <ScrollPane fx:id="menu" fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                     <content>
-                        <Accordion fx:id="structure" />
-                     </content></ScrollPane>
-               </children></AnchorPane>
+          <AnchorPane fx:id="directoryWrapper" minWidth="-Infinity" prefHeight="340.0" prefWidth="129.0" />
           <AnchorPane minWidth="-Infinity" prefHeight="340.0" prefWidth="233.0">
                <children>
                   <TabPane fx:id="tabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="ALL_TABS" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />

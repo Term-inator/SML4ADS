@@ -2,6 +2,7 @@ package com.ecnu.adsmls.views.codepage;
 
 import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.components.editor.TreeEditor;
+import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -13,6 +14,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 
+import java.io.File;
 import java.net.URL;
 import java.util.*;
 
@@ -23,7 +25,7 @@ public class CodePageController implements Initializable {
     @FXML
     private MenuBar menuBar;
     @FXML
-    private Accordion structure;
+    private AnchorPane directoryWrapper;
     @FXML
     private TabPane tabPane;
 
@@ -73,15 +75,19 @@ public class CodePageController implements Initializable {
 
     private void onNewProjectClick(ActionEvent event) {
         System.out.println("Project");
+
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setMinWidth(this.directoryWrapper.getWidth());
+        scrollPane.setMaxHeight(this.directoryWrapper.getHeight());
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+
         AnchorPane anchorPane = new AnchorPane();
-        TitledPane titledPane = new TitledPane("project name", anchorPane);
-        titledPane.setOnMouseClicked(e -> {
-            MouseButton button = e.getButton();
-            if(button == MouseButton.SECONDARY) {
-                System.out.println("secondary");
-            }
-        });
-        structure.getPanes().add(titledPane);
+        MultiLevelDirectory multiLevelDirectory = new MultiLevelDirectory(new File("D:/"));
+        anchorPane.getChildren().add(multiLevelDirectory.getNode());
+
+        scrollPane.setContent(anchorPane);
+        this.directoryWrapper.getChildren().add(scrollPane);
     }
 
     private void onNewModelClick(ActionEvent event) {
