@@ -75,6 +75,11 @@ public class CodePageController implements Initializable {
 
     private void onNewProjectClick(ActionEvent event) {
         System.out.println("Project");
+        NewProjectModal npm = new NewProjectModal();
+        npm.getWindow().showAndWait();
+        if(!npm.isConfirm()) {
+            return;
+        }
 
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setMinWidth(this.directoryWrapper.getWidth());
@@ -83,7 +88,7 @@ public class CodePageController implements Initializable {
         scrollPane.setFitToHeight(true);
 
         AnchorPane anchorPane = new AnchorPane();
-        MultiLevelDirectory multiLevelDirectory = new MultiLevelDirectory(new File("D:/"));
+        MultiLevelDirectory multiLevelDirectory = new MultiLevelDirectory(new File(npm.getDirectory() + '/' + npm.getProjectName()));
         anchorPane.getChildren().add(multiLevelDirectory.getNode());
 
         scrollPane.setContent(anchorPane);
