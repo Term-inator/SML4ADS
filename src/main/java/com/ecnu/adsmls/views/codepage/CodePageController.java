@@ -2,6 +2,7 @@ package com.ecnu.adsmls.views.codepage;
 
 import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.components.editor.TreeEditor;
+import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -10,8 +11,10 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 
+import java.io.File;
 import java.net.URL;
 import java.util.*;
 
@@ -21,6 +24,8 @@ public class CodePageController implements Initializable {
     private AnchorPane rootLayout;
     @FXML
     private MenuBar menuBar;
+    @FXML
+    private AnchorPane directoryWrapper;
     @FXML
     private TabPane tabPane;
 
@@ -42,7 +47,10 @@ public class CodePageController implements Initializable {
                 }
                 else {
                     String menuItemName = menuItem.getText();
-                    if(Objects.equals(menuItemName, "Model")) {
+                    if(Objects.equals(menuItemName, "Project")) {
+                        menuItem.setOnAction(this::onNewProjectClick);
+                    }
+                    else if(Objects.equals(menuItemName, "Model")) {
                         menuItem.setOnAction(this::onNewModelClick);
                     }
                     else if(Objects.equals(menuItemName, "Tree")) {
@@ -63,6 +71,23 @@ public class CodePageController implements Initializable {
         for(int r = 0; r < page.size(); ++r) {
             gridPane.addRow(r, page.get(r));
         }
+    }
+
+    private void onNewProjectClick(ActionEvent event) {
+        System.out.println("Project");
+
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setMinWidth(this.directoryWrapper.getWidth());
+        scrollPane.setMaxHeight(this.directoryWrapper.getHeight());
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+
+        AnchorPane anchorPane = new AnchorPane();
+        MultiLevelDirectory multiLevelDirectory = new MultiLevelDirectory(new File("D:/"));
+        anchorPane.getChildren().add(multiLevelDirectory.getNode());
+
+        scrollPane.setContent(anchorPane);
+        this.directoryWrapper.getChildren().add(scrollPane);
     }
 
     private void onNewModelClick(ActionEvent event) {
@@ -130,6 +155,7 @@ public class CodePageController implements Initializable {
              *  1. 确定lane (filter函数 / 3 个 id)
              *  2. 数值 距离 lane 起始位置的偏移量
              */
+            // TODO time step
             Label lbLocation = new Label("location: ");
 
             Label lbHeading = new Label("heading: ");

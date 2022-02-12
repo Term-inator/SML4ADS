@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.kordamp.bootstrapfx.BootstrapFX;
 
 import java.io.IOException;
 
@@ -17,6 +18,7 @@ public class App extends Application {
         this.codePage();
         stage.setTitle("ADSML-S");
         stage.setScene(scene);
+        stage.getScene().getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());
         stage.show();
     }
 
