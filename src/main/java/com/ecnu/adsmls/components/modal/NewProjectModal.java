@@ -1,4 +1,4 @@
-package com.ecnu.adsmls.views.codepage;
+package com.ecnu.adsmls.components.modal;
 
 import com.ecnu.adsmls.components.ChooseDirectoryButton;
 import com.ecnu.adsmls.components.modal.Modal;

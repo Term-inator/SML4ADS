@@ -2,8 +2,10 @@ package com.ecnu.adsmls.views.codepage;
 
 import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.components.editor.TreeEditor;
+import com.ecnu.adsmls.components.modal.NewProjectModal;
 import com.ecnu.adsmls.components.modal.NewTreeModal;
 import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
+import com.ecnu.adsmls.router.Router;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -55,6 +57,11 @@ public class CodePageController implements Initializable {
                     }
                     else if(Objects.equals(menuItemName, "Tree")) {
                         menuItem.setOnAction(this::onNewTreeClick);
+                    }
+                    else if(Objects.equals(menuItemName, "Close Project")) {
+                        menuItem.setOnAction(e -> {
+                            Router.back();
+                        });
                     }
                 }
             }

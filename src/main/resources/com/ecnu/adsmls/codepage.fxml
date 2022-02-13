@@ -16,7 +16,7 @@
                       <MenuItem mnemonicParsing="false" text="Tree" />
                     </items>
                   </Menu>
-              <MenuItem mnemonicParsing="false" text="Close" />
+              <MenuItem mnemonicParsing="false" text="Close Project" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Edit">
