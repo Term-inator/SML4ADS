@@ -1,4 +1,4 @@
-package com.ecnu.adsmls.components;
+package com.ecnu.adsmls.components.modal;
 
 import javafx.event.Event;
 import javafx.geometry.Insets;

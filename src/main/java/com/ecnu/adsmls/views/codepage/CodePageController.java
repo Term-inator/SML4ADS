@@ -2,6 +2,7 @@ package com.ecnu.adsmls.views.codepage;
 
 import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.components.editor.TreeEditor;
+import com.ecnu.adsmls.components.modal.NewTreeModal;
 import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -11,7 +12,6 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 
 import java.io.File;
@@ -75,21 +75,18 @@ public class CodePageController implements Initializable {
 
     private void onNewProjectClick(ActionEvent event) {
         System.out.println("Project");
-//        NewProjectModal npm = new NewProjectModal();
-//        npm.getWindow().showAndWait();
-//        if(!npm.isConfirm()) {
-//            return;
-//        }
+        NewProjectModal npm = new NewProjectModal();
+        npm.getWindow().showAndWait();
+        if(!npm.isConfirm()) {
+            return;
+        }
 
         ScrollPane scrollPane = new ScrollPane();
-//        scrollPane.setMinWidth(this.directoryWrapper.getWidth());
-//        scrollPane.setMaxHeight(this.directoryWrapper.getHeight());
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
 
         AnchorPane anchorPane = new AnchorPane();
-//        MultiLevelDirectory multiLevelDirectory = new MultiLevelDirectory(new File(npm.getDirectory() + '/' + npm.getProjectName()));
-        MultiLevelDirectory multiLevelDirectory = new MultiLevelDirectory(new File("D:/"));
+        MultiLevelDirectory multiLevelDirectory = new MultiLevelDirectory(new File(npm.getDirectory() + '/' + npm.getProjectName()));
         anchorPane.getChildren().add(multiLevelDirectory.getNode());
         AnchorPane.setTopAnchor(multiLevelDirectory.getNode(), 0.0);
         AnchorPane.setRightAnchor(multiLevelDirectory.getNode(), 0.0);

@@ -1,8 +1,7 @@
 package com.ecnu.adsmls.components.editor.impl;
 
 
-import com.ecnu.adsmls.components.Modal;
-import javafx.event.ActionEvent;
+import com.ecnu.adsmls.components.modal.Modal;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
