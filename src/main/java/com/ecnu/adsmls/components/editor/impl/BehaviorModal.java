@@ -1,7 +1,7 @@
 package com.ecnu.adsmls.components.editor.impl;
 
 
-import com.ecnu.adsmls.components.Modal;
+import com.ecnu.adsmls.components.modal.Modal;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;

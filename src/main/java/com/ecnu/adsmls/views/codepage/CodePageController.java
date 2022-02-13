@@ -2,7 +2,12 @@ package com.ecnu.adsmls.views.codepage;
 
 import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.components.editor.TreeEditor;
+import com.ecnu.adsmls.components.modal.NewProjectModal;
+import com.ecnu.adsmls.components.modal.NewTreeModal;
 import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
+import com.ecnu.adsmls.router.Route;
+import com.ecnu.adsmls.router.Router;
+import com.ecnu.adsmls.router.params.CodePageParams;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -11,7 +16,6 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 
 import java.io.File;
@@ -19,20 +23,30 @@ import java.net.URL;
 import java.util.*;
 
 
-public class CodePageController implements Initializable {
+public class CodePageController implements Initializable, Route {
     @FXML
     private AnchorPane rootLayout;
     @FXML
     private MenuBar menuBar;
     @FXML
-    private AnchorPane directoryWrapper;
+    private StackPane directoryWrapper;
     @FXML
     private TabPane tabPane;
+
+    private String directory;
+    private String projectName;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         System.out.println("init");
         this.initMenu();
+    }
+
+    @Override
+    public void loadParams() {
+        this.directory = CodePageParams.directory;
+        this.projectName = CodePageParams.projectName;
+        this.updateProject();
     }
 
     private void initMenu() {
@@ -47,18 +61,39 @@ public class CodePageController implements Initializable {
                 }
                 else {
                     String menuItemName = menuItem.getText();
-                    if(Objects.equals(menuItemName, "Project")) {
-                        menuItem.setOnAction(this::onNewProjectClick);
-                    }
-                    else if(Objects.equals(menuItemName, "Model")) {
+                    if(Objects.equals(menuItemName, "Model")) {
                         menuItem.setOnAction(this::onNewModelClick);
                     }
                     else if(Objects.equals(menuItemName, "Tree")) {
                         menuItem.setOnAction(this::onNewTreeClick);
                     }
+                    else if(Objects.equals(menuItemName, "Close Project")) {
+                        menuItem.setOnAction(e -> {
+                            Router.back();
+                        });
+                    }
                 }
             }
         }
+    }
+
+    private void updateProject() {
+        System.out.println("Initialize Project");
+
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+
+        AnchorPane anchorPane = new AnchorPane();
+        MultiLevelDirectory multiLevelDirectory = new MultiLevelDirectory(new File(this.directory + '/' + this.projectName));
+        anchorPane.getChildren().add(multiLevelDirectory.getNode());
+        AnchorPane.setTopAnchor(multiLevelDirectory.getNode(), 0.0);
+        AnchorPane.setRightAnchor(multiLevelDirectory.getNode(), 0.0);
+        AnchorPane.setBottomAnchor(multiLevelDirectory.getNode(), 0.0);
+        AnchorPane.setLeftAnchor(multiLevelDirectory.getNode(), 0.0);
+
+        scrollPane.setContent(anchorPane);
+        this.directoryWrapper.getChildren().add(scrollPane);
     }
 
     @FXML
@@ -71,28 +106,6 @@ public class CodePageController implements Initializable {
         for(int r = 0; r < page.size(); ++r) {
             gridPane.addRow(r, page.get(r));
         }
-    }
-
-    private void onNewProjectClick(ActionEvent event) {
-        System.out.println("Project");
-        NewProjectModal npm = new NewProjectModal();
-        npm.getWindow().showAndWait();
-        if(!npm.isConfirm()) {
-            return;
-        }
-
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setMinWidth(this.directoryWrapper.getWidth());
-        scrollPane.setMaxHeight(this.directoryWrapper.getHeight());
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
-
-        AnchorPane anchorPane = new AnchorPane();
-        MultiLevelDirectory multiLevelDirectory = new MultiLevelDirectory(new File(npm.getDirectory() + '/' + npm.getProjectName()));
-        anchorPane.getChildren().add(multiLevelDirectory.getNode());
-
-        scrollPane.setContent(anchorPane);
-        this.directoryWrapper.getChildren().add(scrollPane);
     }
 
     private void onNewModelClick(ActionEvent event) {
