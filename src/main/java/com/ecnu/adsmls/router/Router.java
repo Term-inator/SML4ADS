@@ -1,7 +1,9 @@
 package com.ecnu.adsmls.router;
 
 import com.ecnu.adsmls.App;
+import com.ecnu.adsmls.router.params.CodePageParams;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import org.kordamp.bootstrapfx.BootstrapFX;
 
@@ -16,31 +18,36 @@ public class Router {
 
     public static Map<String, Scene> sceneMap = new HashMap<>();
 
+    public static Map<String, Route> controllerMap = new HashMap<>();
+
     static {
         try {
-            sceneMap.put("welcome", welcome());
-            sceneMap.put("codepage", codePage());
+            welcome();
+            codePage();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static Scene welcome() throws IOException {
+    public static void welcome() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("welcome.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), win_width, win_height);
         scene.getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());
-        return scene;
+        controllerMap.put("welcome", fxmlLoader.getController());
+        sceneMap.put("welcome", scene);
     }
 
-    private static Scene codePage() throws IOException {
+    public static void codePage() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("codepage.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), win_width, win_height);
         scene.getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());
-        return scene;
+        controllerMap.put("codepage", fxmlLoader.getController());
+        sceneMap.put("codepage", scene);
     }
 
     public static void linkTo(String pageName) {
         sceneStack.push(sceneMap.get(pageName));
+        controllerMap.get(pageName).loadParams();
         changeScene();
     }
 
