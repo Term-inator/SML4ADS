@@ -25,7 +25,7 @@ public class CodePageController implements Initializable {
     @FXML
     private MenuBar menuBar;
     @FXML
-    private AnchorPane directoryWrapper;
+    private StackPane directoryWrapper;
     @FXML
     private TabPane tabPane;
 
@@ -82,8 +82,8 @@ public class CodePageController implements Initializable {
 //        }
 
         ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setMinWidth(this.directoryWrapper.getWidth());
-        scrollPane.setMaxHeight(this.directoryWrapper.getHeight());
+//        scrollPane.setMinWidth(this.directoryWrapper.getWidth());
+//        scrollPane.setMaxHeight(this.directoryWrapper.getHeight());
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
 
@@ -91,6 +91,10 @@ public class CodePageController implements Initializable {
 //        MultiLevelDirectory multiLevelDirectory = new MultiLevelDirectory(new File(npm.getDirectory() + '/' + npm.getProjectName()));
         MultiLevelDirectory multiLevelDirectory = new MultiLevelDirectory(new File("D:/"));
         anchorPane.getChildren().add(multiLevelDirectory.getNode());
+        AnchorPane.setTopAnchor(multiLevelDirectory.getNode(), 0.0);
+        AnchorPane.setRightAnchor(multiLevelDirectory.getNode(), 0.0);
+        AnchorPane.setBottomAnchor(multiLevelDirectory.getNode(), 0.0);
+        AnchorPane.setLeftAnchor(multiLevelDirectory.getNode(), 0.0);
 
         scrollPane.setContent(anchorPane);
         this.directoryWrapper.getChildren().add(scrollPane);

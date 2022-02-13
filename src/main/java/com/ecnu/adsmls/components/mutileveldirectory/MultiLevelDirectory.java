@@ -61,6 +61,19 @@ public class MultiLevelDirectory {
                 return null;
             }
         }));
+
+        PopupMenu menu = new PopupMenu(this.treeView);
+
+        Menu newMenu = new Menu("new");
+        MenuItem newModel = new MenuItem("model");
+        MenuItem newTree = new MenuItem("tree");
+        newMenu.getItems().addAll(newModel, newTree);
+
+        menu.getItems().addAll(newMenu);
+    }
+
+    public void setWidth(double width) {
+        this.treeView.setPrefWidth(width);
     }
 
     private List<TreeItem<File>> createNode(File root) {
@@ -84,15 +97,6 @@ public class MultiLevelDirectory {
             TreeItem<File> treeItem = new TreeItem<>(file);
             treeItems.add(treeItem);
         }
-
-//        PopupMenu menu = new PopupMenu(this.titledPane);
-//
-//        Menu newMenu = new Menu("new");
-//        MenuItem newModel = new MenuItem("model");
-//        MenuItem newTree = new MenuItem("tree");
-//        newMenu.getItems().addAll(newModel, newTree);
-//
-//        menu.getItems().addAll(newMenu);
 
         return treeItems;
     }
