@@ -7,6 +7,7 @@ import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
 import com.ecnu.adsmls.router.Route;
 import com.ecnu.adsmls.router.Router;
 import com.ecnu.adsmls.router.params.CodePageParams;
+import com.ecnu.adsmls.utils.FileSystem;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -34,6 +35,7 @@ public class CodePageController implements Initializable, Route {
 
     @FXML
     private TabPane tabPane;
+    private Set<File> filesOpened = new HashSet<>();
 
     private String directory;
     private String projectName;
@@ -70,6 +72,7 @@ public class CodePageController implements Initializable, Route {
         closeProject.setOnAction(e -> {
             // TODO 重置界面
             this.tabPane.getTabs().clear();
+            this.filesOpened.clear();
             Router.back();
         });
 
@@ -116,7 +119,9 @@ public class CodePageController implements Initializable, Route {
                 return;
             }
             if(e.getClickCount() == 2) {
-                this.onOpenTree(selectedItem.getValue());
+                if(FileSystem.getSuffix(selectedItem.getValue()).equals(FileSystem.Suffix.TREE.value)) {
+                    this.onOpenTree(selectedItem.getValue());
+                }
             }
         });
 
@@ -256,9 +261,16 @@ public class CodePageController implements Initializable, Route {
     }
 
     private void onOpenTree(File file) {
+        if(this.filesOpened.contains(file)) {
+            System.out.println("This file has already been opened");
+            return;
+        }
+        this.filesOpened.add(file);
+
         Tab tab = new Tab(file.getName());
         tab.setOnClosed(e -> {
             System.out.println(tab.getText() + " closed");
+            this.filesOpened.remove(file);
         });
 
         ScrollPane scrollPane = new ScrollPane();
