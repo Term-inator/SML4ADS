@@ -1,18 +1,15 @@
 package com.ecnu.adsmls.components.mutileveldirectory;
 
-import com.ecnu.adsmls.components.modal.NewTreeModal;
 import com.ecnu.adsmls.utils.FileSystem;
-import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTreeCell;
+import javafx.scene.input.MouseEvent;
 import javafx.util.StringConverter;
-
 import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
+import java.util.Objects;
 
 
 public class MultiLevelDirectory {
@@ -21,7 +18,7 @@ public class MultiLevelDirectory {
     private TreeView<File> treeView = new TreeView<>();
     private TreeItem<File> rootItem;
 
-    private PopupMenu menu;
+    private ContextMenu menu = new ContextMenu();
 
     public MultiLevelDirectory(File directory) {
         this.directory = directory;
@@ -65,24 +62,21 @@ public class MultiLevelDirectory {
             System.out.println(newValue);
         });
 
-        this.initMenu();
+        this.treeView.setOnContextMenuRequested(event -> {
+            this.menu.hide();
+            this.menu.show(this.treeView, event.getScreenX(), event.getScreenY());
+        });
     }
 
-    private void initMenu() {
-        this.menu = new PopupMenu(this.treeView);
+    public void setMenu(List<MenuItem> menuItems) {
+        for(MenuItem menuItem :menuItems) {
+            this.menu.getItems().add(menuItem);
+        }
+        System.out.println(this.menu.getItems());
+    }
 
-        Menu newMenu = new Menu("New");
-        MenuItem newDirectory = new MenuItem("Directory");
-        MenuItem newModel = new MenuItem("Model");
-        MenuItem newTree = new MenuItem("Tree");
-
-        newTree.setOnAction(e -> {
-
-        });
-
-        newMenu.getItems().addAll(newDirectory, newModel, newTree);
-
-        this.menu.getItems().addAll(newMenu);
+    public TreeView<File> getTreeView() {
+        return treeView;
     }
 
     private List<TreeItem<File>> createNode(File root) {
@@ -110,13 +104,15 @@ public class MultiLevelDirectory {
         return treeItems;
     }
 
-    public class PopupMenu extends ContextMenu {
-        public PopupMenu(Node node) {
-            node.setOnContextMenuRequested(event -> {
-                hide();
-                show(node, event.getScreenX(), event.getScreenY());
-            });
+    public void updateNode() {
+        TreeItem<File> focusedItem = this.treeView.getFocusModel().getFocusedItem();
+        File directory = this.treeView.getFocusModel().getFocusedItem().getValue();
+        if(directory.isFile()) {
+            directory = directory.getParentFile();
+            focusedItem = focusedItem.getParent();
         }
+        focusedItem.getChildren().clear();
+        focusedItem.getChildren().addAll(this.createNode(directory));
     }
 
     public Node getNode() {

@@ -1,8 +1,8 @@
 package com.ecnu.adsmls.utils;
 
-import com.ecnu.adsmls.components.editor.TreeArea;
-import com.ecnu.adsmls.components.editor.TreeLinkPoint;
-import com.ecnu.adsmls.components.editor.impl.*;
+import com.ecnu.adsmls.components.editor.treeeditor.TreeArea;
+import com.ecnu.adsmls.components.editor.treeeditor.TreeLinkPoint;
+import com.ecnu.adsmls.components.editor.treeeditor.impl.*;
 import com.ecnu.adsmls.model.*;
 
 import java.util.ArrayList;

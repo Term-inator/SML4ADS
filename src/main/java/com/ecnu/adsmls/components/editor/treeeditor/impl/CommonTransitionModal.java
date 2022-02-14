@@ -1,4 +1,4 @@
-package com.ecnu.adsmls.components.editor.impl;
+package com.ecnu.adsmls.components.editor.treeeditor.impl;
 
 import com.ecnu.adsmls.components.modal.Modal;
 import javafx.geometry.Insets;

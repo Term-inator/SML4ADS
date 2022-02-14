@@ -1,9 +1,7 @@
 package com.ecnu.adsmls.router;
 
 import com.ecnu.adsmls.App;
-import com.ecnu.adsmls.router.params.CodePageParams;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import org.kordamp.bootstrapfx.BootstrapFX;
 
@@ -57,6 +55,7 @@ public class Router {
     }
 
     public static void changeScene() {
+        assert sceneStack.peek() != null;
         App.getMainStage().setScene(sceneStack.peek());
         App.getMainStage().show();
     }

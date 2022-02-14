@@ -1,11 +1,10 @@
-package com.ecnu.adsmls.components.editor;
+package com.ecnu.adsmls.components.editor.treeeditor;
 
 import com.ecnu.adsmls.utils.Geometry;
 import com.ecnu.adsmls.utils.Position;
 import com.ecnu.adsmls.utils.Vector2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;

@@ -1,6 +1,6 @@
-package com.ecnu.adsmls.components.editor.impl;
+package com.ecnu.adsmls.components.editor.treeeditor.impl;
 
-import com.ecnu.adsmls.components.editor.TreeArea;
+import com.ecnu.adsmls.components.editor.treeeditor.TreeArea;
 import com.ecnu.adsmls.utils.Position;
 import com.ecnu.adsmls.utils.Vector2D;
 import javafx.scene.paint.Color;

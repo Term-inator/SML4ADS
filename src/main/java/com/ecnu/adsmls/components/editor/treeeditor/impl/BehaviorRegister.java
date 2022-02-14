@@ -1,6 +1,4 @@
-package com.ecnu.adsmls.components.editor.impl;
-
-import javafx.util.Pair;
+package com.ecnu.adsmls.components.editor.treeeditor.impl;
 
 import java.util.*;
 

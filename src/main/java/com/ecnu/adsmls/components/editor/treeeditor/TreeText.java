@@ -1,4 +1,4 @@
-package com.ecnu.adsmls.components.editor;
+package com.ecnu.adsmls.components.editor.treeeditor;
 
 import com.ecnu.adsmls.utils.Position;
 import javafx.scene.paint.Color;

@@ -5,31 +5,7 @@
 
 <AnchorPane fx:id="rootLayout" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ecnu.adsmls.views.codepage.CodePageController">
    <children>
-      <MenuBar fx:id="menuBar" layoutY="1.0" AnchorPane.topAnchor="0.0">
-        <menus>
-          <Menu mnemonicParsing="false" text="File">
-            <items>
-                  <Menu mnemonicParsing="false" text="New">
-                    <items>
-                        <MenuItem mnemonicParsing="false" text="Model" />
-                      <MenuItem mnemonicParsing="false" text="Tree" />
-                    </items>
-                  </Menu>
-              <MenuItem mnemonicParsing="false" text="Close Project" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Edit">
-            <items>
-              <MenuItem mnemonicParsing="false" text="Delete" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Help">
-            <items>
-              <MenuItem mnemonicParsing="false" text="About" />
-            </items>
-          </Menu>
-        </menus>
-      </MenuBar>
+      <MenuBar fx:id="menuBar" layoutY="1.0" AnchorPane.topAnchor="0.0" />
       <ToolBar layoutY="26.0" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="33.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="26.0">
         <items>
           <Button mnemonicParsing="false" onMouseClicked="#onRun" text="Run" />

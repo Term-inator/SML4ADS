@@ -1,6 +1,6 @@
-package com.ecnu.adsmls.components.editor.impl;
+package com.ecnu.adsmls.components.editor.treeeditor.impl;
 
-import com.ecnu.adsmls.components.editor.TreeArea;
+import com.ecnu.adsmls.components.editor.treeeditor.TreeArea;
 
 
 public class ProbabilityTransition extends Transition {

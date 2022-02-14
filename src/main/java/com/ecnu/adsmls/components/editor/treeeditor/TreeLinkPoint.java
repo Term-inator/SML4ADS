@@ -1,8 +1,7 @@
-package com.ecnu.adsmls.components.editor;
+package com.ecnu.adsmls.components.editor.treeeditor;
 
-import com.ecnu.adsmls.components.editor.impl.TreeAreaRadius;
+import com.ecnu.adsmls.components.editor.treeeditor.impl.TreeAreaRadius;
 import com.ecnu.adsmls.utils.Position;
-import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;

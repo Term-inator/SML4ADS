@@ -1,15 +1,14 @@
 package com.ecnu.adsmls.views.codepage;
 
 import com.ecnu.adsmls.components.ChooseFileButton;
-import com.ecnu.adsmls.components.editor.TreeEditor;
-import com.ecnu.adsmls.components.modal.NewProjectModal;
+import com.ecnu.adsmls.components.editor.treeeditor.TreeEditor;
 import com.ecnu.adsmls.components.modal.NewTreeModal;
 import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
 import com.ecnu.adsmls.router.Route;
 import com.ecnu.adsmls.router.Router;
 import com.ecnu.adsmls.router.params.CodePageParams;
+import com.ecnu.adsmls.utils.FileSystem;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -30,8 +29,14 @@ public class CodePageController implements Initializable, Route {
     private MenuBar menuBar;
     @FXML
     private StackPane directoryWrapper;
+
+    private MultiLevelDirectory multiLevelDirectory;
+    private List<MenuItem> multiLevelDirectoryMenu = new ArrayList<>();
+
     @FXML
     private TabPane tabPane;
+    // 正在被访问的文件
+    private Set<File> filesOpened = new HashSet<>();
 
     private String directory;
     private String projectName;
@@ -50,31 +55,53 @@ public class CodePageController implements Initializable, Route {
     }
 
     private void initMenu() {
-        ObservableList<Menu> menus = menuBar.getMenus();
-        Queue<Menu> queue = new LinkedList(menus);
-        while(!queue.isEmpty()) {
-            Menu menu = queue.poll();
-            ObservableList<MenuItem> menuItems = menu.getItems();
-            for(MenuItem menuItem : menuItems) {
-                if(menuItem instanceof Menu) {
-                    queue.offer((Menu) menuItem);
-                }
-                else {
-                    String menuItemName = menuItem.getText();
-                    if(Objects.equals(menuItemName, "Model")) {
-                        menuItem.setOnAction(this::onNewModelClick);
-                    }
-                    else if(Objects.equals(menuItemName, "Tree")) {
-                        menuItem.setOnAction(this::onNewTreeClick);
-                    }
-                    else if(Objects.equals(menuItemName, "Close Project")) {
-                        menuItem.setOnAction(e -> {
-                            Router.back();
-                        });
-                    }
-                }
-            }
-        }
+        this.initMenuBar();
+        this.initMultiLevelDirectoryMenu();
+    }
+
+    private void initMenuBar() {
+        Menu fileMenu = new Menu("File");
+
+        Menu newMenu = new Menu("New");
+        MenuItem newDirectory = new MenuItem("Directory");
+        MenuItem newModel = new MenuItem("Model");
+        newModel.setOnAction(this::onNewModelClick);
+        MenuItem newTree = new MenuItem("Tree");
+        newTree.setOnAction(this::onNewTreeClick);
+        newMenu.getItems().addAll(newDirectory, newModel, newTree);
+
+        MenuItem closeProject = new MenuItem("Close Project");
+        closeProject.setOnAction(e -> {
+            // TODO 重置界面
+            this.tabPane.getTabs().clear();
+            this.filesOpened.clear();
+            Router.back();
+        });
+
+        fileMenu.getItems().addAll(newMenu, closeProject);
+
+        Menu editMenu = new Menu("Edit");
+        MenuItem delete = new MenuItem("Delete");
+        editMenu.getItems().add(delete);
+
+        Menu helpMenu = new Menu("Help");
+
+        this.menuBar.getMenus().addAll(fileMenu, editMenu, helpMenu);
+    }
+
+    private void initMultiLevelDirectoryMenu() {
+        Menu newMenu = new Menu("New");
+        MenuItem newDirectory = new MenuItem("Directory");
+        MenuItem newModel = new MenuItem("Model");
+        newModel.setOnAction(this::onNewModelClick);
+        MenuItem newTree = new MenuItem("Tree");
+        newTree.setOnAction(this::onNewTreeClick);
+        newMenu.getItems().addAll(newDirectory, newModel, newTree);
+
+        MenuItem delete = new MenuItem("Delete");
+
+        this.multiLevelDirectoryMenu.add(newMenu);
+        this.multiLevelDirectoryMenu.add(delete);
     }
 
     private void updateProject() {
@@ -85,12 +112,27 @@ public class CodePageController implements Initializable, Route {
         scrollPane.setFitToHeight(true);
 
         AnchorPane anchorPane = new AnchorPane();
-        MultiLevelDirectory multiLevelDirectory = new MultiLevelDirectory(new File(this.directory + '/' + this.projectName));
-        anchorPane.getChildren().add(multiLevelDirectory.getNode());
-        AnchorPane.setTopAnchor(multiLevelDirectory.getNode(), 0.0);
-        AnchorPane.setRightAnchor(multiLevelDirectory.getNode(), 0.0);
-        AnchorPane.setBottomAnchor(multiLevelDirectory.getNode(), 0.0);
-        AnchorPane.setLeftAnchor(multiLevelDirectory.getNode(), 0.0);
+
+        this.multiLevelDirectory = new MultiLevelDirectory(new File(this.directory + '/' + this.projectName));
+        this.multiLevelDirectory.setMenu(this.multiLevelDirectoryMenu);
+
+        this.multiLevelDirectory.getTreeView().setOnMouseClicked(e -> {
+            TreeItem<File> selectedItem = this.multiLevelDirectory.getTreeView().getSelectionModel().getSelectedItem();
+            if(!selectedItem.getValue().isFile()) {
+                return;
+            }
+            if(e.getClickCount() == 2) {
+                if(FileSystem.getSuffix(selectedItem.getValue()).equals(FileSystem.Suffix.TREE.value)) {
+                    this.openTree(selectedItem.getValue());
+                }
+            }
+        });
+
+        anchorPane.getChildren().add(this.multiLevelDirectory.getNode());
+        AnchorPane.setTopAnchor(this.multiLevelDirectory.getNode(), 0.0);
+        AnchorPane.setRightAnchor(this.multiLevelDirectory.getNode(), 0.0);
+        AnchorPane.setBottomAnchor(this.multiLevelDirectory.getNode(), 0.0);
+        AnchorPane.setLeftAnchor(this.multiLevelDirectory.getNode(), 0.0);
 
         scrollPane.setContent(anchorPane);
         this.directoryWrapper.getChildren().add(scrollPane);
@@ -221,18 +263,18 @@ public class CodePageController implements Initializable, Route {
         tabPane.getTabs().add(tab);
     }
 
-    private void onNewTreeClick(ActionEvent event) {
-        System.out.println("Tree");
-
-        NewTreeModal ntm = new NewTreeModal();
-        ntm.getWindow().showAndWait();
-        if(!ntm.isConfirm()) {
+    private void openTree(File file) {
+        if(this.filesOpened.contains(file)) {
+            System.out.println("This file has already been opened");
             return;
         }
+        this.filesOpened.add(file);
 
-        Tab tab = new Tab(ntm.getFilename() + ".tree");
+        Tab tab = new Tab(file.getName());
         tab.setOnClosed(e -> {
             System.out.println(tab.getText() + " closed");
+            // TODO unsaved ?
+            this.filesOpened.remove(file);
         });
 
         ScrollPane scrollPane = new ScrollPane();
@@ -241,14 +283,31 @@ public class CodePageController implements Initializable, Route {
 
         AnchorPane anchorPane = new AnchorPane();
         TreeEditor editor = new TreeEditor();
-        editor.setDirectory(ntm.getDirectory());
-        editor.setFilename(ntm.getFilename());
-        editor.loadTree();
+        editor.setDirectory(file.getParentFile().getAbsolutePath());
+        editor.setFilename(file.getName());
+        editor.load();
         anchorPane.getChildren().add(editor.getNode());
 
         scrollPane.setContent(anchorPane);
 
         tab.setContent(scrollPane);
+        tab.setUserData(editor);
         tabPane.getTabs().add(tab);
+    }
+
+    private void onNewTreeClick(ActionEvent event) {
+        System.out.println("Tree");
+
+        NewTreeModal ntm = new NewTreeModal();
+        ntm.setDirectory(this.multiLevelDirectory.getTreeView().getFocusModel().getFocusedItem().getValue());
+        ntm.getWindow().showAndWait();
+        if(!ntm.isConfirm()) {
+            return;
+        }
+        if(!ntm.isSucceed()) {
+            System.out.println("File already exists");
+            return;
+        }
+        this.multiLevelDirectory.updateNode();
     }
 }
