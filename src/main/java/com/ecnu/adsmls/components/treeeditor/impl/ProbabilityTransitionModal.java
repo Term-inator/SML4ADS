@@ -1,10 +1,11 @@
-package com.ecnu.adsmls.components.editor.impl;
+package com.ecnu.adsmls.components.treeeditor.impl;
+
 
 import com.ecnu.adsmls.components.modal.Modal;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -14,17 +15,12 @@ import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
 import javafx.stage.StageStyle;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+public class ProbabilityTransitionModal extends Modal {
+    private ProbabilityTransition transition;
 
+    private String weight;
 
-public class CommonTransitionModal extends Modal {
-    private CommonTransition transition;
-
-    private List<String> guards = new ArrayList<>();
-
-    public CommonTransitionModal(CommonTransition transition) {
+    public ProbabilityTransitionModal(ProbabilityTransition transition) {
         super();
         this.transition = transition;
         this.loadData();
@@ -38,26 +34,22 @@ public class CommonTransitionModal extends Modal {
                         new CornerRadii(15), Insets.EMPTY)));
     }
 
-    public List<String> getGuards() {
-        return guards;
+    public String getWeight() {
+        return weight;
     }
 
     private void loadData() {
-        this.guards = transition.getGuards();
+        this.weight = transition.getWeight();
     }
 
     @Override
     protected void createWindow() {
         super.createWindow();
 
-        Label lbGuard = new Label("guard");
-        TextArea taGuard = new TextArea(this.transition.getInfo());
-        taGuard.setPrefRowCount(10);
-        taGuard.setPrefColumnCount(20);
-        //自动换行
-        taGuard.setWrapText(true);
+        Label lbWeight = new Label("weight");
+        TextField tfWeight = new TextField(this.weight);
 
-        staticPage.add(0, new Node[] {lbGuard, taGuard});
+        staticPage.add(0, new Node[] {lbWeight, tfWeight});
     }
 
     @Override
@@ -67,7 +59,7 @@ public class CommonTransitionModal extends Modal {
 
     @Override
     protected void update() {
-        this.updateGuard();
+        this.updateWeight();
     }
 
     @Override
@@ -79,16 +71,8 @@ public class CommonTransitionModal extends Modal {
         // TODO 类型检查
     }
 
-    public void updateGuard() {
-        this.guards.clear();
-        TextArea taGuard = (TextArea) this.staticPage.get(0)[1];
-        String[] guards = taGuard.getText().split(";");
-        for(String guard : guards) {
-            guard = guard.replaceAll("[\r\n]", "");
-            if(Objects.equals(guard, "")) {
-                continue;
-            }
-            this.guards.add(guard.trim());
-        }
+    public void updateWeight() {
+        TextField tfWeight = (TextField) this.staticPage.get(0)[1];
+        this.weight = tfWeight.getText();
     }
 }

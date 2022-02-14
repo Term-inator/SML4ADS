@@ -1,10 +1,9 @@
-package com.ecnu.adsmls.components.editor;
+package com.ecnu.adsmls.components.treeeditor;
 
 import com.alibaba.fastjson.JSON;
-import com.ecnu.adsmls.components.editor.impl.*;
+import com.ecnu.adsmls.components.treeeditor.impl.*;
 import com.ecnu.adsmls.model.*;
 import com.ecnu.adsmls.utils.Converter;
-import com.ecnu.adsmls.utils.FileSystem;
 import com.ecnu.adsmls.utils.Position;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -354,7 +353,7 @@ public class TreeEditor {
             }
         }
         String tree = JSON.toJSONString(mTree);
-        String path = this.directory + this.filename + FileSystem.Suffix.TREE.value;
+        String path = this.directory + "/" + this.filename;
         System.out.println(tree);
         try {
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path,false), StandardCharsets.UTF_8));
@@ -367,7 +366,7 @@ public class TreeEditor {
 
     public void loadTree() {
         String tree = null;
-        String path = this.directory + "/" + this.filename + FileSystem.Suffix.TREE.value;
+        String path = this.directory + "/" + this.filename;
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path), StandardCharsets.UTF_8));
             tree = br.readLine();

@@ -1,7 +1,7 @@
 package com.ecnu.adsmls.views.codepage;
 
 import com.ecnu.adsmls.components.ChooseFileButton;
-import com.ecnu.adsmls.components.editor.TreeEditor;
+import com.ecnu.adsmls.components.treeeditor.TreeEditor;
 import com.ecnu.adsmls.components.modal.NewTreeModal;
 import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
 import com.ecnu.adsmls.router.Route;
@@ -68,6 +68,8 @@ public class CodePageController implements Initializable, Route {
 
         MenuItem closeProject = new MenuItem("Close Project");
         closeProject.setOnAction(e -> {
+            // TODO 重置界面
+            this.tabPane.getTabs().clear();
             Router.back();
         });
 
@@ -107,6 +109,16 @@ public class CodePageController implements Initializable, Route {
 
         this.multiLevelDirectory = new MultiLevelDirectory(new File(this.directory + '/' + this.projectName));
         this.multiLevelDirectory.setMenu(this.multiLevelDirectoryMenu);
+
+        this.multiLevelDirectory.getTreeView().setOnMouseClicked(e -> {
+            TreeItem<File> selectedItem = this.multiLevelDirectory.getTreeView().getSelectionModel().getSelectedItem();
+            if(!selectedItem.getValue().isFile()) {
+                return;
+            }
+            if(e.getClickCount() == 2) {
+                this.onOpenTree(selectedItem.getValue());
+            }
+        });
 
         anchorPane.getChildren().add(this.multiLevelDirectory.getNode());
         AnchorPane.setTopAnchor(this.multiLevelDirectory.getNode(), 0.0);
@@ -243,22 +255,8 @@ public class CodePageController implements Initializable, Route {
         tabPane.getTabs().add(tab);
     }
 
-    private void onNewTreeClick(ActionEvent event) {
-        System.out.println("Tree");
-
-        NewTreeModal ntm = new NewTreeModal();
-        ntm.setDirectory(((TreeView<File>)this.multiLevelDirectory.getNode()).getFocusModel().getFocusedItem().getValue());
-        ntm.getWindow().showAndWait();
-        if(!ntm.isConfirm()) {
-            return;
-        }
-        if(!ntm.isSucceed()) {
-            System.out.println("File already exists");
-            return;
-        }
-        this.multiLevelDirectory.updateNode();
-
-        Tab tab = new Tab(ntm.getFilename() + ".tree");
+    private void onOpenTree(File file) {
+        Tab tab = new Tab(file.getName());
         tab.setOnClosed(e -> {
             System.out.println(tab.getText() + " closed");
         });
@@ -269,8 +267,8 @@ public class CodePageController implements Initializable, Route {
 
         AnchorPane anchorPane = new AnchorPane();
         TreeEditor editor = new TreeEditor();
-        editor.setDirectory(ntm.getDirectory().getAbsolutePath());
-        editor.setFilename(ntm.getFilename());
+        editor.setDirectory(file.getParentFile().getAbsolutePath());
+        editor.setFilename(file.getName());
         editor.loadTree();
         anchorPane.getChildren().add(editor.getNode());
 
@@ -279,5 +277,21 @@ public class CodePageController implements Initializable, Route {
         tab.setContent(scrollPane);
         tab.setUserData(editor);
         tabPane.getTabs().add(tab);
+    }
+
+    private void onNewTreeClick(ActionEvent event) {
+        System.out.println("Tree");
+
+        NewTreeModal ntm = new NewTreeModal();
+        ntm.setDirectory(this.multiLevelDirectory.getTreeView().getFocusModel().getFocusedItem().getValue());
+        ntm.getWindow().showAndWait();
+        if(!ntm.isConfirm()) {
+            return;
+        }
+        if(!ntm.isSucceed()) {
+            System.out.println("File already exists");
+            return;
+        }
+        this.multiLevelDirectory.updateNode();
     }
 }

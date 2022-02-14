@@ -1,6 +1,6 @@
-package com.ecnu.adsmls.components.editor.impl;
+package com.ecnu.adsmls.components.treeeditor.impl;
 
-import com.ecnu.adsmls.components.editor.TreeLink;
+import com.ecnu.adsmls.components.treeeditor.TreeLink;
 
 public abstract class Transition extends TreeLink {
     public Transition(long id) {

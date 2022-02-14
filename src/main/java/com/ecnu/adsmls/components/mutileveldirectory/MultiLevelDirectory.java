@@ -62,18 +62,6 @@ public class MultiLevelDirectory {
             System.out.println(newValue);
         });
 
-        this.treeView.setOnMouseClicked(e -> {
-            TreeItem<File> focusedItem = this.treeView.getFocusModel().getFocusedItem();
-            if(e.getClickCount() == 2) {
-                if(focusedItem.getValue().isFile()) {
-                    String suffix = FileSystem.getSuffix(focusedItem.getValue());
-                    if(Objects.equals(suffix, FileSystem.Suffix.TREE.value)) {
-
-                    }
-                }
-            }
-        });
-
         this.treeView.setOnContextMenuRequested(event -> {
             this.menu.hide();
             this.menu.show(this.treeView, event.getScreenX(), event.getScreenY());
@@ -85,6 +73,10 @@ public class MultiLevelDirectory {
             this.menu.getItems().add(menuItem);
         }
         System.out.println(this.menu.getItems());
+    }
+
+    public TreeView<File> getTreeView() {
+        return treeView;
     }
 
     private List<TreeItem<File>> createNode(File root) {
