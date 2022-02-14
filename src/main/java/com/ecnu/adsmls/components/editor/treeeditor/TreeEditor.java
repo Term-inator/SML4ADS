@@ -1,6 +1,7 @@
 package com.ecnu.adsmls.components.editor.treeeditor;
 
 import com.alibaba.fastjson.JSON;
+import com.ecnu.adsmls.components.editor.Editor;
 import com.ecnu.adsmls.components.editor.treeeditor.impl.*;
 import com.ecnu.adsmls.model.*;
 import com.ecnu.adsmls.utils.Converter;
@@ -23,9 +24,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class TreeEditor {
-    private String directory;
-    private String filename;
+public class TreeEditor extends Editor {
+    private SplitPane splitPane = new SplitPane();
 
     private AnchorPane paletteWrapper;
     private AnchorPane canvasWrapper;
@@ -39,29 +39,23 @@ public class TreeEditor {
     private Group componentChose;
 
     public TreeEditor() {
-        palette = new GridPane();
-        palette.setPadding(new Insets(8, 0, 0, 0));
-        palette.setVgap(8);
-        palette.setAlignment(Pos.TOP_CENTER);
-        palette.setPrefWidth(100);
-        canvas = new Pane();
-        canvas.setPrefWidth(1200);
-        canvas.setPrefHeight(800);
+        this.palette = new GridPane();
+        this.palette.setPadding(new Insets(8, 0, 0, 0));
+        this.palette.setVgap(8);
+        this.palette.setAlignment(Pos.TOP_CENTER);
+        this.palette.setPrefWidth(100);
+        this.canvas = new Pane();
+        this.canvas.setPrefWidth(1200);
+        this.canvas.setPrefHeight(800);
 
-        paletteWrapper = new AnchorPane(palette);
-        canvasWrapper = new AnchorPane(canvas);
+        this.paletteWrapper = new AnchorPane(this.palette);
+        this.canvasWrapper = new AnchorPane(this.canvas);
 
-        initBehavior();
-        initPalette();
-        initCanvas();
-    }
+        this.initBehavior();
+        this.initPalette();
+        this.initCanvas();
 
-    public void setDirectory(String directory) {
-        this.directory = directory;
-    }
-
-    public void setFilename(String filename) {
-        this.filename = filename;
+        this.createNode();
     }
 
     private void initBehavior() {
@@ -325,6 +319,7 @@ public class TreeEditor {
         });
     }
 
+    @Override
     public void save(){
         List<Node> nodes = this.canvas.getChildren();
         MTree mTree = new MTree();
@@ -364,6 +359,7 @@ public class TreeEditor {
         }
     }
 
+    @Override
     public void load() {
         String tree = null;
         String path = this.directory + "/" + this.filename;
@@ -412,12 +408,13 @@ public class TreeEditor {
         }
     }
 
-    public Node getNode() {
-        SplitPane splitPane = new SplitPane();
+    @Override
+    public void createNode() {
+        this.splitPane.getItems().addAll(this.paletteWrapper, this.canvasWrapper);
+        this.splitPane.setDividerPositions(.1f);
+    }
 
-        splitPane.getItems().addAll(paletteWrapper, canvasWrapper);
-        splitPane.setDividerPositions(.1f);
-//        splitPane.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 255), null, null)));
-        return splitPane;
+    public Node getNode() {
+        return this.splitPane;
     }
 }
