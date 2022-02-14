@@ -1,7 +1,7 @@
-package com.ecnu.adsmls.components.treeeditor;
+package com.ecnu.adsmls.components.editor.treeeditor;
 
 import com.alibaba.fastjson.JSON;
-import com.ecnu.adsmls.components.treeeditor.impl.*;
+import com.ecnu.adsmls.components.editor.treeeditor.impl.*;
 import com.ecnu.adsmls.model.*;
 import com.ecnu.adsmls.utils.Converter;
 import com.ecnu.adsmls.utils.Position;
@@ -136,7 +136,7 @@ public class TreeEditor {
                 this.componentChose = null;
             }
             else if(e.isControlDown() && e.getCode() == KeyCode.S) {
-                this.saveTree();
+                this.save();
             }
         });
 
@@ -325,7 +325,7 @@ public class TreeEditor {
         });
     }
 
-    public void saveTree(){
+    public void save(){
         List<Node> nodes = this.canvas.getChildren();
         MTree mTree = new MTree();
         boolean setRoot = false;
@@ -364,7 +364,7 @@ public class TreeEditor {
         }
     }
 
-    public void loadTree() {
+    public void load() {
         String tree = null;
         String path = this.directory + "/" + this.filename;
         try {

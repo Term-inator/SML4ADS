@@ -1,7 +1,7 @@
 package com.ecnu.adsmls.views.codepage;
 
 import com.ecnu.adsmls.components.ChooseFileButton;
-import com.ecnu.adsmls.components.treeeditor.TreeEditor;
+import com.ecnu.adsmls.components.editor.treeeditor.TreeEditor;
 import com.ecnu.adsmls.components.modal.NewTreeModal;
 import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
 import com.ecnu.adsmls.router.Route;
@@ -35,6 +35,7 @@ public class CodePageController implements Initializable, Route {
 
     @FXML
     private TabPane tabPane;
+    // 正在被访问的文件
     private Set<File> filesOpened = new HashSet<>();
 
     private String directory;
@@ -64,6 +65,7 @@ public class CodePageController implements Initializable, Route {
         Menu newMenu = new Menu("New");
         MenuItem newDirectory = new MenuItem("Directory");
         MenuItem newModel = new MenuItem("Model");
+        newModel.setOnAction(this::onNewModelClick);
         MenuItem newTree = new MenuItem("Tree");
         newTree.setOnAction(this::onNewTreeClick);
         newMenu.getItems().addAll(newDirectory, newModel, newTree);
@@ -91,6 +93,7 @@ public class CodePageController implements Initializable, Route {
         Menu newMenu = new Menu("New");
         MenuItem newDirectory = new MenuItem("Directory");
         MenuItem newModel = new MenuItem("Model");
+        newModel.setOnAction(this::onNewModelClick);
         MenuItem newTree = new MenuItem("Tree");
         newTree.setOnAction(this::onNewTreeClick);
         newMenu.getItems().addAll(newDirectory, newModel, newTree);
@@ -120,7 +123,7 @@ public class CodePageController implements Initializable, Route {
             }
             if(e.getClickCount() == 2) {
                 if(FileSystem.getSuffix(selectedItem.getValue()).equals(FileSystem.Suffix.TREE.value)) {
-                    this.onOpenTree(selectedItem.getValue());
+                    this.openTree(selectedItem.getValue());
                 }
             }
         });
@@ -260,7 +263,7 @@ public class CodePageController implements Initializable, Route {
         tabPane.getTabs().add(tab);
     }
 
-    private void onOpenTree(File file) {
+    private void openTree(File file) {
         if(this.filesOpened.contains(file)) {
             System.out.println("This file has already been opened");
             return;
@@ -270,6 +273,7 @@ public class CodePageController implements Initializable, Route {
         Tab tab = new Tab(file.getName());
         tab.setOnClosed(e -> {
             System.out.println(tab.getText() + " closed");
+            // TODO unsaved ?
             this.filesOpened.remove(file);
         });
 
@@ -281,7 +285,7 @@ public class CodePageController implements Initializable, Route {
         TreeEditor editor = new TreeEditor();
         editor.setDirectory(file.getParentFile().getAbsolutePath());
         editor.setFilename(file.getName());
-        editor.loadTree();
+        editor.load();
         anchorPane.getChildren().add(editor.getNode());
 
         scrollPane.setContent(anchorPane);

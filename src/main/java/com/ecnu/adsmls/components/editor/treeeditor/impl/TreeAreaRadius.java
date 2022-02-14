@@ -1,4 +1,4 @@
-package com.ecnu.adsmls.components.treeeditor.impl;
+package com.ecnu.adsmls.components.editor.treeeditor.impl;
 
 public enum TreeAreaRadius {
     Behavior("behavior", 16),

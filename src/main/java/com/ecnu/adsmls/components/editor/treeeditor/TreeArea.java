@@ -1,4 +1,4 @@
-package com.ecnu.adsmls.components.treeeditor;
+package com.ecnu.adsmls.components.editor.treeeditor;
 
 import com.ecnu.adsmls.utils.Position;
 import javafx.scene.Cursor;

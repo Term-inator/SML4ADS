@@ -1,4 +1,4 @@
-package com.ecnu.adsmls.components.treeeditor.impl;
+package com.ecnu.adsmls.components.editor.treeeditor.impl;
 
 import java.util.ArrayList;
 import java.util.List;

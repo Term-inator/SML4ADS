@@ -1,4 +1,4 @@
-package com.ecnu.adsmls.components.treeeditor;
+package com.ecnu.adsmls.components.editor.treeeditor;
 
 import javafx.scene.Cursor;
 import javafx.scene.Group;
