@@ -366,7 +366,7 @@ public class TreeEditor {
 
     public void loadTree() {
         String tree = null;
-        String path = this.directory + this.filename + ".json";
+        String path = this.directory + "/" + this.filename + ".json";
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path), StandardCharsets.UTF_8));
             tree = br.readLine();

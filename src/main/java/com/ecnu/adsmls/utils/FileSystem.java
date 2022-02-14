@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class FileSystem {
     public static boolean createFile(String directory, String filename) {
-        String pathName = directory + filename;
+        String pathName = directory + "/" + filename;
         File file = new File(pathName);
         if(!file.getParentFile().exists()) {
             if(!file.getParentFile().mkdirs()) {
@@ -24,6 +24,10 @@ public class FileSystem {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static boolean createFile(File directory, String filename) {
+        return createFile(directory.getAbsolutePath(), filename);
     }
 
     public static boolean createDir(String directory) {

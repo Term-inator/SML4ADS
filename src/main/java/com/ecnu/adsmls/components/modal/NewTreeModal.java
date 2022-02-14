@@ -1,15 +1,15 @@
 package com.ecnu.adsmls.components.modal;
 
-import com.ecnu.adsmls.components.ChooseDirectoryButton;
-import com.ecnu.adsmls.components.modal.Modal;
+import com.ecnu.adsmls.utils.FileSystem;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
+import java.io.File;
 import java.util.Objects;
 
 public class NewTreeModal extends Modal {
-    private String directory;
+    private File directory;
 
     private String filename;
 
@@ -21,7 +21,16 @@ public class NewTreeModal extends Modal {
         return filename;
     }
 
-    public String getDirectory() {
+    public void setDirectory(File directory) {
+        if(directory.isFile()) {
+            this.directory = directory.getParentFile();
+        }
+        else {
+            this.directory = directory;
+        }
+    }
+
+    public File getDirectory() {
         return directory;
     }
 
@@ -29,48 +38,29 @@ public class NewTreeModal extends Modal {
     protected void createWindow() {
         super.createWindow();
 
-        Label lbDirName = new Label("directory");
-        ChooseDirectoryButton btDir = new ChooseDirectoryButton(this.gridPane);
         Label lbFilename = new Label("filename");
         TextField tfFilename = new TextField();
 
-        staticPage.add(0, new Node[] {lbDirName, btDir.getNode()});
-        staticPage.add(1, new Node[] {lbFilename, tfFilename});
+        staticPage.add(0, new Node[] {lbFilename, tfFilename});
     }
 
     @Override
     protected void check() {
-        this.checkDirectory();
         this.checkFilename();
     }
 
     @Override
     protected void update() {
-        this.updateDirectory();
         this.updateFileName();
     }
 
     @Override
     protected void then() {
-
-    }
-
-    private void updateDirectory() {
-        ChooseDirectoryButton btDir = (ChooseDirectoryButton) this.staticPage.get(0)[1].getUserData();
-        try {
-            this.directory = btDir.getFolder().getAbsolutePath();
-        }
-        catch (Exception ignored) {
-
-        }
-    }
-
-    private void checkDirectory() {
-        // TODO 路径检查
+        FileSystem.createFile(this.directory, this.filename + ".json");
     }
 
     private void updateFileName() {
-        TextField tfFilename = (TextField) this.staticPage.get(1)[1];
+        TextField tfFilename = (TextField) this.staticPage.get(0)[1];
         this.filename = tfFilename.getText();
     }
 
