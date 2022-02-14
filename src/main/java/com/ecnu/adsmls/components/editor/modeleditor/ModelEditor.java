@@ -5,10 +5,7 @@ import com.ecnu.adsmls.components.editor.Editor;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 
 import java.util.ArrayList;
@@ -16,15 +13,22 @@ import java.util.List;
 
 public class ModelEditor extends Editor {
     private GridPane gridPane = new GridPane();
+    private List<Node[]> staticPage = new ArrayList<>();
+    private GridPane gridPaneCar = new GridPane();
+    private List<CarPane> carPanes = new ArrayList<>();
+//    private GridPane gridPanePedestrian = new GridPane();
+//    private List<Node[]> newPedestrianPage = new ArrayList<>();
+//    private GridPane gridPaneObstacle = new GridPane();
+//    private List<Node[]> newObstaclePage = new ArrayList<>();
 
     public ModelEditor() {
         this.createNode();
     }
 
-    private void updateGridPane(List<Node[]> page) {
-        this.gridPane.getChildren().clear();
+    private void updateGridPane(GridPane gridPane, List<Node[]> page) {
+        gridPane.getChildren().clear();
         for(int r = 0; r < page.size(); ++r) {
-            this.gridPane.addRow(r, page.get(r));
+            gridPane.addRow(r, page.get(r));
         }
     }
 
@@ -39,13 +43,14 @@ public class ModelEditor extends Editor {
     }
 
     @Override
-    public void createNode() {
+    protected void createNode() {
         gridPane.setPrefWidth(800);
         gridPane.setPrefWidth(800);
         gridPane.setPadding(new Insets(30, 40, 30, 40));
         gridPane.setVgap(8);
 
-        ArrayList<Node[]> page = new ArrayList<>();
+        gridPaneCar.setPadding(new Insets(0, 0, 8, 20));
+        gridPaneCar.setVgap(8);
 
         GridPane props = new GridPane();
         props.setVgap(8);
@@ -58,66 +63,22 @@ public class ModelEditor extends Editor {
         ComboBox cbWeather = new ComboBox(FXCollections.observableArrayList(weathers));
         cbWeather.getSelectionModel().select(0);
 
+        Label lbTimeStep = new Label("Time Step");
+        Spinner<Integer> spTimeStep = new Spinner<>(1, 10, 1);
+
         Label lbSource = new Label("Actor Source: ");
         Node btSource = new ChooseFileButton(gridPane).getNode();
 
         props.addRow(0, lbMap, btMap);
         props.addRow(1, lbWeather, cbWeather);
         props.addRow(2, lbSource, btSource);
+        props.addRow(3, lbTimeStep, spTimeStep);
 
         Label lbCars = new Label("Cars: ");
+
         Button btNewCar = new Button("New Car");
         btNewCar.setOnMouseClicked(e -> {
-            Node source = (Node) e.getSource();
-            int row = GridPane.getRowIndex(source);
-            GridPane gridPaneCar = new GridPane();
-            gridPaneCar.setPadding(new Insets(8, 0, 8, 20));
-            gridPaneCar.setVgap(8);
-
-            Label lbName = new Label("name: ");
-            TextField tfName = new TextField();
-
-            Label lbModel = new Label("model: ");
-            String[] models = {"random", "vehicle.audi.a2"};
-            ComboBox cbModel = new ComboBox(FXCollections.observableArrayList(models));
-            cbModel.getSelectionModel().select(0);
-
-            Label lbMaxSpeed = new Label("max speed: ");
-            TextField tfMaxSpeed = new TextField();
-
-            Label lbInitSpeed = new Label("initial speed: ");
-            TextField tfInitSpeed = new TextField();
-
-            // TODO macAcc?
-            /** TODO location
-             *  1. 确定lane (filter函数 / 3 个 id)
-             *  2. 数值 距离 lane 起始位置的偏移量
-             */
-            // TODO time step
-            Label lbLocation = new Label("location: ");
-
-            Label lbHeading = new Label("heading: ");
-            ComboBox cbHeading = new ComboBox(FXCollections.observableArrayList("same", "opposite"));
-            cbHeading.getSelectionModel().select(0);
-
-            Label lbRoadDeviation = new Label("road deviation: ");
-            TextField tfRoadDeviation = new TextField();
-
-            Label lbDynamic = new Label("Dynamic: ");
-            String[] trees = {"test.tree"};
-            Node btDynamic = new ChooseFileButton(gridPane).getNode();
-
-            gridPaneCar.addRow(0, lbName, tfName);
-            gridPaneCar.addRow(1, lbModel, cbModel);
-            gridPaneCar.addRow(2, lbMaxSpeed, tfMaxSpeed);
-            gridPaneCar.addRow(3, lbInitSpeed, tfInitSpeed);
-            gridPaneCar.addRow(5, lbLocation);
-            gridPaneCar.addRow(6, lbHeading, cbHeading);
-            gridPaneCar.addRow(7, lbRoadDeviation, tfRoadDeviation);
-            gridPaneCar.addRow(8, lbDynamic, btDynamic);
-
-            page.add(row, new Node[] {gridPaneCar});
-            this.updateGridPane(page);
+            this.newCar();
         });
 
         Label lbPedestrians = new Label("Pedestrians: ");
@@ -126,15 +87,41 @@ public class ModelEditor extends Editor {
         Label lbObstacles = new Label("Obstacles: ");
         Button btNewObstacle = new Button("New Obstacle");
 
-        page.add(new Node[] {props});
-        page.add(new Node[] {lbCars});
-        page.add(new Node[] {btNewCar});
-        page.add(new Node[] {lbPedestrians});
-        page.add(new Node[] {btNewPedestrian});
-        page.add(new Node[] {lbObstacles});
-        page.add(new Node[] {btNewObstacle});
+        staticPage.add(new Node[] {props});
+        staticPage.add(new Node[] {lbCars});
+        staticPage.add(new Node[] {this.gridPaneCar});
+        staticPage.add(new Node[] {btNewCar});
+        staticPage.add(new Node[] {lbPedestrians});
+//        staticPage.add(new Node[] {this.gridPanePedestrian});
+        staticPage.add(new Node[] {btNewPedestrian});
+        staticPage.add(new Node[] {lbObstacles});
+//        staticPage.add(new Node[] {this.gridPaneObstacle});
+        staticPage.add(new Node[] {btNewObstacle});
 
-        this.updateGridPane(page);
+        this.updateGridPane(this.gridPane, staticPage);
+    }
+
+    public void newCar() {
+        CarPane carPane = new CarPane();
+        this.carPanes.add(carPane);
+
+        List<Node[]> page = new ArrayList<>();
+
+        for(int i = 0; i < this.carPanes.size(); ++i) {
+            CarPane car = this.carPanes.get(i);
+            if(i != 0) {
+                Separator separator1 = new Separator();
+                Separator separator2 = new Separator();
+                page.add(new Node[] {separator1, separator2});
+            }
+            page.add(new Node[] {car.getNode()});
+        }
+
+        this.updateGridPane(this.gridPaneCar, page);
+    }
+
+    public void deleteCar() {
+
     }
 
     @Override

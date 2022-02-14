@@ -18,7 +18,7 @@ public abstract class Editor {
 
     public abstract void load();
 
-    public abstract void createNode();
+    protected abstract void createNode();
 
     public abstract Node getNode();
 }

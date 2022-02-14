@@ -405,7 +405,7 @@ public class TreeEditor extends Editor {
     }
 
     @Override
-    public void createNode() {
+    protected void createNode() {
         this.initBehavior();
         this.initPalette();
         this.initCanvas();
