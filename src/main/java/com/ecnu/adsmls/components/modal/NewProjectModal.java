@@ -1,7 +1,6 @@
 package com.ecnu.adsmls.components.modal;
 
 import com.ecnu.adsmls.components.ChooseDirectoryButton;
-import com.ecnu.adsmls.components.modal.Modal;
 import com.ecnu.adsmls.utils.FileSystem;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -14,6 +13,8 @@ public class NewProjectModal extends Modal {
 
     private String projectName;
 
+    private boolean succeed = true;
+
     public NewProjectModal() {
         super();
     }
@@ -24,6 +25,10 @@ public class NewProjectModal extends Modal {
 
     public String getProjectName() {
         return projectName;
+    }
+
+    public boolean isSucceed() {
+        return succeed;
     }
 
     @Override
@@ -83,7 +88,6 @@ public class NewProjectModal extends Modal {
     }
 
     private void createProject() {
-        // TODO 创建项目目录
-        FileSystem.createDir(directory + '/' + projectName);
+        this.succeed = FileSystem.createDir(directory + '/' + projectName);
     }
 }

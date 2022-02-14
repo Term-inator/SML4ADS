@@ -13,6 +13,9 @@ public class NewTreeModal extends Modal {
 
     private String filename;
 
+    // 文件是否新建成功
+    private boolean succeed = true;
+
     public NewTreeModal() {
         super();
     }
@@ -32,6 +35,10 @@ public class NewTreeModal extends Modal {
 
     public File getDirectory() {
         return directory;
+    }
+
+    public boolean isSucceed() {
+        return succeed;
     }
 
     @Override
@@ -56,7 +63,7 @@ public class NewTreeModal extends Modal {
 
     @Override
     protected void then() {
-        FileSystem.createFile(this.directory, this.filename + ".json");
+        this.createTree();
     }
 
     private void updateFileName() {
@@ -69,5 +76,9 @@ public class NewTreeModal extends Modal {
         if(Objects.equals(this.filename, "")) {
             this.valid = false;
         }
+    }
+
+    private void createTree() {
+        this.succeed = FileSystem.createFile(this.directory, this.filename + FileSystem.Suffix.TREE.value);
     }
 }

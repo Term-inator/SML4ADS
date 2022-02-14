@@ -1,12 +1,15 @@
 package com.ecnu.adsmls.components.mutileveldirectory;
 
+import com.ecnu.adsmls.utils.FileSystem;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTreeCell;
+import javafx.scene.input.MouseEvent;
 import javafx.util.StringConverter;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 public class MultiLevelDirectory {
@@ -57,6 +60,18 @@ public class MultiLevelDirectory {
 
         this.treeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             System.out.println(newValue);
+        });
+
+        this.treeView.setOnMouseClicked(e -> {
+            TreeItem<File> focusedItem = this.treeView.getFocusModel().getFocusedItem();
+            if(e.getClickCount() == 2) {
+                if(focusedItem.getValue().isFile()) {
+                    String suffix = FileSystem.getSuffix(focusedItem.getValue());
+                    if(Objects.equals(suffix, FileSystem.Suffix.TREE.value)) {
+
+                    }
+                }
+            }
         });
 
         this.treeView.setOnContextMenuRequested(event -> {

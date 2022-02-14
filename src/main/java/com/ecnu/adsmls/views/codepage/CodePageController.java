@@ -8,7 +8,6 @@ import com.ecnu.adsmls.router.Route;
 import com.ecnu.adsmls.router.Router;
 import com.ecnu.adsmls.router.params.CodePageParams;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -68,6 +67,9 @@ public class CodePageController implements Initializable, Route {
         newMenu.getItems().addAll(newDirectory, newModel, newTree);
 
         MenuItem closeProject = new MenuItem("Close Project");
+        closeProject.setOnAction(e -> {
+            Router.back();
+        });
 
         fileMenu.getItems().addAll(newMenu, closeProject);
 
@@ -77,7 +79,7 @@ public class CodePageController implements Initializable, Route {
 
         Menu helpMenu = new Menu("Help");
 
-        this.menuBar.getMenus().addAll(newMenu, editMenu, helpMenu);
+        this.menuBar.getMenus().addAll(fileMenu, editMenu, helpMenu);
     }
 
     private void initMultiLevelDirectoryMenu() {
@@ -248,6 +250,10 @@ public class CodePageController implements Initializable, Route {
         ntm.setDirectory(((TreeView<File>)this.multiLevelDirectory.getNode()).getFocusModel().getFocusedItem().getValue());
         ntm.getWindow().showAndWait();
         if(!ntm.isConfirm()) {
+            return;
+        }
+        if(!ntm.isSucceed()) {
+            System.out.println("File already exists");
             return;
         }
         this.multiLevelDirectory.updateNode();
