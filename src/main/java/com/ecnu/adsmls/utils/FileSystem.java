@@ -2,6 +2,7 @@ package com.ecnu.adsmls.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 public class FileSystem {
     public enum Suffix {
@@ -64,11 +65,17 @@ public class FileSystem {
 
     public static String getProjectName(String projectPath) {
         File project = new File(projectPath);
-        return project.getName();
+        String name = project.getName();
+        if(Objects.equals(name, "")) {
+            name = project.getPath();
+        }
+        return name;
     }
 
     public static String getProjectDir(String projectPath) {
         File project = new File(projectPath);
-        return project.getParentFile().getName();
+        // projectPath 不能是盘符
+        assert project.getParentFile() != null;
+        return project.getParentFile().getAbsolutePath();
     }
 }

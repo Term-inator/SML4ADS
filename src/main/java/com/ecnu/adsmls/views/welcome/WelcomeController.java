@@ -53,6 +53,7 @@ public class WelcomeController implements Initializable, Route {
             }
             CodePageParams.directory = FileSystem.getProjectDir(opm.getDirectory());
             CodePageParams.projectName = FileSystem.getProjectName(opm.getDirectory());
+            Router.linkTo("codepage");
         });
     }
 }
