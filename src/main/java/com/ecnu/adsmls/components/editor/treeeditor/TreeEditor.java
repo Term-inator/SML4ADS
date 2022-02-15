@@ -30,31 +30,15 @@ public class TreeEditor extends Editor {
     private AnchorPane paletteWrapper;
     private AnchorPane canvasWrapper;
 
-    private GridPane palette;
+    private GridPane palette = new GridPane();
     final ToggleGroup group = new ToggleGroup();
     private String componentSelected;
-    private Pane canvas;
+    private Pane canvas = new Pane();
 
     private long componentId = 0;
     private Group componentChose;
 
     public TreeEditor() {
-        this.palette = new GridPane();
-        this.palette.setPadding(new Insets(8, 0, 0, 0));
-        this.palette.setVgap(8);
-        this.palette.setAlignment(Pos.TOP_CENTER);
-        this.palette.setPrefWidth(100);
-        this.canvas = new Pane();
-        this.canvas.setPrefWidth(1200);
-        this.canvas.setPrefHeight(800);
-
-        this.paletteWrapper = new AnchorPane(this.palette);
-        this.canvasWrapper = new AnchorPane(this.canvas);
-
-        this.initBehavior();
-        this.initPalette();
-        this.initCanvas();
-
         this.createNode();
     }
 
@@ -90,6 +74,13 @@ public class TreeEditor extends Editor {
     }
 
     private void initPalette() {
+        this.paletteWrapper = new AnchorPane(this.palette);
+
+        this.palette.setPadding(new Insets(8, 0, 0, 0));
+        this.palette.setVgap(8);
+        this.palette.setAlignment(Pos.TOP_CENTER);
+        this.palette.setPrefWidth(100);
+
         ToggleButton tb0 = new ToggleButton("Behavior");
         tb0.setUserData("Behavior");
         ToggleButton tb1 = new ToggleButton("BranchPoint");
@@ -117,6 +108,11 @@ public class TreeEditor extends Editor {
     }
 
     public void initCanvas() {
+        this.canvasWrapper = new AnchorPane(this.canvas);
+
+        this.canvas.setPrefWidth(1200);
+        this.canvas.setPrefHeight(800);
+
         canvasWrapper.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             System.out.println(e);
             if(e.getCode() == KeyCode.DELETE) {
@@ -409,7 +405,11 @@ public class TreeEditor extends Editor {
     }
 
     @Override
-    public void createNode() {
+    protected void createNode() {
+        this.initBehavior();
+        this.initPalette();
+        this.initCanvas();
+
         this.splitPane.getItems().addAll(this.paletteWrapper, this.canvasWrapper);
         this.splitPane.setDividerPositions(.1f);
     }
