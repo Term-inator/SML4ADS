@@ -70,7 +70,7 @@ public class BehaviorModal extends Modal {
 
         Label lbBehaviorName = new Label("behavior");
         List<String> behaviorNames = BehaviorRegister.getBehaviorNames();
-        ComboBox cbBehavior = new ComboBox(FXCollections.observableArrayList(behaviorNames));
+        ComboBox<String> cbBehavior = new ComboBox<>(FXCollections.observableArrayList(behaviorNames));
         cbBehavior.getSelectionModel().select(this.behaviorName);
         cbBehavior.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             this.behaviorParamsPage.clear();
