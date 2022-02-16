@@ -3,6 +3,7 @@ package com.ecnu.adsmls.views.codepage;
 import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.components.editor.modeleditor.ModelEditor;
 import com.ecnu.adsmls.components.editor.treeeditor.TreeEditor;
+import com.ecnu.adsmls.components.modal.NewModelModal;
 import com.ecnu.adsmls.components.modal.NewTreeModal;
 import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
 import com.ecnu.adsmls.router.Route;
@@ -119,11 +120,15 @@ public class CodePageController implements Initializable, Route {
 
         this.multiLevelDirectory.getTreeView().setOnMouseClicked(e -> {
             TreeItem<File> selectedItem = this.multiLevelDirectory.getTreeView().getSelectionModel().getSelectedItem();
-            if(!selectedItem.getValue().isFile()) {
+            if(selectedItem == null || !selectedItem.getValue().isFile()) {
                 return;
             }
             if(e.getClickCount() == 2) {
-                if(FileSystem.getSuffix(selectedItem.getValue()).equals(FileSystem.Suffix.TREE.value)) {
+                String suffix = FileSystem.getSuffix(selectedItem.getValue());
+                if(Objects.equals(suffix, FileSystem.Suffix.MODEL.value)) {
+                    this.openModel(selectedItem.getValue());
+                }
+                else if(Objects.equals(suffix, FileSystem.Suffix.TREE.value)) {
                     this.openTree(selectedItem.getValue());
                 }
             }
@@ -144,11 +149,19 @@ public class CodePageController implements Initializable, Route {
         System.out.println("Run");
     }
 
-    private void onNewModelClick(ActionEvent event) {
-        System.out.println("Model");
-        Tab tab = new Tab("untitled.model");
+    private void openModel(File file) {
+        // TODO openFile
+        if(this.filesOpened.contains(file)) {
+            System.out.println("This file has already been opened");
+            return;
+        }
+        this.filesOpened.add(file);
+
+        Tab tab = new Tab(file.getName());
         tab.setOnClosed(e -> {
             System.out.println(tab.getText() + " closed");
+            // TODO unsaved ?
+            this.filesOpened.remove(file);
         });
 
         ScrollPane scrollPane = new ScrollPane();
@@ -156,10 +169,29 @@ public class CodePageController implements Initializable, Route {
         scrollPane.setFitToHeight(true);
 
         ModelEditor modelEditor = new ModelEditor();
+        modelEditor.setDirectory(file.getParentFile().getAbsolutePath());
+        modelEditor.setFilename(file.getName());
+        modelEditor.load();
 
         scrollPane.setContent(modelEditor.getNode());
         tab.setContent(scrollPane);
         tabPane.getTabs().add(tab);
+    }
+
+    private void onNewModelClick(ActionEvent event) {
+        System.out.println("Model");
+
+        NewModelModal nmm = new NewModelModal();
+        nmm.setDirectory(this.multiLevelDirectory.getTreeView().getFocusModel().getFocusedItem().getValue());
+        nmm.getWindow().showAndWait();
+        if(!nmm.isConfirm()) {
+            return;
+        }
+        if(!nmm.isSucceed()) {
+            System.out.println("File already exists");
+            return;
+        }
+        this.multiLevelDirectory.updateNode();
     }
 
     private void openTree(File file) {
@@ -179,18 +211,19 @@ public class CodePageController implements Initializable, Route {
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
+        // TODO ScrollPane 应在 TreeEditor 内部
 
         AnchorPane anchorPane = new AnchorPane();
-        TreeEditor editor = new TreeEditor();
-        editor.setDirectory(file.getParentFile().getAbsolutePath());
-        editor.setFilename(file.getName());
-        editor.load();
-        anchorPane.getChildren().add(editor.getNode());
+        TreeEditor treeEditor = new TreeEditor();
+        treeEditor.setDirectory(file.getParentFile().getAbsolutePath());
+        treeEditor.setFilename(file.getName());
+        treeEditor.load();
+        anchorPane.getChildren().add(treeEditor.getNode());
 
         scrollPane.setContent(anchorPane);
 
         tab.setContent(scrollPane);
-        tab.setUserData(editor);
+        tab.setUserData(treeEditor);
         tabPane.getTabs().add(tab);
     }
 

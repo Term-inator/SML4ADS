@@ -8,8 +8,7 @@ import javafx.scene.control.TextField;
 import java.io.File;
 import java.util.Objects;
 
-// TODO abstract NewFileModal
-public class NewTreeModal extends Modal {
+public class NewModelModal extends Modal {
     private File directory;
 
     private String filename;
@@ -17,7 +16,7 @@ public class NewTreeModal extends Modal {
     // 文件是否新建成功
     private boolean succeed = true;
 
-    public NewTreeModal() {
+    public NewModelModal() {
         super();
     }
 
@@ -80,6 +79,6 @@ public class NewTreeModal extends Modal {
     }
 
     private void createTree() {
-        this.succeed = FileSystem.createFile(this.directory, this.filename + FileSystem.Suffix.TREE.value);
+        this.succeed = FileSystem.createFile(this.directory, this.filename + FileSystem.Suffix.MODEL.value);
     }
 }

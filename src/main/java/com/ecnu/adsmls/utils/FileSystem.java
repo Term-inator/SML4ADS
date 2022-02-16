@@ -78,4 +78,21 @@ public class FileSystem {
         assert project.getParentFile() != null;
         return project.getParentFile().getAbsolutePath();
     }
+
+    /**
+     * 获取文件/文件夹以 basePath 为根的相对路径
+     * @param basePath 根路径
+     * @param filePath 文件/文件夹路径
+     * @return 文件/文件夹相对根目录的路径
+     */
+    public static String getRelativePath(String basePath, String filePath) {
+        File baseFile = new File(basePath);
+        assert baseFile.isDirectory();
+        File file = new File(filePath);
+        basePath = baseFile.getAbsolutePath();
+        filePath = file.getAbsolutePath();
+        assert filePath.indexOf(basePath) == 0;
+        String subPath = filePath.substring(basePath.length());
+        return "." + subPath;
+    }
 }
