@@ -15,15 +15,19 @@ public class MCar {
 
     private int laneId;
 
+    private String filter;
+
     private double offset;
 
     private boolean heading;
 
     private double roadDeviation;
 
+    private String treePath;
+
     private String mTree;
 
-    public MCar(String name, String model, double maxSpeed, double initSpeed, int roadId, int laneSecId, int laneId, double offset, boolean heading, double roadDeviation, String mTree) {
+    public MCar(String name, String model, double maxSpeed, double initSpeed, int roadId, int laneSecId, int laneId, String filter, double offset, boolean heading, double roadDeviation, String treePath, String mTree) {
         this.name = name;
         this.model = model;
         this.maxSpeed = maxSpeed;
@@ -31,9 +35,11 @@ public class MCar {
         this.roadId = roadId;
         this.laneSecId = laneSecId;
         this.laneId = laneId;
+        this.filter = filter;
         this.offset = offset;
         this.heading = heading;
         this.roadDeviation = roadDeviation;
+        this.treePath = treePath;
         this.mTree = mTree;
     }
 
@@ -96,6 +102,14 @@ public class MCar {
         this.laneId = laneId;
     }
 
+    public String getFilter() {
+        return filter;
+    }
+
+    public void setFilter(String filter) {
+        this.filter = filter;
+    }
+
     public double getOffset() {
         return offset;
     }
@@ -104,7 +118,7 @@ public class MCar {
         this.offset = offset;
     }
 
-    public boolean isHeading() {
+    public boolean getHeading() {
         return heading;
     }
 
@@ -118,6 +132,14 @@ public class MCar {
 
     public void setRoadDeviation(double roadDeviation) {
         this.roadDeviation = roadDeviation;
+    }
+
+    public String getTreePath() {
+        return treePath;
+    }
+
+    public void setTreePath(String treePath) {
+        this.treePath = treePath;
     }
 
     public String getMTree() {

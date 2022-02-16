@@ -10,11 +10,11 @@ public class MModel {
 
     private String source;
 
-    private String timeStep;
+    private int timeStep;
 
     private List<MCar> cars = new ArrayList<>();
 
-    public MModel(String map, String weather, String source, String timeStep, List<MCar> cars) {
+    public MModel(String map, String weather, String source, int timeStep, List<MCar> cars) {
         this.map = map;
         this.weather = weather;
         this.source = source;
@@ -49,11 +49,11 @@ public class MModel {
         this.source = source;
     }
 
-    public String getTimeStep() {
+    public int getTimeStep() {
         return timeStep;
     }
 
-    public void setTimeStep(String timeStep) {
+    public void setTimeStep(int timeStep) {
         this.timeStep = timeStep;
     }
 

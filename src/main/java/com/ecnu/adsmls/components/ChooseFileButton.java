@@ -15,6 +15,8 @@ public class ChooseFileButton {
     private File file;
     private Pane rootLayout;
 
+    private Label lbFilename;
+
     public ChooseFileButton(Pane rootLayout) {
         this.rootLayout = rootLayout;
     }
@@ -23,15 +25,15 @@ public class ChooseFileButton {
         HBox hBox0 = new HBox();
         hBox0.setAlignment(Pos.CENTER_LEFT);
         Button button = new Button("Choose File");
-        Label lbFileName = new Label();
-        hBox0.getChildren().addAll(lbFileName, button);
+        this.lbFilename = new Label();
+        hBox0.getChildren().addAll(this.lbFilename, button);
         button.setOnMouseClicked(e -> {
             Stage stage = (Stage) rootLayout.getScene().getWindow();
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Open Resource File");
             file = fileChooser.showOpenDialog(stage);
             if(file != null) {
-                lbFileName.setText(file.getName());
+                this.lbFilename.setText(file.getName());
             }
         });
         hBox0.setUserData(this);
@@ -40,5 +42,10 @@ public class ChooseFileButton {
 
     public File getFile() {
         return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
+        this.lbFilename.setText(this.file.getName());
     }
 }
