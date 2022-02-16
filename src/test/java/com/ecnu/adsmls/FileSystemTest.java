@@ -3,7 +3,8 @@ package com.ecnu.adsmls;
 import com.ecnu.adsmls.utils.FileSystem;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class FileSystemTest {
     @Test
@@ -23,5 +24,21 @@ public class FileSystemTest {
         File file = new File("D:/");
         System.out.println(file.getPath());
         System.out.println(file.getName());
+    }
+
+    public void relativePath(String basePath, String filePath) {
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(basePath + "/" + filePath), StandardCharsets.UTF_8));
+            System.out.println(br.readLine());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void relativePathTest() {
+        String base = "D:/test";
+        String file = "D:/test/1.tree";
+        this.relativePath(base, FileSystem.getRelativePath(base, file));
     }
 }

@@ -8,6 +8,7 @@ import javafx.scene.control.TextField;
 import java.io.File;
 import java.util.Objects;
 
+// TODO abstract NewFileModal
 public class NewTreeModal extends Modal {
     private File directory;
 

@@ -150,6 +150,7 @@ public class CodePageController implements Initializable, Route {
     }
 
     private void openModel(File file) {
+        // TODO openFile
         if(this.filesOpened.contains(file)) {
             System.out.println("This file has already been opened");
             return;
