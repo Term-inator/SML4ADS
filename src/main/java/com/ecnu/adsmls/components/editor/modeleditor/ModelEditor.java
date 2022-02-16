@@ -1,16 +1,27 @@
 package com.ecnu.adsmls.components.editor.modeleditor;
 
+import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.components.editor.Editor;
+import com.ecnu.adsmls.components.editor.treeeditor.TreeComponent;
+import com.ecnu.adsmls.model.MCar;
+import com.ecnu.adsmls.model.MModel;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ModelEditor extends Editor {
     private GridPane gridPane = new GridPane();
@@ -22,6 +33,8 @@ public class ModelEditor extends Editor {
     private List<Node[]> newPedestrianPage = new ArrayList<>();
     private GridPane gridPaneObstacle = new GridPane();
     private List<Node[]> newObstaclePage = new ArrayList<>();
+
+    private Map<String, Node> values = new HashMap<>();
 
     public ModelEditor() {
         this.createNode();
@@ -36,7 +49,40 @@ public class ModelEditor extends Editor {
 
     @Override
     public void save() {
+        MModel mModel = new MModel();
+        File map = ((ChooseFileButton) this.values.get("map").getUserData()).getFile();
+        if(map == null) {
+            mModel.setMap("");
+        }
+        else {
+            mModel.setMap(map.getAbsolutePath());
+        }
 
+        mModel.setWeather(((ComboBox<String>) this.values.get("weather")).getValue());
+
+        File source = ((ChooseFileButton) this.values.get("source").getUserData()).getFile();
+        if(source == null) {
+            mModel.setSource("");
+        }
+        else {
+            mModel.setMap(source.getAbsolutePath());
+        }
+
+        List<MCar> cars = new ArrayList<>();
+        for(CarPane carPane : this.carPanes) {
+            cars.add(carPane.getModel());
+        }
+        mModel.setCars(cars);
+        String model = JSON.toJSONString(mModel);
+        String path = this.directory + "/" + this.filename;
+        System.out.println(model);
+        try {
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path,false), StandardCharsets.UTF_8));
+            bw.write(model);
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -50,6 +96,16 @@ public class ModelEditor extends Editor {
         gridPane.setPrefWidth(800);
         gridPane.setPadding(new Insets(30, 40, 30, 40));
         gridPane.setVgap(8);
+
+        gridPane.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            System.out.println(e);
+            if(e.isControlDown() && e.getCode() == KeyCode.S) {
+                this.save();
+            }
+        });
+        gridPane.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+            gridPane.requestFocus();
+        });
 
         gridPaneCar.setPadding(new Insets(0, 0, 8, 20));
         gridPaneCar.setHgap(8);
@@ -82,6 +138,11 @@ public class ModelEditor extends Editor {
 
         Label lbObstacles = new Label("Obstacles: ");
         Button btNewObstacle = new Button("New Obstacle");
+
+        this.values.put("map", btMap);
+        this.values.put("weather", cbWeather);
+        this.values.put("source", btSource);
+        this.values.put("timeStep", spTimeStep);
 
         this.gridPane.addRow(0, lbMap, btMap);
         this.gridPane.addRow(1, lbWeather, cbWeather);

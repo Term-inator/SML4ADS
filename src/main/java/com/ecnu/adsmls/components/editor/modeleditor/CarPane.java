@@ -1,17 +1,28 @@
 package com.ecnu.adsmls.components.editor.modeleditor;
 
+import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.ChooseFileButton;
+import com.ecnu.adsmls.model.MCar;
+import com.ecnu.adsmls.model.MTree;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
 
 public class CarPane {
     GridPane gridPane = new GridPane();
+    Map<String, Node> values = new HashMap<>();
 
     public CarPane() {
         this.createNode();
@@ -76,6 +87,17 @@ public class CarPane {
         String[] trees = {"test.tree"};
         Node btDynamic = new ChooseFileButton(this.gridPane).getNode();
 
+        this.values.put("name", tfName);
+        this.values.put("model", cbModel);
+        this.values.put("maxSpeed", tfMaxSpeed);
+        this.values.put("initSpeed", tfInitSpeed);
+        this.values.put("location.roadId", tfRoadId);
+        this.values.put("location.laneSecId", tfLaneSectionId);
+        this.values.put("location.laneId", tfLaneId);
+        this.values.put("heading", cbHeading);
+        this.values.put("roadDeviation", tfRoadDeviation);
+        this.values.put("dynamic", btDynamic);
+
         this.gridPane.addRow(0, lbName, tfName);
         this.gridPane.addRow(1, lbModel, cbModel);
         this.gridPane.addRow(2, lbMaxSpeed, tfMaxSpeed);
@@ -85,6 +107,28 @@ public class CarPane {
         this.gridPane.addRow(6, lbHeading, cbHeading);
         this.gridPane.addRow(7, lbRoadDeviation, tfRoadDeviation);
         this.gridPane.addRow(8, lbDynamic, btDynamic);
+    }
+
+    public MCar getModel() {
+        MCar car = new MCar();
+        car.setName(((TextField) this.values.get("name")).getText());
+        car.setModel(((ComboBox<String>) this.values.get("model")).getValue());
+        car.setMaxSpeed(Double.parseDouble(((TextField) this.values.get("maxSpeed")).getText()));
+        car.setInitSpeed(Double.parseDouble(((TextField) this.values.get("initSpeed")).getText()));
+        car.setRoadId(Integer.parseInt(((TextField) this.values.get("location.roadId")).getText()));
+        car.setLaneSecId(Integer.parseInt(((TextField) this.values.get("location.laneSecId")).getText()));
+        car.setLaneId(Integer.parseInt(((TextField) this.values.get("location.laneId")).getText()));
+        car.setHeading(Objects.equals("same", ((ComboBox<String>) this.values.get("heading")).getValue()));
+        car.setRoadDeviation(Double.parseDouble(((TextField) this.values.get("roadDeviation")).getText()));
+        String path = ((ChooseFileButton) this.values.get("dynamic").getUserData()).getFile().getAbsolutePath();
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path), StandardCharsets.UTF_8));
+            String tree = br.readLine();
+            car.setMTree(tree);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return car;
     }
 
     public Node getNode() {

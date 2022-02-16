@@ -119,7 +119,7 @@ public class CodePageController implements Initializable, Route {
 
         this.multiLevelDirectory.getTreeView().setOnMouseClicked(e -> {
             TreeItem<File> selectedItem = this.multiLevelDirectory.getTreeView().getSelectionModel().getSelectedItem();
-            if(!selectedItem.getValue().isFile()) {
+            if(selectedItem == null || !selectedItem.getValue().isFile()) {
                 return;
             }
             if(e.getClickCount() == 2) {
@@ -156,6 +156,9 @@ public class CodePageController implements Initializable, Route {
         scrollPane.setFitToHeight(true);
 
         ModelEditor modelEditor = new ModelEditor();
+        modelEditor.setDirectory("D:/test");
+        modelEditor.setFilename("1");
+        modelEditor.load();
 
         scrollPane.setContent(modelEditor.getNode());
         tab.setContent(scrollPane);
@@ -179,18 +182,19 @@ public class CodePageController implements Initializable, Route {
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
+        // TODO ScrollPane 应在 TreeEditor 内部
 
         AnchorPane anchorPane = new AnchorPane();
-        TreeEditor editor = new TreeEditor();
-        editor.setDirectory(file.getParentFile().getAbsolutePath());
-        editor.setFilename(file.getName());
-        editor.load();
-        anchorPane.getChildren().add(editor.getNode());
+        TreeEditor treeEditor = new TreeEditor();
+        treeEditor.setDirectory(file.getParentFile().getAbsolutePath());
+        treeEditor.setFilename(file.getName());
+        treeEditor.load();
+        anchorPane.getChildren().add(treeEditor.getNode());
 
         scrollPane.setContent(anchorPane);
 
         tab.setContent(scrollPane);
-        tab.setUserData(editor);
+        tab.setUserData(treeEditor);
         tabPane.getTabs().add(tab);
     }
 
