@@ -130,6 +130,9 @@ public abstract class TreeLink extends TreeComponent {
         }
     }
 
+    /**
+     * 在 LinkPoint 图层上生成点
+     */
     private void generatePoints() {
         for (int i = 1; i < this.linkPoints.size() - 1; ++i) {
             this.linkPoints.get(i).updateNode();
@@ -142,6 +145,7 @@ public abstract class TreeLink extends TreeComponent {
     }
 
     private void hidePoints() {
+        // 拖动过快会导致点击到画布空白背景，使该 TreeLink 进入 inactive 状态，进而调用该函数隐藏点
         if(!this.dragging) {
             this.graphicNode.getChildren().remove(this.linkPointLayer);
         }

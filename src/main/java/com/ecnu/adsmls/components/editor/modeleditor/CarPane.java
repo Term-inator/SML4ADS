@@ -14,27 +14,42 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-
+/**
+ * 点击 New Car 显示的内容
+ */
 public class CarPane {
     private GridPane gridPane = new GridPane();
+    // 名称
     private TextField tfName;
+    // 蓝图类型
     private ComboBox<String> cbModel;
+    // 最大速度
     private TextField tfMaxSpeed;
+    // 初速度
     private TextField tfInitSpeed;
+
     private TextField tfRoadId;
+
     private TextField tfLaneSectionId;
+
     private TextField tfLaneId;
+    // 道路过滤器
     private TextArea taFilter;
+    // 偏移量 [0, 1]，表示 Car 所在位置离 Road 起点的距离 / Road 总长
     private TextField tfOffset;
+    // 朝向，和路同向或反向
     private ComboBox<String> cbHeading;
+    // 偏移程度
+    // TODO 这干啥的？
     private TextField tfRoadDeviation;
+    // 动态信息，一棵树
     private Node btDynamic;
 
     public CarPane() {
         this.createNode();
     }
 
-    public MCar getModel() {
+    public MCar save() {
         MCar car = new MCar();
         car.setName(this.tfName.getText());
         car.setModel(this.cbModel.getValue());

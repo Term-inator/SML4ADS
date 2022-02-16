@@ -9,12 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 封闭图形
+ * 区域（树上节点）
  */
 public abstract class TreeArea extends TreeComponent implements Draggable, Linkable {
     protected Position position;
 
+    // 入边
     private List<TreeLink> inTransitions = new ArrayList<>();
+    // 出边
     private List<TreeLink> outTransitions = new ArrayList<>();
 
     public TreeArea(long id, Position position) {

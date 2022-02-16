@@ -18,6 +18,10 @@ import org.kordamp.bootstrapfx.BootstrapFX;
 
 import java.util.*;
 
+/**
+ * 模态弹框
+ */
+// TODO 弹框内容更新时，大小自适应
 public abstract class Modal {
     protected Stage window;
 
@@ -25,8 +29,10 @@ public abstract class Modal {
     // 静态部分
     protected ArrayList<Node[]> staticPage = new ArrayList<>();
 
-    protected Button btConfirm = new Button("Confirm");;
-    protected Button btCancel = new Button("Cancel");;
+    // 确认按钮
+    protected Button btConfirm = new Button("Confirm");
+    // 取消按钮
+    protected Button btCancel = new Button("Cancel");
 
     private StageStyle stageStyle = StageStyle.DECORATED;
     private double opacity = 1f;
@@ -56,12 +62,12 @@ public abstract class Modal {
     }
 
     protected void createWindow() {
-        window = new Stage(this.stageStyle);
-        window.initModality(Modality.APPLICATION_MODAL);
-        window.setOpacity(this.opacity);
+        this.window = new Stage(this.stageStyle);
+        this.window.initModality(Modality.APPLICATION_MODAL);
+        this.window.setOpacity(this.opacity);
 
         // Close -> Cancel
-        window.setOnCloseRequest(e -> {
+        this.window.setOnCloseRequest(e -> {
             this.cancel();
         });
 
@@ -72,22 +78,22 @@ public abstract class Modal {
             }
         });
 
-        gridPane = new GridPane();
-        gridPane.setPadding(new Insets(15, 20, 15, 20));
-        gridPane.setVgap(8);
-        gridPane.setHgap(5);
+        this.gridPane = new GridPane();
+        this.gridPane.setPadding(new Insets(15, 20, 15, 20));
+        this.gridPane.setVgap(8);
+        this.gridPane.setHgap(5);
 
-        gridPane.setBackground(this.background);
+        this.gridPane.setBackground(this.background);
 
-        staticPage.add(new Node[] {btConfirm, btCancel});
+        this.staticPage.add(new Node[] {btConfirm, btCancel});
 
         this.bindConfirmCancel();
 
         Scene scene = new Scene(gridPane);
         scene.setFill(Color.TRANSPARENT);
 
-        window.setScene(scene);
-        window.getScene().getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());
+        this.window.setScene(scene);
+        this.window.getScene().getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());
     }
 
     protected void bindConfirmCancel() {
@@ -101,9 +107,12 @@ public abstract class Modal {
     }
 
     private void confirm() {
+        // 更新 Modal 界面
         this.update();
+        // 检查填写是否合法
         this.check();
         if(valid) {
+            // 填写合法后做的操作
             this.then();
             this.window.close();
         }

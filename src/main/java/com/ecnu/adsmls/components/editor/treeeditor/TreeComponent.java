@@ -23,6 +23,10 @@ public abstract class TreeComponent extends Component {
         return id;
     }
 
+    /**
+     * 依附文字的初始位置
+     * @return Position 对象
+     */
     public abstract Position getTextPosition();
 
     public void initTreeText() {
@@ -40,8 +44,15 @@ public abstract class TreeComponent extends Component {
         this.treeText = treeText;
     }
 
+    /**
+     * 获取描述信息，显示在 TreeText 中
+     * @return
+     */
     public abstract String getInfo();
 
+    /**
+     * 修改节点文字信息时，恢复默认位置
+     */
     public void updateTreeTextPosition() {
         Position treeTextPosition = this.getTextPosition();
         this.treeText.setPosition(new Position(treeTextPosition.x, treeTextPosition.y));

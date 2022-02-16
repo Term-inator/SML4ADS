@@ -4,6 +4,9 @@ import com.ecnu.adsmls.utils.Position;
 import javafx.scene.Cursor;
 import javafx.scene.input.MouseEvent;
 
+/**
+ * 区域（非树上的节点）
+ */
 public abstract class Area extends Component implements Draggable {
     protected Position position;
 
