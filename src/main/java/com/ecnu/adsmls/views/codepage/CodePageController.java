@@ -31,8 +31,9 @@ public class CodePageController implements Initializable, Route {
     private MenuBar menuBar;
     @FXML
     private StackPane directoryWrapper;
-
+    // 左侧目录
     private MultiLevelDirectory multiLevelDirectory;
+    // 目录的上下文菜单
     private List<MenuItem> multiLevelDirectoryMenu = new ArrayList<>();
 
     @FXML
@@ -40,7 +41,9 @@ public class CodePageController implements Initializable, Route {
     // 正在被访问的文件
     private Set<File> filesOpened = new HashSet<>();
 
+    // 项目路径
     private String directory;
+    // 项目名
     private String projectName;
 
     @Override
@@ -53,6 +56,7 @@ public class CodePageController implements Initializable, Route {
     public void loadParams() {
         this.directory = CodePageParams.directory;
         this.projectName = CodePageParams.projectName;
+        // 更新页面
         this.updateProject();
     }
 
@@ -115,6 +119,7 @@ public class CodePageController implements Initializable, Route {
 
         AnchorPane anchorPane = new AnchorPane();
 
+        // 重置左侧目录
         this.multiLevelDirectory = new MultiLevelDirectory(new File(this.directory + '/' + this.projectName));
         this.multiLevelDirectory.setMenu(this.multiLevelDirectoryMenu);
 

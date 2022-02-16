@@ -5,7 +5,9 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 
-
+/**
+ * 箭头
+ */
 public class Arrow extends Component {
     private TreeLink treeLink;
     private Position endPoint;

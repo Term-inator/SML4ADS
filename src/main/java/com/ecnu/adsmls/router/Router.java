@@ -8,16 +8,32 @@ import org.kordamp.bootstrapfx.BootstrapFX;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * 路由，负责页面跳转
+ * 即创建 Scene 和切换 Scene
+ */
 public class Router {
     private static final int win_width = 900;
     private static final int win_height = 600;
 
+    /**
+     * Scene 栈，栈顶为当前显示的页面
+     */
     public static Deque<Scene> sceneStack = new ArrayDeque<>();
 
+    /**
+     * 页面名对 Scene 的映射表
+     */
     public static Map<String, Scene> sceneMap = new HashMap<>();
 
+    /**
+     * 页面名对实现了 Route 的 Controller 的映射表
+     */
     public static Map<String, Route> controllerMap = new HashMap<>();
 
+    /**
+     * 初始化页面信息
+     */
     static {
         try {
             welcome();
@@ -43,17 +59,27 @@ public class Router {
         sceneMap.put("codepage", scene);
     }
 
+    /**
+     * 页面跳转
+     * @param pageName 页面名
+     */
     public static void linkTo(String pageName) {
         sceneStack.push(sceneMap.get(pageName));
         controllerMap.get(pageName).loadParams();
         changeScene();
     }
 
+    /**
+     * 页面后退
+     */
     public static void back() {
         sceneStack.pop();
         changeScene();
     }
 
+    /**
+     * 切换页面（Scene）
+     */
     public static void changeScene() {
         assert sceneStack.peek() != null;
         App.getMainStage().setScene(sceneStack.peek());

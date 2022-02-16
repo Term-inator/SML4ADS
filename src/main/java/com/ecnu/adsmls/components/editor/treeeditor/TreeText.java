@@ -4,7 +4,9 @@ import com.ecnu.adsmls.utils.Position;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
-
+/**
+ * 依附于树节点的文字
+ */
 public class TreeText extends Area {
     private TreeComponent component;
 
@@ -39,6 +41,7 @@ public class TreeText extends Area {
 
     @Override
     public void inactive() {
+        // 依附的节点被选中则不进入 inactive 状态
         if(this.component.isSelected()) {
             return;
         }

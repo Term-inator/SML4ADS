@@ -3,10 +3,8 @@ package com.ecnu.adsmls.components.editor.modeleditor;
 import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.components.editor.Editor;
-import com.ecnu.adsmls.components.editor.treeeditor.TreeComponent;
 import com.ecnu.adsmls.model.MCar;
 import com.ecnu.adsmls.model.MModel;
-import com.ecnu.adsmls.model.MTree;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -27,11 +25,14 @@ public class ModelEditor extends Editor {
     private GridPane gridPane = new GridPane();
     private List<Node[]> staticPage = new ArrayList<>();
 
+    // 地图文件
     private Node btMap;
+    // 天气
     private ComboBox<String> cbWeather;
     private int timeStepMin = 1;
     private int timeStepMax = 10;
     private Spinner<Integer> spTimeStep;
+    // TODO 这干啥的？
     private Node btSource;
 
     private GridPane gridPaneCar = new GridPane();
@@ -78,7 +79,7 @@ public class ModelEditor extends Editor {
 
         List<MCar> cars = new ArrayList<>();
         for(CarPane carPane : this.carPanes) {
-            cars.add(carPane.getModel());
+            cars.add(carPane.save());
         }
         mModel.setCars(cars);
         String model = JSON.toJSONString(mModel);
@@ -119,6 +120,7 @@ public class ModelEditor extends Editor {
         }
         for(MCar mCar : mModel.getCars()) {
             CarPane carPane = new CarPane();
+            // 设置 carPane 数据
             carPane.load(mCar);
             this.newCar(carPane);
         }
@@ -188,6 +190,10 @@ public class ModelEditor extends Editor {
         this.gridPane.addRow(12, btNewObstacle);
     }
 
+    /**
+     * 显示一个 carPane
+     * @param carPane
+     */
     public void newCar(CarPane carPane) {
         this.carPanes.add(carPane);
 

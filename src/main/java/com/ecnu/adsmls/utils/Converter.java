@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+/**
+ * Tree 中涉及到的 Model 和 TreeComponent 之间的相互转化
+ */
 public class Converter {
     public static Behavior cast(MBehavior mBehavior) {
         long id = mBehavior.getId();

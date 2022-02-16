@@ -7,7 +7,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 
-
+/**
+ * 图节点
+ */
 public abstract class Component {
     protected Group graphicNode;
     protected Shape shape;
@@ -61,15 +63,23 @@ public abstract class Component {
         return graphicNode;
     }
 
+    // 被激活
     public void active() {
         this.shape.setStroke(Color.ORANGE);
     };
 
+    // 非激活
     public void inactive() {
         this.shape.setStroke(Color.ROYALBLUE);
     };
 
+    /**
+     * 创建节点
+     */
     public abstract void createNode();
 
+    /**
+     * 删除节点
+     */
     public abstract void updateNode();
 }

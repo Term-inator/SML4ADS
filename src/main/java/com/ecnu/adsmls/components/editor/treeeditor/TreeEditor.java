@@ -30,18 +30,21 @@ public class TreeEditor extends Editor {
     private AnchorPane paletteWrapper;
     private AnchorPane canvasWrapper;
 
+    // 组件栏
     private GridPane palette = new GridPane();
     final ToggleGroup group = new ToggleGroup();
     private String componentSelected;
     private Pane canvas = new Pane();
 
     private long componentId = 0;
+    // 被选中的组件
     private Group componentChose;
 
     public TreeEditor() {
         this.createNode();
     }
 
+    // TODO 移到外面
     private void initBehavior() {
         LinkedHashMap<String, String> params = new LinkedHashMap<>();
 
@@ -63,6 +66,10 @@ public class TreeEditor extends Editor {
         BehaviorRegister.register("TurnRight",(LinkedHashMap<String, String>) params.clone());
     }
 
+    /**
+     * 选中组件
+     * @param component
+     */
     private void chooseComponent(Group component) {
         if(componentChose != null) {
             ((TreeComponent) this.componentChose.getUserData()).unselect();
@@ -115,6 +122,7 @@ public class TreeEditor extends Editor {
 
         canvasWrapper.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             System.out.println(e);
+            // Delete 删除事件
             if(e.getCode() == KeyCode.DELETE) {
                 if(this.componentChose == null) {
                     return;
@@ -125,6 +133,7 @@ public class TreeEditor extends Editor {
                 this.canvas.getChildren().removeAll(nodes);
                 this.componentChose = null;
             }
+            // Ctrl + S 保存
             else if(e.isControlDown() && e.getCode() == KeyCode.S) {
                 this.save();
             }

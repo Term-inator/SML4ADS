@@ -36,6 +36,7 @@ public class WelcomeController implements Initializable, Route {
             if(!npm.isConfirm()) {
                 return;
             }
+            // 文件夹创建失败
             if(!npm.isSucceed()) {
                 System.out.println("Directory already exists");
                 return;
@@ -51,6 +52,7 @@ public class WelcomeController implements Initializable, Route {
             if(!opm.isConfirm()) {
                 return;
             }
+            // 设置 codepage 所需的参数
             CodePageParams.directory = FileSystem.getProjectDir(opm.getDirectory());
             CodePageParams.projectName = FileSystem.getProjectName(opm.getDirectory());
             Router.linkTo("codepage");
