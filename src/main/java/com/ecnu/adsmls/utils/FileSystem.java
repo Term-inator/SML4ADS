@@ -30,8 +30,7 @@ public class FileSystem {
      * @return 是否创建成功
      */
     public static boolean createFile(String directory, String filename) {
-        String pathName = directory + "/" + filename;
-        File file = new File(pathName);
+        File file = new File(directory, filename);
         if(!file.getParentFile().exists()) {
             if(!file.getParentFile().mkdirs()) {
                 return false;
@@ -126,5 +125,10 @@ public class FileSystem {
         assert filePath.indexOf(basePath) == 0;
         String subPath = filePath.substring(basePath.length());
         return "." + subPath;
+    }
+
+    public static String concatAbsolutePath(String basePath, String relativePath) {
+        File file = new File(basePath, relativePath);
+        return file.getAbsolutePath();
     }
 }

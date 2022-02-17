@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.model.MCar;
 import com.ecnu.adsmls.model.MTree;
+import com.ecnu.adsmls.utils.FileSystem;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -18,6 +19,8 @@ import java.util.Objects;
  * 点击 New Car 显示的内容
  */
 public class CarPane {
+    private String projectPath;
+
     private GridPane gridPane = new GridPane();
     // 名称
     private TextField tfName;
@@ -45,7 +48,8 @@ public class CarPane {
     // 动态信息，一棵树
     private Node btDynamic;
 
-    public CarPane() {
+    public CarPane(String projectPath) {
+        this.projectPath = projectPath;
         this.createNode();
     }
 
@@ -59,17 +63,13 @@ public class CarPane {
         car.setLaneSecId(Integer.parseInt(this.tfLaneSectionId.getText()));
         car.setLaneId(Integer.parseInt(this.tfLaneId.getText()));
         car.setFilter(this.taFilter.getText());
+        car.setOffset(Double.parseDouble(this.tfOffset.getText()));
         car.setHeading(Objects.equals("same", this.cbHeading.getValue()));
         car.setRoadDeviation(Double.parseDouble(this.tfRoadDeviation.getText()));
+        // 转换成相对路径
         String path = ((ChooseFileButton) this.btDynamic.getUserData()).getFile().getAbsolutePath();
-        car.setTreePath(path);
-        try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path), StandardCharsets.UTF_8));
-            String tree = br.readLine();
-            car.setMTree(tree);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String relativePath = FileSystem.getRelativePath(this.projectPath, path);
+        car.setTreePath(relativePath);
         return car;
     }
 
@@ -85,7 +85,8 @@ public class CarPane {
         this.tfOffset.setText(String.valueOf(mCar.getOffset()));
         this.cbHeading.getSelectionModel().select(mCar.getHeading() ? "same" : "opposite");
         this.tfRoadDeviation.setText(String.valueOf(mCar.getRoadDeviation()));
-        ((ChooseFileButton) this.btDynamic.getUserData()).setFile(new File(mCar.getTreePath()));
+        // 恢复绝对路径
+        ((ChooseFileButton) this.btDynamic.getUserData()).setFile(new File(this.projectPath, mCar.getTreePath()));
     }
 
     private void createNode() {

@@ -5,6 +5,7 @@ import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.components.editor.Editor;
 import com.ecnu.adsmls.model.MCar;
 import com.ecnu.adsmls.model.MModel;
+import com.ecnu.adsmls.utils.FileSystem;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -17,9 +18,7 @@ import javafx.scene.layout.GridPane;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class ModelEditor extends Editor {
     private GridPane gridPane = new GridPane();
@@ -36,12 +35,14 @@ public class ModelEditor extends Editor {
     private Node btSource;
 
     private GridPane gridPaneCar = new GridPane();
-    private List<CarPane> carPanes = new ArrayList<>();
+    // 临时 id ，用于删除
+    private int carId = 0;
+    private Map<Integer, CarPane> carPanes = new LinkedHashMap<>();
 
     private GridPane gridPanePedestrian = new GridPane();
-    private List<Node[]> newPedestrianPage = new ArrayList<>();
+//    private Map<Integer, PedestrianPane> pedestrianPanes = new LinkedHashMap<>();
     private GridPane gridPaneObstacle = new GridPane();
-    private List<Node[]> newObstaclePage = new ArrayList<>();
+//    private Map<Integer, ObstaclePane> obstaclePanes = new LinkedHashMap<>();
 
 
     public ModelEditor() {
@@ -63,7 +64,10 @@ public class ModelEditor extends Editor {
             mModel.setMap("");
         }
         else {
-            mModel.setMap(map.getAbsolutePath());
+            // 转换成相对路径
+            String path = map.getAbsolutePath();
+            String relativePath = FileSystem.getRelativePath(this.projectPath, path);
+            mModel.setMap(relativePath);
         }
 
         mModel.setWeather(this.cbWeather.getValue());
@@ -74,19 +78,22 @@ public class ModelEditor extends Editor {
             mModel.setSource("");
         }
         else {
-            mModel.setMap(source.getAbsolutePath());
+            // 转换成相对路径
+            String path = source.getAbsolutePath();
+            String relativePath = FileSystem.getRelativePath(this.projectPath, path);
+            mModel.setSource(relativePath);
         }
 
         List<MCar> cars = new ArrayList<>();
-        for(CarPane carPane : this.carPanes) {
+        for(Map.Entry<Integer, CarPane> entry : this.carPanes.entrySet()) {
+            CarPane carPane = entry.getValue();
             cars.add(carPane.save());
         }
         mModel.setCars(cars);
         String model = JSON.toJSONString(mModel);
-        String path = this.directory + "/" + this.filename;
         System.out.println(model);
         try {
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path,false), StandardCharsets.UTF_8));
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(this.projectPath, this.relativePath),false), StandardCharsets.UTF_8));
             bw.write(model);
             bw.close();
         } catch (IOException e) {
@@ -97,9 +104,8 @@ public class ModelEditor extends Editor {
     @Override
     public void load() {
         String model = null;
-        String path = this.directory + "/" + this.filename;
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path), StandardCharsets.UTF_8));
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(this.projectPath, this.relativePath)), StandardCharsets.UTF_8));
             model = br.readLine();
         } catch (IOException e) {
             e.printStackTrace();
@@ -111,15 +117,17 @@ public class ModelEditor extends Editor {
         System.out.println(model);
 
         if(!Objects.equals(mModel.getMap(), "")) {
-            ((ChooseFileButton) this.btMap.getUserData()).setFile(new File(mModel.getMap()));
+            // 恢复绝对路径
+            ((ChooseFileButton) this.btMap.getUserData()).setFile(new File(this.projectPath, mModel.getMap()));
         }
         this.cbWeather.getSelectionModel().select(mModel.getWeather());
         this.spTimeStep.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(this.timeStepMin, this.timeStepMax, mModel.getTimeStep()));
         if(!Objects.equals(mModel.getSource(), "")) {
-            ((ChooseFileButton) this.btSource.getUserData()).setFile(new File(mModel.getSource()));
+            // 恢复绝对路径
+            ((ChooseFileButton) this.btSource.getUserData()).setFile(new File(this.projectPath, mModel.getSource()));
         }
         for(MCar mCar : mModel.getCars()) {
-            CarPane carPane = new CarPane();
+            CarPane carPane = new CarPane(this.projectPath);
             // 设置 carPane 数据
             carPane.load(mCar);
             this.newCar(carPane);
@@ -166,7 +174,7 @@ public class ModelEditor extends Editor {
 
         Button btNewCar = new Button("New Car");
         btNewCar.setOnMouseClicked(e -> {
-            this.newCar(new CarPane());
+            this.newCar(new CarPane(this.projectPath));
         });
 
         Label lbPedestrians = new Label("Pedestrians: ");
@@ -194,13 +202,23 @@ public class ModelEditor extends Editor {
      * 显示一个 carPane
      * @param carPane
      */
-    public void newCar(CarPane carPane) {
-        this.carPanes.add(carPane);
+    private void newCar(CarPane carPane) {
+        this.carPanes.put(this.carId++, carPane);
+        this.updateCars();
+    }
 
+    private void deleteCar(int index) {
+        System.out.println("delete car" + index);
+        this.carPanes.remove(index);
+        this.updateCars();
+    }
+
+    private void updateCars() {
         List<Node[]> page = new ArrayList<>();
 
-        for(int i = 0; i < this.carPanes.size(); ++i) {
-            CarPane car = this.carPanes.get(i);
+        int i = 0;
+        for(Map.Entry<Integer, CarPane> entry : this.carPanes.entrySet()) {
+            CarPane car = entry.getValue();
             if(i != 0) {
                 Separator separator1 = new Separator();
                 Separator separator2 = new Separator();
@@ -208,20 +226,16 @@ public class ModelEditor extends Editor {
             }
             AnchorPane buttonWrapper = new AnchorPane();
             Button btDelete = new Button("Delete");
-            btDelete.setUserData(i);
             btDelete.setOnAction(e -> {
-                this.deleteCar((Integer) btDelete.getUserData());
+                this.deleteCar(entry.getKey());
             });
             buttonWrapper.getChildren().add(btDelete);
             AnchorPane.setTopAnchor(btDelete, 0.0);
             page.add(new Node[] {car.getNode(), buttonWrapper});
+            ++i;
         }
 
         this.updateGridPane(this.gridPaneCar, page);
-    }
-
-    public void deleteCar(int index) {
-        System.out.println("delete car" + index);
     }
 
     @Override

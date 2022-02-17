@@ -21,14 +21,14 @@ public class FileSystemTest {
 
     @Test
     public void fileTest() {
-        File file = new File("D:/");
+        File file = new File("D:/", "./test/test.tree");
         System.out.println(file.getPath());
         System.out.println(file.getName());
     }
 
     public void relativePath(String basePath, String filePath) {
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(basePath + "/" + filePath), StandardCharsets.UTF_8));
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(basePath, filePath)), StandardCharsets.UTF_8));
             System.out.println(br.readLine());
         } catch (IOException e) {
             e.printStackTrace();

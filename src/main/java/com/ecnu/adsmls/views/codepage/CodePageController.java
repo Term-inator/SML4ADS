@@ -1,6 +1,5 @@
 package com.ecnu.adsmls.views.codepage;
 
-import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.components.editor.modeleditor.ModelEditor;
 import com.ecnu.adsmls.components.editor.treeeditor.TreeEditor;
 import com.ecnu.adsmls.components.modal.NewModelModal;
@@ -10,12 +9,9 @@ import com.ecnu.adsmls.router.Route;
 import com.ecnu.adsmls.router.Router;
 import com.ecnu.adsmls.router.params.CodePageParams;
 import com.ecnu.adsmls.utils.FileSystem;
-import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
@@ -174,8 +170,9 @@ public class CodePageController implements Initializable, Route {
         scrollPane.setFitToHeight(true);
 
         ModelEditor modelEditor = new ModelEditor();
-        modelEditor.setDirectory(file.getParentFile().getAbsolutePath());
-        modelEditor.setFilename(file.getName());
+        String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
+        modelEditor.setProjectPath(projectPath);
+        modelEditor.setRelativePath(FileSystem.getRelativePath(projectPath, file.getAbsolutePath()));
         modelEditor.load();
 
         scrollPane.setContent(modelEditor.getNode());
@@ -220,8 +217,9 @@ public class CodePageController implements Initializable, Route {
 
         AnchorPane anchorPane = new AnchorPane();
         TreeEditor treeEditor = new TreeEditor();
-        treeEditor.setDirectory(file.getParentFile().getAbsolutePath());
-        treeEditor.setFilename(file.getName());
+        String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
+        treeEditor.setProjectPath(projectPath);
+        treeEditor.setRelativePath(FileSystem.getRelativePath(projectPath, file.getAbsolutePath()));
         treeEditor.load();
         anchorPane.getChildren().add(treeEditor.getNode());
 
