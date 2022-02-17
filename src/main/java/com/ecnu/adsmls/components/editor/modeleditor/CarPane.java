@@ -70,13 +70,6 @@ public class CarPane {
         String path = ((ChooseFileButton) this.btDynamic.getUserData()).getFile().getAbsolutePath();
         String relativePath = FileSystem.getRelativePath(this.projectPath, path);
         car.setTreePath(relativePath);
-        try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path), StandardCharsets.UTF_8));
-            String tree = br.readLine();
-            car.setMTree(tree);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         return car;
     }
 
