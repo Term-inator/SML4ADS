@@ -7,17 +7,17 @@ import javafx.scene.Node;
  */
 // TODO 是否已经保存
 public abstract class Editor {
-    // 文件所在文件夹路径
-    protected String directory;
-    // 文件名
-    protected String filename;
+    // Project 路径
+    protected String projectPath;
+    // 文件在 Project 下的相对路径
+    protected String relativePath;
 
-    public void setDirectory(String directory) {
-        this.directory = directory;
+    public void setProjectPath(String projectPath) {
+        this.projectPath = projectPath;
     }
 
-    public void setFilename(String filename) {
-        this.filename = filename;
+    public void setRelativePath(String relativePath) {
+        this.relativePath = relativePath;
     }
 
     /**

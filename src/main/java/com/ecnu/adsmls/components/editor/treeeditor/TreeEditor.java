@@ -353,10 +353,9 @@ public class TreeEditor extends Editor {
             }
         }
         String tree = JSON.toJSONString(mTree);
-        String path = this.directory + "/" + this.filename;
         System.out.println(tree);
         try {
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path,false), StandardCharsets.UTF_8));
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(this.projectPath, this.relativePath),false), StandardCharsets.UTF_8));
             bw.write(tree);
             bw.close();
         } catch (IOException e) {
@@ -367,9 +366,8 @@ public class TreeEditor extends Editor {
     @Override
     public void load() {
         String tree = null;
-        String path = this.directory + "/" + this.filename;
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path), StandardCharsets.UTF_8));
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(this.projectPath, this.relativePath)), StandardCharsets.UTF_8));
             tree = br.readLine();
         } catch (IOException e) {
             e.printStackTrace();
