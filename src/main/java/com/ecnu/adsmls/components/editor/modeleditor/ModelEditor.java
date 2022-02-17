@@ -18,9 +18,7 @@ import javafx.scene.layout.GridPane;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class ModelEditor extends Editor {
     private GridPane gridPane = new GridPane();
@@ -37,12 +35,14 @@ public class ModelEditor extends Editor {
     private Node btSource;
 
     private GridPane gridPaneCar = new GridPane();
-    private List<CarPane> carPanes = new ArrayList<>();
+    // 临时 id ，用于删除
+    private int carId = 0;
+    private Map<Integer, CarPane> carPanes = new LinkedHashMap<>();
 
     private GridPane gridPanePedestrian = new GridPane();
-    private List<Node[]> newPedestrianPage = new ArrayList<>();
+//    private Map<Integer, PedestrianPane> pedestrianPanes = new LinkedHashMap<>();
     private GridPane gridPaneObstacle = new GridPane();
-    private List<Node[]> newObstaclePage = new ArrayList<>();
+//    private Map<Integer, ObstaclePane> obstaclePanes = new LinkedHashMap<>();
 
 
     public ModelEditor() {
@@ -85,7 +85,8 @@ public class ModelEditor extends Editor {
         }
 
         List<MCar> cars = new ArrayList<>();
-        for(CarPane carPane : this.carPanes) {
+        for(Map.Entry<Integer, CarPane> entry : this.carPanes.entrySet()) {
+            CarPane carPane = entry.getValue();
             cars.add(carPane.save());
         }
         mModel.setCars(cars);
@@ -201,13 +202,23 @@ public class ModelEditor extends Editor {
      * 显示一个 carPane
      * @param carPane
      */
-    public void newCar(CarPane carPane) {
-        this.carPanes.add(carPane);
+    private void newCar(CarPane carPane) {
+        this.carPanes.put(this.carId++, carPane);
+        this.updateCars();
+    }
 
+    private void deleteCar(int index) {
+        System.out.println("delete car" + index);
+        this.carPanes.remove(index);
+        this.updateCars();
+    }
+
+    private void updateCars() {
         List<Node[]> page = new ArrayList<>();
 
-        for(int i = 0; i < this.carPanes.size(); ++i) {
-            CarPane car = this.carPanes.get(i);
+        int i = 0;
+        for(Map.Entry<Integer, CarPane> entry : this.carPanes.entrySet()) {
+            CarPane car = entry.getValue();
             if(i != 0) {
                 Separator separator1 = new Separator();
                 Separator separator2 = new Separator();
@@ -215,20 +226,16 @@ public class ModelEditor extends Editor {
             }
             AnchorPane buttonWrapper = new AnchorPane();
             Button btDelete = new Button("Delete");
-            btDelete.setUserData(i);
             btDelete.setOnAction(e -> {
-                this.deleteCar((Integer) btDelete.getUserData());
+                this.deleteCar(entry.getKey());
             });
             buttonWrapper.getChildren().add(btDelete);
             AnchorPane.setTopAnchor(btDelete, 0.0);
             page.add(new Node[] {car.getNode(), buttonWrapper});
+            ++i;
         }
 
         this.updateGridPane(this.gridPaneCar, page);
-    }
-
-    public void deleteCar(int index) {
-        System.out.println("delete car" + index);
     }
 
     @Override
