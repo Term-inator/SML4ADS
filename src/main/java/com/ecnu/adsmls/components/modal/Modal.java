@@ -1,14 +1,10 @@
 package com.ecnu.adsmls.components.modal;
 
-import javafx.event.Event;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Control;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
@@ -17,12 +13,11 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.kordamp.bootstrapfx.BootstrapFX;
 
-import java.util.*;
+import java.util.Objects;
 
 /**
  * 模态弹框
  */
-// TODO 弹框内容更新时，大小自适应
 public abstract class Modal {
     protected Stage window;
 

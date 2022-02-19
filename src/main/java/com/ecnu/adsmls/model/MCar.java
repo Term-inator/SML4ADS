@@ -11,11 +11,11 @@ public class MCar {
 
     private int roadId;
 
-    private int laneSecId;
+//    private int laneSecId;
 
     private int laneId;
 
-    private String filter;
+//    private String filter;
 
     private double offset;
 
@@ -25,15 +25,15 @@ public class MCar {
 
     private String treePath;
 
-    public MCar(String name, String model, double maxSpeed, double initSpeed, int roadId, int laneSecId, int laneId, String filter, double offset, boolean heading, double roadDeviation, String treePath) {
+    public MCar(String name, String model, double maxSpeed, double initSpeed, int roadId, int laneId, double offset, boolean heading, double roadDeviation, String treePath) {
         this.name = name;
         this.model = model;
         this.maxSpeed = maxSpeed;
         this.initSpeed = initSpeed;
         this.roadId = roadId;
-        this.laneSecId = laneSecId;
+//        this.laneSecId = laneSecId;
         this.laneId = laneId;
-        this.filter = filter;
+//        this.filter = filter;
         this.offset = offset;
         this.heading = heading;
         this.roadDeviation = roadDeviation;
@@ -83,28 +83,12 @@ public class MCar {
         this.roadId = roadId;
     }
 
-    public int getLaneSecId() {
-        return laneSecId;
-    }
-
-    public void setLaneSecId(int laneSecId) {
-        this.laneSecId = laneSecId;
-    }
-
     public int getLaneId() {
         return laneId;
     }
 
     public void setLaneId(int laneId) {
         this.laneId = laneId;
-    }
-
-    public String getFilter() {
-        return filter;
-    }
-
-    public void setFilter(String filter) {
-        this.filter = filter;
     }
 
     public double getOffset() {
