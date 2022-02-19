@@ -16,30 +16,35 @@ public class ChooseDirectoryButton {
     private File folder;
     private Pane rootLayout;
 
+    private HBox hBox;
     private Label lbDirName;
 
     public ChooseDirectoryButton(Pane rootLayout) {
         this.rootLayout = rootLayout;
+        this.createNode();
     }
 
-    public Node getNode() {
-        HBox hBox = new HBox();
-        hBox.setSpacing(5);
-        hBox.setAlignment(Pos.CENTER_LEFT);
+    private void createNode() {
+        this.hBox = new HBox();
+        this.hBox.setSpacing(5);
+        this.hBox.setAlignment(Pos.CENTER_LEFT);
         Button button = new Button("Choose Directory");
         this.lbDirName = new Label();
-        hBox.getChildren().addAll(this.lbDirName, button);
+        this.hBox.getChildren().addAll(this.lbDirName, button);
         button.setOnMouseClicked(e -> {
             Stage stage = (Stage) rootLayout.getScene().getWindow();
             DirectoryChooser dirChooser = new DirectoryChooser();
             dirChooser.setTitle("Choose Directory");
-            folder = dirChooser.showDialog(stage);
-            if(folder != null) {
+            this.folder = dirChooser.showDialog(stage);
+            if(this.folder != null) {
                 this.lbDirName.setText(folder.getAbsolutePath());
             }
             stage.sizeToScene();
         });
         hBox.setUserData(this);
+    }
+
+    public Node getNode() {
         return hBox;
     }
 
