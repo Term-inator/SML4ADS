@@ -77,6 +77,7 @@ public class CommonTransitionModal extends Modal {
         this.transition.updateTreeTextPosition();
     }
 
+    // 属性包括 车子的位置信息  xy坐标 横向距离纵向距离  是否在交叉路口等  速度信息   数值比较这些
     private void checkGuard() {
         // TODO 类型检查
     }

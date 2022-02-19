@@ -30,7 +30,7 @@ public class ModelEditor extends Editor {
     private int timeStepMin = 1;
     private int timeStepMax = 10;
     private Spinner<Integer> spTimeStep;
-    // TODO 这干啥的？
+
     private Node btSource;
 
     private GridPane gridPaneCar = new GridPane();

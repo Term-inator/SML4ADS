@@ -1,9 +1,7 @@
 package com.ecnu.adsmls.components.editor.modeleditor;
 
-import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.model.MCar;
-import com.ecnu.adsmls.model.MTree;
 import com.ecnu.adsmls.utils.FileSystem;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -45,7 +43,6 @@ public class CarPane {
     // 朝向，和路同向或反向
     private ComboBox<String> cbHeading;
     // 偏移程度
-    // TODO 这干啥的？
     private TextField tfRoadDeviation;
     // 动态信息，一棵树
     private Node btDynamic;
@@ -109,11 +106,6 @@ public class CarPane {
         Label lbInitSpeed = new Label("initial speed: ");
         this.tfInitSpeed = new TextField();
 
-        // TODO macAcc?
-        /** TODO location
-         *  1. 确定lane (filter函数 / 3 个 id)
-         *  2. 数值 距离 lane 起始位置的偏移量
-         */
         Label lbLocation = new Label("location: ");
         GridPane gridPaneLocation = new GridPane();
         gridPaneLocation.setPrefWidth(280);

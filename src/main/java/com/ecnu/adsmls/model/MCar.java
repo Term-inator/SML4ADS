@@ -25,6 +25,8 @@ public class MCar {
 
     private String treePath;
 
+    private MTree mTree;
+
     public MCar(String name, String model, double maxSpeed, double initSpeed, int roadId, int laneId, double offset, boolean heading, double roadDeviation, String treePath) {
         this.name = name;
         this.model = model;
@@ -121,5 +123,13 @@ public class MCar {
 
     public void setTreePath(String treePath) {
         this.treePath = treePath;
+    }
+
+    public MTree getMTree() {
+        return mTree;
+    }
+
+    public void setMTree(MTree mTree) {
+        this.mTree = mTree;
     }
 }

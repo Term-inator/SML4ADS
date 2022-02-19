@@ -39,6 +39,8 @@ public class FileSystemTest {
     public void relativePathTest() {
         String base = "D:/test";
         String file = "D:/test/1.tree";
-        this.relativePath(base, FileSystem.getRelativePath(base, file));
+        System.out.println(new File(file).getAbsolutePath());
+//        this.relativePath(base, FileSystem.getRelativePath(base, file));
+        System.out.println(FileSystem.getRelativePath(base, file));
     }
 }
