@@ -11,32 +11,36 @@ import javafx.stage.Stage;
 
 import java.io.File;
 
-// TODO createNode HGap 设置当前项目目录为初始目录
+// TODO 设置当前项目目录为初始目录
 public class ChooseDirectoryButton {
     private File folder;
     private Pane rootLayout;
+
+    private Label lbDirName;
 
     public ChooseDirectoryButton(Pane rootLayout) {
         this.rootLayout = rootLayout;
     }
 
     public Node getNode() {
-        HBox hBox0 = new HBox();
-        hBox0.setAlignment(Pos.CENTER_LEFT);
+        HBox hBox = new HBox();
+        hBox.setSpacing(5);
+        hBox.setAlignment(Pos.CENTER_LEFT);
         Button button = new Button("Choose Directory");
-        Label lbDirName = new Label();
-        hBox0.getChildren().addAll(lbDirName, button);
+        this.lbDirName = new Label();
+        hBox.getChildren().addAll(this.lbDirName, button);
         button.setOnMouseClicked(e -> {
             Stage stage = (Stage) rootLayout.getScene().getWindow();
             DirectoryChooser dirChooser = new DirectoryChooser();
             dirChooser.setTitle("Choose Directory");
             folder = dirChooser.showDialog(stage);
             if(folder != null) {
-                lbDirName.setText(folder.getAbsolutePath());
+                this.lbDirName.setText(folder.getAbsolutePath());
             }
+            stage.sizeToScene();
         });
-        hBox0.setUserData(this);
-        return hBox0;
+        hBox.setUserData(this);
+        return hBox;
     }
 
     public File getFolder() {

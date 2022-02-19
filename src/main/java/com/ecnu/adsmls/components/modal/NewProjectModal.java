@@ -1,7 +1,6 @@
 package com.ecnu.adsmls.components.modal;
 
 import com.ecnu.adsmls.components.ChooseDirectoryButton;
-import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.utils.FileSystem;
 import javafx.scene.Node;
 import javafx.scene.control.Label;

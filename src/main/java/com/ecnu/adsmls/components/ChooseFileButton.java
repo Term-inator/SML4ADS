@@ -11,7 +11,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 
-// TODO createNode HGap 设置当前项目目录为初始目录
+// TODO 设置当前项目目录为初始目录
 public class ChooseFileButton {
     private File file;
     private Pane rootLayout;
@@ -24,6 +24,7 @@ public class ChooseFileButton {
 
     public Node getNode() {
         HBox hBox0 = new HBox();
+        hBox0.setSpacing(5);
         hBox0.setAlignment(Pos.CENTER_LEFT);
         Button button = new Button("Choose File");
         this.lbFilename = new Label();
@@ -36,6 +37,7 @@ public class ChooseFileButton {
             if(file != null) {
                 this.lbFilename.setText(file.getName());
             }
+            stage.sizeToScene();
         });
         hBox0.setUserData(this);
         return hBox0;
