@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
@@ -21,7 +22,8 @@ import java.util.*;
 public class BehaviorModal extends Modal {
     private Behavior behavior;
 
-    private ArrayList<Node[]> behaviorParamsPage = new ArrayList<>();
+    // 行为参数
+    private GridPane behaviorParamsGridPane = new GridPane();
 
     // 行为名
     private String behaviorName = "";
@@ -57,10 +59,11 @@ public class BehaviorModal extends Modal {
         this.behaviorName = this.behavior.getName();
         this.paramsValue = this.behavior.getParams();
 
+        int row = 0;
         for(Map.Entry<String, String> param : paramsValue.entrySet()) {
             Label lbParamName = new Label(param.getKey());
             TextField tfParamValue = new TextField(param.getValue());
-            this.behaviorParamsPage.add(new Node[] {lbParamName, tfParamValue});
+            this.behaviorParamsGridPane.addRow(row++, lbParamName, tfParamValue);
         }
     }
 
@@ -68,23 +71,30 @@ public class BehaviorModal extends Modal {
     protected void createWindow() {
         super.createWindow();
 
+        this.behaviorParamsGridPane.setVgap(8);
+        this.behaviorParamsGridPane.setHgap(5);
+
         Label lbBehaviorName = new Label("behavior");
         List<String> behaviorNames = BehaviorRegister.getBehaviorNames();
         ComboBox<String> cbBehavior = new ComboBox<>(FXCollections.observableArrayList(behaviorNames));
         cbBehavior.getSelectionModel().select(this.behaviorName);
         cbBehavior.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            this.behaviorParamsPage.clear();
-            this.behaviorName = newValue.toString();
+            this.behaviorParamsGridPane.getChildren().clear();
+
+            this.behaviorName = newValue;
             this.paramsInfo = BehaviorRegister.getParams(this.behaviorName);
             // 生成界面
+            int row = 0;
             for(Map.Entry<String, String> param : paramsInfo.entrySet()) {
                 Label lbParamName = new Label(param.getKey());
                 TextField tfParamValue = new TextField();
-                this.behaviorParamsPage.add(new Node[] {lbParamName, tfParamValue});
+                this.behaviorParamsGridPane.addRow(row++, lbParamName, tfParamValue);
+                // 自适应大小
+                this.window.sizeToScene();
             }
-            this.updateGridPane();
         });
-        staticPage.add(0, new Node[] {lbBehaviorName, cbBehavior});
+        this.slot.addRow(0, lbBehaviorName, cbBehavior);
+        this.slot.add(this.behaviorParamsGridPane, 0, 1, 2, 1);
     }
 
     @Override
@@ -94,7 +104,6 @@ public class BehaviorModal extends Modal {
 
     @Override
     protected void update() {
-        this.updateGridPane();
         this.updateParamsValue();
     }
 
@@ -103,27 +112,11 @@ public class BehaviorModal extends Modal {
         this.behavior.updateTreeTextPosition();
     }
 
-    @Override
-    protected void updateGridPane() {
-        this.gridPane.getChildren().clear();
-        int rowIndex = 0;
-        this.gridPane.addRow(rowIndex++, this.staticPage.get(0));
-
-        for(int r = 0; r < this.behaviorParamsPage.size(); ++r) {
-            this.gridPane.addRow(rowIndex++, this.behaviorParamsPage.get(r));
-        }
-
-        this.gridPane.addRow(rowIndex++, this.staticPage.get(1));
-
-        window.sizeToScene();
-    }
-
-
     public void updateParamsValue() {
         this.paramsValue.clear();
         String paramName = "";
         String paramValue = "";
-        for(Node node : gridPane.getChildren()) {
+        for(Node node : this.behaviorParamsGridPane.getChildren()) {
             if(node instanceof Label) {
                 paramName = ((Label) node).getText();
             }

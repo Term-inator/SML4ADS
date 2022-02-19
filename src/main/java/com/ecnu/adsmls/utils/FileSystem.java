@@ -14,7 +14,8 @@ public class FileSystem {
     public enum Suffix {
         TREE(".tree"),
         MODEL(".model"),
-        JSON(".json");
+        JSON(".json"),
+        DIR("");
 
         public String value;
 

@@ -25,9 +25,10 @@ import java.util.*;
 public abstract class Modal {
     protected Stage window;
 
-    protected GridPane gridPane;
+    protected GridPane gridPane = new GridPane();
     // 静态部分
-    protected ArrayList<Node[]> staticPage = new ArrayList<>();
+//    protected ArrayList<Node[]> staticPage = new ArrayList<>();
+    protected GridPane slot = new GridPane();
 
     // 确认按钮
     protected Button btConfirm = new Button("Confirm");
@@ -78,16 +79,21 @@ public abstract class Modal {
             }
         });
 
-        this.gridPane = new GridPane();
         this.gridPane.setPadding(new Insets(15, 20, 15, 20));
         this.gridPane.setVgap(8);
         this.gridPane.setHgap(5);
 
         this.gridPane.setBackground(this.background);
 
-        this.staticPage.add(new Node[] {btConfirm, btCancel});
+        this.slot.setVgap(8);
+        this.slot.setHgap(5);
+
+//        this.staticPage.add(new Node[] {btConfirm, btCancel});
+        this.gridPane.add(slot, 0, 0, 2, 1);
+        this.gridPane.addRow(1, this.btConfirm, this.btCancel);
 
         this.bindConfirmCancel();
+
 
         Scene scene = new Scene(gridPane);
         scene.setFill(Color.TRANSPARENT);
@@ -141,18 +147,18 @@ public abstract class Modal {
      */
     protected abstract void then();
 
-    protected void updateGridPane() {
-        this.gridPane.getChildren().clear();
-        for(int r = 0; r < staticPage.size(); ++r) {
-            gridPane.addRow(r, staticPage.get(r));
-        }
-
-        window.sizeToScene();
-    }
+//    protected void updateGridPane() {
+//        this.gridPane.getChildren().clear();
+//        for(int r = 0; r < staticPage.size(); ++r) {
+//            gridPane.addRow(r, staticPage.get(r));
+//        }
+//
+//        window.sizeToScene();
+//    }
 
     public Stage getWindow() {
         this.createWindow();
-        this.updateGridPane();
+//        this.updateGridPane();
         return window;
     }
 }

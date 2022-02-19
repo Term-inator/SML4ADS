@@ -7,6 +7,8 @@ import javafx.scene.control.Label;
 public class OpenProjectModal extends Modal {
     private String directory;
 
+    private Node btDir;
+
     public OpenProjectModal() {
     }
 
@@ -19,9 +21,9 @@ public class OpenProjectModal extends Modal {
         super.createWindow();
 
         Label lbDirName = new Label("project");
-        ChooseDirectoryButton btDir = new ChooseDirectoryButton(this.gridPane);
+        this.btDir = new ChooseDirectoryButton(this.gridPane).getNode();
 
-        staticPage.add(0, new Node[] {lbDirName, btDir.getNode()});
+        this.slot.addRow(0, lbDirName, this.btDir);
     }
     @Override
     protected void update() {
@@ -38,9 +40,8 @@ public class OpenProjectModal extends Modal {
     }
 
     private void updateDirectory() {
-        ChooseDirectoryButton btDir = (ChooseDirectoryButton) this.staticPage.get(0)[1].getUserData();
         try {
-            this.directory = btDir.getFolder().getAbsolutePath();
+            this.directory = ((ChooseDirectoryButton) this.btDir.getUserData()).getFolder().getAbsolutePath();
         }
         catch (Exception ignored) {
 

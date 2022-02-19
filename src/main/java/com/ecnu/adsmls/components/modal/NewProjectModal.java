@@ -1,6 +1,7 @@
 package com.ecnu.adsmls.components.modal;
 
 import com.ecnu.adsmls.components.ChooseDirectoryButton;
+import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.utils.FileSystem;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -10,8 +11,10 @@ import java.util.Objects;
 
 public class NewProjectModal extends Modal {
     private String directory;
-
     private String projectName;
+
+    private Node btDir;
+    private TextField tfProjectName;
 
     private boolean succeed = true;
 
@@ -36,12 +39,12 @@ public class NewProjectModal extends Modal {
         super.createWindow();
 
         Label lbDirName = new Label("directory");
-        ChooseDirectoryButton btDir = new ChooseDirectoryButton(this.gridPane);
+        this.btDir = new ChooseDirectoryButton(this.gridPane).getNode();
         Label lbProjectName = new Label("project name");
-        TextField tfProjectName = new TextField();
+        this.tfProjectName = new TextField();
 
-        staticPage.add(0, new Node[] {lbDirName, btDir.getNode()});
-        staticPage.add(1, new Node[] {lbProjectName, tfProjectName});
+        this.slot.addRow(0, lbDirName, btDir);
+        this.slot.addRow(1, lbProjectName, tfProjectName);
     }
 
     @Override
@@ -62,9 +65,8 @@ public class NewProjectModal extends Modal {
     }
 
     private void updateDirectory() {
-        ChooseDirectoryButton btDir = (ChooseDirectoryButton) this.staticPage.get(0)[1].getUserData();
         try {
-            this.directory = btDir.getFolder().getAbsolutePath();
+            this.directory = ((ChooseDirectoryButton) btDir.getUserData()).getFolder().getAbsolutePath();
         }
         catch (Exception ignored) {
 
@@ -76,8 +78,7 @@ public class NewProjectModal extends Modal {
     }
 
     private void updateProjectName() {
-        TextField tfFilename = (TextField) this.staticPage.get(1)[1];
-        this.projectName = tfFilename.getText();
+        this.projectName = this.tfProjectName.getText();
     }
 
     private void checkProjectName() {
@@ -88,6 +89,6 @@ public class NewProjectModal extends Modal {
     }
 
     private void createProject() {
-        this.succeed = FileSystem.createDir(directory + '/' + projectName);
+        this.succeed = FileSystem.createDir(FileSystem.concatAbsolutePath(this.directory, this.projectName));
     }
 }

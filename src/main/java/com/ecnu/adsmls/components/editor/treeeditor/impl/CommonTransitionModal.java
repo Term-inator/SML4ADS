@@ -22,6 +22,8 @@ import java.util.Objects;
 public class CommonTransitionModal extends Modal {
     private CommonTransition transition;
 
+    private TextArea taGuard;
+
     private List<String> guards = new ArrayList<>();
 
     public CommonTransitionModal(CommonTransition transition) {
@@ -51,13 +53,13 @@ public class CommonTransitionModal extends Modal {
         super.createWindow();
 
         Label lbGuard = new Label("guard");
-        TextArea taGuard = new TextArea(this.transition.getInfo());
-        taGuard.setPrefRowCount(10);
-        taGuard.setPrefColumnCount(20);
+        this.taGuard = new TextArea(this.transition.getInfo());
+        this.taGuard.setPrefRowCount(10);
+        this.taGuard.setPrefColumnCount(20);
         //自动换行
-        taGuard.setWrapText(true);
+        this.taGuard.setWrapText(true);
 
-        staticPage.add(0, new Node[] {lbGuard, taGuard});
+        this.slot.addRow(0, lbGuard, taGuard);
     }
 
     @Override
@@ -81,8 +83,7 @@ public class CommonTransitionModal extends Modal {
 
     public void updateGuard() {
         this.guards.clear();
-        TextArea taGuard = (TextArea) this.staticPage.get(0)[1];
-        String[] guards = taGuard.getText().split(";");
+        String[] guards = this.taGuard.getText().split(";");
         for(String guard : guards) {
             guard = guard.replaceAll("[\r\n]", "");
             if(Objects.equals(guard, "")) {
