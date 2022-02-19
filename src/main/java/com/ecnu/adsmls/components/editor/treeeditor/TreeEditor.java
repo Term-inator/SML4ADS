@@ -367,7 +367,8 @@ public class TreeEditor extends Editor {
 
     @Override
     public void load() {
-        // TODO 更新 id
+        // 算出当前最大 id
+        long componentId = 0;
         String tree = null;
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(this.projectPath, this.relativePath)), StandardCharsets.UTF_8));
@@ -384,6 +385,9 @@ public class TreeEditor extends Editor {
         List<TreeArea> treeAreaList = new ArrayList<>();
         for(MBehavior mBehavior : mTree.getBehaviors()) {
             Behavior behavior = Converter.cast(mBehavior);
+
+            componentId = Math.max(componentId, behavior.getId());
+
             treeAreaList.add(behavior);
             Node node = behavior.getNode();
             node.setUserData(behavior);
@@ -392,6 +396,9 @@ public class TreeEditor extends Editor {
         }
         for(MBranchPoint mBranchPoint : mTree.getBranchPoints()) {
             BranchPoint branchPoint = Converter.cast(mBranchPoint);
+
+            componentId = Math.max(componentId, branchPoint.getId());
+
             treeAreaList.add(branchPoint);
             Node node = branchPoint.getNode();
             node.setUserData(branchPoint);
@@ -400,6 +407,9 @@ public class TreeEditor extends Editor {
         }
         for(MCommonTransition mCommonTransition : mTree.getCommonTransitions()) {
             CommonTransition commonTransition = Converter.cast(treeAreaList, mCommonTransition);
+
+            componentId = Math.max(componentId, commonTransition.getId());
+
             Node node = commonTransition.getNode();
             node.setUserData(commonTransition);
             this.transitionBindClick(node);
@@ -407,11 +417,16 @@ public class TreeEditor extends Editor {
         }
         for(MProbabilityTransition mProbabilityTransition : mTree.getProbabilityTransitions()) {
             ProbabilityTransition probabilityTransition = Converter.cast(treeAreaList, mProbabilityTransition);
+
+            componentId = Math.max(componentId, probabilityTransition.getId());
+
             Node node = probabilityTransition.getNode();
             node.setUserData(probabilityTransition);
             this.transitionBindClick(node);
             this.canvas.getChildren().addAll(node, probabilityTransition.getTreeText().getNode());
         }
+
+        this.componentId = componentId + 1;
     }
 
     @Override
