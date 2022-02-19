@@ -1,10 +1,14 @@
 package com.ecnu.adsmls.views.codepage;
 
+import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.editor.modeleditor.ModelEditor;
 import com.ecnu.adsmls.components.editor.treeeditor.TreeEditor;
 import com.ecnu.adsmls.components.modal.NewModelModal;
 import com.ecnu.adsmls.components.modal.NewTreeModal;
 import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
+import com.ecnu.adsmls.model.MCar;
+import com.ecnu.adsmls.model.MModel;
+import com.ecnu.adsmls.model.MTree;
 import com.ecnu.adsmls.router.Route;
 import com.ecnu.adsmls.router.Router;
 import com.ecnu.adsmls.router.params.CodePageParams;
@@ -15,8 +19,9 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
-import java.io.File;
+import java.io.*;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 
@@ -146,8 +151,55 @@ public class CodePageController implements Initializable, Route {
     }
 
     @FXML
+
     protected void onRun() {
-        System.out.println("Run");
+        if(this.tabPane.getTabs().size() == 0) {
+            System.out.println("Please open model files first");
+            return;
+        }
+        // 当前显示的 tab
+        File file = ((File) this.tabPane.getSelectionModel().getSelectedItem().getUserData());
+
+        String model = null;
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
+            model = br.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        MModel mModel = JSON.parseObject(model, MModel.class);
+        if(mModel == null) {
+            return;
+        }
+        System.out.println(model);
+
+        String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
+        for(MCar mCar : mModel.getCars()) {
+            String treePath = mCar.getTreePath();
+            String tree = null;
+            try {
+                BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(projectPath, treePath)), StandardCharsets.UTF_8));
+                tree = br.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            MTree mTree = JSON.parseObject(tree, MTree.class);
+            if(mTree == null) {
+                return;
+            }
+            System.out.println(tree);
+            mCar.setMTree(mTree);
+        }
+
+        model = JSON.toJSONString(mModel);
+        System.out.println(model);
+        try {
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(projectPath, "test.adsml"),false), StandardCharsets.UTF_8));
+            bw.write(model);
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void openModel(File file) {
@@ -159,6 +211,7 @@ public class CodePageController implements Initializable, Route {
         this.filesOpened.add(file);
 
         Tab tab = new Tab(file.getName());
+        tab.setUserData(file);
         tab.setOnClosed(e -> {
             System.out.println(tab.getText() + " closed");
             // TODO unsaved ?
@@ -169,10 +222,8 @@ public class CodePageController implements Initializable, Route {
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
 
-        ModelEditor modelEditor = new ModelEditor();
         String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
-        modelEditor.setProjectPath(projectPath);
-        modelEditor.setRelativePath(FileSystem.getRelativePath(projectPath, file.getAbsolutePath()));
+        ModelEditor modelEditor = new ModelEditor(projectPath, FileSystem.getRelativePath(projectPath, file.getAbsolutePath()));
         modelEditor.load();
 
         scrollPane.setContent(modelEditor.getNode());
@@ -204,6 +255,7 @@ public class CodePageController implements Initializable, Route {
         this.filesOpened.add(file);
 
         Tab tab = new Tab(file.getName());
+        tab.setUserData(file);
         tab.setOnClosed(e -> {
             System.out.println(tab.getText() + " closed");
             // TODO unsaved ?
@@ -216,10 +268,9 @@ public class CodePageController implements Initializable, Route {
         // TODO ScrollPane 应在 TreeEditor 内部
 
         AnchorPane anchorPane = new AnchorPane();
-        TreeEditor treeEditor = new TreeEditor();
+
         String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
-        treeEditor.setProjectPath(projectPath);
-        treeEditor.setRelativePath(FileSystem.getRelativePath(projectPath, file.getAbsolutePath()));
+        TreeEditor treeEditor = new TreeEditor(projectPath, FileSystem.getRelativePath(projectPath, file.getAbsolutePath()));
         treeEditor.load();
         anchorPane.getChildren().add(treeEditor.getNode());
 

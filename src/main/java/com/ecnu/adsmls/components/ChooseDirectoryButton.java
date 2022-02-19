@@ -11,32 +11,51 @@ import javafx.stage.Stage;
 
 import java.io.File;
 
-// TODO createNode HGap 设置当前项目目录为初始目录
 public class ChooseDirectoryButton {
     private File folder;
     private Pane rootLayout;
 
+    private HBox hBox;
+    private Label lbDirName;
+    private String initDir;
+
     public ChooseDirectoryButton(Pane rootLayout) {
         this.rootLayout = rootLayout;
+        this.createNode();
     }
 
-    public Node getNode() {
-        HBox hBox0 = new HBox();
-        hBox0.setAlignment(Pos.CENTER_LEFT);
+    public ChooseDirectoryButton(Pane rootLayout, String initDir) {
+        this.rootLayout = rootLayout;
+        this.initDir = initDir;
+        this.createNode();
+    }
+
+    private void createNode() {
+        this.hBox = new HBox();
+        this.hBox.setSpacing(5);
+        this.hBox.setAlignment(Pos.CENTER_LEFT);
         Button button = new Button("Choose Directory");
-        Label lbDirName = new Label();
-        hBox0.getChildren().addAll(lbDirName, button);
+        this.lbDirName = new Label();
+        this.hBox.getChildren().addAll(this.lbDirName, button);
         button.setOnMouseClicked(e -> {
             Stage stage = (Stage) rootLayout.getScene().getWindow();
             DirectoryChooser dirChooser = new DirectoryChooser();
             dirChooser.setTitle("Choose Directory");
-            folder = dirChooser.showDialog(stage);
-            if(folder != null) {
-                lbDirName.setText(folder.getAbsolutePath());
+            if(this.initDir != null) {
+                dirChooser.setInitialDirectory(new File(this.initDir));
             }
+            this.folder = dirChooser.showDialog(stage);
+            if(this.folder != null) {
+                this.lbDirName.setText(folder.getAbsolutePath());
+            }
+            // 自适应大小
+            stage.sizeToScene();
         });
-        hBox0.setUserData(this);
-        return hBox0;
+        hBox.setUserData(this);
+    }
+
+    public Node getNode() {
+        return hBox;
     }
 
     public File getFolder() {

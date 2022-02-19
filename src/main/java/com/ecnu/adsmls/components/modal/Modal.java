@@ -1,13 +1,10 @@
 package com.ecnu.adsmls.components.modal;
 
-import javafx.event.Event;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
@@ -16,12 +13,11 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.kordamp.bootstrapfx.BootstrapFX;
 
-import java.util.*;
+import java.util.Objects;
 
 /**
  * 模态弹框
  */
-// TODO 弹框内容更新时，大小自适应
 public abstract class Modal {
     protected Stage window;
 
@@ -64,6 +60,7 @@ public abstract class Modal {
 
     protected void createWindow() {
         this.window = new Stage(this.stageStyle);
+
         this.window.initModality(Modality.APPLICATION_MODAL);
         this.window.setOpacity(this.opacity);
 
@@ -88,7 +85,6 @@ public abstract class Modal {
         this.slot.setVgap(8);
         this.slot.setHgap(5);
 
-//        this.staticPage.add(new Node[] {btConfirm, btCancel});
         this.gridPane.add(slot, 0, 0, 2, 1);
         this.gridPane.addRow(1, this.btConfirm, this.btCancel);
 
@@ -147,18 +143,8 @@ public abstract class Modal {
      */
     protected abstract void then();
 
-//    protected void updateGridPane() {
-//        this.gridPane.getChildren().clear();
-//        for(int r = 0; r < staticPage.size(); ++r) {
-//            gridPane.addRow(r, staticPage.get(r));
-//        }
-//
-//        window.sizeToScene();
-//    }
-
     public Stage getWindow() {
         this.createWindow();
-//        this.updateGridPane();
         return window;
     }
 }

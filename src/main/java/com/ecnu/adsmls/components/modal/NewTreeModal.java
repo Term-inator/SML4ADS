@@ -2,7 +2,6 @@ package com.ecnu.adsmls.components.modal;
 
 import com.ecnu.adsmls.utils.FileSystem;
 
-// TODO abstract NewFileModal
 public class NewTreeModal extends NewFileModal {
 
     public NewTreeModal() {

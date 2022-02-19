@@ -124,8 +124,8 @@ public class FileSystem {
         basePath = baseFile.getAbsolutePath();
         filePath = file.getAbsolutePath();
         assert filePath.indexOf(basePath) == 0;
-        String subPath = filePath.substring(basePath.length());
-        return "." + subPath;
+        String subPath = filePath.substring(basePath.length() + 1);
+        return subPath;
     }
 
     public static String concatAbsolutePath(String basePath, String relativePath) {

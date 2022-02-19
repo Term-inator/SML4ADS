@@ -40,7 +40,8 @@ public class TreeEditor extends Editor {
     // 被选中的组件
     private Group componentChose;
 
-    public TreeEditor() {
+    public TreeEditor(String projectPath, String relativePath) {
+        super(projectPath, relativePath);
         this.createNode();
     }
 
@@ -114,6 +115,7 @@ public class TreeEditor extends Editor {
         });
     }
 
+    // TODO 选中置顶
     public void initCanvas() {
         this.canvasWrapper = new AnchorPane(this.canvas);
 
@@ -365,6 +367,7 @@ public class TreeEditor extends Editor {
 
     @Override
     public void load() {
+        // TODO 更新 id
         String tree = null;
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(this.projectPath, this.relativePath)), StandardCharsets.UTF_8));

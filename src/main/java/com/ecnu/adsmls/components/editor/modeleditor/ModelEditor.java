@@ -22,7 +22,6 @@ import java.util.*;
 
 public class ModelEditor extends Editor {
     private GridPane gridPane = new GridPane();
-    private List<Node[]> staticPage = new ArrayList<>();
 
     // 地图文件
     private Node btMap;
@@ -31,7 +30,7 @@ public class ModelEditor extends Editor {
     private int timeStepMin = 1;
     private int timeStepMax = 10;
     private Spinner<Integer> spTimeStep;
-    // TODO 这干啥的？
+
     private Node btSource;
 
     private GridPane gridPaneCar = new GridPane();
@@ -45,7 +44,8 @@ public class ModelEditor extends Editor {
 //    private Map<Integer, ObstaclePane> obstaclePanes = new LinkedHashMap<>();
 
 
-    public ModelEditor() {
+    public ModelEditor(String projectPath, String relativePath) {
+        super(projectPath, relativePath);
         this.createNode();
     }
 
@@ -156,7 +156,7 @@ public class ModelEditor extends Editor {
         this.gridPaneCar.setVgap(8);
 
         Label lbMap = new Label("Map: ");
-        this.btMap = new ChooseFileButton(gridPane).getNode();
+        this.btMap = new ChooseFileButton(this.gridPane, this.projectPath).getNode();
 
         Label lbWeather = new Label("Weather: ");
         String[] weathers = {"clear", "rainy", "foggy"};
@@ -168,7 +168,7 @@ public class ModelEditor extends Editor {
         this.spTimeStep.setPrefWidth(80);
 
         Label lbSource = new Label("Actor Source: ");
-        this.btSource = new ChooseFileButton(gridPane).getNode();
+        this.btSource = new ChooseFileButton(this.gridPane, this.projectPath).getNode();
 
         Label lbCars = new Label("Cars: ");
 
