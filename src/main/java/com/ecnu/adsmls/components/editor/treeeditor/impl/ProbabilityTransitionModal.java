@@ -18,6 +18,8 @@ import javafx.stage.StageStyle;
 public class ProbabilityTransitionModal extends Modal {
     private ProbabilityTransition transition;
 
+    private TextField tfWeight;
+
     private String weight;
 
     public ProbabilityTransitionModal(ProbabilityTransition transition) {
@@ -47,9 +49,9 @@ public class ProbabilityTransitionModal extends Modal {
         super.createWindow();
 
         Label lbWeight = new Label("weight");
-        TextField tfWeight = new TextField(this.weight);
+        this.tfWeight = new TextField(this.weight);
 
-        staticPage.add(0, new Node[] {lbWeight, tfWeight});
+        this.slot.addRow(0, lbWeight, this.tfWeight);
     }
 
     @Override
@@ -72,7 +74,6 @@ public class ProbabilityTransitionModal extends Modal {
     }
 
     public void updateWeight() {
-        TextField tfWeight = (TextField) this.staticPage.get(0)[1];
-        this.weight = tfWeight.getText();
+        this.weight = this.tfWeight.getText();
     }
 }
