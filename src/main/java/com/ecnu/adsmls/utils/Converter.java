@@ -51,6 +51,8 @@ public class Converter {
         BranchPoint branchPoint = new BranchPoint(id, position);
         branchPoint.updateNode();
 
+        // BranchPoint 不创建 TreeText
+
         return branchPoint;
     }
 
