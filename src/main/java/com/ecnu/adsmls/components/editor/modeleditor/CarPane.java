@@ -12,13 +12,13 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
  * 点击 New Car 显示的内容
  */
 public class CarPane {
+    // Project 路径
     private String projectPath;
 
     private GridPane gridPane = new GridPane();
@@ -145,7 +145,7 @@ public class CarPane {
         this.tfRoadDeviation = new TextField();
 
         Label lbDynamic = new Label("Dynamic: ");
-        this.btDynamic = new ChooseFileButton(this.gridPane).getNode();
+        this.btDynamic = new ChooseFileButton(this.gridPane, this.projectPath).getNode();
 
         this.gridPane.addRow(0, lbName, this.tfName);
         this.gridPane.addRow(1, lbModel, this.cbModel);

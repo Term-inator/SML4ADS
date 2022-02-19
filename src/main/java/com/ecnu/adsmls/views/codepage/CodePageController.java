@@ -169,10 +169,8 @@ public class CodePageController implements Initializable, Route {
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
 
-        ModelEditor modelEditor = new ModelEditor();
         String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
-        modelEditor.setProjectPath(projectPath);
-        modelEditor.setRelativePath(FileSystem.getRelativePath(projectPath, file.getAbsolutePath()));
+        ModelEditor modelEditor = new ModelEditor(projectPath, FileSystem.getRelativePath(projectPath, file.getAbsolutePath()));
         modelEditor.load();
 
         scrollPane.setContent(modelEditor.getNode());
@@ -216,10 +214,9 @@ public class CodePageController implements Initializable, Route {
         // TODO ScrollPane 应在 TreeEditor 内部
 
         AnchorPane anchorPane = new AnchorPane();
-        TreeEditor treeEditor = new TreeEditor();
+
         String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
-        treeEditor.setProjectPath(projectPath);
-        treeEditor.setRelativePath(FileSystem.getRelativePath(projectPath, file.getAbsolutePath()));
+        TreeEditor treeEditor = new TreeEditor(projectPath, FileSystem.getRelativePath(projectPath, file.getAbsolutePath()));
         treeEditor.load();
         anchorPane.getChildren().add(treeEditor.getNode());
 

@@ -11,16 +11,22 @@ import javafx.stage.Stage;
 
 import java.io.File;
 
-// TODO 设置当前项目目录为初始目录
 public class ChooseFileButton {
     private File file;
     private Pane rootLayout;
 
     private HBox hBox;
     private Label lbFilename;
+    private String initDir;
 
     public ChooseFileButton(Pane rootLayout) {
         this.rootLayout = rootLayout;
+        this.createNode();
+    }
+
+    public ChooseFileButton(Pane rootLayout, String initDir) {
+        this.rootLayout = rootLayout;
+        this.initDir = initDir;
         this.createNode();
     }
 
@@ -35,12 +41,17 @@ public class ChooseFileButton {
             Stage stage = (Stage) rootLayout.getScene().getWindow();
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Choose File");
+            if(this.initDir != null) {
+                System.out.println(this.initDir);
+                fileChooser.setInitialDirectory(new File(this.initDir));
+            }
             this.file = fileChooser.showOpenDialog(stage);
             if(this.file != null) {
                 this.lbFilename.setText(file.getName());
             }
             stage.sizeToScene();
         });
+        // 自适应大小
         hBox.setUserData(this);
     }
 

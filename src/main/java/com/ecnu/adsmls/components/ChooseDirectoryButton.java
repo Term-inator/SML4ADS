@@ -11,16 +11,22 @@ import javafx.stage.Stage;
 
 import java.io.File;
 
-// TODO 设置当前项目目录为初始目录
 public class ChooseDirectoryButton {
     private File folder;
     private Pane rootLayout;
 
     private HBox hBox;
     private Label lbDirName;
+    private String initDir;
 
     public ChooseDirectoryButton(Pane rootLayout) {
         this.rootLayout = rootLayout;
+        this.createNode();
+    }
+
+    public ChooseDirectoryButton(Pane rootLayout, String initDir) {
+        this.rootLayout = rootLayout;
+        this.initDir = initDir;
         this.createNode();
     }
 
@@ -35,10 +41,14 @@ public class ChooseDirectoryButton {
             Stage stage = (Stage) rootLayout.getScene().getWindow();
             DirectoryChooser dirChooser = new DirectoryChooser();
             dirChooser.setTitle("Choose Directory");
+            if(this.initDir != null) {
+                dirChooser.setInitialDirectory(new File(this.initDir));
+            }
             this.folder = dirChooser.showDialog(stage);
             if(this.folder != null) {
                 this.lbDirName.setText(folder.getAbsolutePath());
             }
+            // 自适应大小
             stage.sizeToScene();
         });
         hBox.setUserData(this);

@@ -12,11 +12,8 @@ public abstract class Editor {
     // 文件在 Project 下的相对路径
     protected String relativePath;
 
-    public void setProjectPath(String projectPath) {
+    public Editor(String projectPath, String relativePath) {
         this.projectPath = projectPath;
-    }
-
-    public void setRelativePath(String relativePath) {
         this.relativePath = relativePath;
     }
 
