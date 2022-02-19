@@ -247,8 +247,11 @@ public class TreeEditor extends Editor {
 
                 if(lambdaContext.node != null) {
                     canvas.getChildren().add(lambdaContext.node);
-                    ((TreeComponent) lambdaContext.node.getUserData()).initTreeText();
-                    canvas.getChildren().add(((TreeComponent) lambdaContext.node.getUserData()).getTreeText().getNode());
+                    // BranchPoint 不创建 TreeText
+                    if(!(lambdaContext.node.getUserData() instanceof BranchPoint)) {
+                        ((TreeComponent) lambdaContext.node.getUserData()).initTreeText();
+                        canvas.getChildren().add(((TreeComponent) lambdaContext.node.getUserData()).getTreeText().getNode());
+                    }
                     this.chooseComponent((Group) lambdaContext.node);
                 }
                 else {

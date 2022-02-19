@@ -78,7 +78,13 @@ public abstract class TreeComponent extends Component {
     public List<Node> remove() {
         List<Node> res = new ArrayList<>();
         res.add(this.graphicNode);
-        res.add(this.treeText.getNode());
+        /*
+         BranchPoint 没有 TreeText
+         所以这里有 TreeText 就删，没有就不删
+         */
+        if(this.treeText != null) {
+            res.add(this.treeText.getNode());
+        }
         return res;
     }
 }
