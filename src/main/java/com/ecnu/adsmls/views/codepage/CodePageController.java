@@ -16,6 +16,7 @@ import com.ecnu.adsmls.utils.FileSystem;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
@@ -131,12 +132,7 @@ public class CodePageController implements Initializable, Route {
             }
             if(e.getClickCount() == 2) {
                 String suffix = FileSystem.getSuffix(selectedItem.getValue());
-                if(Objects.equals(suffix, FileSystem.Suffix.MODEL.value)) {
-                    this.openModel(selectedItem.getValue());
-                }
-                else if(Objects.equals(suffix, FileSystem.Suffix.TREE.value)) {
-                    this.openTree(selectedItem.getValue());
-                }
+                this.openFile(selectedItem.getValue(), suffix);
             }
         });
 
@@ -202,14 +198,11 @@ public class CodePageController implements Initializable, Route {
         }
     }
 
-    private void openModel(File file) {
-        // TODO openFile
+    private void openFile(File file, String suffix) {
         if(this.filesOpened.contains(file)) {
             System.out.println("This file has already been opened");
             return;
         }
-        this.filesOpened.add(file);
-
         Tab tab = new Tab(file.getName());
         tab.setUserData(file);
         tab.setOnClosed(e -> {
@@ -218,6 +211,23 @@ public class CodePageController implements Initializable, Route {
             this.filesOpened.remove(file);
         });
 
+        Node node;
+        if(Objects.equals(suffix, FileSystem.Suffix.MODEL.value)) {
+            node = this.openModel(file);
+        }
+        else if(Objects.equals(suffix, FileSystem.Suffix.TREE.value)) {
+            node = this.openTree(file);
+        }
+        else {
+            System.out.println("Unsupported file");
+            return;
+        }
+        tab.setContent(node);
+        tabPane.getTabs().add(tab);
+        this.filesOpened.add(file);
+    }
+
+    private Node openModel(File file) {
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
@@ -227,8 +237,9 @@ public class CodePageController implements Initializable, Route {
         modelEditor.load();
 
         scrollPane.setContent(modelEditor.getNode());
-        tab.setContent(scrollPane);
-        tabPane.getTabs().add(tab);
+        scrollPane.setUserData(modelEditor);
+
+        return scrollPane;
     }
 
     private void onNewModelClick(ActionEvent event) {
@@ -247,21 +258,7 @@ public class CodePageController implements Initializable, Route {
         this.multiLevelDirectory.updateNode();
     }
 
-    private void openTree(File file) {
-        if(this.filesOpened.contains(file)) {
-            System.out.println("This file has already been opened");
-            return;
-        }
-        this.filesOpened.add(file);
-
-        Tab tab = new Tab(file.getName());
-        tab.setUserData(file);
-        tab.setOnClosed(e -> {
-            System.out.println(tab.getText() + " closed");
-            // TODO unsaved ?
-            this.filesOpened.remove(file);
-        });
-
+    private Node openTree(File file) {
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
@@ -275,10 +272,9 @@ public class CodePageController implements Initializable, Route {
         anchorPane.getChildren().add(treeEditor.getNode());
 
         scrollPane.setContent(anchorPane);
+        scrollPane.setUserData(treeEditor);
 
-        tab.setContent(scrollPane);
-        tab.setUserData(treeEditor);
-        tabPane.getTabs().add(tab);
+        return scrollPane;
     }
 
     private void onNewTreeClick(ActionEvent event) {
