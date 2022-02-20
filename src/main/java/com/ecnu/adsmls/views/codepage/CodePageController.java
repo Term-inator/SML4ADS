@@ -256,6 +256,7 @@ public class CodePageController implements Initializable, Route {
             return;
         }
         this.multiLevelDirectory.updateNode();
+        this.openFile(new File(nmm.getDirectory(), nmm.getFilename() + FileSystem.Suffix.MODEL.value), FileSystem.Suffix.MODEL.value);
     }
 
     private Node openTree(File file) {
@@ -291,5 +292,6 @@ public class CodePageController implements Initializable, Route {
             return;
         }
         this.multiLevelDirectory.updateNode();
+        this.openFile(new File(ntm.getDirectory(), ntm.getFilename() + FileSystem.Suffix.TREE.value), FileSystem.Suffix.TREE.value);
     }
 }
