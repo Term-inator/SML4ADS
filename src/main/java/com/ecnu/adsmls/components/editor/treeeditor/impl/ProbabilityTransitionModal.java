@@ -56,7 +56,7 @@ public class ProbabilityTransitionModal extends Modal {
 
     @Override
     protected void check() {
-        this.checkGuard();
+        this.checkWeight();
     }
 
     @Override
@@ -69,8 +69,15 @@ public class ProbabilityTransitionModal extends Modal {
         this.transition.updateTreeTextPosition();
     }
 
-    private void checkGuard() {
-        // TODO 类型检查
+    private void checkWeight() {
+        try {
+            Integer.parseInt(this.weight);
+        }
+        catch (Exception e) {
+//            e.printStackTrace();
+            System.out.println("Weight should be Integer.");
+            this.valid = false;
+        }
     }
 
     public void updateWeight() {

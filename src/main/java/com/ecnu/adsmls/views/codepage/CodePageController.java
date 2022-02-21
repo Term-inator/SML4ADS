@@ -210,6 +210,7 @@ public class CodePageController implements Initializable, Route {
             }
             return;
         }
+        
         Tab tab = new Tab(file.getName());
         tab.setUserData(file);
         tab.setOnClosed(e -> {
@@ -230,9 +231,9 @@ public class CodePageController implements Initializable, Route {
             return;
         }
         tab.setContent(node);
-        tabPane.getTabs().add(tab);
+        this.tabPane.getTabs().add(tab);
         // 选择该 tab
-        tabPane.getSelectionModel().select(tab);
+        this.tabPane.getSelectionModel().select(tab);
         this.filesOpened.add(file);
     }
 

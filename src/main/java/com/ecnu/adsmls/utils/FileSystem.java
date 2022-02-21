@@ -79,10 +79,14 @@ public class FileSystem {
      * @return 后缀字符串，含 .
      */
     public static String getSuffix(File file) {
-        assert file.isFile();
-        String filename = file.getName();
-        int lastIndexOf = filename.lastIndexOf(".");
-        return filename.substring(lastIndexOf);
+        if(file.isFile()) {
+            String filename = file.getName();
+            int lastIndexOf = filename.lastIndexOf(".");
+            return filename.substring(lastIndexOf);
+        }
+        else {
+            return "";
+        }
     }
 
     /**

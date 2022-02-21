@@ -57,10 +57,11 @@ public class BehaviorModal extends Modal {
 
     private void loadData() {
         this.behaviorName = this.behavior.getName();
-        this.paramsValue = this.behavior.getParams();
+        this.paramsInfo = BehaviorRegister.getParams(this.behaviorName);
+        this.paramsValue = (LinkedHashMap<String, String>) this.behavior.getParams().clone();
 
         int row = 0;
-        for(Map.Entry<String, String> param : paramsValue.entrySet()) {
+        for(Map.Entry<String, String> param : this.paramsValue.entrySet()) {
             Label lbParamName = new Label(param.getKey());
             TextField tfParamValue = new TextField(param.getValue());
             this.behaviorParamsGridPane.addRow(row++, lbParamName, tfParamValue);
@@ -128,12 +129,29 @@ public class BehaviorModal extends Modal {
     }
 
     public void checkParams() {
-        for(Map.Entry<String, String> param : paramsValue.entrySet()) {
+        for(Map.Entry<String, String> param : this.paramsValue.entrySet()) {
             if(Objects.equals(param.getValue(), "")) {
                 this.valid = false;
                 break;
             }
-            // TODO 类型检查
+            // 类型检查
+            try {
+                String key = param.getKey();
+                String value = param.getValue();
+                String type = this.paramsInfo.get(key);
+                if(Objects.equals(type, "int")) {
+                    Integer.parseInt(value);
+                }
+                else if(Objects.equals(type, "double")) {
+                    Double.parseDouble(value);
+                }
+            }
+            catch (Exception e) {
+//                e.printStackTrace();
+                System.out.println("Invalid type of params");
+                this.valid = false;
+                break;
+            }
         }
     }
 }

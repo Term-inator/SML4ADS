@@ -25,6 +25,6 @@ public class NewTreeModal extends NewFileModal {
     }
 
     private void checkFilename() {
-        // TODO 文件名检查
+
     }
 }
