@@ -201,6 +201,13 @@ public class CodePageController implements Initializable, Route {
     private void openFile(File file, String suffix) {
         if(this.filesOpened.contains(file)) {
             System.out.println("This file has already been opened");
+            // 选择对应的 tab
+            for(Tab tab : this.tabPane.getTabs()) {
+                if(Objects.equals(file, tab.getUserData())) {
+                    this.tabPane.getSelectionModel().select(tab);
+                    break;
+                }
+            }
             return;
         }
         Tab tab = new Tab(file.getName());
@@ -224,6 +231,8 @@ public class CodePageController implements Initializable, Route {
         }
         tab.setContent(node);
         tabPane.getTabs().add(tab);
+        // 选择该 tab
+        tabPane.getSelectionModel().select(tab);
         this.filesOpened.add(file);
     }
 
