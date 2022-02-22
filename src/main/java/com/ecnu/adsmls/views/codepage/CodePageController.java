@@ -1,6 +1,7 @@
 package com.ecnu.adsmls.views.codepage;
 
 import com.alibaba.fastjson.JSON;
+import com.ecnu.adsmls.components.editor.Editor;
 import com.ecnu.adsmls.components.editor.modeleditor.ModelEditor;
 import com.ecnu.adsmls.components.editor.treeeditor.TreeEditor;
 import com.ecnu.adsmls.components.modal.NewModelModal;
@@ -203,7 +204,7 @@ public class CodePageController implements Initializable, Route {
             System.out.println("This file has already been opened");
             // 选择对应的 tab
             for(Tab tab : this.tabPane.getTabs()) {
-                if(Objects.equals(file, tab.getUserData())) {
+                if(Objects.equals(file, ((Editor) tab.getUserData()).getFile())) {
                     this.tabPane.getSelectionModel().select(tab);
                     break;
                 }
@@ -212,44 +213,44 @@ public class CodePageController implements Initializable, Route {
         }
         
         Tab tab = new Tab(file.getName());
-        tab.setUserData(file);
         tab.setOnClosed(e -> {
             System.out.println(tab.getText() + " closed");
-            // TODO unsaved ?
+            // 关闭 tab 自动保存
+            ((Editor) tab.getUserData()).save();
             this.filesOpened.remove(file);
         });
 
-        Node node;
         if(Objects.equals(suffix, FileSystem.Suffix.MODEL.value)) {
-            node = this.openModel(file);
+            this.openModel(tab, file);
         }
         else if(Objects.equals(suffix, FileSystem.Suffix.TREE.value)) {
-            node = this.openTree(file);
+            this.openTree(tab, file);
         }
         else {
             System.out.println("Unsupported file");
             return;
         }
-        tab.setContent(node);
+
         this.tabPane.getTabs().add(tab);
         // 选择该 tab
         this.tabPane.getSelectionModel().select(tab);
         this.filesOpened.add(file);
     }
 
-    private Node openModel(File file) {
+    private void openModel(Tab tab, File file) {
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
 
         String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
-        ModelEditor modelEditor = new ModelEditor(projectPath, FileSystem.getRelativePath(projectPath, file.getAbsolutePath()));
+        ModelEditor modelEditor = new ModelEditor(projectPath, file);
         modelEditor.load();
 
         scrollPane.setContent(modelEditor.getNode());
         scrollPane.setUserData(modelEditor);
 
-        return scrollPane;
+        tab.setContent(scrollPane);
+        tab.setUserData(modelEditor);
     }
 
     private void onNewModelClick(ActionEvent event) {
@@ -269,7 +270,7 @@ public class CodePageController implements Initializable, Route {
         this.openFile(new File(nmm.getDirectory(), nmm.getFilename() + FileSystem.Suffix.MODEL.value), FileSystem.Suffix.MODEL.value);
     }
 
-    private Node openTree(File file) {
+    private void openTree(Tab tab, File file) {
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
@@ -278,14 +279,15 @@ public class CodePageController implements Initializable, Route {
         AnchorPane anchorPane = new AnchorPane();
 
         String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
-        TreeEditor treeEditor = new TreeEditor(projectPath, FileSystem.getRelativePath(projectPath, file.getAbsolutePath()));
+        TreeEditor treeEditor = new TreeEditor(projectPath, file);
         treeEditor.load();
         anchorPane.getChildren().add(treeEditor.getNode());
 
         scrollPane.setContent(anchorPane);
         scrollPane.setUserData(treeEditor);
 
-        return scrollPane;
+        tab.setContent(scrollPane);
+        tab.setUserData(treeEditor);
     }
 
     private void onNewTreeClick(ActionEvent event) {

@@ -40,8 +40,8 @@ public class TreeEditor extends Editor {
     // 被选中的组件
     private Group componentChose;
 
-    public TreeEditor(String projectPath, String relativePath) {
-        super(projectPath, relativePath);
+    public TreeEditor(String projectPath, File file) {
+        super(projectPath, file);
         this.createNode();
     }
 
