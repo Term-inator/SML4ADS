@@ -181,7 +181,7 @@ public class CodePageController implements Initializable, Route {
             return;
         }
         // 当前显示的 tab
-        File file = ((File) this.tabPane.getSelectionModel().getSelectedItem().getUserData());
+        File file = ((Editor) this.tabPane.getSelectionModel().getSelectedItem().getUserData()).getFile();
 
         String model = null;
         try {
@@ -221,6 +221,14 @@ public class CodePageController implements Initializable, Route {
             bw.write(model);
             bw.close();
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // 仿真
+        try {
+            this.simulate();
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -331,5 +339,15 @@ public class CodePageController implements Initializable, Route {
         }
         this.multiLevelDirectory.updateNode();
         this.openFile(new File(ntm.getDirectory(), ntm.getFilename() + FileSystem.Suffix.TREE.value), FileSystem.Suffix.TREE.value);
+    }
+
+    private void simulate() throws IOException, InterruptedException {
+        Process process = Runtime.getRuntime().exec("python ./src/main/java/com/ecnu/adsmls/simulator/test.py");
+//        proc.waitFor();
+        BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        String line;
+        while((line = in.readLine()) != null) {
+            System.out.println(line);
+        }
     }
 }
