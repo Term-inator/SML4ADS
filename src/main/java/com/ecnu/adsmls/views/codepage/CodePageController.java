@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.editor.Editor;
 import com.ecnu.adsmls.components.editor.modeleditor.ModelEditor;
 import com.ecnu.adsmls.components.editor.treeeditor.TreeEditor;
+import com.ecnu.adsmls.components.editor.treeeditor.impl.BehaviorRegister;
 import com.ecnu.adsmls.components.modal.NewModelModal;
 import com.ecnu.adsmls.components.modal.NewTreeModal;
 import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
@@ -52,6 +53,7 @@ public class CodePageController implements Initializable, Route {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         System.out.println("init");
+        this.initBehavior();
         this.initMenu();
     }
 
@@ -61,6 +63,30 @@ public class CodePageController implements Initializable, Route {
         this.projectName = CodePageParams.projectName;
         // 更新页面
         this.updateProject();
+    }
+
+    /**
+     * 初始化内置 behavior 及其参数
+     */
+    private void initBehavior() {
+        LinkedHashMap<String, String> params = new LinkedHashMap<>();
+
+        params.put("duration", "int");
+        BehaviorRegister.register("Keep", (LinkedHashMap<String, String>) params.clone());
+
+        params.clear();
+        params.put("acceleration", "double");
+        params.put("target speed", "double");
+        params.put("duration", "int");
+        BehaviorRegister.register("Accelerate", (LinkedHashMap<String, String>) params.clone());
+
+        params.clear();
+        params.put("acceleration", "double");
+        params.put("target speed", "double");
+        BehaviorRegister.register("ChangeLeft", (LinkedHashMap<String, String>) params.clone());
+        BehaviorRegister.register("ChangeRight", (LinkedHashMap<String, String>) params.clone());
+        BehaviorRegister.register("TurnLeft", (LinkedHashMap<String, String>) params.clone());
+        BehaviorRegister.register("TurnRight",(LinkedHashMap<String, String>) params.clone());
     }
 
     private void initMenu() {

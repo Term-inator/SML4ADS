@@ -45,31 +45,9 @@ public class TreeEditor extends Editor {
         this.createNode();
     }
 
-    // TODO 移到外面
-    private void initBehavior() {
-        LinkedHashMap<String, String> params = new LinkedHashMap<>();
-
-        params.put("duration", "int");
-        BehaviorRegister.register("Keep", (LinkedHashMap<String, String>) params.clone());
-
-        params.clear();
-        params.put("acceleration", "double");
-        params.put("target speed", "double");
-        params.put("duration", "int");
-        BehaviorRegister.register("Accelerate", (LinkedHashMap<String, String>) params.clone());
-
-        params.clear();
-        params.put("acceleration", "double");
-        params.put("target speed", "double");
-        BehaviorRegister.register("ChangeLeft", (LinkedHashMap<String, String>) params.clone());
-        BehaviorRegister.register("ChangeRight", (LinkedHashMap<String, String>) params.clone());
-        BehaviorRegister.register("TurnLeft", (LinkedHashMap<String, String>) params.clone());
-        BehaviorRegister.register("TurnRight",(LinkedHashMap<String, String>) params.clone());
-    }
-
     /**
      * 选中组件
-     * @param component
+     * @param component 选中的那个 component
      */
     private void chooseComponent(Group component) {
         if(componentChose != null) {
@@ -84,7 +62,7 @@ public class TreeEditor extends Editor {
 
     /**
      * 使 component 浮于顶层
-     * @param component
+     * @param component 需要浮于顶层的那个 component
      */
     private void raise(Group component) {
         this.canvas.getChildren().remove(component);
@@ -443,7 +421,6 @@ public class TreeEditor extends Editor {
 
     @Override
     protected void createNode() {
-        this.initBehavior();
         this.initPalette();
         this.initCanvas();
 
