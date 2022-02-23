@@ -8,7 +8,6 @@ import java.io.File;
 /**
  * 文件编辑器
  */
-// TODO 是否已经保存
 public abstract class Editor {
     // Project 路径
     protected String projectPath;

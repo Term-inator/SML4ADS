@@ -103,7 +103,6 @@ public class TreeEditor extends Editor {
         });
     }
 
-    // TODO 选中置顶
     public void initCanvas() {
         this.canvasWrapper = new AnchorPane(this.canvas);
 

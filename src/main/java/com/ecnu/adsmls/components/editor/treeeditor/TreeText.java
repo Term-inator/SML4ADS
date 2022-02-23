@@ -30,8 +30,9 @@ public class TreeText extends Area {
 
     @Override
     public Position getCenterPoint() {
-        // TODO
-        return null;
+        double width = this.graphicNode.getBoundsInLocal().getWidth();
+        double height = this.graphicNode.getBoundsInLocal().getHeight();
+        return new Position(this.position.x + width, this.position.y + height);
     }
 
     @Override
