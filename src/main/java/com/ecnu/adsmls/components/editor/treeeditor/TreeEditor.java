@@ -79,6 +79,16 @@ public class TreeEditor extends Editor {
         this.componentChose = component;
         ((TreeComponent) this.componentChose.getUserData()).select();
         ((TreeComponent) this.componentChose.getUserData()).active();
+        this.raise(this.componentChose);
+    }
+
+    /**
+     * 使 component 浮于顶层
+     * @param component
+     */
+    private void raise(Group component) {
+        this.canvas.getChildren().remove(component);
+        this.canvas.getChildren().add(component);
     }
 
     private void initPalette() {
@@ -270,7 +280,6 @@ public class TreeEditor extends Editor {
             int clickCount = e.getClickCount();
             System.out.println("choose behavior");
             this.chooseComponent((Group) behaviorNode);
-            System.out.println(((Behavior) this.componentChose.getUserData()).getPosition());
             if(clickCount == 2) {
                 System.out.println("set behavior");
 
