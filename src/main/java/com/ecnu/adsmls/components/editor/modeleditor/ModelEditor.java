@@ -155,6 +155,7 @@ public class ModelEditor extends Editor {
         this.gridPaneCar.setHgap(8);
         this.gridPaneCar.setVgap(8);
 
+        // TODO .xodr
         Label lbMap = new Label("Map: ");
         this.btMap = new ChooseFileButton(this.gridPane, this.projectPath).getNode();
 
@@ -163,10 +164,12 @@ public class ModelEditor extends Editor {
         this.cbWeather = new ComboBox<>(FXCollections.observableArrayList(weathers));
         this.cbWeather.getSelectionModel().select(0);
 
+        // TODO 0-1
         Label lbTimeStep = new Label("Time Step: ");
         this.spTimeStep = new Spinner<>(this.timeStepMin, this.timeStepMax, 1);
         this.spTimeStep.setPrefWidth(80);
 
+        // TODO .model
         Label lbSource = new Label("Actor Source: ");
         this.btSource = new ChooseFileButton(this.gridPane, this.projectPath).getNode();
 
