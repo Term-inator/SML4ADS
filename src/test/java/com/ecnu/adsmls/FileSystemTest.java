@@ -43,4 +43,10 @@ public class FileSystemTest {
 //        this.relativePath(base, FileSystem.getRelativePath(base, file));
         System.out.println(FileSystem.getRelativePath(base, file));
     }
+
+    @Test
+    public void getSuffix() {
+        String filename = "D:/test/model.modelmodel";
+        System.out.println(FileSystem.getSuffix(new File(filename)));
+    }
 }

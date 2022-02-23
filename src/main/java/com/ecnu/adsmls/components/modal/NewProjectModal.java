@@ -73,7 +73,6 @@ public class NewProjectModal extends Modal {
     }
 
     private void checkDirectory() {
-        // TODO 路径检查
     }
 
     private void updateProjectName() {
@@ -81,7 +80,6 @@ public class NewProjectModal extends Modal {
     }
 
     private void checkProjectName() {
-        // TODO 文件名检查
         if(Objects.equals(this.projectName, "")) {
             this.valid = false;
         }

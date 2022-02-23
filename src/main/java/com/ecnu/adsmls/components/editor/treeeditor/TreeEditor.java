@@ -40,36 +40,14 @@ public class TreeEditor extends Editor {
     // 被选中的组件
     private Group componentChose;
 
-    public TreeEditor(String projectPath, String relativePath) {
-        super(projectPath, relativePath);
+    public TreeEditor(String projectPath, File file) {
+        super(projectPath, file);
         this.createNode();
-    }
-
-    // TODO 移到外面
-    private void initBehavior() {
-        LinkedHashMap<String, String> params = new LinkedHashMap<>();
-
-        params.put("duration", "int");
-        BehaviorRegister.register("Keep", (LinkedHashMap<String, String>) params.clone());
-
-        params.clear();
-        params.put("acceleration", "double");
-        params.put("target speed", "double");
-        params.put("duration", "int");
-        BehaviorRegister.register("Accelerate", (LinkedHashMap<String, String>) params.clone());
-
-        params.clear();
-        params.put("acceleration", "double");
-        params.put("target speed", "double");
-        BehaviorRegister.register("ChangeLeft", (LinkedHashMap<String, String>) params.clone());
-        BehaviorRegister.register("ChangeRight", (LinkedHashMap<String, String>) params.clone());
-        BehaviorRegister.register("TurnLeft", (LinkedHashMap<String, String>) params.clone());
-        BehaviorRegister.register("TurnRight",(LinkedHashMap<String, String>) params.clone());
     }
 
     /**
      * 选中组件
-     * @param component
+     * @param component 选中的那个 component
      */
     private void chooseComponent(Group component) {
         if(componentChose != null) {
@@ -79,6 +57,16 @@ public class TreeEditor extends Editor {
         this.componentChose = component;
         ((TreeComponent) this.componentChose.getUserData()).select();
         ((TreeComponent) this.componentChose.getUserData()).active();
+        this.raise(this.componentChose);
+    }
+
+    /**
+     * 使 component 浮于顶层
+     * @param component 需要浮于顶层的那个 component
+     */
+    private void raise(Group component) {
+        this.canvas.getChildren().remove(component);
+        this.canvas.getChildren().add(component);
     }
 
     private void initPalette() {
@@ -115,7 +103,6 @@ public class TreeEditor extends Editor {
         });
     }
 
-    // TODO 选中置顶
     public void initCanvas() {
         this.canvasWrapper = new AnchorPane(this.canvas);
 
@@ -270,7 +257,6 @@ public class TreeEditor extends Editor {
             int clickCount = e.getClickCount();
             System.out.println("choose behavior");
             this.chooseComponent((Group) behaviorNode);
-            System.out.println(((Behavior) this.componentChose.getUserData()).getPosition());
             if(clickCount == 2) {
                 System.out.println("set behavior");
 
@@ -434,7 +420,6 @@ public class TreeEditor extends Editor {
 
     @Override
     protected void createNode() {
-        this.initBehavior();
         this.initPalette();
         this.initCanvas();
 

@@ -44,8 +44,8 @@ public class ModelEditor extends Editor {
 //    private Map<Integer, ObstaclePane> obstaclePanes = new LinkedHashMap<>();
 
 
-    public ModelEditor(String projectPath, String relativePath) {
-        super(projectPath, relativePath);
+    public ModelEditor(String projectPath, File file) {
+        super(projectPath, file);
         this.createNode();
     }
 
