@@ -341,8 +341,12 @@ public class CodePageController implements Initializable, Route {
         this.openFile(new File(ntm.getDirectory(), ntm.getFilename() + FileSystem.Suffix.TREE.value), FileSystem.Suffix.TREE.value);
     }
 
+    private void onNewDirectoryClick(ActionEvent event) {
+
+    }
+
     private void simulate() throws IOException, InterruptedException {
-        Process process = Runtime.getRuntime().exec("python ./src/main/java/com/ecnu/adsmls/simulator/test.py");
+        Process process = Runtime.getRuntime().exec("python ./src/main/java/com/ecnu/adsmls/simulator/run.py --file ./a.adsml");
 //        proc.waitFor();
         BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
         String line;
