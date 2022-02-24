@@ -6,6 +6,7 @@ import com.ecnu.adsmls.components.editor.modeleditor.ModelEditor;
 import com.ecnu.adsmls.components.editor.treeeditor.TreeEditor;
 import com.ecnu.adsmls.components.editor.treeeditor.impl.BehaviorRegister;
 import com.ecnu.adsmls.components.modal.NewDirectoryModal;
+import com.ecnu.adsmls.components.modal.NewFileModal;
 import com.ecnu.adsmls.components.modal.NewModelModal;
 import com.ecnu.adsmls.components.modal.NewTreeModal;
 import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
@@ -100,11 +101,17 @@ public class CodePageController implements Initializable, Route {
 
         Menu newMenu = new Menu("New");
         MenuItem newDirectory = new MenuItem("Directory");
-        newDirectory.setOnAction(this::onNewDirectoryClick);
+        newDirectory.setOnAction(e -> {
+            this.newFile(FileSystem.Suffix.DIR.value);
+        });
         MenuItem newModel = new MenuItem("Model");
-        newModel.setOnAction(this::onNewModelClick);
+        newModel.setOnAction(e -> {
+            this.newFile(FileSystem.Suffix.MODEL.value);
+        });
         MenuItem newTree = new MenuItem("Tree");
-        newTree.setOnAction(this::onNewTreeClick);
+        newTree.setOnAction(e -> {
+            this.newFile(FileSystem.Suffix.TREE.value);
+        });
         newMenu.getItems().addAll(newDirectory, newModel, newTree);
 
         MenuItem closeProject = new MenuItem("Close Project");
@@ -129,11 +136,17 @@ public class CodePageController implements Initializable, Route {
     private void initMultiLevelDirectoryMenu() {
         Menu newMenu = new Menu("New");
         MenuItem newDirectory = new MenuItem("Directory");
-        newDirectory.setOnAction(this::onNewDirectoryClick);
+        newDirectory.setOnAction(e -> {
+            this.newFile(FileSystem.Suffix.DIR.value);
+        });
         MenuItem newModel = new MenuItem("Model");
-        newModel.setOnAction(this::onNewModelClick);
+        newModel.setOnAction(e -> {
+            this.newFile(FileSystem.Suffix.MODEL.value);
+        });
         MenuItem newTree = new MenuItem("Tree");
-        newTree.setOnAction(this::onNewTreeClick);
+        newTree.setOnAction(e -> {
+            this.newFile(FileSystem.Suffix.TREE.value);
+        });
         newMenu.getItems().addAll(newDirectory, newModel, newTree);
 
         MenuItem delete = new MenuItem("Delete");
@@ -274,6 +287,38 @@ public class CodePageController implements Initializable, Route {
         this.filesOpened.add(file);
     }
 
+    private void newFile(String suffix) {
+        NewFileModal nfm;
+        if(Objects.equals(suffix, FileSystem.Suffix.MODEL.value)) {
+            nfm = new NewModelModal();
+        }
+        else if(Objects.equals(suffix, FileSystem.Suffix.TREE.value)) {
+            nfm = new NewTreeModal();
+        }
+        else if(Objects.equals(suffix, FileSystem.Suffix.DIR.value)) {
+            nfm = new NewDirectoryModal();
+        }
+        else {
+            System.out.println("Unsupported file");
+            return;
+        }
+
+        nfm.setDirectory(this.multiLevelDirectory.getTreeView().getFocusModel().getFocusedItem().getValue());
+        nfm.getWindow().showAndWait();
+        if(!nfm.isConfirm()) {
+            return;
+        }
+        if(!nfm.isSucceed()) {
+            System.out.println("File or directory already exists");
+            return;
+        }
+        this.multiLevelDirectory.updateNode();
+
+        if(!Objects.equals(suffix, FileSystem.Suffix.DIR.value)) {
+            this.openFile(new File(nfm.getDirectory(), nfm.getFilename() + suffix), suffix);
+        }
+    }
+
     private void openModel(Tab tab, File file) {
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setFitToWidth(true);
@@ -288,23 +333,6 @@ public class CodePageController implements Initializable, Route {
 
         tab.setContent(scrollPane);
         tab.setUserData(modelEditor);
-    }
-
-    private void onNewModelClick(ActionEvent event) {
-        System.out.println("Model");
-
-        NewModelModal nmm = new NewModelModal();
-        nmm.setDirectory(this.multiLevelDirectory.getTreeView().getFocusModel().getFocusedItem().getValue());
-        nmm.getWindow().showAndWait();
-        if(!nmm.isConfirm()) {
-            return;
-        }
-        if(!nmm.isSucceed()) {
-            System.out.println("File already exists");
-            return;
-        }
-        this.multiLevelDirectory.updateNode();
-        this.openFile(new File(nmm.getDirectory(), nmm.getFilename() + FileSystem.Suffix.MODEL.value), FileSystem.Suffix.MODEL.value);
     }
 
     private void openTree(Tab tab, File file) {
@@ -325,39 +353,6 @@ public class CodePageController implements Initializable, Route {
 
         tab.setContent(scrollPane);
         tab.setUserData(treeEditor);
-    }
-
-    private void onNewTreeClick(ActionEvent event) {
-        System.out.println("Tree");
-
-        NewTreeModal ntm = new NewTreeModal();
-        ntm.setDirectory(this.multiLevelDirectory.getTreeView().getFocusModel().getFocusedItem().getValue());
-        ntm.getWindow().showAndWait();
-        if(!ntm.isConfirm()) {
-            return;
-        }
-        if(!ntm.isSucceed()) {
-            System.out.println("File already exists");
-            return;
-        }
-        this.multiLevelDirectory.updateNode();
-        this.openFile(new File(ntm.getDirectory(), ntm.getFilename() + FileSystem.Suffix.TREE.value), FileSystem.Suffix.TREE.value);
-    }
-
-    private void onNewDirectoryClick(ActionEvent event) {
-        System.out.println("dir");
-
-        NewDirectoryModal ndm = new NewDirectoryModal();
-        ndm.setDirectory(this.multiLevelDirectory.getTreeView().getFocusModel().getFocusedItem().getValue());
-        ndm.getWindow().showAndWait();;
-        if(!ndm.isConfirm()) {
-            return;
-        }
-        if(!ndm.isSucceed()) {
-            System.out.println("Directory already exists");
-            return;
-        }
-        this.multiLevelDirectory.updateNode();
     }
 
     private void simulate() throws IOException, InterruptedException {
