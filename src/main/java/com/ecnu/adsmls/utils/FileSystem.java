@@ -86,7 +86,7 @@ public class FileSystem {
             return filename.substring(lastIndexOf);
         }
         else {
-            return "";
+            return Suffix.DIR.value;
         }
     }
 

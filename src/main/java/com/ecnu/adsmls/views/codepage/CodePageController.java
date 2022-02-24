@@ -5,6 +5,7 @@ import com.ecnu.adsmls.components.editor.Editor;
 import com.ecnu.adsmls.components.editor.modeleditor.ModelEditor;
 import com.ecnu.adsmls.components.editor.treeeditor.TreeEditor;
 import com.ecnu.adsmls.components.editor.treeeditor.impl.BehaviorRegister;
+import com.ecnu.adsmls.components.modal.NewDirectoryModal;
 import com.ecnu.adsmls.components.modal.NewModelModal;
 import com.ecnu.adsmls.components.modal.NewTreeModal;
 import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
@@ -99,6 +100,7 @@ public class CodePageController implements Initializable, Route {
 
         Menu newMenu = new Menu("New");
         MenuItem newDirectory = new MenuItem("Directory");
+        newDirectory.setOnAction(this::onNewDirectoryClick);
         MenuItem newModel = new MenuItem("Model");
         newModel.setOnAction(this::onNewModelClick);
         MenuItem newTree = new MenuItem("Tree");
@@ -127,6 +129,7 @@ public class CodePageController implements Initializable, Route {
     private void initMultiLevelDirectoryMenu() {
         Menu newMenu = new Menu("New");
         MenuItem newDirectory = new MenuItem("Directory");
+        newDirectory.setOnAction(this::onNewDirectoryClick);
         MenuItem newModel = new MenuItem("Model");
         newModel.setOnAction(this::onNewModelClick);
         MenuItem newTree = new MenuItem("Tree");
@@ -342,7 +345,19 @@ public class CodePageController implements Initializable, Route {
     }
 
     private void onNewDirectoryClick(ActionEvent event) {
+        System.out.println("dir");
 
+        NewDirectoryModal ndm = new NewDirectoryModal();
+        ndm.setDirectory(this.multiLevelDirectory.getTreeView().getFocusModel().getFocusedItem().getValue());
+        ndm.getWindow().showAndWait();;
+        if(!ndm.isConfirm()) {
+            return;
+        }
+        if(!ndm.isSucceed()) {
+            System.out.println("Directory already exists");
+            return;
+        }
+        this.multiLevelDirectory.updateNode();
     }
 
     private void simulate() throws IOException, InterruptedException {
