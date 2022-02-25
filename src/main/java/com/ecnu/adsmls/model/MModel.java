@@ -10,7 +10,7 @@ public class MModel {
 
     private String source;
 
-    private int timeStep;
+    private double timeStep;
 
     private List<MCar> cars = new ArrayList<>();
 
@@ -49,11 +49,11 @@ public class MModel {
         this.source = source;
     }
 
-    public int getTimeStep() {
+    public double getTimeStep() {
         return timeStep;
     }
 
-    public void setTimeStep(int timeStep) {
+    public void setTimeStep(double timeStep) {
         this.timeStep = timeStep;
     }
 

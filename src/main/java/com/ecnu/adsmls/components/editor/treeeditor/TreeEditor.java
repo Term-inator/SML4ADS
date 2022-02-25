@@ -427,6 +427,7 @@ public class TreeEditor extends Editor {
         this.splitPane.setDividerPositions(.1f);
     }
 
+    @Override
     public Node getNode() {
         return this.splitPane;
     }

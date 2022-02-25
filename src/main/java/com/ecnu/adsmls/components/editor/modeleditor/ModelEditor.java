@@ -27,9 +27,9 @@ public class ModelEditor extends Editor {
     private Node btMap;
     // 天气
     private ComboBox<String> cbWeather;
-    private int timeStepMin = 1;
-    private int timeStepMax = 10;
-    private Spinner<Integer> spTimeStep;
+    private double timeStepMin = 0.1;
+    private double timeStepMax = 10.0;
+    private Spinner<Double> spTimeStep;
 
     private Node btSource;
 
@@ -39,7 +39,7 @@ public class ModelEditor extends Editor {
     private Map<Integer, CarPane> carPanes = new LinkedHashMap<>();
 
     private GridPane gridPanePedestrian = new GridPane();
-//    private Map<Integer, PedestrianPane> pedestrianPanes = new LinkedHashMap<>();
+    //    private Map<Integer, PedestrianPane> pedestrianPanes = new LinkedHashMap<>();
     private GridPane gridPaneObstacle = new GridPane();
 //    private Map<Integer, ObstaclePane> obstaclePanes = new LinkedHashMap<>();
 
@@ -51,7 +51,7 @@ public class ModelEditor extends Editor {
 
     private void updateGridPane(GridPane gridPane, List<Node[]> page) {
         gridPane.getChildren().clear();
-        for(int r = 0; r < page.size(); ++r) {
+        for (int r = 0; r < page.size(); ++r) {
             gridPane.addRow(r, page.get(r));
         }
     }
@@ -60,10 +60,9 @@ public class ModelEditor extends Editor {
     public void save() {
         MModel mModel = new MModel();
         File map = ((ChooseFileButton) this.btMap.getUserData()).getFile();
-        if(map == null) {
+        if (map == null) {
             mModel.setMap("");
-        }
-        else {
+        } else {
             // 转换成相对路径
             String path = map.getAbsolutePath();
             String relativePath = FileSystem.getRelativePath(this.projectPath, path);
@@ -74,10 +73,9 @@ public class ModelEditor extends Editor {
         mModel.setTimeStep(this.spTimeStep.getValue());
 
         File source = ((ChooseFileButton) this.btSource.getUserData()).getFile();
-        if(source == null) {
+        if (source == null) {
             mModel.setSource("");
-        }
-        else {
+        } else {
             // 转换成相对路径
             String path = source.getAbsolutePath();
             String relativePath = FileSystem.getRelativePath(this.projectPath, path);
@@ -85,7 +83,7 @@ public class ModelEditor extends Editor {
         }
 
         List<MCar> cars = new ArrayList<>();
-        for(Map.Entry<Integer, CarPane> entry : this.carPanes.entrySet()) {
+        for (Map.Entry<Integer, CarPane> entry : this.carPanes.entrySet()) {
             CarPane carPane = entry.getValue();
             cars.add(carPane.save());
         }
@@ -93,7 +91,7 @@ public class ModelEditor extends Editor {
         String model = JSON.toJSONString(mModel);
         System.out.println(model);
         try {
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(this.projectPath, this.relativePath),false), StandardCharsets.UTF_8));
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(this.projectPath, this.relativePath), false), StandardCharsets.UTF_8));
             bw.write(model);
             bw.close();
         } catch (IOException e) {
@@ -111,22 +109,22 @@ public class ModelEditor extends Editor {
             e.printStackTrace();
         }
         MModel mModel = JSON.parseObject(model, MModel.class);
-        if(mModel == null) {
+        if (mModel == null) {
             return;
         }
         System.out.println(model);
 
-        if(!Objects.equals(mModel.getMap(), "")) {
+        if (!Objects.equals(mModel.getMap(), "")) {
             // 恢复绝对路径
             ((ChooseFileButton) this.btMap.getUserData()).setFile(new File(this.projectPath, mModel.getMap()));
         }
         this.cbWeather.getSelectionModel().select(mModel.getWeather());
-        this.spTimeStep.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(this.timeStepMin, this.timeStepMax, mModel.getTimeStep()));
-        if(!Objects.equals(mModel.getSource(), "")) {
+        this.spTimeStep.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(this.timeStepMin, this.timeStepMax, mModel.getTimeStep()));
+        if (!Objects.equals(mModel.getSource(), "")) {
             // 恢复绝对路径
             ((ChooseFileButton) this.btSource.getUserData()).setFile(new File(this.projectPath, mModel.getSource()));
         }
-        for(MCar mCar : mModel.getCars()) {
+        for (MCar mCar : mModel.getCars()) {
             CarPane carPane = new CarPane(this.projectPath);
             // 设置 carPane 数据
             carPane.load(mCar);
@@ -143,7 +141,7 @@ public class ModelEditor extends Editor {
 
         this.gridPane.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             System.out.println(e);
-            if(e.isControlDown() && e.getCode() == KeyCode.S) {
+            if (e.isControlDown() && e.getCode() == KeyCode.S) {
                 this.save();
             }
         });
@@ -159,12 +157,12 @@ public class ModelEditor extends Editor {
         this.btMap = new ChooseFileButton(this.gridPane, this.projectPath).getNode();
 
         Label lbWeather = new Label("Weather: ");
-        String[] weathers = {"clear", "rainy", "foggy"};
+        String[] weathers = {"clear", "rainy", "foggy", "待定 提供不同仿真器支持的天气选项"};
         this.cbWeather = new ComboBox<>(FXCollections.observableArrayList(weathers));
         this.cbWeather.getSelectionModel().select(0);
 
         Label lbTimeStep = new Label("Time Step: ");
-        this.spTimeStep = new Spinner<>(this.timeStepMin, this.timeStepMax, 1);
+        this.spTimeStep = new Spinner<>(this.timeStepMin, this.timeStepMax, 0.1, 0.1);
         this.spTimeStep.setPrefWidth(80);
 
         Label lbSource = new Label("Actor Source: ");
@@ -200,6 +198,7 @@ public class ModelEditor extends Editor {
 
     /**
      * 显示一个 carPane
+     *
      * @param carPane
      */
     private void newCar(CarPane carPane) {
@@ -217,12 +216,12 @@ public class ModelEditor extends Editor {
         List<Node[]> page = new ArrayList<>();
 
         int i = 0;
-        for(Map.Entry<Integer, CarPane> entry : this.carPanes.entrySet()) {
+        for (Map.Entry<Integer, CarPane> entry : this.carPanes.entrySet()) {
             CarPane car = entry.getValue();
-            if(i != 0) {
+            if (i != 0) {
                 Separator separator1 = new Separator();
                 Separator separator2 = new Separator();
-                page.add(new Node[] {separator1, separator2});
+                page.add(new Node[]{separator1, separator2});
             }
             AnchorPane buttonWrapper = new AnchorPane();
             Button btDelete = new Button("Delete");
@@ -231,7 +230,7 @@ public class ModelEditor extends Editor {
             });
             buttonWrapper.getChildren().add(btDelete);
             AnchorPane.setTopAnchor(btDelete, 0.0);
-            page.add(new Node[] {car.getNode(), buttonWrapper});
+            page.add(new Node[]{car.getNode(), buttonWrapper});
             ++i;
         }
 
