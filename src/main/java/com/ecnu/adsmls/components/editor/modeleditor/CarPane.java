@@ -1,6 +1,7 @@
 package com.ecnu.adsmls.components.editor.modeleditor;
 
 import com.ecnu.adsmls.components.ChooseFileButton;
+import com.ecnu.adsmls.components.editor.treeeditor.impl.BehaviorRegister;
 import com.ecnu.adsmls.model.MCar;
 import com.ecnu.adsmls.utils.FileSystem;
 import javafx.collections.FXCollections;
@@ -10,6 +11,9 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 
 import java.io.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -28,18 +32,10 @@ public class CarPane {
     private TextField tfMaxSpeed;
     // 初速度
     private TextField tfInitSpeed;
-
-    private TextField tfRoadId;
-
-//    private TextField tfLaneSectionId;
-
-    private TextField tfLaneId;
-
-//    // 道路过滤器
-//    private TextArea taFilter;
-
-    // 偏移量 [0, 1]，表示 Car 所在位置离 Road 起点的距离 / Road 总长
-    private TextField tfOffset;
+    // 位置
+    private ComboBox<String> cbLocation;
+    // 位置参数
+    private GridPane gridPaneLocationParams;
     // 朝向，和路同向或反向
     private ComboBox<String> cbHeading;
     // 偏移程度
@@ -58,11 +54,23 @@ public class CarPane {
         car.setModel(this.cbModel.getValue());
         car.setMaxSpeed(Double.parseDouble(this.tfMaxSpeed.getText()));
         car.setInitSpeed(Double.parseDouble(this.tfInitSpeed.getText()));
-        car.setRoadId(Integer.parseInt(this.tfRoadId.getText()));
-//        car.setLaneSecId(Integer.parseInt(this.tfLaneSectionId.getText()));
-        car.setLaneId(Integer.parseInt(this.tfLaneId.getText()));
-//        car.setFilter(this.taFilter.getText());
-        car.setOffset(Double.parseDouble(this.tfOffset.getText()));
+        car.setLocationType(this.cbLocation.getValue());
+
+        // TODO 参数检查
+        LinkedHashMap<String, String> locationParams = new LinkedHashMap<>();
+        String locationParamName = "";
+        String locationParamValue = "";
+        for(Node node : this.gridPaneLocationParams.getChildren()) {
+            if(node instanceof Label) {
+                locationParamName = ((Label) node).getText();
+            }
+            else if(node instanceof TextField) {
+                locationParamValue = ((TextField) node).getText();
+                locationParams.put(locationParamName, locationParamValue);
+            }
+        }
+        car.setLocationParams(locationParams);
+
         car.setHeading(Objects.equals("same", this.cbHeading.getValue()));
         car.setRoadDeviation(Double.parseDouble(this.tfRoadDeviation.getText()));
         // 转换成相对路径
@@ -77,11 +85,18 @@ public class CarPane {
         this.cbModel.getSelectionModel().select(mCar.getModel());
         this.tfMaxSpeed.setText(String.valueOf(mCar.getMaxSpeed()));
         this.tfInitSpeed.setText(String.valueOf(mCar.getInitSpeed()));
-        this.tfRoadId.setText(String.valueOf(mCar.getRoadId()));
-//        this.tfLaneSectionId.setText(String.valueOf(mCar.getLaneSecId()));
-        this.tfLaneId.setText(String.valueOf(mCar.getLaneId()));
-//        this.taFilter.setText(mCar.getFilter());
-        this.tfOffset.setText(String.valueOf(mCar.getOffset()));
+        this.cbLocation.getSelectionModel().select(mCar.getLocationType());
+
+        String locationParamName = "";
+        for(Node node : this.gridPaneLocationParams.getChildren()) {
+            if(node instanceof Label) {
+                locationParamName = ((Label) node).getText();
+            }
+            else if(node instanceof TextField) {
+                ((TextField) node).setText(mCar.getLocationParams().get(locationParamName));
+            }
+        }
+
         this.cbHeading.getSelectionModel().select(mCar.getHeading() ? "same" : "opposite");
         this.tfRoadDeviation.setText(String.valueOf(mCar.getRoadDeviation()));
         // 恢复绝对路径
@@ -107,29 +122,24 @@ public class CarPane {
         this.tfInitSpeed = new TextField();
 
         Label lbLocation = new Label("location: ");
-        GridPane gridPaneLocation = new GridPane();
-        gridPaneLocation.setPrefWidth(280);
-        gridPaneLocation.setPadding(new Insets(0, 0, 0 , 20));
-        gridPaneLocation.setHgap(8);
-        gridPaneLocation.setVgap(8);
-        Label lbRoadId = new Label("road: ");
-        this.tfRoadId = new TextField();
-//        Label lbLaneSectionId = new Label("lane section: ");
-//        this.tfLaneSectionId = new TextField();
-        Label lbLaneId = new Label("lane: ");
-        this.tfLaneId = new TextField();
-//        Label lbFilter = new Label("filter: ");
-//        this.taFilter = new TextArea();
-//        this.taFilter.setPrefRowCount(10);
-//        this.taFilter.setMinHeight(100);
-//        this.taFilter.setPrefColumnCount(15);
-        Label lbOffset = new Label("offset: ");
-        this.tfOffset = new TextField();
-        gridPaneLocation.addRow(0, lbRoadId, this.tfRoadId);
-        gridPaneLocation.addRow(1, lbLaneId, this.tfLaneId);
-//        gridPaneLocation.addRow(2, lbLaneSectionId, this.tfLaneSectionId);
-//        gridPaneLocation.addRow(3, lbFilter, this.taFilter);
-        gridPaneLocation.addRow(2, lbOffset, this.tfOffset);
+        List<String> behaviorNames = LocationRegister.getLocationTypes();
+        this.cbLocation = new ComboBox<>(FXCollections.observableArrayList(behaviorNames));
+        this.gridPaneLocationParams = new GridPane();
+        gridPaneLocationParams.setPadding(new Insets(0, 0, 0, 20));
+        gridPaneLocationParams.setHgap(8);
+        gridPaneLocationParams.setVgap(8);
+        cbLocation.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            gridPaneLocationParams.getChildren().clear();
+
+            LinkedHashMap<String, String> paramsInfo = LocationRegister.getParams(newValue);
+            // 生成界面
+            int row = 0;
+            for(Map.Entry<String, String> param : paramsInfo.entrySet()) {
+                Label lbParamName = new Label(param.getKey());
+                TextField tfParamValue = new TextField();
+                gridPaneLocationParams.addRow(row++, lbParamName, tfParamValue);
+            }
+        });
 
         Label lbHeading = new Label("heading: ");
         this.cbHeading = new ComboBox<>(FXCollections.observableArrayList("same", "opposite"));
@@ -138,6 +148,7 @@ public class CarPane {
         Label lbRoadDeviation = new Label("road deviation: ");
         this.tfRoadDeviation = new TextField();
 
+        // TODO 非强制 .tree
         Label lbDynamic = new Label("Dynamic: ");
         this.btDynamic = new ChooseFileButton(this.gridPane, this.projectPath).getNode();
 
@@ -145,8 +156,8 @@ public class CarPane {
         this.gridPane.addRow(1, lbModel, this.cbModel);
         this.gridPane.addRow(2, lbMaxSpeed, this.tfMaxSpeed);
         this.gridPane.addRow(3, lbInitSpeed, this.tfInitSpeed);
-        this.gridPane.addRow(4, lbLocation);
-        this.gridPane.add(gridPaneLocation, 0, 5, 2, 1);
+        this.gridPane.addRow(4, lbLocation, cbLocation);
+        this.gridPane.add(gridPaneLocationParams, 0, 5, 2, 1);
         this.gridPane.addRow(6, lbHeading, this.cbHeading);
         this.gridPane.addRow(7, lbRoadDeviation, this.tfRoadDeviation);
         this.gridPane.addRow(8, lbDynamic, this.btDynamic);

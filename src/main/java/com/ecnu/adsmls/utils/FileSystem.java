@@ -15,6 +15,7 @@ public class FileSystem {
         TREE(".tree"),
         MODEL(".model"),
         JSON(".json"),
+        MAP(".xodr"),
         DIR("");
 
         public String value;
@@ -85,7 +86,7 @@ public class FileSystem {
             return filename.substring(lastIndexOf);
         }
         else {
-            return "";
+            return Suffix.DIR.value;
         }
     }
 
