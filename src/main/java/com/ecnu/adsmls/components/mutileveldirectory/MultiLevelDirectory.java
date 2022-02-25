@@ -57,9 +57,6 @@ public class MultiLevelDirectory {
         this.treeView.setCellFactory(TextFieldTreeCell.forTreeView(new StringConverter<File>() {
             @Override
             public String toString(File object) {
-                if(object == null) {
-                    return "";
-                }
                 return object.getName();
             }
 
@@ -107,10 +104,6 @@ public class MultiLevelDirectory {
             }
             else {
                 TreeItem<File> treeItem = new TreeItem<>(file);
-                // 为了让文件夹有展开箭头（能被展开），对内部有文件的文件夹进行填充
-                if(file.listFiles() != null && file.listFiles().length != 0) {
-                    treeItem.getChildren().add(new TreeItem<>());
-                }
                 treeItems.add(treeItem);
             }
         }
