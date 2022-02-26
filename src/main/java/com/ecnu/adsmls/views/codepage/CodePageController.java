@@ -1,6 +1,7 @@
 package com.ecnu.adsmls.views.codepage;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.SymbolTable;
 import com.ecnu.adsmls.components.editor.Editor;
 import com.ecnu.adsmls.components.editor.modeleditor.ModelEditor;
 import com.ecnu.adsmls.components.editor.treeeditor.TreeEditor;
@@ -18,6 +19,7 @@ import com.ecnu.adsmls.router.Router;
 import com.ecnu.adsmls.router.params.CodePageParams;
 import com.ecnu.adsmls.utils.FileSystem;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -45,7 +47,7 @@ public class CodePageController implements Initializable, Route {
     @FXML
     private TabPane tabPane;
     // 正在被访问的文件
-    private Set<File> filesOpened = new HashSet<>();
+    private Map<File, Tab> filesOpened = new HashMap<>();
 
     // 项目路径
     private String directory;
@@ -150,6 +152,9 @@ public class CodePageController implements Initializable, Route {
         newMenu.getItems().addAll(newDirectory, newModel, newTree);
 
         MenuItem delete = new MenuItem("Delete");
+        delete.setOnAction(e -> {
+            this.deleteFile();
+        });
 
         this.multiLevelDirectoryMenu.add(newMenu);
         this.multiLevelDirectoryMenu.add(delete);
@@ -203,6 +208,7 @@ public class CodePageController implements Initializable, Route {
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
             model = br.readLine();
+            br.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -219,6 +225,7 @@ public class CodePageController implements Initializable, Route {
             try {
                 BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(projectPath, treePath)), StandardCharsets.UTF_8));
                 tree = br.readLine();
+                br.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -250,7 +257,7 @@ public class CodePageController implements Initializable, Route {
     }
 
     private void openFile(File file, String suffix) {
-        if(this.filesOpened.contains(file)) {
+        if(this.filesOpened.containsKey(file)) {
             System.out.println("This file has already been opened");
             // 选择对应的 tab
             for(Tab tab : this.tabPane.getTabs()) {
@@ -284,7 +291,7 @@ public class CodePageController implements Initializable, Route {
         this.tabPane.getTabs().add(tab);
         // 选择该 tab
         this.tabPane.getSelectionModel().select(tab);
-        this.filesOpened.add(file);
+        this.filesOpened.put(file, tab);
     }
 
     private void newFile(String suffix) {
@@ -312,11 +319,53 @@ public class CodePageController implements Initializable, Route {
             System.out.println("File or directory already exists");
             return;
         }
-        this.multiLevelDirectory.updateNode();
+        this.multiLevelDirectory.newFile();
 
         if(!Objects.equals(suffix, FileSystem.Suffix.DIR.value)) {
             this.openFile(new File(nfm.getDirectory(), nfm.getFilename() + suffix), suffix);
         }
+    }
+
+    /**
+     * 删除文件夹时递归关闭涉及到的已经打开的文件
+     * @param file 文件/文件夹
+     */
+    private void closeFile(File file) {
+        if(file.isFile()) {
+            if(this.filesOpened.containsKey(file)) {
+                System.out.println("opened");
+                Tab tab = this.filesOpened.get(file);
+                Event.fireEvent(tab, new Event(Tab.CLOSED_EVENT));
+                this.tabPane.getTabs().remove(tab);
+            }
+        }
+        else if(file.isDirectory()) {
+            File[] files = file.listFiles();
+            if(files != null) {
+                for(File f : files) {
+                    this.closeFile(f);
+                }
+            }
+        }
+    }
+
+    private void deleteFile() {
+        System.out.println("delete");
+        TreeItem<File> itemDeleted = this.multiLevelDirectory.getTreeView().getFocusModel().getFocusedItem();
+
+        File file = itemDeleted.getValue();
+
+        // 如果文件已被打开，先将其关闭（递归关闭）
+        this.closeFile(file);
+
+        if(file.isFile()) {
+            System.out.println("file " + FileSystem.deleteFile(file));
+        }
+        else if(file.isDirectory()) {
+            System.out.println("dir " + FileSystem.deleteDirectory(file));
+        }
+
+        this.multiLevelDirectory.deleteFile(itemDeleted);
     }
 
     private void openModel(Tab tab, File file) {
@@ -363,5 +412,6 @@ public class CodePageController implements Initializable, Route {
         while((line = in.readLine()) != null) {
             System.out.println(line);
         }
+        in.close();
     }
 }

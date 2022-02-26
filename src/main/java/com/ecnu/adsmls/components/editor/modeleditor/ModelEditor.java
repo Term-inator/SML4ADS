@@ -107,6 +107,7 @@ public class ModelEditor extends Editor {
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(this.projectPath, this.relativePath)), StandardCharsets.UTF_8));
             model = br.readLine();
+            br.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -102,8 +102,12 @@ public class MultiLevelDirectory {
             if(file.isFile()) {
                 fileBuffer.add(file);
             }
-            else {
+            else if(file.isDirectory()) {
                 TreeItem<File> treeItem = new TreeItem<>(file);
+                // 为了让文件夹有展开箭头（能被展开），对内部有文件的文件夹进行填充
+                if(file.listFiles() != null && file.listFiles().length != 0) {
+                    treeItem.getChildren().add(new TreeItem<>());
+                }
                 treeItems.add(treeItem);
             }
         }
@@ -115,20 +119,31 @@ public class MultiLevelDirectory {
         return treeItems;
     }
 
+    private void updateNode(TreeItem<File> item) {
+        item.getChildren().clear();
+        item.getChildren().addAll(this.createNode(item.getValue()));
+        item.setExpanded(true);
+    }
+
     /**
-     * 新建文件时调用，更新显示的内容
+     * 新建文件/文件夹时调用，更新显示的内容
      */
-    public void updateNode() {
+    public void newFile() {
         // 文件新建在哪取决于当前哪个节点是 active 的
         TreeItem<File> focusedItem = this.treeView.getFocusModel().getFocusedItem();
-        File directory = this.treeView.getFocusModel().getFocusedItem().getValue();
         // 如果 active 的不是文件夹，则新建在和该文件同级的位置
-        if(directory.isFile()) {
-            directory = directory.getParentFile();
+        if(focusedItem.getValue().isFile()) {
             focusedItem = focusedItem.getParent();
         }
-        focusedItem.getChildren().clear();
-        focusedItem.getChildren().addAll(this.createNode(directory));
+        this.updateNode(focusedItem);
+    }
+
+    /**
+     * 删除文件
+     * @param itemDeleted 删除的文件对应的 TreeItem
+     */
+    public void deleteFile(TreeItem<File> itemDeleted) {
+        this.updateNode(itemDeleted.getParent());
     }
 
     public Node getNode() {

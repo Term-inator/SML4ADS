@@ -362,6 +362,7 @@ public class TreeEditor extends Editor {
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(this.projectPath, this.relativePath)), StandardCharsets.UTF_8));
             tree = br.readLine();
+            br.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
