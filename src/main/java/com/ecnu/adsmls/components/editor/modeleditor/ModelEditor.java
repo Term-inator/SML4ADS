@@ -120,7 +120,7 @@ public class ModelEditor extends Editor {
             ((ChooseFileButton) this.btMap.getUserData()).setFile(new File(this.projectPath, mModel.getMap()));
         }
         this.cbWeather.getSelectionModel().select(mModel.getWeather());
-        this.spTimeStep.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(this.timeStepMin, this.timeStepMax, mModel.getTimeStep()));
+        this.spTimeStep.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(this.timeStepMin, this.timeStepMax, mModel.getTimeStep(), 0.1));
         if (!Objects.equals(mModel.getSource(), "")) {
             // 恢复绝对路径
             ((ChooseFileButton) this.btSource.getUserData()).setFile(new File(this.projectPath, mModel.getSource()));
@@ -163,9 +163,10 @@ public class ModelEditor extends Editor {
         this.cbWeather = new ComboBox<>(FXCollections.observableArrayList(weathers));
         this.cbWeather.getSelectionModel().select(0);
 
-        // TODO 0-1
         Label lbTimeStep = new Label("Time Step: ");
         this.spTimeStep = new Spinner<>(this.timeStepMin, this.timeStepMax, 0.1, 0.1);
+        // 可直接输入
+        this.spTimeStep.setEditable(true);
         this.spTimeStep.setPrefWidth(80);
 
         // TODO .model
