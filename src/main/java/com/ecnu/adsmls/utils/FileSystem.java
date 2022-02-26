@@ -75,6 +75,71 @@ public class FileSystem {
     }
 
     /**
+     * 删除文件
+     * @param file 文件对象
+     * @return 是否删除成功
+     */
+    public static boolean deleteFile(File file) {
+        if(file.isFile()) {
+            return file.delete();
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
+     * 删除文件
+     * @param filename 文件名
+     * @return 是否删除成功
+     */
+    public static boolean deleteFile(String filename) {
+        File file = new File(filename);
+        return deleteFile(file);
+    }
+
+    /**
+     * 删除文件夹及其子文件和子文件夹
+     * @param file 文件对象
+     * @return 是否删除成功
+     */
+    public static boolean deleteDirectory(File file) {
+        boolean success = true;
+        if(file.isDirectory()) {
+            File[] files = file.listFiles();
+            if(files != null) {
+                for (File f : files) {
+                    if(f.isFile()) {
+                        success = deleteFile(f);
+                    }
+                    else if(f.isDirectory()) {
+                        success = deleteDirectory(f);
+                    }
+                    else {
+                        success = false;
+                    }
+
+                    if(!success) {
+                        return false;
+                    }
+                }
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+        return file.delete();
+    }
+
+    public static boolean deleteDirectory(String directoryName) {
+        File dir = new File(directoryName);
+        return deleteDirectory(dir);
+    }
+
+    /**
      * 获取文件的后缀
      * @param file File 对象
      * @return 后缀字符串，含 .

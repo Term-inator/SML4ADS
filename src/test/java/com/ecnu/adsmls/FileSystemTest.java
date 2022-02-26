@@ -30,6 +30,7 @@ public class FileSystemTest {
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(basePath, filePath)), StandardCharsets.UTF_8));
             System.out.println(br.readLine());
+            br.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
