@@ -49,6 +49,8 @@ public class OpenProjectModal extends Modal {
     }
 
     private void checkDirectory() {
-        // TODO 路径检查
+        if(this.directory == null) {
+            this.valid = false;
+        }
     }
 }

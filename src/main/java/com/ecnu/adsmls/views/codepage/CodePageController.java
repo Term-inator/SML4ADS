@@ -6,10 +6,7 @@ import com.ecnu.adsmls.components.editor.Editor;
 import com.ecnu.adsmls.components.editor.modeleditor.ModelEditor;
 import com.ecnu.adsmls.components.editor.treeeditor.TreeEditor;
 import com.ecnu.adsmls.components.editor.treeeditor.impl.BehaviorRegister;
-import com.ecnu.adsmls.components.modal.NewDirectoryModal;
-import com.ecnu.adsmls.components.modal.NewFileModal;
-import com.ecnu.adsmls.components.modal.NewModelModal;
-import com.ecnu.adsmls.components.modal.NewTreeModal;
+import com.ecnu.adsmls.components.modal.*;
 import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
 import com.ecnu.adsmls.model.MCar;
 import com.ecnu.adsmls.model.MModel;
@@ -17,6 +14,7 @@ import com.ecnu.adsmls.model.MTree;
 import com.ecnu.adsmls.router.Route;
 import com.ecnu.adsmls.router.Router;
 import com.ecnu.adsmls.router.params.CodePageParams;
+import com.ecnu.adsmls.router.params.Global;
 import com.ecnu.adsmls.utils.FileSystem;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -57,7 +55,6 @@ public class CodePageController implements Initializable, Route {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         System.out.println("init");
-        this.initBehavior();
         this.initMenu();
     }
 
@@ -67,30 +64,6 @@ public class CodePageController implements Initializable, Route {
         this.projectName = CodePageParams.projectName;
         // 更新页面
         this.updateProject();
-    }
-
-    /**
-     * 初始化内置 behavior 及其参数
-     */
-    private void initBehavior() {
-        LinkedHashMap<String, String> params = new LinkedHashMap<>();
-
-        params.put("duration", "int");
-        BehaviorRegister.register("Keep", (LinkedHashMap<String, String>) params.clone());
-
-        params.clear();
-        params.put("acceleration", "double");
-        params.put("target speed", "double");
-        params.put("duration", "int");
-        BehaviorRegister.register("Accelerate", (LinkedHashMap<String, String>) params.clone());
-
-        params.clear();
-        params.put("acceleration", "double");
-        params.put("target speed", "double");
-        BehaviorRegister.register("ChangeLeft", (LinkedHashMap<String, String>) params.clone());
-        BehaviorRegister.register("ChangeRight", (LinkedHashMap<String, String>) params.clone());
-        BehaviorRegister.register("TurnLeft", (LinkedHashMap<String, String>) params.clone());
-        BehaviorRegister.register("TurnRight",(LinkedHashMap<String, String>) params.clone());
     }
 
     private void initMenu() {
@@ -116,6 +89,12 @@ public class CodePageController implements Initializable, Route {
         });
         newMenu.getItems().addAll(newDirectory, newModel, newTree);
 
+        MenuItem setting = new MenuItem("Settings");
+        setting.setOnAction(e -> {
+            SettingsModal sm = new SettingsModal();
+            sm.getWindow().showAndWait();
+        });
+
         MenuItem closeProject = new MenuItem("Close Project");
         closeProject.setOnAction(e -> {
             // TODO 重置界面
@@ -124,7 +103,7 @@ public class CodePageController implements Initializable, Route {
             Router.back();
         });
 
-        fileMenu.getItems().addAll(newMenu, closeProject);
+        fileMenu.getItems().addAll(newMenu, setting, closeProject);
 
         Menu editMenu = new Menu("Edit");
         MenuItem delete = new MenuItem("Delete");
@@ -194,9 +173,10 @@ public class CodePageController implements Initializable, Route {
         this.directoryWrapper.getChildren().add(scrollPane);
     }
 
+    // 将 model 和 tree 拼在一起
     @FXML
-
-    protected void onRun() {
+    protected void preprocess() {
+        System.out.println("preprocessing");
         if(this.tabPane.getTabs().size() == 0) {
             System.out.println("Please open model files first");
             return;
@@ -246,12 +226,48 @@ public class CodePageController implements Initializable, Route {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
-        // 仿真
-        try {
-            this.simulate();
+    @FXML
+    private void verify() {
+        System.out.println("verifying");
+    }
+
+    // 仿真
+    @FXML
+    private void simulate() {
+        System.out.println("simulating");
+        if(Global.pythonEnv == null) {
+            System.out.println("set python environment first");
+            return;
         }
-        catch (Exception e) {
+        String pythonEnv = Global.pythonEnv;
+        try {
+            Process process = Runtime.getRuntime().exec(pythonEnv + " ./src/main/java/com/ecnu/adsmls/simulator/run.py --file ./a.adsml");
+//        proc.waitFor();
+            BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = in.readLine()) != null) {
+                System.out.println(line);
+            }
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void openSimulator() {
+        System.out.println("opening " + Global.simulatorType);
+        // run CARLA
+        if(Global.simulatorPath == null) {
+            System.out.println("set simulator first");
+            return;
+        }
+        String simulatorPath = Global.simulatorPath;
+        try {
+            Process process = Runtime.getRuntime().exec(simulatorPath);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -402,16 +418,5 @@ public class CodePageController implements Initializable, Route {
 
         tab.setContent(scrollPane);
         tab.setUserData(treeEditor);
-    }
-
-    private void simulate() throws IOException, InterruptedException {
-        Process process = Runtime.getRuntime().exec("python ./src/main/java/com/ecnu/adsmls/simulator/run.py --file ./a.adsml");
-//        proc.waitFor();
-        BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        String line;
-        while((line = in.readLine()) != null) {
-            System.out.println(line);
-        }
-        in.close();
     }
 }
