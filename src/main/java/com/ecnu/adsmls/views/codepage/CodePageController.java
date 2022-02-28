@@ -17,6 +17,7 @@ import com.ecnu.adsmls.model.MTree;
 import com.ecnu.adsmls.router.Route;
 import com.ecnu.adsmls.router.Router;
 import com.ecnu.adsmls.router.params.CodePageParams;
+import com.ecnu.adsmls.router.params.Global;
 import com.ecnu.adsmls.utils.FileSystem;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -197,6 +198,7 @@ public class CodePageController implements Initializable, Route {
     // 将 model 和 tree 拼在一起
     @FXML
     protected void preprocess() {
+        System.out.println("preprocessing");
         if(this.tabPane.getTabs().size() == 0) {
             System.out.println("Please open model files first");
             return;
@@ -250,14 +252,16 @@ public class CodePageController implements Initializable, Route {
 
     @FXML
     private void verify() {
-
+        System.out.println("verifying");
     }
 
     // 仿真
     @FXML
     private void simulate() {
+        System.out.println("simulating");
+        String pythonEnv = Global.pythonEnv;
         try {
-            Process process = Runtime.getRuntime().exec("python ./src/main/java/com/ecnu/adsmls/simulator/run.py --file ./a.adsml");
+            Process process = Runtime.getRuntime().exec(pythonEnv + " ./src/main/java/com/ecnu/adsmls/simulator/run.py --file ./a.adsml");
 //        proc.waitFor();
             BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
@@ -265,6 +269,18 @@ public class CodePageController implements Initializable, Route {
                 System.out.println(line);
             }
             in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void openSimulator() {
+        System.out.println("opening " + Global.simulatorType);
+        // run CARLA
+        String simulatorPath = Global.simulatorPath;
+        try {
+            Process process = Runtime.getRuntime().exec(simulatorPath);
         } catch (IOException e) {
             e.printStackTrace();
         }
