@@ -6,10 +6,7 @@ import com.ecnu.adsmls.components.editor.Editor;
 import com.ecnu.adsmls.components.editor.modeleditor.ModelEditor;
 import com.ecnu.adsmls.components.editor.treeeditor.TreeEditor;
 import com.ecnu.adsmls.components.editor.treeeditor.impl.BehaviorRegister;
-import com.ecnu.adsmls.components.modal.NewDirectoryModal;
-import com.ecnu.adsmls.components.modal.NewFileModal;
-import com.ecnu.adsmls.components.modal.NewModelModal;
-import com.ecnu.adsmls.components.modal.NewTreeModal;
+import com.ecnu.adsmls.components.modal.*;
 import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
 import com.ecnu.adsmls.model.MCar;
 import com.ecnu.adsmls.model.MModel;
@@ -92,6 +89,12 @@ public class CodePageController implements Initializable, Route {
         });
         newMenu.getItems().addAll(newDirectory, newModel, newTree);
 
+        MenuItem setting = new MenuItem("Settings");
+        setting.setOnAction(e -> {
+            SettingsModal sm = new SettingsModal();
+            sm.getWindow().showAndWait();
+        });
+
         MenuItem closeProject = new MenuItem("Close Project");
         closeProject.setOnAction(e -> {
             // TODO 重置界面
@@ -100,7 +103,7 @@ public class CodePageController implements Initializable, Route {
             Router.back();
         });
 
-        fileMenu.getItems().addAll(newMenu, closeProject);
+        fileMenu.getItems().addAll(newMenu, setting, closeProject);
 
         Menu editMenu = new Menu("Edit");
         MenuItem delete = new MenuItem("Delete");
@@ -234,6 +237,10 @@ public class CodePageController implements Initializable, Route {
     @FXML
     private void simulate() {
         System.out.println("simulating");
+        if(Global.pythonEnv == null) {
+            System.out.println("set python environment first");
+            return;
+        }
         String pythonEnv = Global.pythonEnv;
         try {
             Process process = Runtime.getRuntime().exec(pythonEnv + " ./src/main/java/com/ecnu/adsmls/simulator/run.py --file ./a.adsml");
@@ -253,6 +260,10 @@ public class CodePageController implements Initializable, Route {
     private void openSimulator() {
         System.out.println("opening " + Global.simulatorType);
         // run CARLA
+        if(Global.simulatorPath == null) {
+            System.out.println("set simulator first");
+            return;
+        }
         String simulatorPath = Global.simulatorPath;
         try {
             Process process = Runtime.getRuntime().exec(simulatorPath);
