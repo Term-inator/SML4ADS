@@ -8,9 +8,9 @@
       <MenuBar fx:id="menuBar" layoutY="1.0" AnchorPane.topAnchor="0.0" />
       <ToolBar layoutY="26.0" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="33.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="26.0">
         <items>
-          <Button mnemonicParsing="false" onMouseClicked="#onRun" text="Run" />
-            <Button mnemonicParsing="false" text="Button" />
-            <Button mnemonicParsing="false" text="Button" />
+          <Button mnemonicParsing="false" onMouseClicked="#preprocess" text="Preprocess" />
+            <Button mnemonicParsing="false" onMouseClicked="#verify" text="Verify" />
+            <Button mnemonicParsing="false" onMouseClicked="#simulate" text="Simulate" />
         </items>
       </ToolBar>
       <SplitPane dividerPositions="0.5" layoutX="75.0" layoutY="114.0" prefHeight="342.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="59.0">

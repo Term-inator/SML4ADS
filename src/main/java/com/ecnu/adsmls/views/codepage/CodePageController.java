@@ -194,9 +194,9 @@ public class CodePageController implements Initializable, Route {
         this.directoryWrapper.getChildren().add(scrollPane);
     }
 
+    // 将 model 和 tree 拼在一起
     @FXML
-
-    protected void onRun() {
+    protected void preprocess() {
         if(this.tabPane.getTabs().size() == 0) {
             System.out.println("Please open model files first");
             return;
@@ -246,12 +246,26 @@ public class CodePageController implements Initializable, Route {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
-        // 仿真
+    @FXML
+    private void verify() {
+
+    }
+
+    // 仿真
+    @FXML
+    private void simulate() {
         try {
-            this.simulate();
-        }
-        catch (Exception e) {
+            Process process = Runtime.getRuntime().exec("python ./src/main/java/com/ecnu/adsmls/simulator/run.py --file ./a.adsml");
+//        proc.waitFor();
+            BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = in.readLine()) != null) {
+                System.out.println(line);
+            }
+            in.close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -402,16 +416,5 @@ public class CodePageController implements Initializable, Route {
 
         tab.setContent(scrollPane);
         tab.setUserData(treeEditor);
-    }
-
-    private void simulate() throws IOException, InterruptedException {
-        Process process = Runtime.getRuntime().exec("python ./src/main/java/com/ecnu/adsmls/simulator/run.py --file ./a.adsml");
-//        proc.waitFor();
-        BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        String line;
-        while((line = in.readLine()) != null) {
-            System.out.println(line);
-        }
-        in.close();
     }
 }
