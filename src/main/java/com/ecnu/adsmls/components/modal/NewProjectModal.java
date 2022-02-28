@@ -73,6 +73,9 @@ public class NewProjectModal extends Modal {
     }
 
     private void checkDirectory() {
+        if(this.directory == null) {
+            this.valid = false;
+        }
     }
 
     private void updateProjectName() {
