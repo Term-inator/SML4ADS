@@ -16,6 +16,7 @@ public class FileSystem {
         MODEL(".model"),
         JSON(".json"),
         MAP(".xodr"),
+        PROP(".properties"),
         DIR("");
 
         public String value;
