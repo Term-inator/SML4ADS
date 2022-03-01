@@ -1,13 +1,12 @@
 package com.ecnu.adsmls.views.codepage;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.parser.SymbolTable;
 import com.ecnu.adsmls.components.editor.Editor;
 import com.ecnu.adsmls.components.editor.modeleditor.ModelEditor;
 import com.ecnu.adsmls.components.editor.treeeditor.TreeEditor;
-import com.ecnu.adsmls.components.editor.treeeditor.impl.BehaviorRegister;
 import com.ecnu.adsmls.components.modal.*;
 import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
+import com.ecnu.adsmls.model.MConfig;
 import com.ecnu.adsmls.model.MCar;
 import com.ecnu.adsmls.model.MModel;
 import com.ecnu.adsmls.model.MTree;
@@ -16,11 +15,9 @@ import com.ecnu.adsmls.router.Router;
 import com.ecnu.adsmls.router.params.CodePageParams;
 import com.ecnu.adsmls.router.params.Global;
 import com.ecnu.adsmls.utils.FileSystem;
-import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
@@ -89,10 +86,30 @@ public class CodePageController implements Initializable, Route {
         });
         newMenu.getItems().addAll(newDirectory, newModel, newTree);
 
+        // 设置
         MenuItem setting = new MenuItem("Settings");
         setting.setOnAction(e -> {
             SettingsModal sm = new SettingsModal();
             sm.getWindow().showAndWait();
+            if(!sm.isConfirm()) {
+                return;
+            }
+            // 写入配置文件
+            MConfig mConfig = new MConfig();
+            mConfig.setPythonEnv(Global.pythonEnv);
+            mConfig.setSimulatorType(Global.simulatorType);
+            mConfig.setSimulatorPath(Global.simulatorPath);
+
+            String config = JSON.toJSONString(mConfig);
+            System.out.println(config);
+            String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
+            try {
+                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(FileSystem.concatAbsolutePath(projectPath, ".adsml"), "config" + FileSystem.Suffix.JSON.value), false), StandardCharsets.UTF_8));
+                bw.write(config);
+                bw.close();
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
         });
 
         MenuItem closeProject = new MenuItem("Close Project");
@@ -139,8 +156,36 @@ public class CodePageController implements Initializable, Route {
         this.multiLevelDirectoryMenu.add(delete);
     }
 
+    // 加载配置
+    private void loadConfig() {
+        System.out.println("load configurations");
+        File dir = new File(FileSystem.concatAbsolutePath(this.directory, this.projectName), ".adsml");
+        if(!dir.exists()) {
+            FileSystem.createDir(dir.getAbsolutePath());
+            FileSystem.createFile(dir, "config" + FileSystem.Suffix.JSON.value);
+        }
+        else {
+            String config = null;
+            try {
+                BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(dir, "config" + FileSystem.Suffix.JSON.value)), StandardCharsets.UTF_8));
+                config = br.readLine();
+                br.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            MConfig mConfig = JSON.parseObject(config, MConfig.class);
+
+            Global.pythonEnv = mConfig.getPythonEnv();
+            Global.simulatorType = mConfig.getSimulatorType();
+            Global.simulatorPath = mConfig.getSimulatorPath();
+        }
+    }
+
     private void updateProject() {
         System.out.println("Initialize Project");
+
+        // 新建并加载 .adsml/
+        this.loadConfig();
 
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setFitToWidth(true);
