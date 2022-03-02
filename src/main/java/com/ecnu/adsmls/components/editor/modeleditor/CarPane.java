@@ -73,10 +73,16 @@ public class CarPane {
 
         car.setHeading(Objects.equals("same", this.cbHeading.getValue()));
         car.setRoadDeviation(Double.parseDouble(this.tfRoadDeviation.getText()));
-        // 转换成相对路径
-        String path = ((ChooseFileButton) this.btDynamic.getUserData()).getFile().getAbsolutePath();
-        String relativePath = FileSystem.getRelativePath(this.projectPath, path);
-        car.setTreePath(relativePath);
+
+        File tree = ((ChooseFileButton) this.btDynamic.getUserData()).getFile();
+        if (tree == null) {
+            car.setTreePath("");
+        } else {
+            // 转换成相对路径
+            String path = ((ChooseFileButton) this.btDynamic.getUserData()).getFile().getAbsolutePath();
+            String relativePath = FileSystem.getRelativePath(this.projectPath, path);
+            car.setTreePath(relativePath);
+        }
         return car;
     }
 
@@ -99,8 +105,10 @@ public class CarPane {
 
         this.cbHeading.getSelectionModel().select(mCar.getHeading() ? "same" : "opposite");
         this.tfRoadDeviation.setText(String.valueOf(mCar.getRoadDeviation()));
-        // 恢复绝对路径
-        ((ChooseFileButton) this.btDynamic.getUserData()).setFile(new File(this.projectPath, mCar.getTreePath()));
+        if (!Objects.equals(mCar.getTreePath(), "")) {
+            // 恢复绝对路径
+            ((ChooseFileButton) this.btDynamic.getUserData()).setFile(new File(this.projectPath, mCar.getTreePath()));
+        }
     }
 
     private void createNode() {
@@ -148,7 +156,6 @@ public class CarPane {
         Label lbRoadDeviation = new Label("road deviation: ");
         this.tfRoadDeviation = new TextField();
 
-        // TODO 非强制 .tree
         Label lbDynamic = new Label("Dynamic: ");
         this.btDynamic = new ChooseFileButton(this.gridPane, this.projectPath).getNode();
 
