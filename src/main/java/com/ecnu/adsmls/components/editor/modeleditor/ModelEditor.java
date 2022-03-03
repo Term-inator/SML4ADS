@@ -156,7 +156,11 @@ public class ModelEditor extends Editor {
 
         // TODO .xodr
         Label lbMap = new Label("Map: ");
-        this.btMap = new ChooseFileButton(this.gridPane, this.projectPath).getNode();
+        ChooseFileButton chooseFileButton = new ChooseFileButton(this.gridPane, this.projectPath);
+        Map<String, String> mapFilter = new HashMap<>();
+        mapFilter.put("XODR", "*" + FileSystem.Suffix.MAP);
+        chooseFileButton.addFilter(mapFilter);
+        this.btMap = chooseFileButton.getNode();
 
         Label lbWeather = new Label("Weather: ");
         String[] weathers = {"clear", "rainy", "foggy", "待定 提供不同仿真器支持的天气选项"};
