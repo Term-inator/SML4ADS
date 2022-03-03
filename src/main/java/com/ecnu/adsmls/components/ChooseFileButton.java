@@ -10,6 +10,9 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class ChooseFileButton {
     private File file;
@@ -17,16 +20,31 @@ public class ChooseFileButton {
 
     private HBox hBox;
     private Label lbFilename;
+
     private String initDir;
+    private Map<String, String> fileFilter = new HashMap<>();
 
     public ChooseFileButton(Pane rootLayout) {
         this.rootLayout = rootLayout;
         this.createNode();
     }
 
+    public ChooseFileButton(Pane rootLayout, Map<String, String> fileFilter) {
+        this.rootLayout = rootLayout;
+        this.fileFilter = fileFilter;
+        this.createNode();
+    }
+
     public ChooseFileButton(Pane rootLayout, String initDir) {
         this.rootLayout = rootLayout;
         this.initDir = initDir;
+        this.createNode();
+    }
+
+    public ChooseFileButton(Pane rootLayout, String initDir, Map<String, String> fileFilter) {
+        this.rootLayout = rootLayout;
+        this.initDir = initDir;
+        this.fileFilter = fileFilter;
         this.createNode();
     }
 
@@ -44,6 +62,13 @@ public class ChooseFileButton {
             if(this.initDir != null) {
                 System.out.println(this.initDir);
                 fileChooser.setInitialDirectory(new File(this.initDir));
+            }
+            for(Map.Entry<String, String> filter : fileFilter.entrySet()) {
+                String extension = filter.getKey();
+                String description = filter.setValue(extension);
+                fileChooser.getExtensionFilters().add(
+                        new FileChooser.ExtensionFilter(description, extension)
+                );
             }
             this.file = fileChooser.showOpenDialog(stage);
             if(this.file != null) {

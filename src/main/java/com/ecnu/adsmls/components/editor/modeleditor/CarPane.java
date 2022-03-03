@@ -11,10 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 
 import java.io.*;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 点击 New Car 显示的内容
@@ -73,10 +70,16 @@ public class CarPane {
 
         car.setHeading(Objects.equals("same", this.cbHeading.getValue()));
         car.setRoadDeviation(Double.parseDouble(this.tfRoadDeviation.getText()));
-        // 转换成相对路径
-        String path = ((ChooseFileButton) this.btDynamic.getUserData()).getFile().getAbsolutePath();
-        String relativePath = FileSystem.getRelativePath(this.projectPath, path);
-        car.setTreePath(relativePath);
+
+        File tree = ((ChooseFileButton) this.btDynamic.getUserData()).getFile();
+        if (tree == null) {
+            car.setTreePath("");
+        } else {
+            // 转换成相对路径
+            String path = ((ChooseFileButton) this.btDynamic.getUserData()).getFile().getAbsolutePath();
+            String relativePath = FileSystem.getRelativePath(this.projectPath, path);
+            car.setTreePath(relativePath);
+        }
         return car;
     }
 
@@ -99,8 +102,10 @@ public class CarPane {
 
         this.cbHeading.getSelectionModel().select(mCar.getHeading() ? "same" : "opposite");
         this.tfRoadDeviation.setText(String.valueOf(mCar.getRoadDeviation()));
-        // 恢复绝对路径
-        ((ChooseFileButton) this.btDynamic.getUserData()).setFile(new File(this.projectPath, mCar.getTreePath()));
+        if (!Objects.equals(mCar.getTreePath(), "")) {
+            // 恢复绝对路径
+            ((ChooseFileButton) this.btDynamic.getUserData()).setFile(new File(this.projectPath, mCar.getTreePath()));
+        }
     }
 
     private void createNode() {
@@ -148,9 +153,11 @@ public class CarPane {
         Label lbRoadDeviation = new Label("road deviation: ");
         this.tfRoadDeviation = new TextField();
 
-        // TODO 非强制 .tree
         Label lbDynamic = new Label("Dynamic: ");
-        this.btDynamic = new ChooseFileButton(this.gridPane, this.projectPath).getNode();
+        // 限定选择 *.tree 文件
+        Map<String, String> treeFilter = new HashMap<>();
+        treeFilter.put("*" + FileSystem.Suffix.TREE.value, "TREE");
+        this.btDynamic = new ChooseFileButton(this.gridPane, this.projectPath, treeFilter).getNode();
 
         this.gridPane.addRow(0, lbName, this.tfName);
         this.gridPane.addRow(1, lbModel, this.cbModel);

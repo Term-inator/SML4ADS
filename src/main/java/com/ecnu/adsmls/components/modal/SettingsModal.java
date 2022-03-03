@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.model.MConfig;
 import com.ecnu.adsmls.router.params.Global;
+import com.ecnu.adsmls.utils.FileSystem;
 import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
@@ -11,6 +12,8 @@ import javafx.scene.control.Label;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 // TODO 暂时使用 Modal
 public class SettingsModal extends Modal {
@@ -26,14 +29,18 @@ public class SettingsModal extends Modal {
         super.createWindow();
 
         Label lbPythonInterpreter = new Label("Python Interpreter");
-        this.btPythonInterpreter = new ChooseFileButton(this.gridPane).getNode();
+        // 限定选择 *.exe 文件
+        Map<String, String> exeFilter = new HashMap<>();
+        exeFilter.put("*" + FileSystem.Suffix.EXE.value, "EXE");
+        this.btPythonInterpreter = new ChooseFileButton(this.gridPane, exeFilter).getNode();
 
         Label lbSimulatorType = new Label("Simulator Type");
         String[] simulators = {"Carla"};
         this.cbSimulatorType = new ComboBox<>(FXCollections.observableArrayList(simulators));
 
         Label lbSimulatorPath = new Label("Simulator Path");
-        this.btSimulatorPath = new ChooseFileButton(this.gridPane).getNode();
+        // 限定选择 *.exe 文件
+        this.btSimulatorPath = new ChooseFileButton(this.gridPane, exeFilter).getNode();
 
         this.slot.addRow(0, lbPythonInterpreter, this.btPythonInterpreter);
         this.slot.addRow(1, lbSimulatorType, this.cbSimulatorType);
