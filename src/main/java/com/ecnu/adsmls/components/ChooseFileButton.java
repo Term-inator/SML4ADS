@@ -10,6 +10,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -20,13 +21,14 @@ public class ChooseFileButton {
     private HBox hBox;
     private Label lbFilename;
 
-    private FileChooser fileChooser;
     private String initDir;
+    private Map<String, String> fileFilter = new HashMap<>();
 
     public ChooseFileButton(Pane rootLayout) {
         this.rootLayout = rootLayout;
         this.createNode();
     }
+
 
     public ChooseFileButton(Pane rootLayout, String initDir) {
         this.rootLayout = rootLayout;
@@ -34,14 +36,11 @@ public class ChooseFileButton {
         this.createNode();
     }
 
-    public void addFilter(Map<String, String> fileFilter) {
-        for(Map.Entry<String, String> filter : fileFilter.entrySet()) {
-            String extension = filter.getKey();
-            String description = filter.setValue(extension);
-            this.fileChooser.getExtensionFilters().add(
-                    new FileChooser.ExtensionFilter(description, extension)
-            );
-        }
+    public ChooseFileButton(Pane rootLayout, String initDir, Map<String, String> fileFilter) {
+        this.rootLayout = rootLayout;
+        this.initDir = initDir;
+        this.fileFilter = fileFilter;
+        this.createNode();
     }
 
     private void createNode() {
@@ -53,13 +52,20 @@ public class ChooseFileButton {
         this.hBox.getChildren().addAll(this.lbFilename, button);
         button.setOnMouseClicked(e -> {
             Stage stage = (Stage) rootLayout.getScene().getWindow();
-            this.fileChooser = new FileChooser();
-            this.fileChooser.setTitle("Choose File");
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Choose File");
             if(this.initDir != null) {
                 System.out.println(this.initDir);
-                this.fileChooser.setInitialDirectory(new File(this.initDir));
+                fileChooser.setInitialDirectory(new File(this.initDir));
             }
-            this.file = this.fileChooser.showOpenDialog(stage);
+            for(Map.Entry<String, String> filter : fileFilter.entrySet()) {
+                String extension = filter.getKey();
+                String description = filter.setValue(extension);
+                fileChooser.getExtensionFilters().add(
+                        new FileChooser.ExtensionFilter(description, extension)
+                );
+            }
+            this.file = fileChooser.showOpenDialog(stage);
             if(this.file != null) {
                 this.lbFilename.setText(file.getName());
             }

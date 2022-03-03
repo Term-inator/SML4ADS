@@ -154,13 +154,11 @@ public class ModelEditor extends Editor {
         this.gridPaneCar.setHgap(8);
         this.gridPaneCar.setVgap(8);
 
-        // TODO .xodr
         Label lbMap = new Label("Map: ");
-        ChooseFileButton chooseFileButton = new ChooseFileButton(this.gridPane, this.projectPath);
+        // 限定选择 *.xodr 文件
         Map<String, String> mapFilter = new HashMap<>();
-        mapFilter.put("XODR", "*" + FileSystem.Suffix.MAP);
-        chooseFileButton.addFilter(mapFilter);
-        this.btMap = chooseFileButton.getNode();
+        mapFilter.put("*" + FileSystem.Suffix.MAP.value, "XODR");
+        this.btMap =  new ChooseFileButton(this.gridPane, this.projectPath, mapFilter).getNode();
 
         Label lbWeather = new Label("Weather: ");
         String[] weathers = {"clear", "rainy", "foggy", "待定 提供不同仿真器支持的天气选项"};
@@ -173,9 +171,11 @@ public class ModelEditor extends Editor {
         this.spTimeStep.setEditable(true);
         this.spTimeStep.setPrefWidth(80);
 
-        // TODO .model
         Label lbSource = new Label("Actor Source: ");
-        this.btSource = new ChooseFileButton(this.gridPane, this.projectPath).getNode();
+        // 限定选择 *.model 文件
+        Map<String, String> actorFilter = new HashMap<>();
+        actorFilter.put("*" + FileSystem.Suffix.MODEL.value, "MODEL");
+        this.btSource = new ChooseFileButton(this.gridPane, this.projectPath, actorFilter).getNode();
 
         Label lbCars = new Label("Cars: ");
 
