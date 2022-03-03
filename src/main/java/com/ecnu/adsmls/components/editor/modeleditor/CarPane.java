@@ -11,10 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 
 import java.io.*;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 点击 New Car 显示的内容
@@ -157,7 +154,10 @@ public class CarPane {
         this.tfRoadDeviation = new TextField();
 
         Label lbDynamic = new Label("Dynamic: ");
-        this.btDynamic = new ChooseFileButton(this.gridPane, this.projectPath).getNode();
+        // 限定选择 *.tree 文件
+        Map<String, String> treeFilter = new HashMap<>();
+        treeFilter.put("*" + FileSystem.Suffix.TREE.value, "TREE");
+        this.btDynamic = new ChooseFileButton(this.gridPane, this.projectPath, treeFilter).getNode();
 
         this.gridPane.addRow(0, lbName, this.tfName);
         this.gridPane.addRow(1, lbModel, this.cbModel);

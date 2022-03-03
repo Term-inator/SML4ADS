@@ -29,6 +29,11 @@ public class ChooseFileButton {
         this.createNode();
     }
 
+    public ChooseFileButton(Pane rootLayout, Map<String, String> fileFilter) {
+        this.rootLayout = rootLayout;
+        this.fileFilter = fileFilter;
+        this.createNode();
+    }
 
     public ChooseFileButton(Pane rootLayout, String initDir) {
         this.rootLayout = rootLayout;
