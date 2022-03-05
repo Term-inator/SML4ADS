@@ -156,7 +156,7 @@ public class CarPane {
         Label lbDynamic = new Label("Dynamic: ");
         // 限定选择 *.tree 文件
         Map<String, String> treeFilter = new HashMap<>();
-        treeFilter.put("*" + FileSystem.Suffix.TREE.value, "TREE");
+        treeFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.TREE), FileSystem.Suffix.TREE.toString());
         this.btDynamic = new ChooseFileButton(this.gridPane, this.projectPath, treeFilter).getNode();
 
         this.gridPane.addRow(0, lbName, this.tfName);
