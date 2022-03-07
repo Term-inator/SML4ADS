@@ -287,6 +287,13 @@ public class CodePageController implements Initializable, Route {
             return;
         }
         String pythonEnv = Global.pythonEnv;
+
+        SimulateModal sm = new SimulateModal();
+        sm.getWindow().showAndWait();
+        if(!sm.isConfirm()) {
+            return;
+        }
+
         try {
             Process process = Runtime.getRuntime().exec(pythonEnv + " ./src/main/java/com/ecnu/adsmls/simulator/run.py --file ./a.adsml");
 //        proc.waitFor();
@@ -464,4 +471,7 @@ public class CodePageController implements Initializable, Route {
         tab.setContent(scrollPane);
         tab.setUserData(treeEditor);
     }
+
+    // TODO 性质列表
+
 }
