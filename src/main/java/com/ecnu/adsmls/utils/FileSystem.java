@@ -1,5 +1,7 @@
 package com.ecnu.adsmls.utils;
 
+import javafx.util.Pair;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
@@ -152,8 +154,12 @@ public class FileSystem {
             int lastIndexOf = filename.lastIndexOf(".");
             return filename.substring(lastIndexOf);
         }
-        else {
+        else if(file.isDirectory()) {
             return Suffix.DIR.value;
+        }
+        else {
+            System.out.println("invalid file");
+            return null;
         }
     }
 
@@ -203,5 +209,9 @@ public class FileSystem {
     public static String concatAbsolutePath(String basePath, String relativePath) {
         File file = new File(basePath, relativePath);
         return file.getAbsolutePath();
+    }
+
+    public static String getRegSuffix(Suffix suffix) {
+        return "*" + suffix.value;
     }
 }

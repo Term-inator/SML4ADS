@@ -31,7 +31,7 @@ public class SettingsModal extends Modal {
         Label lbPythonInterpreter = new Label("Python Interpreter");
         // 限定选择 *.exe 文件
         Map<String, String> exeFilter = new HashMap<>();
-        exeFilter.put("*" + FileSystem.Suffix.EXE.value, "EXE");
+        exeFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.EXE), FileSystem.Suffix.EXE.toString());
         this.btPythonInterpreter = new ChooseFileButton(this.gridPane, exeFilter).getNode();
 
         Label lbSimulatorType = new Label("Simulator Type");

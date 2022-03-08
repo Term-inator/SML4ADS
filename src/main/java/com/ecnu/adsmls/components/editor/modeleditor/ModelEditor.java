@@ -157,7 +157,7 @@ public class ModelEditor extends Editor {
         Label lbMap = new Label("Map: ");
         // 限定选择 *.xodr 文件
         Map<String, String> mapFilter = new HashMap<>();
-        mapFilter.put("*" + FileSystem.Suffix.MAP.value, "XODR");
+        mapFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.MAP), FileSystem.Suffix.MAP.toString());
         this.btMap =  new ChooseFileButton(this.gridPane, this.projectPath, mapFilter).getNode();
 
         Label lbWeather = new Label("Weather: ");
@@ -174,7 +174,7 @@ public class ModelEditor extends Editor {
         Label lbSource = new Label("Actor Source: ");
         // 限定选择 *.model 文件
         Map<String, String> actorFilter = new HashMap<>();
-        actorFilter.put("*" + FileSystem.Suffix.MODEL.value, "MODEL");
+        actorFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.MODEL), FileSystem.Suffix.MODEL.toString());
         this.btSource = new ChooseFileButton(this.gridPane, this.projectPath, actorFilter).getNode();
 
         Label lbCars = new Label("Cars: ");
