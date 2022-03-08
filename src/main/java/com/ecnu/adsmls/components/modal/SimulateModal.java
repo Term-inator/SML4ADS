@@ -4,13 +4,14 @@ package com.ecnu.adsmls.components.modal;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class SimulateModal extends Modal {
     private TreeView<String> treeView = new TreeView<>();
 
+    private Map<String, Map<String, Boolean>> configuration = new HashMap<>();
 
     @Override
     protected void createWindow() {
@@ -19,21 +20,30 @@ public class SimulateModal extends Modal {
         this.treeView.setPrefHeight(200);
         CheckBoxTreeItem<String> car = new CheckBoxTreeItem<>("car");
 
-        List<CheckBoxTreeItem<String>> carTreeItems = new ArrayList<>();
-        carTreeItems.add(new CheckBoxTreeItem<>("x"));
-        carTreeItems.add(new CheckBoxTreeItem<>("y"));
-        carTreeItems.add(new CheckBoxTreeItem<>("v"));
-        carTreeItems.add(new CheckBoxTreeItem<>("deviation"));
-        carTreeItems.add(new CheckBoxTreeItem<>("road"));
+        car.getChildren().addAll(
+                new CheckBoxTreeItem<>("x"),
+                new CheckBoxTreeItem<>("y"),
+                new CheckBoxTreeItem<>("v"),
+                new CheckBoxTreeItem<>("deviation"),
+                new CheckBoxTreeItem<>("road")
+        );
+        car.setExpanded(true);
 
-        for(CheckBoxTreeItem<String> treeItem : carTreeItems) {
-            treeItem.selectedProperty().addListener((observable, oldVal, newVal) -> {
-                System.out.println(treeItem.getValue() + " selection state: " + newVal);
+        Map<String, Boolean> params = new HashMap<>();
+        params.put("x", false);
+        params.put("y", false);
+        params.put("v", false);
+        params.put("deviation", false);
+        params.put("road", false);
+        this.configuration.put("car", params);
+
+        for(TreeItem<String> treeItem : car.getChildren()) {
+            CheckBoxTreeItem<String> checkBoxTreeItem = (CheckBoxTreeItem<String>) treeItem;
+            checkBoxTreeItem.selectedProperty().addListener((observable, oldVal, newVal) -> {
+                System.out.println(checkBoxTreeItem.getValue() + " selection state: " + newVal);
+                this.configuration.get("car").put(checkBoxTreeItem.getValue(), newVal);
             });
         }
-
-        car.getChildren().addAll(carTreeItems);
-        car.setExpanded(true);
 
         treeView.setCellFactory(CheckBoxTreeCell.forTreeView());
 
@@ -45,16 +55,14 @@ public class SimulateModal extends Modal {
 
     @Override
     protected void update() {
-
+        // 和其他 Modal 不同，这里不需要 update，因为有监听事件
     }
 
     @Override
     protected void check() {
-
     }
 
     @Override
     protected void then() {
-
     }
 }
