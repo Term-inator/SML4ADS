@@ -293,9 +293,21 @@ public class CodePageController implements Initializable, Route {
         if(!sm.isConfirm()) {
             return;
         }
+        Map<String, Boolean> carConfig = sm.getCarConfiguration();
+        StringBuilder params = new StringBuilder();
+        int i = carConfig.size() - 1;
+        int res = 0;
+        for(Map.Entry<String, Boolean> param : carConfig.entrySet()) {
+            if(param.getValue() == true) {
+                res += (1 << i);
+            }
+            --i;
+        }
+        params.append("--car ");
+        params.append(res);
 
         try {
-            Process process = Runtime.getRuntime().exec(pythonEnv + " ./src/main/java/com/ecnu/adsmls/simulator/run.py --file ./a.adsml");
+            Process process = Runtime.getRuntime().exec(pythonEnv + " ./src/main/java/com/ecnu/adsmls/simulator/run.py --file ./a.adsml " + params);
 //        proc.waitFor();
             BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;

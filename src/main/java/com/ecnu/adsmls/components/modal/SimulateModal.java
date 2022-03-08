@@ -5,13 +5,20 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 
 public class SimulateModal extends Modal {
     private TreeView<String> treeView = new TreeView<>();
 
-    private Map<String, Map<String, Boolean>> configuration = new HashMap<>();
+    private Map<String, LinkedHashMap<String, Boolean>> configuration = new HashMap<>();
+
+    public Map<String, Boolean> getCarConfiguration() {
+        return configuration.get("car");
+    }
+
+    // TODO 其他的 configuration
 
     @Override
     protected void createWindow() {
@@ -29,7 +36,7 @@ public class SimulateModal extends Modal {
         );
         car.setExpanded(true);
 
-        Map<String, Boolean> params = new HashMap<>();
+        LinkedHashMap<String, Boolean> params = new LinkedHashMap<>();
         params.put("x", false);
         params.put("y", false);
         params.put("v", false);
