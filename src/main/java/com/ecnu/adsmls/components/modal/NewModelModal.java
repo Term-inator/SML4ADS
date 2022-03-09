@@ -8,6 +8,12 @@ public class NewModelModal extends NewFileModal {
     }
 
     @Override
+    protected void createWindow() {
+        super.createWindow();
+        this.window.setTitle("New Model");
+    }
+
+    @Override
     protected void check() {
         super.check();
         this.checkFilename();

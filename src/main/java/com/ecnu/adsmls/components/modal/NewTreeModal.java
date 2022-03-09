@@ -9,6 +9,12 @@ public class NewTreeModal extends NewFileModal {
     }
 
     @Override
+    protected void createWindow() {
+        super.createWindow();
+        this.window.setTitle("New Project");
+    }
+
+    @Override
     protected void check() {
         super.check();
         this.checkFilename();

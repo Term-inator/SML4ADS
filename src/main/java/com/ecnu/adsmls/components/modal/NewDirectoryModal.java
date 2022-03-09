@@ -8,6 +8,12 @@ public class NewDirectoryModal extends NewFileModal {
     }
 
     @Override
+    protected void createWindow() {
+        super.createWindow();
+        this.window.setTitle("New Directory");
+    }
+
+    @Override
     protected void check() {
         super.check();
     }

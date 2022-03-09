@@ -18,11 +18,17 @@ public class SimulateModal extends Modal {
         return configuration.get("car");
     }
 
+    public SimulateModal() {
+        super();
+    }
+
     // TODO 其他的 configuration
 
     @Override
     protected void createWindow() {
         super.createWindow();
+        this.window.setTitle("Configurations");
+
         Label lbTrace = new Label("trace options");
         this.treeView.setPrefHeight(200);
         CheckBoxTreeItem<String> car = new CheckBoxTreeItem<>("car");

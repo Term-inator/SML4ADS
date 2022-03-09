@@ -10,8 +10,6 @@ import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,8 +23,13 @@ public class SettingsModal extends Modal {
     private ComboBox<String> cbSimulatorType;
     private Node btSimulatorPath;
 
+    public SettingsModal() {
+        super();
+    }
+
     protected void createWindow() {
         super.createWindow();
+        this.window.setTitle("Settings");
 
         Label lbPythonInterpreter = new Label("Python Interpreter");
         // 限定选择 *.exe 文件
