@@ -276,6 +276,17 @@ public class CodePageController implements Initializable, Route {
     @FXML
     private void verify() {
         System.out.println("verifying");
+        // 验证 requirements
+        VerifyRequirementsModal vrm = new VerifyRequirementsModal();
+        vrm.getWindow().showAndWait();
+        if(!vrm.isConfirm()) {
+            return;
+        }
+
+        List<String> requirements = vrm.getRequirements();
+        System.out.println(requirements);
+
+        // TODO 存储 requirements
     }
 
     // 仿真
@@ -288,6 +299,7 @@ public class CodePageController implements Initializable, Route {
         }
         String pythonEnv = Global.pythonEnv;
 
+        // 模拟选项
         SimulateModal sm = new SimulateModal();
         sm.getWindow().showAndWait();
         if(!sm.isConfirm()) {
@@ -483,7 +495,4 @@ public class CodePageController implements Initializable, Route {
         tab.setContent(scrollPane);
         tab.setUserData(treeEditor);
     }
-
-    // TODO 性质列表
-
 }
