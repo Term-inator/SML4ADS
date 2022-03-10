@@ -29,6 +29,8 @@ public abstract class Editor {
     /**
      * 保存文件
      */
+    // TODO 先 load 后 save
+    // 由于关闭自动保存， 其他位置修改的 model 会在关闭时被覆盖
     public abstract void save();
 
     /**

@@ -156,9 +156,9 @@ public class CodePageController implements Initializable, Route {
         this.multiLevelDirectoryMenu.add(delete);
     }
 
-    // 加载配置
-    private void loadConfig() {
-        System.out.println("load configurations");
+    // 加载环境配置
+    private void loadEnvConfig() {
+        System.out.println("load env configurations");
         File dir = new File(FileSystem.concatAbsolutePath(this.directory, this.projectName), ".adsml");
         if(!dir.exists()) {
             FileSystem.createDir(dir.getAbsolutePath());
@@ -185,7 +185,7 @@ public class CodePageController implements Initializable, Route {
         System.out.println("Initialize Project");
 
         // 新建并加载 .adsml/
-        this.loadConfig();
+        this.loadEnvConfig();
 
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setFitToWidth(true);
@@ -276,17 +276,10 @@ public class CodePageController implements Initializable, Route {
     @FXML
     private void verify() {
         System.out.println("verifying");
-        // 验证 requirements
-        VerifyRequirementsModal vrm = new VerifyRequirementsModal();
-        vrm.getWindow().showAndWait();
-        if(!vrm.isConfirm()) {
+        if(this.tabPane.getTabs().size() == 0) {
+            System.out.println("Please open model files first");
             return;
         }
-
-        List<String> requirements = vrm.getRequirements();
-        System.out.println(requirements);
-
-        // 存储 requirements
         // 当前显示的 tab
         File file = ((Editor) this.tabPane.getSelectionModel().getSelectedItem().getUserData()).getFile();
 
@@ -304,6 +297,17 @@ public class CodePageController implements Initializable, Route {
         }
         System.out.println(model);
 
+        // 用于验证的 requirements
+        VerifyRequirementsModal vrm = new VerifyRequirementsModal(mModel);
+        vrm.getWindow().showAndWait();
+        if(!vrm.isConfirm()) {
+            return;
+        }
+
+        List<String> requirements = vrm.getRequirements();
+        System.out.println(requirements);
+
+        // 存储 requirements
         mModel.setRequirements(requirements);
 
         model = JSON.toJSONString(mModel);
@@ -322,6 +326,10 @@ public class CodePageController implements Initializable, Route {
     @FXML
     private void simulate() {
         System.out.println("simulating");
+        if(this.tabPane.getTabs().size() == 0) {
+            System.out.println("Please open model files first");
+            return;
+        }
         if(Global.pythonEnv == null) {
             System.out.println("set python environment first");
             return;
