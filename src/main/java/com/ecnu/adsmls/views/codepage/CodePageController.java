@@ -286,7 +286,36 @@ public class CodePageController implements Initializable, Route {
         List<String> requirements = vrm.getRequirements();
         System.out.println(requirements);
 
-        // TODO 存储 requirements
+        // 存储 requirements
+        // 当前显示的 tab
+        File file = ((Editor) this.tabPane.getSelectionModel().getSelectedItem().getUserData()).getFile();
+
+        String model = null;
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
+            model = br.readLine();
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        MModel mModel = JSON.parseObject(model, MModel.class);
+        if(mModel == null) {
+            return;
+        }
+        System.out.println(model);
+
+        mModel.setRequirements(requirements);
+
+        model = JSON.toJSONString(mModel);
+        System.out.println(model);
+        String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
+        try {
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(projectPath, "test.adsml"),false), StandardCharsets.UTF_8));
+            bw.write(model);
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // 仿真

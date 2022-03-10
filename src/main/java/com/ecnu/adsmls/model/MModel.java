@@ -14,12 +14,15 @@ public class MModel {
 
     private List<MCar> cars = new ArrayList<>();
 
-    public MModel(String map, String weather, String source, int timeStep, List<MCar> cars) {
+    private List<String> requirements = new ArrayList<>();
+
+    public MModel(String map, String weather, String source, int timeStep, List<MCar> cars, List<String> requirements) {
         this.map = map;
         this.weather = weather;
         this.source = source;
         this.timeStep = timeStep;
         this.cars = cars;
+        this.requirements = requirements;
     }
 
     public MModel() {
@@ -63,5 +66,13 @@ public class MModel {
 
     public void setCars(List<MCar> cars) {
         this.cars = cars;
+    }
+
+    public List<String> getRequirements() {
+        return requirements;
+    }
+
+    public void setRequirements(List<String> requirements) {
+        this.requirements = requirements;
     }
 }
