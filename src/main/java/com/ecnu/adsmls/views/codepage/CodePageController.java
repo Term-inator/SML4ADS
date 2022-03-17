@@ -174,6 +174,9 @@ public class CodePageController implements Initializable, Route {
                 e.printStackTrace();
             }
             MConfig mConfig = JSON.parseObject(config, MConfig.class);
+            if(mConfig == null) {
+                return;
+            }
 
             Global.pythonEnv = mConfig.getPythonEnv();
             Global.simulatorType = mConfig.getSimulatorType();
@@ -222,12 +225,20 @@ public class CodePageController implements Initializable, Route {
     @FXML
     protected void preprocess() {
         System.out.println("preprocessing");
+        boolean modelOpened = true; // 是否打开了 model 文件
         if(this.tabPane.getTabs().size() == 0) {
-            System.out.println("Please open model files first");
-            return;
+            modelOpened = false;
         }
         // 当前显示的 tab
         File file = ((Editor) this.tabPane.getSelectionModel().getSelectedItem().getUserData()).getFile();
+        if(!Objects.equals(FileSystem.getSuffix(file), FileSystem.Suffix.MODEL.value)) {
+            modelOpened = false;
+        }
+
+        if(!modelOpened) {
+            System.out.println("Please open model files first");
+            return;
+        }
 
         String model = null;
         try {
@@ -265,7 +276,8 @@ public class CodePageController implements Initializable, Route {
         model = JSON.toJSONString(mModel);
         System.out.println(model);
         try {
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(projectPath, "test.adsml"),false), StandardCharsets.UTF_8));
+            String outFilename = FileSystem.removeSuffix(file) + FileSystem.Suffix.ADSML.value;
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(projectPath, outFilename),false), StandardCharsets.UTF_8));
             bw.write(model);
             bw.close();
         } catch (IOException e) {
