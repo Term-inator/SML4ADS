@@ -69,7 +69,7 @@ public class ModelEditor extends Editor {
         }
         MModel mModel = JSON.parseObject(model, MModel.class);
         if (mModel == null) {
-            return;
+            mModel = new MModel();
         }
         System.out.println(model);
 

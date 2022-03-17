@@ -17,6 +17,7 @@ public class FileSystem {
         TREE(".tree"),
         MODEL(".model"),
         JSON(".json"),
+        ADSML(".adsml"),
         MAP(".xodr"),
         EXE(".exe"),
         PROP(".properties"),
@@ -156,6 +157,18 @@ public class FileSystem {
         }
         else if(file.isDirectory()) {
             return Suffix.DIR.value;
+        }
+        else {
+            System.out.println("invalid file");
+            return null;
+        }
+    }
+
+    public static String removeSuffix(File file) {
+        if(file.isFile()) {
+            String filename = file.getName();
+            filename = filename.replaceAll("\\..*$", "");
+            return filename;
         }
         else {
             System.out.println("invalid file");
