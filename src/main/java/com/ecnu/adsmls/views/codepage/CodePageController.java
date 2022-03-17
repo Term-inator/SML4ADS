@@ -314,7 +314,7 @@ public class CodePageController implements Initializable, Route {
         System.out.println(model);
         String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
         try {
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(projectPath, "test.adsml"),false), StandardCharsets.UTF_8));
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(projectPath, "test.model"),false), StandardCharsets.UTF_8));
             bw.write(model);
             bw.close();
         } catch (IOException e) {

@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class VerifyRequirementsModal extends Modal {
     private MModel mModel;
@@ -61,9 +62,7 @@ public class VerifyRequirementsModal extends Modal {
 
     @Override
     protected void update() {
-        for(String requirement : this.listView.getItems()) {
-            this.requirements.add(requirement);
-        }
+        this.requirements = this.listView.getItems();
     }
 
     @Override
