@@ -10,7 +10,10 @@ public class OpenProjectModal extends Modal {
     private Node btDir;
 
     public OpenProjectModal() {
+        super();
     }
+
+
 
     public String getDirectory() {
         return directory;
@@ -19,6 +22,7 @@ public class OpenProjectModal extends Modal {
     @Override
     protected void createWindow() {
         super.createWindow();
+        this.window.setTitle("Open Project");
 
         Label lbDirName = new Label("project");
         this.btDir = new ChooseDirectoryButton(this.gridPane).getNode();

@@ -36,6 +36,7 @@ public class NewProjectModal extends Modal {
     @Override
     protected void createWindow() {
         super.createWindow();
+        this.window.setTitle("New Project");
 
         Label lbDirName = new Label("directory");
         this.btDir = new ChooseDirectoryButton(this.gridPane).getNode();

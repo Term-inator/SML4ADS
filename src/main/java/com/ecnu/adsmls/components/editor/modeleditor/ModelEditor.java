@@ -56,9 +56,23 @@ public class ModelEditor extends Editor {
         }
     }
 
+    // 由于关闭自动保存，其他在打开 Editor 后修改的内容会在关闭时被覆盖，所以 save 前要先 load
     @Override
     public void save() {
-        MModel mModel = new MModel();
+        String model = null;
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(this.projectPath, this.relativePath)), StandardCharsets.UTF_8));
+            model = br.readLine();
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        MModel mModel = JSON.parseObject(model, MModel.class);
+        if (mModel == null) {
+            return;
+        }
+        System.out.println(model);
+
         File map = ((ChooseFileButton) this.btMap.getUserData()).getFile();
         if (map == null) {
             mModel.setMap("");
@@ -88,7 +102,7 @@ public class ModelEditor extends Editor {
             cars.add(carPane.save());
         }
         mModel.setCars(cars);
-        String model = JSON.toJSONString(mModel);
+        model = JSON.toJSONString(mModel);
         System.out.println(model);
         try {
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(this.projectPath, this.relativePath), false), StandardCharsets.UTF_8));

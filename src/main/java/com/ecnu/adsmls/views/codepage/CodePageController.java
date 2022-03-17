@@ -156,9 +156,9 @@ public class CodePageController implements Initializable, Route {
         this.multiLevelDirectoryMenu.add(delete);
     }
 
-    // 加载配置
-    private void loadConfig() {
-        System.out.println("load configurations");
+    // 加载环境配置
+    private void loadEnvConfig() {
+        System.out.println("load env configurations");
         File dir = new File(FileSystem.concatAbsolutePath(this.directory, this.projectName), ".adsml");
         if(!dir.exists()) {
             FileSystem.createDir(dir.getAbsolutePath());
@@ -185,7 +185,7 @@ public class CodePageController implements Initializable, Route {
         System.out.println("Initialize Project");
 
         // 新建并加载 .adsml/
-        this.loadConfig();
+        this.loadEnvConfig();
 
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setFitToWidth(true);
@@ -276,18 +276,67 @@ public class CodePageController implements Initializable, Route {
     @FXML
     private void verify() {
         System.out.println("verifying");
+        if(this.tabPane.getTabs().size() == 0) {
+            System.out.println("Please open model files first");
+            return;
+        }
+        // 当前显示的 tab
+        File file = ((Editor) this.tabPane.getSelectionModel().getSelectedItem().getUserData()).getFile();
+
+        String model = null;
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
+            model = br.readLine();
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        MModel mModel = JSON.parseObject(model, MModel.class);
+        if(mModel == null) {
+            return;
+        }
+        System.out.println(model);
+
+        // 用于验证的 requirements
+        VerifyRequirementsModal vrm = new VerifyRequirementsModal(mModel);
+        vrm.getWindow().showAndWait();
+        if(!vrm.isConfirm()) {
+            return;
+        }
+
+        List<String> requirements = vrm.getRequirements();
+        System.out.println(requirements);
+
+        // 存储 requirements
+        mModel.setRequirements(requirements);
+
+        model = JSON.toJSONString(mModel);
+        System.out.println(model);
+        String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
+        try {
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(projectPath, "test.model"),false), StandardCharsets.UTF_8));
+            bw.write(model);
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // 仿真
     @FXML
     private void simulate() {
         System.out.println("simulating");
+        if(this.tabPane.getTabs().size() == 0) {
+            System.out.println("Please open model files first");
+            return;
+        }
         if(Global.pythonEnv == null) {
             System.out.println("set python environment first");
             return;
         }
         String pythonEnv = Global.pythonEnv;
 
+        // 模拟选项
         SimulateModal sm = new SimulateModal();
         sm.getWindow().showAndWait();
         if(!sm.isConfirm()) {
@@ -483,7 +532,4 @@ public class CodePageController implements Initializable, Route {
         tab.setContent(scrollPane);
         tab.setUserData(treeEditor);
     }
-
-    // TODO 性质列表
-
 }

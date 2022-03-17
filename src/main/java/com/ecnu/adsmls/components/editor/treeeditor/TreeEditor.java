@@ -316,7 +316,7 @@ public class TreeEditor extends Editor {
     }
 
     @Override
-    public void save(){
+    public void save() {
         List<Node> nodes = this.canvas.getChildren();
         MTree mTree = new MTree();
         boolean setRoot = false;
