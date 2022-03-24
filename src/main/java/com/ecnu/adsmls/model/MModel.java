@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MModel {
+    private String simulatorType;
+
     private String map;
 
     private String weather;
@@ -16,7 +18,8 @@ public class MModel {
 
     private List<String> requirements = new ArrayList<>();
 
-    public MModel(String map, String weather, String source, int timeStep, List<MCar> cars, List<String> requirements) {
+    public MModel(String simulatorType,String map, String weather, String source, int timeStep, List<MCar> cars, List<String> requirements) {
+        this.simulatorType = simulatorType;
         this.map = map;
         this.weather = weather;
         this.source = source;
@@ -26,6 +29,14 @@ public class MModel {
     }
 
     public MModel() {
+    }
+
+    public String getSimulatorType() {
+        return simulatorType;
+    }
+
+    public void setSimulatorType(String simulatorType) {
+        this.simulatorType = simulatorType;
     }
 
     public String getMap() {

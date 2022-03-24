@@ -1,34 +1,46 @@
 package com.ecnu.adsmls.components.editor.treeeditor.impl;
 
+import com.ecnu.adsmls.utils.FunctionRegister;
+import javafx.util.Pair;
+
 import java.util.*;
 
-public class BehaviorRegister {
-    // 行为名，参数名，参数类型
-    private static LinkedHashMap<String, LinkedHashMap<String, String>> behaviorFunctions = new LinkedHashMap<>();
+public class BehaviorRegister extends FunctionRegister {
+    // 行为名，参数名，参数类型，参数必要性
+    private static LinkedHashMap<String, List<FunctionParam>> behaviorFunctions = new LinkedHashMap<>();
 
     // 初始化内置 behavior 及其参数
     static {
-        LinkedHashMap<String, String> params = new LinkedHashMap<>();
+        register("Keep", new ArrayList<>(List.of(
+                new FunctionParam("duration", DataType.INT, Necessity.OPTIONAL))
+        ));
 
-        params.put("duration", "int");
-        register("Keep", (LinkedHashMap<String, String>) params.clone());
+        register("Accelerate", new ArrayList<>(List.of(
+                new FunctionParam("acceleration", DataType.DOUBLE, Necessity.REQUIRED),
+                new FunctionParam("target speed", DataType.DOUBLE, Necessity.REQUIRED),
+                new FunctionParam("duration", DataType.INT, Necessity.OPTIONAL))
+        ));
 
-        params.clear();
-        params.put("acceleration", "double");
-        params.put("target speed", "double");
-        params.put("duration", "int");
-        register("Accelerate", (LinkedHashMap<String, String>) params.clone());
+        register("ChangeLeft", new ArrayList<>(List.of(
+                new FunctionParam("acceleration", DataType.DOUBLE, Necessity.OPTIONAL),
+                new FunctionParam("target speed", DataType.DOUBLE, Necessity.OPTIONAL)
+        )));
+        register("ChangeRight", new ArrayList<>(List.of(
+                new FunctionParam("acceleration", DataType.DOUBLE, Necessity.OPTIONAL),
+                new FunctionParam("target speed", DataType.DOUBLE, Necessity.OPTIONAL)
+        )));
 
-        params.clear();
-        params.put("acceleration", "double");
-        params.put("target speed", "double");
-        register("ChangeLeft", (LinkedHashMap<String, String>) params.clone());
-        register("ChangeRight", (LinkedHashMap<String, String>) params.clone());
-        register("TurnLeft", (LinkedHashMap<String, String>) params.clone());
-        register("TurnRight",(LinkedHashMap<String, String>) params.clone());
+        register("TurnLeft", new ArrayList<>(List.of(
+                new FunctionParam("acceleration", DataType.DOUBLE, Necessity.REQUIRED),
+                new FunctionParam("target speed", DataType.DOUBLE, Necessity.REQUIRED)
+        )));
+        register("TurnRight",new ArrayList<>(List.of(
+                new FunctionParam("acceleration", DataType.DOUBLE, Necessity.REQUIRED),
+                new FunctionParam("target speed", DataType.DOUBLE, Necessity.REQUIRED)
+        )));
     }
 
-    public static void register(String behaviorName, LinkedHashMap<String, String> params) {
+    public static void register(String behaviorName, List<FunctionParam> params) {
         if(behaviorFunctions.containsKey(behaviorName)) {
             return;
         }
@@ -39,7 +51,7 @@ public class BehaviorRegister {
         return new ArrayList<>(behaviorFunctions.keySet());
     }
 
-    public static LinkedHashMap<String, String> getParams(String behaviorName) {
+    public static List<FunctionParam> getParams(String behaviorName) {
         return behaviorFunctions.get(behaviorName);
     }
 }

@@ -7,6 +7,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 
 public class Behavior extends TreeArea {
@@ -64,7 +65,9 @@ public class Behavior extends TreeArea {
         StringBuilder res = new StringBuilder();
         res.append(this.name).append("\n");
         for(Map.Entry<String, String> param : params.entrySet()) {
-            res.append(param.getKey()).append(" = ").append(param.getValue()).append("\n");
+            if(!Objects.equals(param.getValue(), "")) {
+                res.append(param.getKey()).append(" = ").append(param.getValue()).append("\n");
+            }
         }
         return res.toString();
     }

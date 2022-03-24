@@ -72,7 +72,7 @@ public class ChooseFileButton {
             }
             this.file = fileChooser.showOpenDialog(stage);
             if(this.file != null) {
-                this.lbFilename.setText(file.getName());
+                this.lbFilename.setText(file.getAbsolutePath());
             }
             stage.sizeToScene();
         });
@@ -90,6 +90,6 @@ public class ChooseFileButton {
 
     public void setFile(File file) {
         this.file = file;
-        this.lbFilename.setText(this.file.getName());
+        this.lbFilename.setText(this.file.getAbsolutePath());
     }
 }

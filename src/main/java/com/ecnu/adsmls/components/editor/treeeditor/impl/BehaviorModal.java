@@ -2,6 +2,7 @@ package com.ecnu.adsmls.components.editor.treeeditor.impl;
 
 
 import com.ecnu.adsmls.components.modal.Modal;
+import com.ecnu.adsmls.utils.FunctionRegister;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -28,7 +29,7 @@ public class BehaviorModal extends Modal {
     // 行为名
     private String behaviorName = "";
     // 行为参数信息
-    private LinkedHashMap<String, String> paramsInfo = new LinkedHashMap<>();
+    private List<FunctionRegister.FunctionParam> paramsInfo = new ArrayList();
     // 行为参数值
     private LinkedHashMap<String, String> paramsValue = new LinkedHashMap<>();
 
@@ -86,8 +87,12 @@ public class BehaviorModal extends Modal {
             this.paramsInfo = BehaviorRegister.getParams(this.behaviorName);
             // 生成界面
             int row = 0;
-            for(Map.Entry<String, String> param : paramsInfo.entrySet()) {
-                Label lbParamName = new Label(param.getKey());
+            for(FunctionRegister.FunctionParam param : paramsInfo) {
+                String labelName = param.getParamName();
+                if(Objects.equals(param.getNecessity(), FunctionRegister.Necessity.OPTIONAL)) {
+                    labelName = "(" + labelName + ")";
+                }
+                Label lbParamName = new Label(labelName);
                 TextField tfParamValue = new TextField();
                 this.behaviorParamsGridPane.addRow(row++, lbParamName, tfParamValue);
                 // 自适应大小
@@ -129,29 +134,34 @@ public class BehaviorModal extends Modal {
     }
 
     public void checkParams() {
+        int i = 0;
         for(Map.Entry<String, String> param : this.paramsValue.entrySet()) {
-            if(Objects.equals(param.getValue(), "")) {
-                this.valid = false;
-                break;
-            }
             // 类型检查
             try {
                 String key = param.getKey();
                 String value = param.getValue();
-                String type = this.paramsInfo.get(key);
-                if(Objects.equals(type, "int")) {
-                    Integer.parseInt(value);
+                FunctionRegister.FunctionParam functionParam = this.paramsInfo.get(i);
+                if(Objects.equals(param.getValue(), "")) {
+                    if (Objects.equals(functionParam.getNecessity(), FunctionRegister.Necessity.REQUIRED)) {
+                        this.valid = false;
+                        break;
+                    }
                 }
-                else if(Objects.equals(type, "double")) {
-                    Double.parseDouble(value);
+                else {
+                    if (Objects.equals(functionParam.getDataType(), FunctionRegister.DataType.INT)) {
+                        Integer.parseInt(value);
+                    } else if (Objects.equals(functionParam.getDataType(), FunctionRegister.DataType.DOUBLE)) {
+                        Double.parseDouble(value);
+                    }
                 }
             }
             catch (Exception e) {
-//                e.printStackTrace();
+                e.printStackTrace();
                 System.out.println("Invalid type of params");
                 this.valid = false;
                 break;
             }
+            ++i;
         }
     }
 }
