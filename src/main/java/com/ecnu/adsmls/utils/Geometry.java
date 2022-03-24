@@ -4,7 +4,7 @@ package com.ecnu.adsmls.utils;
  * 平面几何工具类
  */
 public class Geometry {
-    public enum quadrant {
+    public enum Quadrant {
         FIRST, SECOND, THIRD, FOURTH
     }
 
@@ -87,18 +87,18 @@ public class Geometry {
      * @param rad
      * @return
      */
-    public static quadrant inQuadrant(double rad) {
+    public static Quadrant inQuadrant(double rad) {
         if(between(rad, 0, Math.PI / 2, "[)")) {
-            return quadrant.FIRST;
+            return Quadrant.FIRST;
         }
         else if(between(rad, Math.PI / 2, Math.PI, "[)")) {
-            return quadrant.SECOND;
+            return Quadrant.SECOND;
         }
         else if(between(rad, Math.PI, 3 * Math.PI / 2, "[)")) {
-            return quadrant.THIRD;
+            return Quadrant.THIRD;
         }
         else {
-            return quadrant.FOURTH;
+            return Quadrant.FOURTH;
         }
     }
 }
