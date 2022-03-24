@@ -23,6 +23,8 @@ import java.util.*;
 public class ModelEditor extends Editor {
     private GridPane gridPane = new GridPane();
 
+    // 模拟器类型
+    private ComboBox<String> cbSimulatorType;
     // 地图文件
     private Node btMap;
     // 天气
@@ -72,6 +74,8 @@ public class ModelEditor extends Editor {
             mModel = new MModel();
         }
         System.out.println(model);
+
+        mModel.setSimulatorType(this.cbSimulatorType.getValue());
 
         File map = ((ChooseFileButton) this.btMap.getUserData()).getFile();
         if (map == null) {
@@ -129,6 +133,7 @@ public class ModelEditor extends Editor {
         }
         System.out.println(model);
 
+        this.cbSimulatorType.getSelectionModel().select(mModel.getSimulatorType());
         if (!Objects.equals(mModel.getMap(), "")) {
             // 恢复绝对路径
             ((ChooseFileButton) this.btMap.getUserData()).setFile(new File(this.projectPath, mModel.getMap()));
@@ -168,55 +173,62 @@ public class ModelEditor extends Editor {
         this.gridPaneCar.setHgap(8);
         this.gridPaneCar.setVgap(8);
 
-        Label lbMap = new Label("Map: ");
+        Label lbSimulatorType = new Label("Simulator Type");
+        String[] simulators = {"Carla", "lgsvl"};
+        this.cbSimulatorType = new ComboBox<>(FXCollections.observableArrayList(simulators));
+        this.cbSimulatorType.getSelectionModel().select(0);
+
+        Label lbMap = new Label("Map");
         // 限定选择 *.xodr 文件
         Map<String, String> mapFilter = new HashMap<>();
         mapFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.MAP), FileSystem.Suffix.MAP.toString());
         this.btMap =  new ChooseFileButton(this.gridPane, this.projectPath, mapFilter).getNode();
 
-        Label lbWeather = new Label("Weather: ");
-        String[] weathers = {"clear", "rainy", "foggy", "待定 提供不同仿真器支持的天气选项"};
+        Label lbWeather = new Label("Weather");
+        // TODO 提供不同仿真器支持的天气选项
+        String[] weathers = {"clear", "rainy", "foggy"};
         this.cbWeather = new ComboBox<>(FXCollections.observableArrayList(weathers));
         this.cbWeather.getSelectionModel().select(0);
 
-        Label lbTimeStep = new Label("Time Step: ");
+        Label lbTimeStep = new Label("Time Step");
         this.spTimeStep = new Spinner<>(this.timeStepMin, this.timeStepMax, 0.1, 0.1);
         // 可直接输入
         this.spTimeStep.setEditable(true);
         this.spTimeStep.setPrefWidth(80);
 
-        Label lbSource = new Label("Actor Source: ");
+        Label lbSource = new Label("Actor Source");
         // 限定选择 *.model 文件
         Map<String, String> actorFilter = new HashMap<>();
         actorFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.MODEL), FileSystem.Suffix.MODEL.toString());
         this.btSource = new ChooseFileButton(this.gridPane, this.projectPath, actorFilter).getNode();
 
-        Label lbCars = new Label("Cars: ");
+        Label lbCars = new Label("Cars");
 
         Button btNewCar = new Button("New Car");
         btNewCar.setOnMouseClicked(e -> {
             this.newCar(new CarPane(this.projectPath));
         });
 
-        Label lbPedestrians = new Label("Pedestrians: ");
+        Label lbPedestrians = new Label("Pedestrians");
         Button btNewPedestrian = new Button("New Pedestrian");
 
-        Label lbObstacles = new Label("Obstacles: ");
+        Label lbObstacles = new Label("Obstacles");
         Button btNewObstacle = new Button("New Obstacle");
 
-        this.gridPane.addRow(0, lbMap, this.btMap);
-        this.gridPane.addRow(1, lbWeather, this.cbWeather);
-        this.gridPane.addRow(2, lbSource, this.btSource);
-        this.gridPane.addRow(3, lbTimeStep, this.spTimeStep);
-        this.gridPane.addRow(4, lbCars);
-        this.gridPane.add(this.gridPaneCar, 0, 5, 2, 1);
-        this.gridPane.addRow(6, btNewCar);
-        this.gridPane.addRow(7, lbPedestrians);
-        this.gridPane.add(this.gridPanePedestrian, 0, 8, 2, 1);
-        this.gridPane.addRow(9, btNewPedestrian);
-        this.gridPane.addRow(10, lbObstacles);
-        this.gridPane.add(this.gridPaneObstacle, 0, 11, 2, 1);
-        this.gridPane.addRow(12, btNewObstacle);
+        this.gridPane.addRow(0, lbSimulatorType, this.cbSimulatorType);
+        this.gridPane.addRow(1, lbMap, this.btMap);
+        this.gridPane.addRow(2, lbWeather, this.cbWeather);
+        this.gridPane.addRow(3, lbSource, this.btSource);
+        this.gridPane.addRow(4, lbTimeStep, this.spTimeStep);
+        this.gridPane.addRow(5, lbCars);
+        this.gridPane.add(this.gridPaneCar, 0, 6, 2, 1);
+        this.gridPane.addRow(7, btNewCar);
+        this.gridPane.addRow(8, lbPedestrians);
+        this.gridPane.add(this.gridPanePedestrian, 0, 9, 2, 1);
+        this.gridPane.addRow(10, btNewPedestrian);
+        this.gridPane.addRow(11, lbObstacles);
+        this.gridPane.add(this.gridPaneObstacle, 0, 12, 2, 1);
+        this.gridPane.addRow(13, btNewObstacle);
     }
 
     /**

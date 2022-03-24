@@ -97,8 +97,6 @@ public class CodePageController implements Initializable, Route {
             // 写入配置文件
             MConfig mConfig = new MConfig();
             mConfig.setPythonEnv(Global.pythonEnv);
-            mConfig.setSimulatorType(Global.simulatorType);
-            mConfig.setSimulatorPath(Global.simulatorPath);
 
             String config = JSON.toJSONString(mConfig);
             System.out.println(config);
@@ -179,8 +177,6 @@ public class CodePageController implements Initializable, Route {
             }
 
             Global.pythonEnv = mConfig.getPythonEnv();
-            Global.simulatorType = mConfig.getSimulatorType();
-            Global.simulatorPath = mConfig.getSimulatorPath();
         }
     }
 
@@ -376,22 +372,6 @@ public class CodePageController implements Initializable, Route {
                 System.out.println(line);
             }
             in.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void openSimulator() {
-        System.out.println("opening " + Global.simulatorType);
-        // run CARLA
-        if(Global.simulatorPath == null) {
-            System.out.println("set simulator first");
-            return;
-        }
-        String simulatorPath = Global.simulatorPath;
-        try {
-            Process process = Runtime.getRuntime().exec(simulatorPath);
         } catch (IOException e) {
             e.printStackTrace();
         }
