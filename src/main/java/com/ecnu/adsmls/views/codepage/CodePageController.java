@@ -39,6 +39,9 @@ public class CodePageController implements Initializable, Route {
     // 目录的上下文菜单
     private List<MenuItem> multiLevelDirectoryMenu = new ArrayList<>();
 
+    // 项目配置
+    private MConfig mConfig;
+
     @FXML
     private TabPane tabPane;
     // 正在被访问的文件
@@ -89,14 +92,13 @@ public class CodePageController implements Initializable, Route {
         // 设置
         MenuItem setting = new MenuItem("Settings");
         setting.setOnAction(e -> {
-            SettingsModal sm = new SettingsModal();
+            SettingsModal sm = new SettingsModal(this.mConfig);
             sm.getWindow().showAndWait();
             if(!sm.isConfirm()) {
                 return;
             }
             // 写入配置文件
-            MConfig mConfig = new MConfig();
-            mConfig.setPythonEnv(Global.pythonEnv);
+            this.mConfig.setPythonEnv(Global.pythonEnv);
 
             String config = JSON.toJSONString(mConfig);
             System.out.println(config);
@@ -171,12 +173,12 @@ public class CodePageController implements Initializable, Route {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            MConfig mConfig = JSON.parseObject(config, MConfig.class);
-            if(mConfig == null) {
+            this.mConfig = JSON.parseObject(config, MConfig.class);
+            if(this.mConfig == null) {
                 return;
             }
 
-            Global.pythonEnv = mConfig.getPythonEnv();
+            Global.pythonEnv = this.mConfig.getPythonEnv();
         }
     }
 
