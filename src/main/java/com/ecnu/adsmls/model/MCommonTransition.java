@@ -12,16 +12,16 @@ public class MCommonTransition {
 
     private List<MPosition> linkPoints = new ArrayList<>();
 
-    private List<String> guards = new ArrayList<>();
+    private String guard;
 
     private MPosition treeTextPosition;
 
-    public MCommonTransition(long id, long sourceId, long targetId, List<MPosition> linkPoints, List<String> guards, MPosition treeTextPosition) {
+    public MCommonTransition(long id, long sourceId, long targetId, List<MPosition> linkPoints, String guard, MPosition treeTextPosition) {
         this.id = id;
         this.sourceId = sourceId;
         this.targetId = targetId;
         this.linkPoints = linkPoints;
-        this.guards = guards;
+        this.guard = guard;
         this.treeTextPosition = treeTextPosition;
     }
 
@@ -59,12 +59,12 @@ public class MCommonTransition {
         this.linkPoints = linkPoints;
     }
 
-    public List<String> getGuards() {
-        return guards;
+    public String getGuard() {
+        return guard;
     }
 
-    public void setGuards(List<String> guards) {
-        this.guards = guards;
+    public void setGuard(String guard) {
+        this.guard = guard;
     }
 
     public MPosition getTreeTextPosition() {

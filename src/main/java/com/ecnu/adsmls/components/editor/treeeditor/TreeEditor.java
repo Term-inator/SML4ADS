@@ -298,7 +298,7 @@ public class TreeEditor extends Editor {
                     if(!ctm.isConfirm()) {
                         return;
                     }
-                    ((CommonTransition) transitionNode.getUserData()).setGuards(ctm.getGuards());
+                    ((CommonTransition) transitionNode.getUserData()).setGuard(ctm.getGuard());
                 }
                 else if(transitionNode.getUserData() instanceof ProbabilityTransition) {
                     System.out.println("set probability transition");
