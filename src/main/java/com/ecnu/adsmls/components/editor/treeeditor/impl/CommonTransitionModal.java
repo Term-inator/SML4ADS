@@ -24,7 +24,7 @@ public class CommonTransitionModal extends Modal {
 
     private TextArea taGuard;
 
-    private List<String> guards = new ArrayList<>();
+    private String guard;
 
     public CommonTransitionModal(CommonTransition transition) {
         super();
@@ -40,12 +40,12 @@ public class CommonTransitionModal extends Modal {
                         new CornerRadii(15), Insets.EMPTY)));
     }
 
-    public List<String> getGuards() {
-        return guards;
+    public String getGuard() {
+        return guard;
     }
 
     private void loadData() {
-        this.guards = transition.getGuards();
+        this.guard = transition.getGuard();
     }
 
     @Override
@@ -79,18 +79,10 @@ public class CommonTransitionModal extends Modal {
 
     // 属性包括 车子的位置信息  xy坐标 横向距离纵向距离  是否在交叉路口等  速度信息   数值比较这些
     private void checkGuard() {
-        // TODO 类型检查
+        // TODO 类型检查, 符号检查 && || !
     }
 
     public void updateGuard() {
-        this.guards.clear();
-        String[] guards = this.taGuard.getText().split(";");
-        for(String guard : guards) {
-            guard = guard.replaceAll("[\r\n]", "");
-            if(Objects.equals(guard, "")) {
-                continue;
-            }
-            this.guards.add(guard.trim());
-        }
+        this.guard = this.taGuard.getText();
     }
 }

@@ -67,7 +67,7 @@ public class Converter {
         long sourceId = mCommonTransition.getSourceId();
         long targetId = mCommonTransition.getTargetId();
         List<MPosition> mPositionList = mCommonTransition.getLinkPoints();
-        List<String> guards = mCommonTransition.getGuards();
+        String guard = mCommonTransition.getGuard();
         Position treeTextPosition = cast(mCommonTransition.getTreeTextPosition());
         CommonTransition commonTransition = new CommonTransition(id);
         TreeArea source = null;
@@ -97,7 +97,7 @@ public class Converter {
         commonTransition.initTreeText();
         commonTransition.getTreeText().setPosition(treeTextPosition);
 
-        commonTransition.setGuards(guards);
+        commonTransition.setGuard(guard);
 
         commonTransition.finish();
         return commonTransition;
@@ -108,12 +108,12 @@ public class Converter {
         long sourceId = commonTransition.getSource().getId();
         long targetId = commonTransition.getTarget().getId();
         List<MPosition> mPositionList = new ArrayList<>();
-        List<String> guards = commonTransition.getGuards();
+        String guard = commonTransition.getGuard();
         MPosition mTreeTextPosition = cast(commonTransition.getTreeText().getPosition());
         for(TreeLinkPoint treeLinkPoint : commonTransition.getLinkPoints()) {
             mPositionList.add(cast(treeLinkPoint.getPosition()));
         }
-        return new MCommonTransition(id, sourceId, targetId, mPositionList, guards, mTreeTextPosition);
+        return new MCommonTransition(id, sourceId, targetId, mPositionList, guard, mTreeTextPosition);
     }
 
     public static ProbabilityTransition cast(List<TreeArea> treeAreaList, MProbabilityTransition mProbabilityTransition) {
