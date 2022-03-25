@@ -1,30 +1,31 @@
 package com.ecnu.adsmls.components.editor.modeleditor;
 
+import com.ecnu.adsmls.utils.FunctionRegister;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-public class LocationRegister {
+public class LocationRegister extends FunctionRegister {
     // 位置类型，参数名，参数类型
-    private static LinkedHashMap<String, LinkedHashMap<String, String>> locationFunctions = new LinkedHashMap<>();
+    private static LinkedHashMap<String, List<FunctionParam>> locationFunctions = new LinkedHashMap<>();
 
     static {
-        LinkedHashMap<String, String> params = new LinkedHashMap<>();
+        register("Global Position", new ArrayList<>(List.of(
+                new FunctionParam("x", DataType.DOUBLE, Necessity.REQUIRED),
+                new FunctionParam("y", DataType.DOUBLE, Necessity.REQUIRED)
+        )));
 
-        params.put("x", "double");
-        params.put("y", "double");
-        register("Global Position", (LinkedHashMap<String, String>) params.clone());
-
-        params.clear();
-        params.put("road id", "int");
-        params.put("lane id", "int");
-        params.put("lateral offset", "double");
-        params.put("min longitudinal offset", "double");
-        params.put("max longitudinal offset", "double");
-        register("Lane Position", (LinkedHashMap<String, String>) params.clone());
+        register("Lane Position", new ArrayList<>(List.of(
+                new FunctionParam("road id", DataType.INT, Necessity.REQUIRED),
+                new FunctionParam("lane id", DataType.INT, Necessity.REQUIRED),
+                new FunctionParam("lateral offset", DataType.DOUBLE, Necessity.REQUIRED),
+                new FunctionParam("min longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED),
+                new FunctionParam("max longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED)
+        )));
     }
 
-    public static void register(String locationType, LinkedHashMap<String, String> params) {
+    public static void register(String locationType, List<FunctionParam> params) {
         if(locationFunctions.containsKey(locationType)) {
             return;
         }
@@ -35,7 +36,7 @@ public class LocationRegister {
         return new ArrayList<>(locationFunctions.keySet());
     }
 
-    public static LinkedHashMap<String, String> getParams(String locationType) {
+    public static List<FunctionParam> getParams(String locationType) {
         return locationFunctions.get(locationType);
     }
 }

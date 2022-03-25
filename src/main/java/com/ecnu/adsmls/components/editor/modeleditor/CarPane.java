@@ -4,6 +4,7 @@ import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.components.editor.treeeditor.impl.BehaviorRegister;
 import com.ecnu.adsmls.model.MCar;
 import com.ecnu.adsmls.utils.FileSystem;
+import com.ecnu.adsmls.utils.FunctionRegister;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -136,11 +137,11 @@ public class CarPane {
         cbLocation.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             gridPaneLocationParams.getChildren().clear();
 
-            LinkedHashMap<String, String> paramsInfo = LocationRegister.getParams(newValue);
+            List<FunctionRegister.FunctionParam> paramsInfo = LocationRegister.getParams(newValue);
             // 生成界面
             int row = 0;
-            for(Map.Entry<String, String> param : paramsInfo.entrySet()) {
-                Label lbParamName = new Label(param.getKey());
+            for(FunctionRegister.FunctionParam param : paramsInfo) {
+                Label lbParamName = new Label(param.getParamName());
                 TextField tfParamValue = new TextField();
                 gridPaneLocationParams.addRow(row++, lbParamName, tfParamValue);
             }
