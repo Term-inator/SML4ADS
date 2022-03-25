@@ -16,10 +16,12 @@ public class LocationRegister extends FunctionRegister {
                 new FunctionParam("y", DataType.DOUBLE, Necessity.REQUIRED)
         )));
 
+        // TODO 若 lateral offset 超过 lane 宽度, 则报错
         register("Lane Position", new ArrayList<>(List.of(
                 new FunctionParam("road id", DataType.INT, Necessity.REQUIRED),
                 new FunctionParam("lane id", DataType.INT, Necessity.REQUIRED),
-                new FunctionParam("lateral offset", DataType.DOUBLE, Necessity.REQUIRED),
+                new FunctionParam("min lateral offset", DataType.DOUBLE, Necessity.REQUIRED),
+                new FunctionParam("max lateral offset", DataType.DOUBLE, Necessity.REQUIRED),
                 new FunctionParam("min longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED),
                 new FunctionParam("max longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED)
         )));
