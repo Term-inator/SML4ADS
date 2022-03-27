@@ -25,6 +25,22 @@ public class LocationRegister extends FunctionRegister {
                 new FunctionParam("min longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED),
                 new FunctionParam("max longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED)
         )));
+
+        register("Road Position", new ArrayList<>(List.of(
+                new FunctionParam("road id", DataType.INT, Necessity.REQUIRED),
+                new FunctionParam("min lateral offset", DataType.DOUBLE, Necessity.REQUIRED),
+                new FunctionParam("max lateral offset", DataType.DOUBLE, Necessity.REQUIRED),
+                new FunctionParam("min longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED),
+                new FunctionParam("max longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED)
+        )));
+
+        register("Related Position", new ArrayList<>(List.of(
+                new FunctionParam("entity reference", DataType.STRING, Necessity.REQUIRED),
+                new FunctionParam("min lateral offset", DataType.DOUBLE, Necessity.REQUIRED),
+                new FunctionParam("max lateral offset", DataType.DOUBLE, Necessity.REQUIRED),
+                new FunctionParam("min longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED),
+                new FunctionParam("max longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED)
+        )));
     }
 
     public static void register(String locationType, List<FunctionParam> params) {
