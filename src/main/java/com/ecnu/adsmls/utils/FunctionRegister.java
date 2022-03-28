@@ -9,7 +9,7 @@ import java.util.Objects;
 
 public abstract class FunctionRegister {
     public enum DataType {
-        INT, DOUBLE
+        INT, DOUBLE, STRING
     }
 
     public enum Necessity {

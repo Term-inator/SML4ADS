@@ -11,11 +11,19 @@ public class BehaviorRegister extends FunctionRegister {
 
     // 初始化内置 behavior 及其参数
     static {
+        // 匀速
         register("Keep", new ArrayList<>(List.of(
                 new FunctionParam("duration", DataType.INT, Necessity.OPTIONAL))
         ));
 
+        // TODO Acc Dec 加速度非负
         register("Accelerate", new ArrayList<>(List.of(
+                new FunctionParam("acceleration", DataType.DOUBLE, Necessity.REQUIRED),
+                new FunctionParam("target speed", DataType.DOUBLE, Necessity.REQUIRED),
+                new FunctionParam("duration", DataType.INT, Necessity.OPTIONAL))
+        ));
+
+        register("Decelerate", new ArrayList<>(List.of(
                 new FunctionParam("acceleration", DataType.DOUBLE, Necessity.REQUIRED),
                 new FunctionParam("target speed", DataType.DOUBLE, Necessity.REQUIRED),
                 new FunctionParam("duration", DataType.INT, Necessity.OPTIONAL))
@@ -34,9 +42,21 @@ public class BehaviorRegister extends FunctionRegister {
                 new FunctionParam("acceleration", DataType.DOUBLE, Necessity.REQUIRED),
                 new FunctionParam("target speed", DataType.DOUBLE, Necessity.REQUIRED)
         )));
-        register("TurnRight",new ArrayList<>(List.of(
+        register("TurnRight", new ArrayList<>(List.of(
                 new FunctionParam("acceleration", DataType.DOUBLE, Necessity.REQUIRED),
                 new FunctionParam("target speed", DataType.DOUBLE, Necessity.REQUIRED)
+        )));
+
+        register("LaneOffset", new ArrayList<>(List.of(
+                new FunctionParam("offset", DataType.DOUBLE, Necessity.REQUIRED),
+                new FunctionParam("acceleration", DataType.DOUBLE, Necessity.OPTIONAL),
+                new FunctionParam("target speed", DataType.DOUBLE, Necessity.OPTIONAL),
+                new FunctionParam("duration", DataType.DOUBLE, Necessity.OPTIONAL)
+        )));
+
+        // 静止且什么都不做
+        register("Idle", new ArrayList<>(List.of(
+                new FunctionParam("duration", DataType.DOUBLE, Necessity.OPTIONAL)
         )));
     }
 

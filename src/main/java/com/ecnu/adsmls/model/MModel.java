@@ -14,16 +14,19 @@ public class MModel {
 
     private double timeStep;
 
+    private double simulationTime;
+
     private List<MCar> cars = new ArrayList<>();
 
     private List<String> requirements = new ArrayList<>();
 
-    public MModel(String simulatorType,String map, String weather, String source, int timeStep, List<MCar> cars, List<String> requirements) {
+    public MModel(String simulatorType,String map, String weather, String source, double timeStep, double simulationTime, List<MCar> cars, List<String> requirements) {
         this.simulatorType = simulatorType;
         this.map = map;
         this.weather = weather;
         this.source = source;
         this.timeStep = timeStep;
+        this.simulationTime = simulationTime;
         this.cars = cars;
         this.requirements = requirements;
     }
@@ -69,6 +72,14 @@ public class MModel {
 
     public void setTimeStep(double timeStep) {
         this.timeStep = timeStep;
+    }
+
+    public double getSimulationTime() {
+        return simulationTime;
+    }
+
+    public void setSimulationTime(double simulationTime) {
+        this.simulationTime = simulationTime;
     }
 
     public List<MCar> getCars() {

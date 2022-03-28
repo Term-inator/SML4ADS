@@ -87,10 +87,10 @@ public class BehaviorModal extends Modal {
             this.paramsInfo = BehaviorRegister.getParams(this.behaviorName);
             // 生成界面
             int row = 0;
-            for(FunctionRegister.FunctionParam param : paramsInfo) {
+            for(FunctionRegister.FunctionParam param : this.paramsInfo) {
                 String labelName = param.getParamName();
-                if(Objects.equals(param.getNecessity(), FunctionRegister.Necessity.OPTIONAL)) {
-                    labelName = "(" + labelName + ")";
+                if(Objects.equals(param.getNecessity(), FunctionRegister.Necessity.REQUIRED)) {
+                    labelName =  labelName + "*";
                 }
                 Label lbParamName = new Label(labelName);
                 TextField tfParamValue = new TextField();
@@ -125,6 +125,10 @@ public class BehaviorModal extends Modal {
         for(Node node : this.behaviorParamsGridPane.getChildren()) {
             if(node instanceof Label) {
                 paramName = ((Label) node).getText();
+                // 必填的参数对应的参数名
+                if(paramName.charAt(paramName.length() - 1) == '*') {
+                    paramName = paramName.substring(0, paramName.length() - 1);
+                }
             }
             else if(node instanceof TextField) {
                 paramValue = ((TextField) node).getText();
@@ -156,7 +160,7 @@ public class BehaviorModal extends Modal {
                 }
             }
             catch (Exception e) {
-                e.printStackTrace();
+//                e.printStackTrace();
                 System.out.println("Invalid type of params");
                 this.valid = false;
                 break;
