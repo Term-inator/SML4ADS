@@ -11,6 +11,7 @@ public class BehaviorRegister extends FunctionRegister {
 
     // 初始化内置 behavior 及其参数
     static {
+        // 匀速
         register("Keep", new ArrayList<>(List.of(
                 new FunctionParam("duration", DataType.INT, Necessity.OPTIONAL))
         ));
@@ -44,6 +45,11 @@ public class BehaviorRegister extends FunctionRegister {
         register("TurnRight",new ArrayList<>(List.of(
                 new FunctionParam("acceleration", DataType.DOUBLE, Necessity.REQUIRED),
                 new FunctionParam("target speed", DataType.DOUBLE, Necessity.REQUIRED)
+        )));
+
+        // 静止且什么都不做
+        register("Idle", new ArrayList<>(List.of(
+                new FunctionParam("duration", DataType.DOUBLE, Necessity.OPTIONAL)
         )));
     }
 
