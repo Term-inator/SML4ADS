@@ -42,9 +42,16 @@ public class BehaviorRegister extends FunctionRegister {
                 new FunctionParam("acceleration", DataType.DOUBLE, Necessity.REQUIRED),
                 new FunctionParam("target speed", DataType.DOUBLE, Necessity.REQUIRED)
         )));
-        register("TurnRight",new ArrayList<>(List.of(
+        register("TurnRight", new ArrayList<>(List.of(
                 new FunctionParam("acceleration", DataType.DOUBLE, Necessity.REQUIRED),
                 new FunctionParam("target speed", DataType.DOUBLE, Necessity.REQUIRED)
+        )));
+
+        register("LaneOffset", new ArrayList<>(List.of(
+                new FunctionParam("offset", DataType.DOUBLE, Necessity.REQUIRED),
+                new FunctionParam("acceleration", DataType.DOUBLE, Necessity.OPTIONAL),
+                new FunctionParam("target speed", DataType.DOUBLE, Necessity.OPTIONAL),
+                new FunctionParam("duration", DataType.DOUBLE, Necessity.OPTIONAL)
         )));
 
         // 静止且什么都不做

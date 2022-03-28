@@ -156,7 +156,7 @@ public class BehaviorModal extends Modal {
                 }
             }
             catch (Exception e) {
-                e.printStackTrace();
+//                e.printStackTrace();
                 System.out.println("Invalid type of params");
                 this.valid = false;
                 break;
