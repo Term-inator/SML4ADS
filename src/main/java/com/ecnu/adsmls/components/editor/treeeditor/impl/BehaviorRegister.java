@@ -1,7 +1,6 @@
 package com.ecnu.adsmls.components.editor.treeeditor.impl;
 
 import com.ecnu.adsmls.utils.FunctionRegister;
-import javafx.util.Pair;
 
 import java.util.*;
 

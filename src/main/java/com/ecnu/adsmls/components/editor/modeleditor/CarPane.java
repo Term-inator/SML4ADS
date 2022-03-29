@@ -1,7 +1,6 @@
 package com.ecnu.adsmls.components.editor.modeleditor;
 
 import com.ecnu.adsmls.components.ChooseFileButton;
-import com.ecnu.adsmls.components.editor.treeeditor.impl.BehaviorRegister;
 import com.ecnu.adsmls.model.MCar;
 import com.ecnu.adsmls.utils.FileSystem;
 import com.ecnu.adsmls.utils.FunctionRegister;
