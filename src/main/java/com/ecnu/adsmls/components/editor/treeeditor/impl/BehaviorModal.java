@@ -141,28 +141,12 @@ public class BehaviorModal extends Modal {
         int i = 0;
         for(Map.Entry<String, String> param : this.paramsValue.entrySet()) {
             // 类型检查
-            try {
-                String key = param.getKey();
-                String value = param.getValue();
-                FunctionRegister.FunctionParam functionParam = this.paramsInfo.get(i);
-                if(Objects.equals(param.getValue(), "")) {
-                    if (Objects.equals(functionParam.getNecessity(), FunctionRegister.Necessity.REQUIRED)) {
-                        this.valid = false;
-                        break;
-                    }
-                }
-                else {
-                    if (Objects.equals(functionParam.getDataType(), FunctionRegister.DataType.INT)) {
-                        Integer.parseInt(value);
-                    } else if (Objects.equals(functionParam.getDataType(), FunctionRegister.DataType.DOUBLE)) {
-                        Double.parseDouble(value);
-                    }
-                }
-            }
-            catch (Exception e) {
-//                e.printStackTrace();
-                System.out.println("Invalid type of params");
-                this.valid = false;
+
+            String key = param.getKey();
+            String value = param.getValue();
+            FunctionRegister.FunctionParam functionParam = this.paramsInfo.get(i);
+            this.valid = functionParam.check(value);
+            if(!this.valid) {
                 break;
             }
             ++i;

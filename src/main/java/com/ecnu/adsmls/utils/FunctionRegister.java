@@ -48,12 +48,15 @@ public abstract class FunctionRegister {
                 switch (this.dataType) {
                     case INT: {
                         Integer.parseInt(value);
+                        break;
                     }
                     case DOUBLE: {
                         Double.parseDouble(value);
+                        break;
                     }
                     case STRING: {
                         // do nothing
+                        break;
                     }
                     default: {
                         return false;
@@ -64,6 +67,7 @@ public abstract class FunctionRegister {
                 e.printStackTrace();
                 return false;
             }
+            return true;
         }
 
         private boolean checkRequirements(String value) {
@@ -72,6 +76,7 @@ public abstract class FunctionRegister {
                 if(Objects.equals(this.dataType, DataType.INT) ||
                         Objects.equals(this.dataType, DataType.DOUBLE)) {
                     double eval = Double.parseDouble(value);
+                    System.out.println(eval);
                     switch (requirement) {
                         case POS: {
                             return eval > 0;

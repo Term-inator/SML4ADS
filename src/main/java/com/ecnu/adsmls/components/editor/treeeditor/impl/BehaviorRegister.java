@@ -15,15 +15,14 @@ public class BehaviorRegister extends FunctionRegister {
                 new FunctionParam("duration", DataType.INT, Necessity.OPTIONAL))
         ));
 
-        // TODO Acc Dec 加速度非负
         register("Accelerate", new ArrayList<>(List.of(
-                new FunctionParam("acceleration", DataType.DOUBLE, Necessity.REQUIRED),
+                new FunctionParam("acceleration", DataType.DOUBLE, Necessity.REQUIRED, Requirement.NOT_NEG),
                 new FunctionParam("target speed", DataType.DOUBLE, Necessity.REQUIRED),
                 new FunctionParam("duration", DataType.INT, Necessity.OPTIONAL))
         ));
 
         register("Decelerate", new ArrayList<>(List.of(
-                new FunctionParam("acceleration", DataType.DOUBLE, Necessity.REQUIRED),
+                new FunctionParam("acceleration", DataType.DOUBLE, Necessity.REQUIRED, Requirement.NOT_NEG),
                 new FunctionParam("target speed", DataType.DOUBLE, Necessity.REQUIRED),
                 new FunctionParam("duration", DataType.INT, Necessity.OPTIONAL))
         ));
