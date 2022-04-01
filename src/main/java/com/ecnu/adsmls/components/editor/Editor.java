@@ -1,5 +1,6 @@
 package com.ecnu.adsmls.components.editor;
 
+import com.ecnu.adsmls.utils.EmptyParamException;
 import com.ecnu.adsmls.utils.FileSystem;
 import javafx.scene.Node;
 
@@ -29,7 +30,7 @@ public abstract class Editor {
     /**
      * 保存文件
      */
-    public abstract void save();
+    public abstract void save() throws EmptyParamException;
 
     /**
      * 加载文件
