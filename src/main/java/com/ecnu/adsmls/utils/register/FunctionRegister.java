@@ -1,4 +1,4 @@
-package com.ecnu.adsmls.utils;
+package com.ecnu.adsmls.utils.register;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -12,10 +12,6 @@ public abstract class FunctionRegister {
 
     public enum Necessity {
         REQUIRED, OPTIONAL
-    }
-
-    public enum Requirement {
-        POS, NOT_POS, NEG, NOT_NEG, NOT_ZERO
     }
 
     public static class FunctionParam {
@@ -72,34 +68,8 @@ public abstract class FunctionRegister {
 
         private boolean checkRequirements(String value) {
             for(Requirement requirement : this.requirements) {
-                // 是数字
-                if(Objects.equals(this.dataType, DataType.INT) ||
-                        Objects.equals(this.dataType, DataType.DOUBLE)) {
-                    double eval = Double.parseDouble(value);
-                    System.out.println(eval);
-                    switch (requirement) {
-                        case POS: {
-                            return eval > 0;
-                        }
-                        case NOT_POS: {
-                            return !(eval > 0);
-                        }
-                        case NEG: {
-                            return eval < 0;
-                        }
-                        case NOT_NEG: {
-                            return !(eval < 0);
-                        }
-                        case NOT_ZERO: {
-                            return eval != 0;
-                        }
-                        default: {
-                            return false;
-                        }
-                    }
-                }
-                else {
-                    return true;
+                if(!requirement.check(value)) {
+                    return false;
                 }
             }
             return true;

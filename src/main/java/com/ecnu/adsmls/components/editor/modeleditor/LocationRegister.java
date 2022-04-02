@@ -1,6 +1,7 @@
 package com.ecnu.adsmls.components.editor.modeleditor;
 
-import com.ecnu.adsmls.utils.FunctionRegister;
+import com.ecnu.adsmls.utils.register.FunctionRegister;
+import com.ecnu.adsmls.utils.register.Positive;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -18,7 +19,7 @@ public class LocationRegister extends FunctionRegister {
 
         // TODO 若 lateral offset 超过 lane 宽度, 则报错
         register("Lane Position", new ArrayList<>(List.of(
-                new FunctionParam("road id", DataType.INT, Necessity.REQUIRED),
+        new FunctionParam("road id", DataType.INT, Necessity.REQUIRED),
                 new FunctionParam("lane id", DataType.INT, Necessity.REQUIRED),
                 new FunctionParam("min lateral offset", DataType.DOUBLE, Necessity.REQUIRED),
                 new FunctionParam("max lateral offset", DataType.DOUBLE, Necessity.REQUIRED),

@@ -4,7 +4,7 @@ import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.model.MCar;
 import com.ecnu.adsmls.utils.EmptyParamException;
 import com.ecnu.adsmls.utils.FileSystem;
-import com.ecnu.adsmls.utils.FunctionRegister;
+import com.ecnu.adsmls.utils.register.FunctionRegister;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
