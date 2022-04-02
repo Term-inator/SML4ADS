@@ -2,8 +2,10 @@ package com.ecnu.adsmls.views.codepage;
 
 import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.editor.Editor;
+import com.ecnu.adsmls.components.editor.modeleditor.LocationRegister;
 import com.ecnu.adsmls.components.editor.modeleditor.ModelEditor;
 import com.ecnu.adsmls.components.editor.treeeditor.TreeEditor;
+import com.ecnu.adsmls.components.editor.treeeditor.impl.BehaviorRegister;
 import com.ecnu.adsmls.components.modal.*;
 import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
 import com.ecnu.adsmls.model.MConfig;
@@ -56,6 +58,8 @@ public class CodePageController implements Initializable, Route {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         System.out.println("init");
+        new BehaviorRegister().init();
+        new LocationRegister().init();
         this.initMenu();
     }
 

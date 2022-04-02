@@ -1,11 +1,12 @@
 package com.ecnu.adsmls.utils.register;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public abstract class FunctionRegister {
+    public abstract void init();
+
+    public abstract void register(String type, List<FunctionParam> params);
+
     public enum DataType {
         INT, DOUBLE, STRING
     }
@@ -14,7 +15,9 @@ public abstract class FunctionRegister {
         REQUIRED, OPTIONAL
     }
 
-    public static class FunctionParam {
+    private Map<String, String> context = new HashMap<>();
+
+    public class FunctionParam {
         String paramName;
         DataType dataType;
         Necessity necessity;
@@ -25,6 +28,7 @@ public abstract class FunctionRegister {
             this.dataType = dataType;
             this.necessity = necessity;
             this.requirements.addAll(Arrays.asList(requirements));
+
         }
 
         public String getParamName() {
@@ -96,6 +100,14 @@ public abstract class FunctionRegister {
                 return Objects.equals(this.paramName, other.paramName);
             }
             return false;
+        }
+
+        @Override
+        public String toString() {
+            return "FunctionParam{" +
+                    "paramName='" + paramName + '\'' +
+                    ", dataType=" + dataType +
+                    '}';
         }
     }
 }

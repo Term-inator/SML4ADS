@@ -68,14 +68,15 @@ public class CarPane {
             }
             else if(node instanceof TextField) {
                 locationParamValue = ((TextField) node).getText();
+                System.out.println(locationParamName);
                 if(paramsInfo.get(i).check(locationParamValue)) {
                     this.locationParams.put(locationParamName, locationParamValue);
+                    ++i;
                 }
                 else {
                     return false;
                 }
             }
-            ++i;
         }
         return true;
     }

@@ -11,15 +11,17 @@ public class LocationRegister extends FunctionRegister {
     // 位置类型，参数名，参数类型
     private static LinkedHashMap<String, List<FunctionParam>> locationFunctions = new LinkedHashMap<>();
 
-    static {
-        register("Global Position", new ArrayList<>(List.of(
-                new FunctionParam("x", DataType.DOUBLE, Necessity.REQUIRED),
-                new FunctionParam("y", DataType.DOUBLE, Necessity.REQUIRED)
+    @Override
+    public void init() {
+        this.register("Global Position", new ArrayList<>(List.of(
+                this.new FunctionParam("x", DataType.DOUBLE, Necessity.REQUIRED),
+                this.new FunctionParam("y", DataType.DOUBLE, Necessity.REQUIRED)
         )));
 
-        // TODO 若 lateral offset 超过 lane 宽度, 则报错
-        register("Lane Position", new ArrayList<>(List.of(
-        new FunctionParam("road id", DataType.INT, Necessity.REQUIRED),
+        // 若 lateral offset 超过 lane 宽度, 则报错
+        double laneWidth = 4.0;
+        this.register("Lane Position", new ArrayList<>(List.of(
+                new FunctionParam("road id", DataType.INT, Necessity.REQUIRED),
                 new FunctionParam("lane id", DataType.INT, Necessity.REQUIRED),
                 new FunctionParam("min lateral offset", DataType.DOUBLE, Necessity.REQUIRED),
                 new FunctionParam("max lateral offset", DataType.DOUBLE, Necessity.REQUIRED),
@@ -27,7 +29,7 @@ public class LocationRegister extends FunctionRegister {
                 new FunctionParam("max longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED)
         )));
 
-        register("Road Position", new ArrayList<>(List.of(
+        this.register("Road Position", new ArrayList<>(List.of(
                 new FunctionParam("road id", DataType.INT, Necessity.REQUIRED),
                 new FunctionParam("min lateral offset", DataType.DOUBLE, Necessity.REQUIRED),
                 new FunctionParam("max lateral offset", DataType.DOUBLE, Necessity.REQUIRED),
@@ -35,7 +37,7 @@ public class LocationRegister extends FunctionRegister {
                 new FunctionParam("max longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED)
         )));
 
-        register("Related Position", new ArrayList<>(List.of(
+        this.register("Related Position", new ArrayList<>(List.of(
                 new FunctionParam("entity reference", DataType.STRING, Necessity.REQUIRED),
                 new FunctionParam("min lateral offset", DataType.DOUBLE, Necessity.REQUIRED),
                 new FunctionParam("max lateral offset", DataType.DOUBLE, Necessity.REQUIRED),
@@ -44,8 +46,9 @@ public class LocationRegister extends FunctionRegister {
         )));
     }
 
-    public static void register(String locationType, List<FunctionParam> params) {
-        if(locationFunctions.containsKey(locationType)) {
+    @Override
+    public void register(String locationType, List<FunctionParam> params) {
+        if (locationFunctions.containsKey(locationType)) {
             return;
         }
         locationFunctions.put(locationType, params);
