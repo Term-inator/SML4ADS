@@ -61,14 +61,12 @@ public class CarPane {
         String locationParamName = "";
         String locationParamValue = "";
         int i = 0;
-        // TODO 进一步的参数检查
         for(Node node : this.gridPaneLocationParams.getChildren()) {
             if(node instanceof Label) {
                 locationParamName = ((Label) node).getText();
             }
             else if(node instanceof TextField) {
                 locationParamValue = ((TextField) node).getText();
-                System.out.println(locationParamName);
                 if(paramsInfo.get(i).check(locationParamValue)) {
                     this.locationParams.put(locationParamName, locationParamValue);
                     ++i;
@@ -83,7 +81,8 @@ public class CarPane {
 
     public MCar save() throws EmptyParamException {
         if(!check()) {
-            throw new EmptyParamException("Required param(s) is/are empty.");
+            // TODO 报错信息不够明确
+            throw new EmptyParamException("Required param(s) is/are empty or invalid.");
         }
 
         MCar car = new MCar();

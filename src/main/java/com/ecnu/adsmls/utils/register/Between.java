@@ -17,18 +17,18 @@ public class Between implements Requirement {
 
     @Override
     public boolean check(Map<String, String> context, String value) {
-        Double lVal, rVal;
+        double lVal = .0, rVal = .0;
         if(this.l instanceof Value) {
             lVal = ((Value) l).getValue().doubleValue();
         }
-        else {
+        else if(this.l instanceof Reference) {
             lVal = Double.parseDouble(context.get(((Reference) l).getId()));
         }
 
         if(this.r instanceof Value) {
             rVal = (Double) ((Value) r).getValue();
         }
-        else {
+        else if(this.r instanceof Reference) {
             rVal = Double.parseDouble(context.get(((Reference) r).getId()));
         }
         return Geometry.between(Double.parseDouble(value), lVal, rVal, this.op);

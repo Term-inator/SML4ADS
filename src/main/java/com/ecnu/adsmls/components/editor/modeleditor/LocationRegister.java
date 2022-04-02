@@ -1,7 +1,6 @@
 package com.ecnu.adsmls.components.editor.modeleditor;
 
-import com.ecnu.adsmls.utils.register.FunctionRegister;
-import com.ecnu.adsmls.utils.register.Positive;
+import com.ecnu.adsmls.utils.register.*;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -23,26 +22,38 @@ public class LocationRegister extends FunctionRegister {
         this.register("Lane Position", new ArrayList<>(List.of(
                 new FunctionParam("road id", DataType.INT, Necessity.REQUIRED),
                 new FunctionParam("lane id", DataType.INT, Necessity.REQUIRED),
-                new FunctionParam("min lateral offset", DataType.DOUBLE, Necessity.REQUIRED),
-                new FunctionParam("max lateral offset", DataType.DOUBLE, Necessity.REQUIRED),
-                new FunctionParam("min longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED),
-                new FunctionParam("max longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED)
-        )));
+                new FunctionParam("min lateral offset", DataType.DOUBLE, Necessity.REQUIRED,
+                        new Between(new Value(0), new Value(laneWidth), "[]")),
+                new FunctionParam("max lateral offset", DataType.DOUBLE, Necessity.REQUIRED,
+                        new Between(new Reference("min lateral offset"), new Value(laneWidth), "[]")),
+                new FunctionParam("min longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED,
+                        new NotNegative()),
+                new FunctionParam("max longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED,
+                        new Between(new Reference("min longitudinal offset"), new Value(Double.MAX_VALUE), "[)")))
+        ));
 
         this.register("Road Position", new ArrayList<>(List.of(
                 new FunctionParam("road id", DataType.INT, Necessity.REQUIRED),
-                new FunctionParam("min lateral offset", DataType.DOUBLE, Necessity.REQUIRED),
-                new FunctionParam("max lateral offset", DataType.DOUBLE, Necessity.REQUIRED),
-                new FunctionParam("min longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED),
-                new FunctionParam("max longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED)
+                new FunctionParam("min lateral offset", DataType.DOUBLE, Necessity.REQUIRED,
+                        new Between(new Value(0), new Value(laneWidth), "[]")),
+                new FunctionParam("max lateral offset", DataType.DOUBLE, Necessity.REQUIRED,
+                        new Between(new Reference("min lateral offset"), new Value(laneWidth), "[]")),
+                new FunctionParam("min longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED,
+                        new NotNegative()),
+                new FunctionParam("max longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED,
+                        new Between(new Reference("min longitudinal offset"), new Value(Double.MAX_VALUE), "[)"))
         )));
 
         this.register("Related Position", new ArrayList<>(List.of(
                 new FunctionParam("entity reference", DataType.STRING, Necessity.REQUIRED),
-                new FunctionParam("min lateral offset", DataType.DOUBLE, Necessity.REQUIRED),
-                new FunctionParam("max lateral offset", DataType.DOUBLE, Necessity.REQUIRED),
-                new FunctionParam("min longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED),
-                new FunctionParam("max longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED)
+                new FunctionParam("min lateral offset", DataType.DOUBLE, Necessity.REQUIRED,
+                        new Between(new Value(0), new Value(laneWidth), "[]")),
+                new FunctionParam("max lateral offset", DataType.DOUBLE, Necessity.REQUIRED,
+                        new Between(new Reference("min lateral offset"), new Value(laneWidth), "[]")),
+                new FunctionParam("min longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED,
+                        new NotNegative()),
+                new FunctionParam("max longitudinal offset", DataType.DOUBLE, Necessity.REQUIRED,
+                        new Between(new Reference("min longitudinal offset"), new Value(Double.MAX_VALUE), "[)"))
         )));
     }
 
