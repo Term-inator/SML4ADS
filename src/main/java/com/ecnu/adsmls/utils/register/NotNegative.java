@@ -2,6 +2,6 @@ package com.ecnu.adsmls.utils.register;
 
 public class NotNegative extends Between {
     public NotNegative() {
-        super(0, Double.POSITIVE_INFINITY, "[)");
+        super(new Value(0), new Value(Double.POSITIVE_INFINITY), "[)");
     }
 }

@@ -15,6 +15,7 @@ public abstract class FunctionRegister {
         REQUIRED, OPTIONAL
     }
 
+    // 上下文，关注兄弟参数
     private Map<String, String> context = new HashMap<>();
 
     public class FunctionParam {
@@ -71,8 +72,9 @@ public abstract class FunctionRegister {
         }
 
         private boolean checkRequirements(String value) {
+            context.put(this.paramName, value);
             for(Requirement requirement : this.requirements) {
-                if(!requirement.check(value)) {
+                if(!requirement.check(context, value)) {
                     return false;
                 }
             }
