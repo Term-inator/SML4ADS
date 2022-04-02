@@ -1,10 +1,10 @@
 package com.ecnu.adsmls.components.editor.modeleditor;
 
 import com.ecnu.adsmls.components.ChooseFileButton;
-import com.ecnu.adsmls.components.editor.treeeditor.impl.BehaviorRegister;
 import com.ecnu.adsmls.model.MCar;
+import com.ecnu.adsmls.utils.EmptyParamException;
 import com.ecnu.adsmls.utils.FileSystem;
-import com.ecnu.adsmls.utils.FunctionRegister;
+import com.ecnu.adsmls.utils.register.FunctionRegister;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -34,6 +34,7 @@ public class CarPane {
     private ComboBox<String> cbLocation;
     // 位置参数
     private GridPane gridPaneLocationParams;
+    LinkedHashMap<String, String> locationParams = new LinkedHashMap<>();
     // 朝向，和路同向或反向
     private ComboBox<String> cbHeading;
     // 偏移程度
@@ -46,28 +47,51 @@ public class CarPane {
         this.createNode();
     }
 
-    public MCar save() {
-        MCar car = new MCar();
-        car.setName(this.tfName.getText());
-        car.setModel(this.cbModel.getValue());
-        car.setMaxSpeed(Double.parseDouble(this.tfMaxSpeed.getText()));
-        car.setInitSpeed(Double.parseDouble(this.tfInitSpeed.getText()));
-        car.setLocationType(this.cbLocation.getValue());
+    private boolean check() {
+        if(this.tfName.getText().isEmpty() ||
+                this.tfMaxSpeed.getText().isEmpty() ||
+                this.tfInitSpeed.getText().isEmpty() ||
+                this.cbLocation.getValue().isEmpty() ||
+                this.tfRoadDeviation.getText().isEmpty()) {
+            return false;
+        }
 
-        // TODO 参数检查
-        LinkedHashMap<String, String> locationParams = new LinkedHashMap<>();
+        this.locationParams.clear();
+        List<FunctionRegister.FunctionParam> paramsInfo = LocationRegister.getParams(this.cbLocation.getValue());
         String locationParamName = "";
         String locationParamValue = "";
+        int i = 0;
         for(Node node : this.gridPaneLocationParams.getChildren()) {
             if(node instanceof Label) {
                 locationParamName = ((Label) node).getText();
             }
             else if(node instanceof TextField) {
                 locationParamValue = ((TextField) node).getText();
-                locationParams.put(locationParamName, locationParamValue);
+                if(paramsInfo.get(i).check(locationParamValue)) {
+                    this.locationParams.put(locationParamName, locationParamValue);
+                    ++i;
+                }
+                else {
+                    return false;
+                }
             }
         }
-        car.setLocationParams(locationParams);
+        return true;
+    }
+
+    public MCar save() throws EmptyParamException {
+        if(!check()) {
+            // TODO 报错信息不够明确
+            throw new EmptyParamException("Required param(s) is/are empty or invalid.");
+        }
+
+        MCar car = new MCar();
+        car.setName(this.tfName.getText());
+        car.setModel(this.cbModel.getValue());
+        car.setMaxSpeed(Double.parseDouble(this.tfMaxSpeed.getText()));
+        car.setInitSpeed(Double.parseDouble(this.tfInitSpeed.getText()));
+        car.setLocationType(this.cbLocation.getValue());
+        car.setLocationParams(this.locationParams);
 
         car.setHeading(Objects.equals("same", this.cbHeading.getValue()));
         car.setRoadDeviation(Double.parseDouble(this.tfRoadDeviation.getText()));

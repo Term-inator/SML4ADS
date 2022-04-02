@@ -2,8 +2,10 @@ package com.ecnu.adsmls.views.codepage;
 
 import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.editor.Editor;
+import com.ecnu.adsmls.components.editor.modeleditor.LocationRegister;
 import com.ecnu.adsmls.components.editor.modeleditor.ModelEditor;
 import com.ecnu.adsmls.components.editor.treeeditor.TreeEditor;
+import com.ecnu.adsmls.components.editor.treeeditor.impl.BehaviorRegister;
 import com.ecnu.adsmls.components.modal.*;
 import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
 import com.ecnu.adsmls.model.MConfig;
@@ -14,6 +16,7 @@ import com.ecnu.adsmls.router.Route;
 import com.ecnu.adsmls.router.Router;
 import com.ecnu.adsmls.router.params.CodePageParams;
 import com.ecnu.adsmls.router.params.Global;
+import com.ecnu.adsmls.utils.EmptyParamException;
 import com.ecnu.adsmls.utils.FileSystem;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -55,6 +58,8 @@ public class CodePageController implements Initializable, Route {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         System.out.println("init");
+        new BehaviorRegister().init();
+        new LocationRegister().init();
         this.initMenu();
     }
 
@@ -395,9 +400,17 @@ public class CodePageController implements Initializable, Route {
         Tab tab = new Tab(file.getName());
         tab.setOnClosed(e -> {
             System.out.println(tab.getText() + " closed");
-            // 关闭 tab 自动保存
-            ((Editor) tab.getUserData()).save();
-            this.filesOpened.remove(file);
+            try {
+                // 关闭 tab 自动保存
+                ((Editor) tab.getUserData()).save();
+            }
+            catch (EmptyParamException emptyParamException) {
+                emptyParamException.printStackTrace();
+                // TODO 错误提示窗口 错误标记
+            }
+            finally {
+                this.filesOpened.remove(file);
+            }
         });
 
         if(Objects.equals(suffix, FileSystem.Suffix.MODEL.value)) {

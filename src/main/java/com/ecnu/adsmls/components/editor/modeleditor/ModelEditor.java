@@ -5,6 +5,7 @@ import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.components.editor.Editor;
 import com.ecnu.adsmls.model.MCar;
 import com.ecnu.adsmls.model.MModel;
+import com.ecnu.adsmls.utils.EmptyParamException;
 import com.ecnu.adsmls.utils.FileSystem;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -61,9 +62,20 @@ public class ModelEditor extends Editor {
         }
     }
 
+    private boolean check() {
+        if(this.tfSimulationTime.getText().isEmpty()) {
+            return false;
+        }
+        return true;
+    }
+
     // 由于关闭自动保存，其他在打开 Editor 后修改的内容会在关闭时被覆盖，所以 save 前要先 load
     @Override
-    public void save() {
+    public void save() throws EmptyParamException {
+        if(!check()) {
+            throw new EmptyParamException("Required param(s) is/are empty.");
+        }
+
         String model = null;
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(this.projectPath, this.relativePath)), StandardCharsets.UTF_8));
@@ -92,8 +104,10 @@ public class ModelEditor extends Editor {
 
         mModel.setWeather(this.cbWeather.getValue());
         mModel.setTimeStep(this.spTimeStep.getValue());
+
         // TODO simulation time 是 time step 的倍数
         mModel.setSimulationTime(Double.parseDouble(this.tfSimulationTime.getText()));
+
 
         File source = ((ChooseFileButton) this.btSource.getUserData()).getFile();
         if (source == null) {
@@ -168,7 +182,12 @@ public class ModelEditor extends Editor {
         this.gridPane.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             System.out.println(e);
             if (e.isControlDown() && e.getCode() == KeyCode.S) {
-                this.save();
+                try {
+                    this.save();
+                }
+                catch (EmptyParamException emptyParamException) {
+                    emptyParamException.printStackTrace();
+                }
             }
         });
         this.gridPane.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {

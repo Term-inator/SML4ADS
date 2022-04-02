@@ -1,7 +1,7 @@
 package com.ecnu.adsmls.components.editor.treeeditor.impl;
 
-import com.ecnu.adsmls.utils.FunctionRegister;
-import javafx.util.Pair;
+import com.ecnu.adsmls.utils.register.FunctionRegister;
+import com.ecnu.adsmls.utils.register.NotNegative;
 
 import java.util.*;
 
@@ -10,44 +10,44 @@ public class BehaviorRegister extends FunctionRegister {
     private static LinkedHashMap<String, List<FunctionParam>> behaviorFunctions = new LinkedHashMap<>();
 
     // 初始化内置 behavior 及其参数
-    static {
+    @Override
+    public void init() {
         // 匀速
-        register("Keep", new ArrayList<>(List.of(
+        this.register("Keep", new ArrayList<>(List.of(
                 new FunctionParam("duration", DataType.INT, Necessity.OPTIONAL))
         ));
 
-        // TODO Acc Dec 加速度非负
-        register("Accelerate", new ArrayList<>(List.of(
-                new FunctionParam("acceleration", DataType.DOUBLE, Necessity.REQUIRED),
+        this.register("Accelerate", new ArrayList<>(List.of(
+                new FunctionParam("acceleration", DataType.DOUBLE, Necessity.REQUIRED, new NotNegative()),
                 new FunctionParam("target speed", DataType.DOUBLE, Necessity.REQUIRED),
                 new FunctionParam("duration", DataType.INT, Necessity.OPTIONAL))
         ));
 
-        register("Decelerate", new ArrayList<>(List.of(
-                new FunctionParam("acceleration", DataType.DOUBLE, Necessity.REQUIRED),
+        this.register("Decelerate", new ArrayList<>(List.of(
+                new FunctionParam("acceleration", DataType.DOUBLE, Necessity.REQUIRED, new NotNegative()),
                 new FunctionParam("target speed", DataType.DOUBLE, Necessity.REQUIRED),
                 new FunctionParam("duration", DataType.INT, Necessity.OPTIONAL))
         ));
 
-        register("ChangeLeft", new ArrayList<>(List.of(
+        this.register("ChangeLeft", new ArrayList<>(List.of(
                 new FunctionParam("acceleration", DataType.DOUBLE, Necessity.OPTIONAL),
                 new FunctionParam("target speed", DataType.DOUBLE, Necessity.OPTIONAL)
         )));
-        register("ChangeRight", new ArrayList<>(List.of(
+        this.register("ChangeRight", new ArrayList<>(List.of(
                 new FunctionParam("acceleration", DataType.DOUBLE, Necessity.OPTIONAL),
                 new FunctionParam("target speed", DataType.DOUBLE, Necessity.OPTIONAL)
         )));
 
-        register("TurnLeft", new ArrayList<>(List.of(
+        this.register("TurnLeft", new ArrayList<>(List.of(
                 new FunctionParam("acceleration", DataType.DOUBLE, Necessity.REQUIRED),
                 new FunctionParam("target speed", DataType.DOUBLE, Necessity.REQUIRED)
         )));
-        register("TurnRight", new ArrayList<>(List.of(
+        this.register("TurnRight", new ArrayList<>(List.of(
                 new FunctionParam("acceleration", DataType.DOUBLE, Necessity.REQUIRED),
                 new FunctionParam("target speed", DataType.DOUBLE, Necessity.REQUIRED)
         )));
 
-        register("LaneOffset", new ArrayList<>(List.of(
+        this.register("LaneOffset", new ArrayList<>(List.of(
                 new FunctionParam("offset", DataType.DOUBLE, Necessity.REQUIRED),
                 new FunctionParam("acceleration", DataType.DOUBLE, Necessity.OPTIONAL),
                 new FunctionParam("target speed", DataType.DOUBLE, Necessity.OPTIONAL),
@@ -55,12 +55,13 @@ public class BehaviorRegister extends FunctionRegister {
         )));
 
         // 静止且什么都不做
-        register("Idle", new ArrayList<>(List.of(
+        this.register("Idle", new ArrayList<>(List.of(
                 new FunctionParam("duration", DataType.DOUBLE, Necessity.OPTIONAL)
         )));
     }
 
-    public static void register(String behaviorName, List<FunctionParam> params) {
+    @Override
+    public void register(String behaviorName, List<FunctionParam> params) {
         if(behaviorFunctions.containsKey(behaviorName)) {
             return;
         }
