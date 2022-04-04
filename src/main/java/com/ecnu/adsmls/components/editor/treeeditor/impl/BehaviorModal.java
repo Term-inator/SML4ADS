@@ -2,6 +2,8 @@ package com.ecnu.adsmls.components.editor.treeeditor.impl;
 
 
 import com.ecnu.adsmls.components.modal.Modal;
+import com.ecnu.adsmls.utils.register.Function;
+import com.ecnu.adsmls.utils.register.FunctionParam;
 import com.ecnu.adsmls.utils.register.FunctionRegister;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -28,8 +30,8 @@ public class BehaviorModal extends Modal {
 
     // 行为名
     private String behaviorName = "";
-    // 行为参数信息
-    private List<FunctionRegister.FunctionParam> paramsInfo = new ArrayList();
+    // 行为函数
+    private Function behaviorFunction;
     // 行为参数值
     private LinkedHashMap<String, String> paramsValue = new LinkedHashMap<>();
 
@@ -58,7 +60,7 @@ public class BehaviorModal extends Modal {
 
     private void loadData() {
         this.behaviorName = this.behavior.getName();
-        this.paramsInfo = BehaviorRegister.getParams(this.behaviorName);
+        this.behaviorFunction = BehaviorRegister.getBehaviorFunction(this.behaviorName);
         this.paramsValue = (LinkedHashMap<String, String>) this.behavior.getParams().clone();
 
         int row = 0;
@@ -84,12 +86,11 @@ public class BehaviorModal extends Modal {
             this.behaviorParamsGridPane.getChildren().clear();
 
             this.behaviorName = newValue;
-            this.paramsInfo = BehaviorRegister.getParams(this.behaviorName);
             // 生成界面
             int row = 0;
-            for(FunctionRegister.FunctionParam param : this.paramsInfo) {
+            for(FunctionParam param : this.behaviorFunction.getParams()) {
                 String labelName = param.getParamName();
-                if(Objects.equals(param.getNecessity(), FunctionRegister.Necessity.REQUIRED)) {
+                if(Objects.equals(param.getNecessity(), Function.Necessity.REQUIRED)) {
                     labelName =  labelName + "*";
                 }
                 Label lbParamName = new Label(labelName);
@@ -105,7 +106,7 @@ public class BehaviorModal extends Modal {
 
     @Override
     protected void check() {
-        this.checkParams();
+        this.behaviorFunction.check();
     }
 
     @Override
@@ -134,22 +135,6 @@ public class BehaviorModal extends Modal {
                 paramValue = ((TextField) node).getText();
                 this.paramsValue.put(paramName, paramValue);
             }
-        }
-    }
-
-    public void checkParams() {
-        int i = 0;
-        for(Map.Entry<String, String> param : this.paramsValue.entrySet()) {
-            // 类型检查
-
-            String key = param.getKey();
-            String value = param.getValue();
-            FunctionRegister.FunctionParam functionParam = this.paramsInfo.get(i);
-            this.valid = functionParam.check(value);
-            if(!this.valid) {
-                break;
-            }
-            ++i;
         }
     }
 }
