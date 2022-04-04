@@ -86,6 +86,7 @@ public class BehaviorModal extends Modal {
             this.behaviorParamsGridPane.getChildren().clear();
 
             this.behaviorName = newValue;
+            this.behaviorFunction = BehaviorRegister.getBehaviorFunction(this.behaviorName);
             // 生成界面
             int row = 0;
             for(FunctionParam param : this.behaviorFunction.getParams()) {
@@ -106,7 +107,7 @@ public class BehaviorModal extends Modal {
 
     @Override
     protected void check() {
-        this.behaviorFunction.check();
+        this.valid = this.behaviorFunction.check();
     }
 
     @Override
@@ -134,6 +135,8 @@ public class BehaviorModal extends Modal {
             else if(node instanceof TextField) {
                 paramValue = ((TextField) node).getText();
                 this.paramsValue.put(paramName, paramValue);
+                // 更新上下文
+                this.behaviorFunction.updateContext(paramName, paramValue);
             }
         }
     }

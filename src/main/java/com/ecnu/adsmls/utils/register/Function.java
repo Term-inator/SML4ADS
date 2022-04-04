@@ -29,6 +29,10 @@ public class Function {
         this.params.add(new FunctionParam(paramName, dataType, necessity, requirements));
     }
 
+    public void updateContext(String paramName, String value) {
+        this.context.put(paramName, value);
+    }
+
     public List<FunctionParam> getParams() {
         return params;
     }
@@ -37,9 +41,11 @@ public class Function {
         for(FunctionParam functionParam : params) {
             String value = this.context.get(functionParam.getParamName());
             if(!functionParam.check(this.context, value)) {
+                this.context.clear();
                 return false;
             }
         }
+        this.context.clear();
         return true;
     }
 
