@@ -3,6 +3,7 @@ package com.ecnu.adsmls.components.editor.treeeditor.impl;
 import com.ecnu.adsmls.utils.register.Function;
 import com.ecnu.adsmls.utils.register.FunctionRegister;
 import com.ecnu.adsmls.utils.register.NotNegative;
+import com.ecnu.adsmls.utils.register.Positive;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -16,19 +17,22 @@ public class BehaviorRegister extends FunctionRegister {
     public void init() {
         // 匀速
         Function keep = new Function("Keep");
-        keep.addParam("duration", Function.DataType.INT, Function.Necessity.OPTIONAL);
+        keep.addParam("duration", Function.DataType.INT, Function.Necessity.OPTIONAL,
+                new Positive());
 
         Function accelerate = new Function("Accelerate");
         accelerate.addParam("acceleration", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
                 new NotNegative());
         accelerate.addParam("target speed", Function.DataType.DOUBLE, Function.Necessity.REQUIRED);
-        accelerate.addParam("duration", Function.DataType.INT, Function.Necessity.OPTIONAL);
+        accelerate.addParam("duration", Function.DataType.INT, Function.Necessity.OPTIONAL,
+                new Positive());
 
         Function decelerate = new Function("Decelerate");
         decelerate.addParam("acceleration", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
                 new NotNegative());
         decelerate.addParam("target speed", Function.DataType.DOUBLE, Function.Necessity.REQUIRED);
-        decelerate.addParam("duration", Function.DataType.INT, Function.Necessity.OPTIONAL);
+        decelerate.addParam("duration", Function.DataType.INT, Function.Necessity.OPTIONAL,
+                new Positive());
 
         Function changeLeft = new Function("ChangeLeft");
         changeLeft.addParam("acceleration", Function.DataType.DOUBLE, Function.Necessity.OPTIONAL);
@@ -50,11 +54,13 @@ public class BehaviorRegister extends FunctionRegister {
         laneOffset.addParam("offset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED);
         laneOffset.addParam("acceleration", Function.DataType.DOUBLE, Function.Necessity.OPTIONAL);
         laneOffset.addParam("target speed", Function.DataType.DOUBLE, Function.Necessity.OPTIONAL);
-        laneOffset.addParam("duration", Function.DataType.DOUBLE, Function.Necessity.OPTIONAL);
+        laneOffset.addParam("duration", Function.DataType.DOUBLE, Function.Necessity.OPTIONAL,
+                new Positive());
 
         // 静止且什么都不做
         Function idle = new Function("Idle");
-        idle.addParam("duration", Function.DataType.DOUBLE, Function.Necessity.OPTIONAL);
+        idle.addParam("duration", Function.DataType.DOUBLE, Function.Necessity.OPTIONAL,
+                new Positive());
 
         behaviorFunctions.add(keep);
         behaviorFunctions.add(accelerate);
