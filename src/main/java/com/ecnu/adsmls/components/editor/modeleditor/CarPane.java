@@ -6,7 +6,7 @@ import com.ecnu.adsmls.utils.EmptyParamException;
 import com.ecnu.adsmls.utils.FileSystem;
 import com.ecnu.adsmls.utils.register.Function;
 import com.ecnu.adsmls.utils.register.FunctionParam;
-import com.ecnu.adsmls.utils.register.FunctionRegister;
+import com.ecnu.adsmls.utils.register.impl.LocationRegister;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -62,7 +62,6 @@ public class CarPane {
         Function locationFunction = LocationRegister.getLocationFunction(this.cbLocation.getValue());
         String locationParamName = "";
         String locationParamValue = "";
-        int i = 0;
         for(Node node : this.gridPaneLocationParams.getChildren()) {
             if(node instanceof Label) {
                 locationParamName = ((Label) node).getText();
@@ -71,7 +70,6 @@ public class CarPane {
                 locationParamValue = ((TextField) node).getText();
                 this.locationParams.put(locationParamName, locationParamValue);
                 locationFunction.updateContext(locationParamName, locationParamValue);
-                ++i;
             }
         }
         return locationFunction.check();

@@ -1,4 +1,6 @@
-package com.ecnu.adsmls.utils.register;
+package com.ecnu.adsmls.utils.register.impl;
+
+import com.ecnu.adsmls.utils.register.Value;
 
 public class Positive extends Between {
     public Positive() {

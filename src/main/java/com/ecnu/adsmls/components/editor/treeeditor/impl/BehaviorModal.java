@@ -4,7 +4,7 @@ package com.ecnu.adsmls.components.editor.treeeditor.impl;
 import com.ecnu.adsmls.components.modal.Modal;
 import com.ecnu.adsmls.utils.register.Function;
 import com.ecnu.adsmls.utils.register.FunctionParam;
-import com.ecnu.adsmls.utils.register.FunctionRegister;
+import com.ecnu.adsmls.utils.register.impl.BehaviorRegister;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;

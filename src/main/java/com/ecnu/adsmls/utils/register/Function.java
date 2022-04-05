@@ -4,7 +4,7 @@ import java.util.*;
 
 public class Function {
     public enum DataType {
-        INT, DOUBLE, STRING, FUNCTION
+        INT, DOUBLE, STRING
     }
 
     public enum Necessity {

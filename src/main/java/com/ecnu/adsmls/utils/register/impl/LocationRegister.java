@@ -1,17 +1,17 @@
-package com.ecnu.adsmls.components.editor.modeleditor;
+package com.ecnu.adsmls.utils.register.impl;
 
-import com.ecnu.adsmls.utils.register.*;
+import com.ecnu.adsmls.utils.register.Function;
+import com.ecnu.adsmls.utils.register.FunctionRegister;
+import com.ecnu.adsmls.utils.register.Reference;
+import com.ecnu.adsmls.utils.register.Value;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class LocationRegister extends FunctionRegister {
-    // 位置类型，参数名，参数类型
     private static List<Function> locationFunctions = new ArrayList<>();
-//    private static LinkedHashMap<String, List<Function.FunctionParam>> locationFunctions = new LinkedHashMap<>();
 
     @Override
     public void init() {

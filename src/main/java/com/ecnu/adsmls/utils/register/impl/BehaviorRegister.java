@@ -1,16 +1,15 @@
-package com.ecnu.adsmls.components.editor.treeeditor.impl;
+package com.ecnu.adsmls.utils.register.impl;
 
 import com.ecnu.adsmls.utils.register.Function;
 import com.ecnu.adsmls.utils.register.FunctionRegister;
-import com.ecnu.adsmls.utils.register.NotNegative;
-import com.ecnu.adsmls.utils.register.Positive;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class BehaviorRegister extends FunctionRegister {
     private static List<Function> behaviorFunctions = new ArrayList<>();
-//    private static LinkedHashMap<String, List<FunctionParam>> behaviorFunctions = new LinkedHashMap<>();
 
     // 初始化内置 behavior 及其参数
     @Override
