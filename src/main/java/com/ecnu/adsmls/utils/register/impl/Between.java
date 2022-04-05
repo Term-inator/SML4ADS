@@ -1,6 +1,9 @@
-package com.ecnu.adsmls.utils.register;
+package com.ecnu.adsmls.utils.register.impl;
 
 import com.ecnu.adsmls.utils.Geometry;
+import com.ecnu.adsmls.utils.register.Reference;
+import com.ecnu.adsmls.utils.register.Requirement;
+import com.ecnu.adsmls.utils.register.Value;
 
 import java.util.Map;
 

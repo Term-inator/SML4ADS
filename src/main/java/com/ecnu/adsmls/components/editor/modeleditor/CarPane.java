@@ -4,7 +4,9 @@ import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.model.MCar;
 import com.ecnu.adsmls.utils.EmptyParamException;
 import com.ecnu.adsmls.utils.FileSystem;
-import com.ecnu.adsmls.utils.register.FunctionRegister;
+import com.ecnu.adsmls.utils.register.Function;
+import com.ecnu.adsmls.utils.register.FunctionParam;
+import com.ecnu.adsmls.utils.register.impl.LocationRegister;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -48,35 +50,21 @@ public class CarPane {
     }
 
     private boolean check() {
-        if(this.tfName.getText().isEmpty() ||
-                this.tfMaxSpeed.getText().isEmpty() ||
-                this.tfInitSpeed.getText().isEmpty() ||
-                this.cbLocation.getValue().isEmpty() ||
-                this.tfRoadDeviation.getText().isEmpty()) {
-            return false;
-        }
-
         this.locationParams.clear();
-        List<FunctionRegister.FunctionParam> paramsInfo = LocationRegister.getParams(this.cbLocation.getValue());
+        Function locationFunction = LocationRegister.getLocationFunction(this.cbLocation.getValue());
         String locationParamName = "";
         String locationParamValue = "";
-        int i = 0;
         for(Node node : this.gridPaneLocationParams.getChildren()) {
             if(node instanceof Label) {
                 locationParamName = ((Label) node).getText();
             }
             else if(node instanceof TextField) {
                 locationParamValue = ((TextField) node).getText();
-                if(paramsInfo.get(i).check(locationParamValue)) {
-                    this.locationParams.put(locationParamName, locationParamValue);
-                    ++i;
-                }
-                else {
-                    return false;
-                }
+                this.locationParams.put(locationParamName, locationParamValue);
+                locationFunction.updateContext(locationParamName, locationParamValue);
             }
         }
-        return true;
+        return locationFunction.check();
     }
 
     public MCar save() throws EmptyParamException {
@@ -152,8 +140,8 @@ public class CarPane {
         this.tfInitSpeed = new TextField();
 
         Label lbLocation = new Label("location: ");
-        List<String> behaviorNames = LocationRegister.getLocationTypes();
-        this.cbLocation = new ComboBox<>(FXCollections.observableArrayList(behaviorNames));
+        List<String> locationTypes = LocationRegister.getLocationTypes();
+        this.cbLocation = new ComboBox<>(FXCollections.observableArrayList(locationTypes));
         this.gridPaneLocationParams = new GridPane();
         gridPaneLocationParams.setPadding(new Insets(0, 0, 0, 20));
         gridPaneLocationParams.setHgap(8);
@@ -161,10 +149,10 @@ public class CarPane {
         cbLocation.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             gridPaneLocationParams.getChildren().clear();
 
-            List<FunctionRegister.FunctionParam> paramsInfo = LocationRegister.getParams(newValue);
+            Function locationFunction = LocationRegister.getLocationFunction(newValue);
             // 生成界面
             int row = 0;
-            for(FunctionRegister.FunctionParam param : paramsInfo) {
+            for(FunctionParam param : locationFunction.getParams()) {
                 Label lbParamName = new Label(param.getParamName());
                 TextField tfParamValue = new TextField();
                 gridPaneLocationParams.addRow(row++, lbParamName, tfParamValue);

@@ -5,4 +5,8 @@ package com.ecnu.adsmls.router.params;
  */
 public class Global {
     public static String pythonEnv;
+
+    public static void clear() {
+        pythonEnv = null;
+    }
 }
