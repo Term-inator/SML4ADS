@@ -50,14 +50,6 @@ public class CarPane {
     }
 
     private boolean check() {
-        if(this.tfName.getText().isEmpty() ||
-                this.tfMaxSpeed.getText().isEmpty() ||
-                this.tfInitSpeed.getText().isEmpty() ||
-                this.cbLocation.getValue().isEmpty() ||
-                this.tfRoadDeviation.getText().isEmpty()) {
-            return false;
-        }
-
         this.locationParams.clear();
         Function locationFunction = LocationRegister.getLocationFunction(this.cbLocation.getValue());
         String locationParamName = "";

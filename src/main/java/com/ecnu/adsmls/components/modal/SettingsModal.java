@@ -41,7 +41,7 @@ public class SettingsModal extends Modal {
         Map<String, String> exeFilter = new HashMap<>();
         exeFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.EXE), FileSystem.Suffix.EXE.toString());
         this.btPythonInterpreter = new ChooseFileButton(this.gridPane, exeFilter).getNode();
-        if(!Objects.equals(this.pythonInterpreter, "")) {
+        if(this.pythonInterpreter != null) {
             ((ChooseFileButton) this.btPythonInterpreter.getUserData()).setFile(new File(this.pythonInterpreter));
         }
 

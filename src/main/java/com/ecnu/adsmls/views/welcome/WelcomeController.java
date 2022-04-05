@@ -30,6 +30,7 @@ public class WelcomeController implements Initializable, Route {
     }
 
     private void initPane() {
+        // newProject 事件
         this.newProject.setOnAction(e -> {
             NewProjectModal npm = new NewProjectModal();
             npm.getWindow().showAndWait();
@@ -46,6 +47,7 @@ public class WelcomeController implements Initializable, Route {
             Router.linkTo("codepage");
         });
 
+        // openProject 事件
         this.openProject.setOnAction(e -> {
             OpenProjectModal opm = new OpenProjectModal();
             opm.getWindow().showAndWait();

@@ -69,6 +69,7 @@ public class CodePageController implements Initializable, Route {
         this.projectName = CodePageParams.projectName;
         // 更新页面
         this.updateProject();
+        Global.clear();
     }
 
     private void initMenu() {
@@ -180,6 +181,7 @@ public class CodePageController implements Initializable, Route {
             }
             this.mConfig = JSON.parseObject(config, MConfig.class);
             if(this.mConfig == null) {
+                this.mConfig = new MConfig();
                 return;
             }
 

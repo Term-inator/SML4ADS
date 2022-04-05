@@ -20,7 +20,7 @@ public class LocationRegister extends FunctionRegister {
         globalPosition.addParam("y", Function.DataType.DOUBLE, Function.Necessity.REQUIRED);
 
         // 若 lateral offset 超过 lane 宽度, 则报错
-        double laneWidth = 4.0;
+        double laneWidth = 4.5;
         Function lanePosition = new Function("Lane Position");
         lanePosition.addParam("road id", Function.DataType.INT, Function.Necessity.REQUIRED);
         lanePosition.addParam("lane id", Function.DataType.INT, Function.Necessity.REQUIRED);
