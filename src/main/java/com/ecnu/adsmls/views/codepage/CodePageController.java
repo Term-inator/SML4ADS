@@ -262,19 +262,22 @@ public class CodePageController implements Initializable, Route {
         String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
         for(MCar mCar : mModel.getCars()) {
             String treePath = mCar.getTreePath();
-            String tree = null;
-            try {
-                BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(projectPath, treePath)), StandardCharsets.UTF_8));
-                tree = br.readLine();
-                br.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            MTree mTree = null;
+            if(!treePath.isEmpty()) {
+                String tree = null;
+                try {
+                    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(projectPath, treePath)), StandardCharsets.UTF_8));
+                    tree = br.readLine();
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                mTree = JSON.parseObject(tree, MTree.class);
+                if (mTree == null) {
+                    return;
+                }
+                System.out.println(tree);
             }
-            MTree mTree = JSON.parseObject(tree, MTree.class);
-            if(mTree == null) {
-                return;
-            }
-            System.out.println(tree);
             mCar.setMTree(mTree);
         }
 
