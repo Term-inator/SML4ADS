@@ -166,7 +166,7 @@ public class FileSystem {
 
     public static String removeSuffix(File file) {
         if(file.isFile()) {
-            String filename = file.getName();
+            String filename = file.getAbsolutePath();
             filename = filename.replaceAll("\\..*$", "");
             return filename;
         }

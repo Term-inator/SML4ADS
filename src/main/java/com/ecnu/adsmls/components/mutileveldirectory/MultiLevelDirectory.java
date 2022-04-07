@@ -7,9 +7,7 @@ import javafx.scene.control.cell.TextFieldTreeCell;
 import javafx.scene.input.MouseEvent;
 import javafx.util.StringConverter;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 树形多级目录
@@ -22,6 +20,8 @@ public class MultiLevelDirectory {
     // 根项
     private TreeItem<File> rootItem;
 
+    private Map<String, TreeItem<File>> index = new HashMap<>();
+
     // 上下文菜单
     private ContextMenu menu = new ContextMenu();
 
@@ -32,6 +32,7 @@ public class MultiLevelDirectory {
 
     private void initialize() {
         this.rootItem = new TreeItem<>(this.directory);
+        this.index.put(this.directory.getAbsolutePath(), this.rootItem);
         this.rootItem.setExpanded(true);
         this.rootItem.getChildren().addAll(this.createNode(this.directory));
 
@@ -109,11 +110,13 @@ public class MultiLevelDirectory {
                     treeItem.getChildren().add(new TreeItem<>());
                 }
                 treeItems.add(treeItem);
+                this.index.put(file.getAbsolutePath(), treeItem);
             }
         }
         for(File file : fileBuffer) {
             TreeItem<File> treeItem = new TreeItem<>(file);
             treeItems.add(treeItem);
+            this.index.put(file.getAbsolutePath(), treeItem);
         }
 
         return treeItems;
@@ -123,6 +126,12 @@ public class MultiLevelDirectory {
         item.getChildren().clear();
         item.getChildren().addAll(this.createNode(item.getValue()));
         item.setExpanded(true);
+    }
+
+    public void updateSameLevel(File file) {
+        TreeItem<File> item = this.index.get(file.getAbsolutePath());
+        System.out.println(item.getValue().getAbsolutePath());
+        this.updateNode(item.getParent());
     }
 
     /**

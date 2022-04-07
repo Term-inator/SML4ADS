@@ -285,9 +285,11 @@ public class CodePageController implements Initializable, Route {
         System.out.println(model);
         try {
             String outFilename = FileSystem.removeSuffix(file) + FileSystem.Suffix.ADSML.value;
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(projectPath, outFilename),false), StandardCharsets.UTF_8));
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFilename,false), StandardCharsets.UTF_8));
             bw.write(model);
             bw.close();
+            // 更新同级目录
+            this.multiLevelDirectory.updateSameLevel(file);
         } catch (IOException e) {
             e.printStackTrace();
         }
