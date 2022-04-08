@@ -63,9 +63,15 @@ public class BehaviorModal extends Modal {
         this.behaviorFunction = BehaviorRegister.getBehaviorFunction(this.behaviorName);
         this.paramsValue = (LinkedHashMap<String, String>) this.behavior.getParams().clone();
 
+        this.behaviorFunction = BehaviorRegister.getBehaviorFunction(this.behaviorName);
         int row = 0;
         for(Map.Entry<String, String> param : this.paramsValue.entrySet()) {
-            Label lbParamName = new Label(param.getKey());
+            FunctionParam functionParam = this.behaviorFunction.getParams().get(row);
+            String labelName = param.getKey();
+            if(Objects.equals(functionParam.getNecessity(), Function.Necessity.REQUIRED)) {
+                labelName =  labelName + "*";
+            }
+            Label lbParamName = new Label(labelName);
             TextField tfParamValue = new TextField(param.getValue());
             this.behaviorParamsGridPane.addRow(row++, lbParamName, tfParamValue);
         }
