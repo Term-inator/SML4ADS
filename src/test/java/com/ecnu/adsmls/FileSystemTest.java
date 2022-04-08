@@ -47,7 +47,7 @@ public class FileSystemTest {
 
     @Test
     public void getSuffix() {
-        String filename = "D:/test/model.modelmodel";
-        System.out.println(FileSystem.getSuffix(new File(filename)));
+        String filename = "D:/test/a/t.model";
+        System.out.println(FileSystem.removeSuffix(new File(filename)));
     }
 }

@@ -262,19 +262,22 @@ public class CodePageController implements Initializable, Route {
         String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
         for(MCar mCar : mModel.getCars()) {
             String treePath = mCar.getTreePath();
-            String tree = null;
-            try {
-                BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(projectPath, treePath)), StandardCharsets.UTF_8));
-                tree = br.readLine();
-                br.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            MTree mTree = null;
+            if(!treePath.isEmpty()) {
+                String tree = null;
+                try {
+                    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(projectPath, treePath)), StandardCharsets.UTF_8));
+                    tree = br.readLine();
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                mTree = JSON.parseObject(tree, MTree.class);
+                if (mTree == null) {
+                    return;
+                }
+                System.out.println(tree);
             }
-            MTree mTree = JSON.parseObject(tree, MTree.class);
-            if(mTree == null) {
-                return;
-            }
-            System.out.println(tree);
             mCar.setMTree(mTree);
         }
 
@@ -282,9 +285,11 @@ public class CodePageController implements Initializable, Route {
         System.out.println(model);
         try {
             String outFilename = FileSystem.removeSuffix(file) + FileSystem.Suffix.ADSML.value;
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(projectPath, outFilename),false), StandardCharsets.UTF_8));
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFilename,false), StandardCharsets.UTF_8));
             bw.write(model);
             bw.close();
+            // 更新同级目录
+            this.multiLevelDirectory.updateSameLevel(file);
         } catch (IOException e) {
             e.printStackTrace();
         }
