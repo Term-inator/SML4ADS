@@ -41,6 +41,8 @@ public class CodePageController implements Initializable, Route {
     private MultiLevelDirectory multiLevelDirectory;
     // 目录的上下文菜单
     private List<MenuItem> multiLevelDirectoryMenu = new ArrayList<>();
+    @FXML
+    private AnchorPane infoPane;
 
     // 项目配置
     private MConfig mConfig;
@@ -235,13 +237,19 @@ public class CodePageController implements Initializable, Route {
             modelOpened = false;
         }
         // 当前显示的 tab
-        File file = ((Editor) this.tabPane.getSelectionModel().getSelectedItem().getUserData()).getFile();
+        Editor editor = (Editor) this.tabPane.getSelectionModel().getSelectedItem().getUserData();
+        File file = editor.getFile();
         if(!Objects.equals(FileSystem.getSuffix(file), FileSystem.Suffix.MODEL.value)) {
             modelOpened = false;
         }
 
         if(!modelOpened) {
             System.out.println("Please open model files first");
+            return;
+        }
+
+        if(!editor.check()) {
+            System.out.println("ERROR!");
             return;
         }
 
@@ -407,17 +415,9 @@ public class CodePageController implements Initializable, Route {
         Tab tab = new Tab(file.getName());
         tab.setOnClosed(e -> {
             System.out.println(tab.getText() + " closed");
-            try {
-                // 关闭 tab 自动保存
-                ((Editor) tab.getUserData()).save();
-            }
-            catch (EmptyParamException emptyParamException) {
-                emptyParamException.printStackTrace();
-                // TODO 错误提示窗口 错误标记
-            }
-            finally {
-                this.filesOpened.remove(file);
-            }
+            // 关闭 tab 自动保存
+            ((Editor) tab.getUserData()).save();
+            this.filesOpened.remove(file);
         });
 
         if(Objects.equals(suffix, FileSystem.Suffix.MODEL.value)) {

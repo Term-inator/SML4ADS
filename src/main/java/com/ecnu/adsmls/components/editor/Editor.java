@@ -28,9 +28,15 @@ public abstract class Editor {
     }
 
     /**
+     * 检查文件
+     * @return
+     */
+    public abstract boolean check();
+
+    /**
      * 保存文件
      */
-    public abstract void save() throws EmptyParamException;
+    public abstract void save();
 
     /**
      * 加载文件

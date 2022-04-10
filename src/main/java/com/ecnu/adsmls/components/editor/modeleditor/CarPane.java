@@ -49,7 +49,7 @@ public class CarPane {
         this.createNode();
     }
 
-    private boolean check() {
+    public boolean check() {
         this.locationParams.clear();
         Function locationFunction = LocationRegister.getLocationFunction(this.cbLocation.getValue());
         String locationParamName = "";
@@ -67,12 +67,7 @@ public class CarPane {
         return locationFunction.check();
     }
 
-    public MCar save() throws EmptyParamException {
-        if(!check()) {
-            // TODO 报错信息不够明确
-            throw new EmptyParamException("Required param(s) is/are empty or invalid.");
-        }
-
+    public MCar save() {
         MCar car = new MCar();
         car.setName(this.tfName.getText());
         car.setModel(this.cbModel.getValue());
