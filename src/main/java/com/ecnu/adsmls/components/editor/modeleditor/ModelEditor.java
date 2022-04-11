@@ -106,7 +106,12 @@ public class ModelEditor extends Editor {
         mModel.setTimeStep(this.spTimeStep.getValue());
 
         // TODO simulation time 是 time step 的倍数
-        mModel.setSimulationTime(Double.parseDouble(this.tfSimulationTime.getText()));
+        try {
+            mModel.setSimulationTime(Double.parseDouble(this.tfSimulationTime.getText()));
+        }
+        catch (Exception ignored) {
+            mModel.setSimulationTime(null);
+        }
 
 
         File source = ((ChooseFileButton) this.btSource.getUserData()).getFile();
@@ -159,7 +164,12 @@ public class ModelEditor extends Editor {
         }
         this.cbWeather.getSelectionModel().select(mModel.getWeather());
         this.spTimeStep.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(this.timeStepMin, this.timeStepMax, mModel.getTimeStep(), 0.1));
-        this.tfSimulationTime.setText(Double.toString(mModel.getSimulationTime()));
+
+        try {
+            this.tfSimulationTime.setText(Double.toString(mModel.getSimulationTime()));
+        }
+        catch (Exception ignored) {}
+
         if (!Objects.equals(mModel.getSource(), "")) {
             // 恢复绝对路径
             ((ChooseFileButton) this.btSource.getUserData()).setFile(new File(this.projectPath, mModel.getSource()));

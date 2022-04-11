@@ -71,13 +71,28 @@ public class CarPane {
         MCar car = new MCar();
         car.setName(this.tfName.getText());
         car.setModel(this.cbModel.getValue());
-        car.setMaxSpeed(Double.parseDouble(this.tfMaxSpeed.getText()));
-        car.setInitSpeed(Double.parseDouble(this.tfInitSpeed.getText()));
+        try {
+            car.setMaxSpeed(Double.parseDouble(this.tfMaxSpeed.getText()));
+        }
+        catch (Exception ignored) {
+            car.setMaxSpeed(null);
+        }
+        try {
+            car.setInitSpeed(Double.parseDouble(this.tfInitSpeed.getText()));
+        }
+        catch (Exception ignored) {
+            car.setInitSpeed(null);
+        }
         car.setLocationType(this.cbLocation.getValue());
         car.setLocationParams(this.locationParams);
 
         car.setHeading(Objects.equals("same", this.cbHeading.getValue()));
-        car.setRoadDeviation(Double.parseDouble(this.tfRoadDeviation.getText()));
+        try {
+            car.setRoadDeviation(Double.parseDouble(this.tfRoadDeviation.getText()));
+        }
+        catch (Exception ignored) {
+            car.setRoadDeviation(null);
+        }
 
         File tree = ((ChooseFileButton) this.btDynamic.getUserData()).getFile();
         if (tree == null) {
@@ -94,8 +109,14 @@ public class CarPane {
     public void load(MCar mCar) {
         this.tfName.setText(mCar.getName());
         this.cbModel.getSelectionModel().select(mCar.getModel());
-        this.tfMaxSpeed.setText(String.valueOf(mCar.getMaxSpeed()));
-        this.tfInitSpeed.setText(String.valueOf(mCar.getInitSpeed()));
+        try {
+            this.tfMaxSpeed.setText(Double.toString(mCar.getMaxSpeed()));
+        }
+        catch (Exception ignored) {}
+        try {
+            this.tfInitSpeed.setText(Double.toString(mCar.getInitSpeed()));
+        }
+        catch (Exception ignored) {}
         this.cbLocation.getSelectionModel().select(mCar.getLocationType());
 
         String locationParamName = "";
@@ -109,7 +130,10 @@ public class CarPane {
         }
 
         this.cbHeading.getSelectionModel().select(mCar.getHeading() ? "same" : "opposite");
-        this.tfRoadDeviation.setText(String.valueOf(mCar.getRoadDeviation()));
+        try {
+            this.tfRoadDeviation.setText(Double.toString(mCar.getRoadDeviation()));
+        }
+        catch (Exception ignored) {}
         if (!Objects.equals(mCar.getTreePath(), "")) {
             // 恢复绝对路径
             ((ChooseFileButton) this.btDynamic.getUserData()).setFile(new File(this.projectPath, mCar.getTreePath()));
@@ -153,6 +177,7 @@ public class CarPane {
                 gridPaneLocationParams.addRow(row++, lbParamName, tfParamValue);
             }
         });
+        this.cbLocation.getSelectionModel().select(0);
 
         Label lbHeading = new Label("heading: ");
         this.cbHeading = new ComboBox<>(FXCollections.observableArrayList("same", "opposite"));

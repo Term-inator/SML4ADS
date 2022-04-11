@@ -14,7 +14,7 @@ public class MModel {
 
     private double timeStep;
 
-    private double simulationTime;
+    private Double simulationTime;
 
     private List<MCar> cars = new ArrayList<>();
 
@@ -74,11 +74,11 @@ public class MModel {
         this.timeStep = timeStep;
     }
 
-    public double getSimulationTime() {
+    public Double getSimulationTime() {
         return simulationTime;
     }
 
-    public void setSimulationTime(double simulationTime) {
+    public void setSimulationTime(Double simulationTime) {
         this.simulationTime = simulationTime;
     }
 

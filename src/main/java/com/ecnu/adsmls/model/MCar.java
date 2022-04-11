@@ -7,9 +7,9 @@ public class MCar {
 
     private String model;
 
-    private double maxSpeed;
+    private Double maxSpeed;
 
-    private double initSpeed;
+    private Double initSpeed;
 
     private String locationType;
 
@@ -17,13 +17,13 @@ public class MCar {
 
     private boolean heading;
 
-    private double roadDeviation;
+    private Double roadDeviation;
 
     private String treePath;
 
     private MTree mTree;
 
-    public MCar(String name, String model, double maxSpeed, double initSpeed, String locationType, LinkedHashMap<String, String> locationParams, boolean heading, double roadDeviation, String treePath) {
+    public MCar(String name, String model, Double maxSpeed, Double initSpeed, String locationType, LinkedHashMap<String, String> locationParams, boolean heading, Double roadDeviation, String treePath) {
         this.name = name;
         this.model = model;
         this.maxSpeed = maxSpeed;
@@ -54,19 +54,19 @@ public class MCar {
         this.model = model;
     }
 
-    public double getMaxSpeed() {
+    public Double getMaxSpeed() {
         return maxSpeed;
     }
 
-    public void setMaxSpeed(double maxSpeed) {
+    public void setMaxSpeed(Double maxSpeed) {
         this.maxSpeed = maxSpeed;
     }
 
-    public double getInitSpeed() {
+    public Double getInitSpeed() {
         return initSpeed;
     }
 
-    public void setInitSpeed(double initSpeed) {
+    public void setInitSpeed(Double initSpeed) {
         this.initSpeed = initSpeed;
     }
 
@@ -94,11 +94,11 @@ public class MCar {
         this.heading = heading;
     }
 
-    public double getRoadDeviation() {
+    public Double getRoadDeviation() {
         return roadDeviation;
     }
 
-    public void setRoadDeviation(double roadDeviation) {
+    public void setRoadDeviation(Double roadDeviation) {
         this.roadDeviation = roadDeviation;
     }
 
