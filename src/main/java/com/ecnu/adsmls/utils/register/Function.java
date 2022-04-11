@@ -1,5 +1,9 @@
 package com.ecnu.adsmls.utils.register;
 
+import com.ecnu.adsmls.utils.register.exception.DataTypeException;
+import com.ecnu.adsmls.utils.register.exception.EmptyParamException;
+import com.ecnu.adsmls.utils.register.exception.RequirementException;
+
 import java.util.*;
 
 public class Function {
@@ -37,16 +41,26 @@ public class Function {
         return params;
     }
 
-    public boolean check() {
+    public void check() throws EmptyParamException, DataTypeException, RequirementException {
         for(FunctionParam functionParam : params) {
             String value = this.context.get(functionParam.getParamName());
-            if(!functionParam.check(this.context, value)) {
+            try {
+                functionParam.check(this.context, value);
+            }
+            catch (EmptyParamException e) {
                 this.context.clear();
-                return false;
+                throw new EmptyParamException(e);
+            }
+            catch (DataTypeException e) {
+                this.context.clear();
+                throw new DataTypeException(e);
+            }
+            catch (RequirementException e) {
+                this.context.clear();
+                throw new RequirementException(e);
             }
         }
         this.context.clear();
-        return true;
     }
 
     @Override

@@ -5,8 +5,10 @@ import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.components.editor.Editor;
 import com.ecnu.adsmls.model.MCar;
 import com.ecnu.adsmls.model.MModel;
-import com.ecnu.adsmls.utils.EmptyParamException;
 import com.ecnu.adsmls.utils.FileSystem;
+import com.ecnu.adsmls.utils.register.exception.DataTypeException;
+import com.ecnu.adsmls.utils.register.exception.EmptyParamException;
+import com.ecnu.adsmls.utils.register.exception.RequirementException;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -63,14 +65,18 @@ public class ModelEditor extends Editor {
     }
 
     @Override
-    public boolean check() {
+    public void check() throws EmptyParamException, DataTypeException, RequirementException {
         if(this.tfSimulationTime.getText().isEmpty()) {
-            return false;
+            throw new EmptyParamException("Simulation Time is required.");
+        }
+        // simulation time 是 time step 的倍数
+        if(Double.parseDouble(this.tfSimulationTime.getText()) / this.spTimeStep.getValue() !=
+                Math.floor(Double.parseDouble(this.tfSimulationTime.getText()) / this.spTimeStep.getValue())) {
+            throw new RequirementException("Simulation Time should be a multiple of Time Step");
         }
         for(Map.Entry<Integer, CarPane> entry: this.carPanes.entrySet()) {
             entry.getValue().check();
         }
-        return true;
     }
 
     // 由于关闭自动保存，其他在打开 Editor 后修改的内容会在关闭时被覆盖，所以 save 前要先 load
@@ -105,7 +111,6 @@ public class ModelEditor extends Editor {
         mModel.setWeather(this.cbWeather.getValue());
         mModel.setTimeStep(this.spTimeStep.getValue());
 
-        // TODO simulation time 是 time step 的倍数
         try {
             mModel.setSimulationTime(Double.parseDouble(this.tfSimulationTime.getText()));
         }

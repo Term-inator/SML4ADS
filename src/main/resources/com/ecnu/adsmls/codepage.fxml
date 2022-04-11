@@ -35,7 +35,10 @@
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                <children>
-                  <AnchorPane fx:id="infoPane" prefHeight="102.0" prefWidth="598.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0" />
+                  <AnchorPane fx:id="infoPane" prefHeight="102.0" prefWidth="598.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+                     <children>
+                        <TextArea fx:id="infoArea" editable="false" prefHeight="92.0" prefWidth="578.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                     </children></AnchorPane>
                </children></AnchorPane>
         </items>
       </SplitPane>

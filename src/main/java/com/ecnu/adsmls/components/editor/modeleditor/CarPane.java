@@ -2,10 +2,12 @@ package com.ecnu.adsmls.components.editor.modeleditor;
 
 import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.model.MCar;
-import com.ecnu.adsmls.utils.EmptyParamException;
 import com.ecnu.adsmls.utils.FileSystem;
 import com.ecnu.adsmls.utils.register.Function;
 import com.ecnu.adsmls.utils.register.FunctionParam;
+import com.ecnu.adsmls.utils.register.exception.DataTypeException;
+import com.ecnu.adsmls.utils.register.exception.EmptyParamException;
+import com.ecnu.adsmls.utils.register.exception.RequirementException;
 import com.ecnu.adsmls.utils.register.impl.LocationRegister;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -49,7 +51,19 @@ public class CarPane {
         this.createNode();
     }
 
-    public boolean check() {
+    public void check() throws EmptyParamException, DataTypeException, RequirementException {
+        if(this.tfName.getText().isEmpty()) {
+            throw new EmptyParamException("car.name is required");
+        }
+        if(this.tfMaxSpeed.getText().isEmpty()) {
+            throw new EmptyParamException("car.maxSpeed is required.");
+        }
+        if(this.tfInitSpeed.getText().isEmpty()) {
+            throw new EmptyParamException("car.initSpeed is required.");
+        }
+        if(Double.parseDouble(this.tfInitSpeed.getText()) > Double.parseDouble(this.tfMaxSpeed.getText())) {
+            throw new RequirementException("car.initSpeed should not be larger than car.maxSpeed.");
+        }
         this.locationParams.clear();
         Function locationFunction = LocationRegister.getLocationFunction(this.cbLocation.getValue());
         String locationParamName = "";
@@ -64,7 +78,10 @@ public class CarPane {
                 locationFunction.updateContext(locationParamName, locationParamValue);
             }
         }
-        return locationFunction.check();
+        locationFunction.check();
+        if(this.tfRoadDeviation.getText().isEmpty()) {
+            throw new EmptyParamException("car.roadDeviation is required");
+        }
     }
 
     public MCar save() {

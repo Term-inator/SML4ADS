@@ -16,7 +16,6 @@ import com.ecnu.adsmls.router.Route;
 import com.ecnu.adsmls.router.Router;
 import com.ecnu.adsmls.router.params.CodePageParams;
 import com.ecnu.adsmls.router.params.Global;
-import com.ecnu.adsmls.utils.EmptyParamException;
 import com.ecnu.adsmls.utils.FileSystem;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -43,6 +42,8 @@ public class CodePageController implements Initializable, Route {
     private List<MenuItem> multiLevelDirectoryMenu = new ArrayList<>();
     @FXML
     private AnchorPane infoPane;
+    @FXML
+    private TextArea infoArea;
 
     // 项目配置
     private MConfig mConfig;
@@ -228,6 +229,18 @@ public class CodePageController implements Initializable, Route {
         this.directoryWrapper.getChildren().add(scrollPane);
     }
 
+    private void showInfo(String info) {
+        this.infoArea.clear();
+        this.infoArea.setText(info);
+    }
+
+    private void appendInfo(String info) {
+        StringBuilder text = new StringBuilder(this.infoArea.getText());
+        text.append('\n');
+        text.append(info);
+        this.showInfo(text.toString());
+    }
+
     // 将 model 和 tree 拼在一起
     @FXML
     protected void preprocess() {
@@ -248,10 +261,15 @@ public class CodePageController implements Initializable, Route {
             return;
         }
 
-        if(!editor.check()) {
-            System.out.println("ERROR!");
+        try {
+            editor.check();
+        }
+        catch (Exception e) {
+            this.showInfo(e.getMessage());
             return;
         }
+        this.infoArea.clear();
+
 
         String model = null;
         try {

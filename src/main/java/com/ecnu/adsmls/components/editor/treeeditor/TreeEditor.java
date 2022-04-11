@@ -316,8 +316,8 @@ public class TreeEditor extends Editor {
     }
 
     @Override
-    public boolean check() {
-        return true;
+    public void check() {
+        // empty method
     }
 
     @Override
