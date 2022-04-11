@@ -1,5 +1,9 @@
 package com.ecnu.adsmls.utils.register;
 
+import com.ecnu.adsmls.utils.register.exception.DataTypeException;
+import com.ecnu.adsmls.utils.register.exception.EmptyParamException;
+import com.ecnu.adsmls.utils.register.exception.RequirementException;
+
 import java.util.*;
 
 public class FunctionParam {
@@ -27,49 +31,59 @@ public class FunctionParam {
         return necessity;
     }
 
-    private boolean checkType(String value) {
-        try {
-            switch (this.dataType) {
-                case INT: {
+    private void checkType(String value) throws DataTypeException {
+        switch (this.dataType) {
+            case INT: {
+                try {
                     Integer.parseInt(value);
-                    break;
                 }
-                case DOUBLE: {
+                catch (Exception ignored) {
+                    throw new DataTypeException(this.paramName + " should be Integer.");
+                }
+                break;
+            }
+            case DOUBLE: {
+                try {
                     Double.parseDouble(value);
-                    break;
                 }
-                case STRING: {
-                    // do nothing
-                    break;
+                catch (Exception ignored) {
+                    throw new DataTypeException(this.paramName + " should be Double.");
                 }
-                default: {
-                    return false;
-                }
+                break;
+            }
+            case STRING: {
+                // do nothing
+                break;
+            }
+            default: {
+                // empty case
             }
         }
-        catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
     }
 
-    private boolean checkRequirements(Map<String, String> context, String value) {
+    private boolean checkRequirements(Map<String, String> context, String value) throws RequirementException {
         context.put(this.paramName, value);
         for(Requirement requirement : this.requirements) {
-            if(!requirement.check(context, value)) {
-                return false;
-            }
+            requirement.check(context, value);
         }
         return true;
     }
 
-    public boolean check(Map<String, String> context, String value) {
-        if(Objects.equals(value, "")) {
-            return Objects.equals(this.necessity, Function.Necessity.OPTIONAL);
+    public void check(Map<String, String> context, String value) throws EmptyParamException, DataTypeException, RequirementException {
+        if(value == null || value.isEmpty()) {
+            if(!Objects.equals(this.necessity, Function.Necessity.OPTIONAL)) {
+                throw new EmptyParamException(this.paramName + " is required.");
+            }
         }
         else {
-            return this.checkType(value) && this.checkRequirements(context, value);
+            this.checkType(value);
+            try {
+                this.checkRequirements(context, value);
+            }
+            catch (RequirementException e) {
+                String errMsg = e.getMessage();
+                throw new RequirementException(this.paramName + errMsg);
+            }
         }
     }
 

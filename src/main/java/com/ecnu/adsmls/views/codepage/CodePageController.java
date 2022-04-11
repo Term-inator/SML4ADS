@@ -16,7 +16,6 @@ import com.ecnu.adsmls.router.Route;
 import com.ecnu.adsmls.router.Router;
 import com.ecnu.adsmls.router.params.CodePageParams;
 import com.ecnu.adsmls.router.params.Global;
-import com.ecnu.adsmls.utils.EmptyParamException;
 import com.ecnu.adsmls.utils.FileSystem;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -41,6 +40,10 @@ public class CodePageController implements Initializable, Route {
     private MultiLevelDirectory multiLevelDirectory;
     // 目录的上下文菜单
     private List<MenuItem> multiLevelDirectoryMenu = new ArrayList<>();
+    @FXML
+    private AnchorPane infoPane;
+    @FXML
+    private TextArea infoArea;
 
     // 项目配置
     private MConfig mConfig;
@@ -226,6 +229,18 @@ public class CodePageController implements Initializable, Route {
         this.directoryWrapper.getChildren().add(scrollPane);
     }
 
+    private void showInfo(String info) {
+        this.infoArea.clear();
+        this.infoArea.setText(info);
+    }
+
+    private void appendInfo(String info) {
+        StringBuilder text = new StringBuilder(this.infoArea.getText());
+        text.append('\n');
+        text.append(info);
+        this.showInfo(text.toString());
+    }
+
     // 将 model 和 tree 拼在一起
     @FXML
     protected void preprocess() {
@@ -235,7 +250,8 @@ public class CodePageController implements Initializable, Route {
             modelOpened = false;
         }
         // 当前显示的 tab
-        File file = ((Editor) this.tabPane.getSelectionModel().getSelectedItem().getUserData()).getFile();
+        Editor editor = (Editor) this.tabPane.getSelectionModel().getSelectedItem().getUserData();
+        File file = editor.getFile();
         if(!Objects.equals(FileSystem.getSuffix(file), FileSystem.Suffix.MODEL.value)) {
             modelOpened = false;
         }
@@ -244,6 +260,16 @@ public class CodePageController implements Initializable, Route {
             System.out.println("Please open model files first");
             return;
         }
+
+        try {
+            editor.check();
+        }
+        catch (Exception e) {
+            this.showInfo(e.getMessage());
+            return;
+        }
+        this.infoArea.clear();
+
 
         String model = null;
         try {
@@ -407,17 +433,9 @@ public class CodePageController implements Initializable, Route {
         Tab tab = new Tab(file.getName());
         tab.setOnClosed(e -> {
             System.out.println(tab.getText() + " closed");
-            try {
-                // 关闭 tab 自动保存
-                ((Editor) tab.getUserData()).save();
-            }
-            catch (EmptyParamException emptyParamException) {
-                emptyParamException.printStackTrace();
-                // TODO 错误提示窗口 错误标记
-            }
-            finally {
-                this.filesOpened.remove(file);
-            }
+            // 关闭 tab 自动保存
+            ((Editor) tab.getUserData()).save();
+            this.filesOpened.remove(file);
         });
 
         if(Objects.equals(suffix, FileSystem.Suffix.MODEL.value)) {

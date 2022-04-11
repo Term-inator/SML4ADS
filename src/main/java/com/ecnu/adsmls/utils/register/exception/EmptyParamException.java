@@ -1,4 +1,4 @@
-package com.ecnu.adsmls.utils;
+package com.ecnu.adsmls.utils.register.exception;
 
 public class EmptyParamException extends Exception {
     public EmptyParamException() {

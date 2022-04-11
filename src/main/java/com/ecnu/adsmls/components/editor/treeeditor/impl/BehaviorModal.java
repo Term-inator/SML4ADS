@@ -4,6 +4,9 @@ package com.ecnu.adsmls.components.editor.treeeditor.impl;
 import com.ecnu.adsmls.components.modal.Modal;
 import com.ecnu.adsmls.utils.register.Function;
 import com.ecnu.adsmls.utils.register.FunctionParam;
+import com.ecnu.adsmls.utils.register.exception.DataTypeException;
+import com.ecnu.adsmls.utils.register.exception.EmptyParamException;
+import com.ecnu.adsmls.utils.register.exception.RequirementException;
 import com.ecnu.adsmls.utils.register.impl.BehaviorRegister;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -27,6 +30,8 @@ public class BehaviorModal extends Modal {
 
     // 行为参数
     private GridPane behaviorParamsGridPane = new GridPane();
+
+    private TextArea errorArea;
 
     // 行为名
     private String behaviorName = "";
@@ -77,6 +82,17 @@ public class BehaviorModal extends Modal {
         }
     }
 
+    private void hideErrorArea() {
+        this.slot.getChildren().remove(this.errorArea);
+        this.window.sizeToScene();
+    }
+
+    private void showErrorArea(String errMsg) {
+        this.slot.add(this.errorArea, 0, 2, 2, 1);
+        this.errorArea.setText(errMsg);
+        this.window.sizeToScene();
+    }
+
     @Override
     protected void createWindow() {
         super.createWindow();
@@ -107,13 +123,25 @@ public class BehaviorModal extends Modal {
                 this.window.sizeToScene();
             }
         });
+        this.errorArea = new TextArea();
+        this.errorArea.setPrefWidth(200);
+        this.errorArea.setPrefRowCount(2);
+        this.errorArea.setEditable(false);
+        this.hideErrorArea();
+
         this.slot.addRow(0, lbBehaviorName, cbBehavior);
         this.slot.add(this.behaviorParamsGridPane, 0, 1, 2, 1);
     }
 
     @Override
     protected void check() {
-        this.valid = this.behaviorFunction.check();
+        try {
+            this.behaviorFunction.check();
+            this.hideErrorArea();
+        } catch (EmptyParamException | DataTypeException | RequirementException e) {
+            this.valid = false;
+            this.showErrorArea(e.getMessage());
+        }
     }
 
     @Override

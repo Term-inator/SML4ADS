@@ -4,6 +4,7 @@ import com.ecnu.adsmls.utils.Geometry;
 import com.ecnu.adsmls.utils.register.Reference;
 import com.ecnu.adsmls.utils.register.Requirement;
 import com.ecnu.adsmls.utils.register.Value;
+import com.ecnu.adsmls.utils.register.exception.RequirementException;
 
 import java.util.Map;
 
@@ -19,7 +20,7 @@ public class Between implements Requirement {
     }
 
     @Override
-    public boolean check(Map<String, String> context, String value) {
+    public void check(Map<String, String> context, String value) throws RequirementException {
         double lVal = .0, rVal = .0;
         if(this.l instanceof Value) {
             lVal = ((Value) l).getValue().doubleValue();
@@ -34,6 +35,8 @@ public class Between implements Requirement {
         else if(this.r instanceof Reference) {
             rVal = Double.parseDouble(context.get(((Reference) r).getId()));
         }
-        return Geometry.between(Double.parseDouble(value), lVal, rVal, this.op);
+        if(!Geometry.between(Double.parseDouble(value), lVal, rVal, this.op)) {
+            throw new RequirementException(" should be in range " + this.op.charAt(0) + lVal + ", " + rVal + this.op.charAt(1));
+        }
     }
 }

@@ -2,10 +2,12 @@ package com.ecnu.adsmls.components.editor.modeleditor;
 
 import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.model.MCar;
-import com.ecnu.adsmls.utils.EmptyParamException;
 import com.ecnu.adsmls.utils.FileSystem;
 import com.ecnu.adsmls.utils.register.Function;
 import com.ecnu.adsmls.utils.register.FunctionParam;
+import com.ecnu.adsmls.utils.register.exception.DataTypeException;
+import com.ecnu.adsmls.utils.register.exception.EmptyParamException;
+import com.ecnu.adsmls.utils.register.exception.RequirementException;
 import com.ecnu.adsmls.utils.register.impl.LocationRegister;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -49,7 +51,19 @@ public class CarPane {
         this.createNode();
     }
 
-    private boolean check() {
+    public void check() throws EmptyParamException, DataTypeException, RequirementException {
+        if(this.tfName.getText().isEmpty()) {
+            throw new EmptyParamException("car.name is required");
+        }
+        if(this.tfMaxSpeed.getText().isEmpty()) {
+            throw new EmptyParamException("car.maxSpeed is required.");
+        }
+        if(this.tfInitSpeed.getText().isEmpty()) {
+            throw new EmptyParamException("car.initSpeed is required.");
+        }
+        if(Double.parseDouble(this.tfInitSpeed.getText()) > Double.parseDouble(this.tfMaxSpeed.getText())) {
+            throw new RequirementException("car.initSpeed should not be larger than car.maxSpeed.");
+        }
         this.locationParams.clear();
         Function locationFunction = LocationRegister.getLocationFunction(this.cbLocation.getValue());
         String locationParamName = "";
@@ -64,25 +78,38 @@ public class CarPane {
                 locationFunction.updateContext(locationParamName, locationParamValue);
             }
         }
-        return locationFunction.check();
+        locationFunction.check();
+        if(this.tfRoadDeviation.getText().isEmpty()) {
+            throw new EmptyParamException("car.roadDeviation is required");
+        }
     }
 
-    public MCar save() throws EmptyParamException {
-        if(!check()) {
-            // TODO 报错信息不够明确
-            throw new EmptyParamException("Required param(s) is/are empty or invalid.");
-        }
-
+    public MCar save() {
         MCar car = new MCar();
         car.setName(this.tfName.getText());
         car.setModel(this.cbModel.getValue());
-        car.setMaxSpeed(Double.parseDouble(this.tfMaxSpeed.getText()));
-        car.setInitSpeed(Double.parseDouble(this.tfInitSpeed.getText()));
+        try {
+            car.setMaxSpeed(Double.parseDouble(this.tfMaxSpeed.getText()));
+        }
+        catch (Exception ignored) {
+            car.setMaxSpeed(null);
+        }
+        try {
+            car.setInitSpeed(Double.parseDouble(this.tfInitSpeed.getText()));
+        }
+        catch (Exception ignored) {
+            car.setInitSpeed(null);
+        }
         car.setLocationType(this.cbLocation.getValue());
         car.setLocationParams(this.locationParams);
 
         car.setHeading(Objects.equals("same", this.cbHeading.getValue()));
-        car.setRoadDeviation(Double.parseDouble(this.tfRoadDeviation.getText()));
+        try {
+            car.setRoadDeviation(Double.parseDouble(this.tfRoadDeviation.getText()));
+        }
+        catch (Exception ignored) {
+            car.setRoadDeviation(null);
+        }
 
         File tree = ((ChooseFileButton) this.btDynamic.getUserData()).getFile();
         if (tree == null) {
@@ -99,8 +126,14 @@ public class CarPane {
     public void load(MCar mCar) {
         this.tfName.setText(mCar.getName());
         this.cbModel.getSelectionModel().select(mCar.getModel());
-        this.tfMaxSpeed.setText(String.valueOf(mCar.getMaxSpeed()));
-        this.tfInitSpeed.setText(String.valueOf(mCar.getInitSpeed()));
+        try {
+            this.tfMaxSpeed.setText(Double.toString(mCar.getMaxSpeed()));
+        }
+        catch (Exception ignored) {}
+        try {
+            this.tfInitSpeed.setText(Double.toString(mCar.getInitSpeed()));
+        }
+        catch (Exception ignored) {}
         this.cbLocation.getSelectionModel().select(mCar.getLocationType());
 
         String locationParamName = "";
@@ -114,7 +147,10 @@ public class CarPane {
         }
 
         this.cbHeading.getSelectionModel().select(mCar.getHeading() ? "same" : "opposite");
-        this.tfRoadDeviation.setText(String.valueOf(mCar.getRoadDeviation()));
+        try {
+            this.tfRoadDeviation.setText(Double.toString(mCar.getRoadDeviation()));
+        }
+        catch (Exception ignored) {}
         if (!Objects.equals(mCar.getTreePath(), "")) {
             // 恢复绝对路径
             ((ChooseFileButton) this.btDynamic.getUserData()).setFile(new File(this.projectPath, mCar.getTreePath()));
@@ -158,6 +194,7 @@ public class CarPane {
                 gridPaneLocationParams.addRow(row++, lbParamName, tfParamValue);
             }
         });
+        this.cbLocation.getSelectionModel().select(0);
 
         Label lbHeading = new Label("heading: ");
         this.cbHeading = new ComboBox<>(FXCollections.observableArrayList("same", "opposite"));

@@ -1,7 +1,9 @@
 package com.ecnu.adsmls.components.editor;
 
-import com.ecnu.adsmls.utils.EmptyParamException;
 import com.ecnu.adsmls.utils.FileSystem;
+import com.ecnu.adsmls.utils.register.exception.DataTypeException;
+import com.ecnu.adsmls.utils.register.exception.EmptyParamException;
+import com.ecnu.adsmls.utils.register.exception.RequirementException;
 import javafx.scene.Node;
 
 import java.io.File;
@@ -28,9 +30,15 @@ public abstract class Editor {
     }
 
     /**
+     * 检查文件
+     * @return
+     */
+    public abstract void check() throws EmptyParamException, RequirementException, DataTypeException;
+
+    /**
      * 保存文件
      */
-    public abstract void save() throws EmptyParamException;
+    public abstract void save();
 
     /**
      * 加载文件

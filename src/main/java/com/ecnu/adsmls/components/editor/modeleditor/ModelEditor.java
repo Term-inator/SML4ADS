@@ -5,8 +5,10 @@ import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.components.editor.Editor;
 import com.ecnu.adsmls.model.MCar;
 import com.ecnu.adsmls.model.MModel;
-import com.ecnu.adsmls.utils.EmptyParamException;
 import com.ecnu.adsmls.utils.FileSystem;
+import com.ecnu.adsmls.utils.register.exception.DataTypeException;
+import com.ecnu.adsmls.utils.register.exception.EmptyParamException;
+import com.ecnu.adsmls.utils.register.exception.RequirementException;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -62,20 +64,24 @@ public class ModelEditor extends Editor {
         }
     }
 
-    private boolean check() {
+    @Override
+    public void check() throws EmptyParamException, DataTypeException, RequirementException {
         if(this.tfSimulationTime.getText().isEmpty()) {
-            return false;
+            throw new EmptyParamException("Simulation Time is required.");
         }
-        return true;
+        // simulation time 是 time step 的倍数
+        if(Double.parseDouble(this.tfSimulationTime.getText()) / this.spTimeStep.getValue() !=
+                Math.floor(Double.parseDouble(this.tfSimulationTime.getText()) / this.spTimeStep.getValue())) {
+            throw new RequirementException("Simulation Time should be a multiple of Time Step");
+        }
+        for(Map.Entry<Integer, CarPane> entry: this.carPanes.entrySet()) {
+            entry.getValue().check();
+        }
     }
 
     // 由于关闭自动保存，其他在打开 Editor 后修改的内容会在关闭时被覆盖，所以 save 前要先 load
     @Override
-    public void save() throws EmptyParamException {
-        if(!check()) {
-            throw new EmptyParamException("Required param(s) is/are empty.");
-        }
-
+    public void save() {
         String model = null;
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(this.projectPath, this.relativePath)), StandardCharsets.UTF_8));
@@ -105,8 +111,12 @@ public class ModelEditor extends Editor {
         mModel.setWeather(this.cbWeather.getValue());
         mModel.setTimeStep(this.spTimeStep.getValue());
 
-        // TODO simulation time 是 time step 的倍数
-        mModel.setSimulationTime(Double.parseDouble(this.tfSimulationTime.getText()));
+        try {
+            mModel.setSimulationTime(Double.parseDouble(this.tfSimulationTime.getText()));
+        }
+        catch (Exception ignored) {
+            mModel.setSimulationTime(null);
+        }
 
 
         File source = ((ChooseFileButton) this.btSource.getUserData()).getFile();
@@ -159,7 +169,12 @@ public class ModelEditor extends Editor {
         }
         this.cbWeather.getSelectionModel().select(mModel.getWeather());
         this.spTimeStep.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(this.timeStepMin, this.timeStepMax, mModel.getTimeStep(), 0.1));
-        this.tfSimulationTime.setText(Double.toString(mModel.getSimulationTime()));
+
+        try {
+            this.tfSimulationTime.setText(Double.toString(mModel.getSimulationTime()));
+        }
+        catch (Exception ignored) {}
+
         if (!Objects.equals(mModel.getSource(), "")) {
             // 恢复绝对路径
             ((ChooseFileButton) this.btSource.getUserData()).setFile(new File(this.projectPath, mModel.getSource()));
@@ -182,12 +197,7 @@ public class ModelEditor extends Editor {
         this.gridPane.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             System.out.println(e);
             if (e.isControlDown() && e.getCode() == KeyCode.S) {
-                try {
-                    this.save();
-                }
-                catch (EmptyParamException emptyParamException) {
-                    emptyParamException.printStackTrace();
-                }
+                this.save();
             }
         });
         this.gridPane.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {

@@ -1,5 +1,7 @@
 package com.ecnu.adsmls.utils.register;
 
+import com.ecnu.adsmls.utils.register.exception.RequirementException;
+
 import java.util.Map;
 
 public interface Requirement {
@@ -8,7 +10,7 @@ public interface Requirement {
      * @param value
      * @return
      */
-    boolean check(Map<String, String> context, String value);
+    void check(Map<String, String> context, String value) throws RequirementException;
 
     /** TODO
      * 显示错误信息
