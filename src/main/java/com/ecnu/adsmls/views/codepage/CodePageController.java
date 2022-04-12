@@ -257,7 +257,7 @@ public class CodePageController implements Initializable, Route {
         }
 
         if(!modelOpened) {
-            System.out.println("Please open model files first");
+            this.showInfo("Please open model files first");
             return;
         }
 
@@ -325,7 +325,7 @@ public class CodePageController implements Initializable, Route {
     private void verify() {
         System.out.println("verifying");
         if(this.tabPane.getTabs().size() == 0) {
-            System.out.println("Please open model files first");
+            this.showInfo("Please open model files first");
             return;
         }
         // 当前显示的 tab
@@ -375,11 +375,11 @@ public class CodePageController implements Initializable, Route {
     private void simulate() {
         System.out.println("simulating");
         if(this.tabPane.getTabs().size() == 0) {
-            System.out.println("Please open model files first");
+            this.showInfo("Please open model files first");
             return;
         }
         if(Global.pythonEnv == null) {
-            System.out.println("set python environment first");
+            this.showInfo("set python environment first");
             return;
         }
         String pythonEnv = Global.pythonEnv;
@@ -445,7 +445,7 @@ public class CodePageController implements Initializable, Route {
             this.openTree(tab, file);
         }
         else {
-            System.out.println("Unsupported file");
+            this.showInfo("Unsupported file");
             return;
         }
 
@@ -467,7 +467,7 @@ public class CodePageController implements Initializable, Route {
             nfm = new NewDirectoryModal();
         }
         else {
-            System.out.println("Unsupported file");
+            this.showInfo("Unsupported file");
             return;
         }
 
@@ -477,7 +477,7 @@ public class CodePageController implements Initializable, Route {
             return;
         }
         if(!nfm.isSucceed()) {
-            System.out.println("File or directory already exists");
+            this.showInfo("File or directory already exists");
             return;
         }
         this.multiLevelDirectory.newFile();
