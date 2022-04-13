@@ -1,6 +1,7 @@
 package com.ecnu.adsmls;
 
 import com.ecnu.adsmls.router.Router;
+import com.ecnu.adsmls.router.params.Global;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
