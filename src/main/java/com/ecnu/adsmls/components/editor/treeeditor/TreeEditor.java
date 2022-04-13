@@ -29,6 +29,8 @@ public class TreeEditor extends Editor {
 
     private AnchorPane paletteWrapper;
     private AnchorPane canvasWrapper;
+    private double defaultCanvasWidth = 600;
+    private double defaultCanvasHeight = 400;
 
     // 组件栏
     private GridPane palette = new GridPane();
@@ -106,8 +108,14 @@ public class TreeEditor extends Editor {
     public void initCanvas() {
         this.canvasWrapper = new AnchorPane(this.canvas);
 
-        this.canvas.setPrefWidth(1200);
-        this.canvas.setPrefHeight(800);
+        if(this.canvas.getChildren().isEmpty()) {
+            this.canvas.setPrefWidth(this.defaultCanvasWidth);
+            this.canvas.setPrefHeight(this.defaultCanvasHeight);
+        }
+        else {
+            this.canvas.setPrefWidth(this.canvasWrapper.getWidth());
+            this.canvas.setPrefHeight(this.canvasWrapper.getHeight());
+        }
 
         canvasWrapper.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             System.out.println(e);
@@ -126,6 +134,11 @@ public class TreeEditor extends Editor {
             else if(e.isControlDown() && e.getCode() == KeyCode.S) {
                 this.save();
             }
+        });
+
+        canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, event -> {
+            this.canvas.setPrefWidth(Control.USE_COMPUTED_SIZE);
+            this.canvas.setPrefHeight(Control.USE_COMPUTED_SIZE);
         });
 
         AtomicReference<Transition> transition = new AtomicReference<>();
@@ -429,8 +442,15 @@ public class TreeEditor extends Editor {
         this.initPalette();
         this.initCanvas();
 
-        this.splitPane.getItems().addAll(this.paletteWrapper, this.canvasWrapper);
-        this.splitPane.setDividerPositions(.1f);
+        ScrollPane scrollPane = new ScrollPane(this.canvasWrapper);
+        AnchorPane scrollWrapper = new AnchorPane(scrollPane);
+        AnchorPane.setTopAnchor(scrollPane, 0d);
+        AnchorPane.setRightAnchor(scrollPane, 0d);
+        AnchorPane.setBottomAnchor(scrollPane, 0d);
+        AnchorPane.setLeftAnchor(scrollPane, 0d);
+
+        this.splitPane.getItems().addAll(this.paletteWrapper, scrollWrapper);
+        this.paletteWrapper.maxWidthProperty().bind(this.splitPane.maxWidthProperty().multiply(0.1));
     }
 
     @Override

@@ -20,6 +20,7 @@ import com.ecnu.adsmls.utils.FileSystem;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
@@ -546,9 +547,9 @@ public class CodePageController implements Initializable, Route {
     }
 
     private void openTree(Tab tab, File file) {
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
+//        ScrollPane scrollPane = new ScrollPane();
+//        scrollPane.setFitToWidth(true);
+//        scrollPane.setFitToHeight(true);
         // TODO ScrollPane 应在 TreeEditor 内部
 
         AnchorPane anchorPane = new AnchorPane();
@@ -556,12 +557,16 @@ public class CodePageController implements Initializable, Route {
         String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
         TreeEditor treeEditor = new TreeEditor(projectPath, file);
         treeEditor.load();
-        anchorPane.getChildren().add(treeEditor.getNode());
+        Node node = treeEditor.getNode();
+        ((SplitPane) node).prefWidthProperty().bind(anchorPane.widthProperty());
+        ((SplitPane) node).prefHeightProperty().bind(anchorPane.heightProperty());
 
-        scrollPane.setContent(anchorPane);
-        scrollPane.setUserData(treeEditor);
+        anchorPane.getChildren().add(node);
 
-        tab.setContent(scrollPane);
+//        scrollPane.setContent(anchorPane);
+//        scrollPane.setUserData(treeEditor);
+
+        tab.setContent(anchorPane);
         tab.setUserData(treeEditor);
     }
 }
