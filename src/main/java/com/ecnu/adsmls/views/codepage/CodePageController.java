@@ -547,11 +547,6 @@ public class CodePageController implements Initializable, Route {
     }
 
     private void openTree(Tab tab, File file) {
-//        ScrollPane scrollPane = new ScrollPane();
-//        scrollPane.setFitToWidth(true);
-//        scrollPane.setFitToHeight(true);
-        // TODO ScrollPane 应在 TreeEditor 内部
-
         AnchorPane anchorPane = new AnchorPane();
 
         String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
@@ -562,9 +557,6 @@ public class CodePageController implements Initializable, Route {
         ((SplitPane) node).prefHeightProperty().bind(anchorPane.heightProperty());
 
         anchorPane.getChildren().add(node);
-
-//        scrollPane.setContent(anchorPane);
-//        scrollPane.setUserData(treeEditor);
 
         tab.setContent(anchorPane);
         tab.setUserData(treeEditor);
