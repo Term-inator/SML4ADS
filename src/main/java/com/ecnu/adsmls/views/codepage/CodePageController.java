@@ -20,6 +20,7 @@ import com.ecnu.adsmls.utils.FileSystem;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
@@ -257,7 +258,7 @@ public class CodePageController implements Initializable, Route {
         }
 
         if(!modelOpened) {
-            System.out.println("Please open model files first");
+            this.showInfo("Please open model files first");
             return;
         }
 
@@ -325,7 +326,7 @@ public class CodePageController implements Initializable, Route {
     private void verify() {
         System.out.println("verifying");
         if(this.tabPane.getTabs().size() == 0) {
-            System.out.println("Please open model files first");
+            this.showInfo("Please open model files first");
             return;
         }
         // 当前显示的 tab
@@ -375,11 +376,11 @@ public class CodePageController implements Initializable, Route {
     private void simulate() {
         System.out.println("simulating");
         if(this.tabPane.getTabs().size() == 0) {
-            System.out.println("Please open model files first");
+            this.showInfo("Please open model files first");
             return;
         }
         if(Global.pythonEnv == null) {
-            System.out.println("set python environment first");
+            this.showInfo("set python environment first");
             return;
         }
         String pythonEnv = Global.pythonEnv;
@@ -445,7 +446,7 @@ public class CodePageController implements Initializable, Route {
             this.openTree(tab, file);
         }
         else {
-            System.out.println("Unsupported file");
+            this.showInfo("Unsupported file");
             return;
         }
 
@@ -467,7 +468,7 @@ public class CodePageController implements Initializable, Route {
             nfm = new NewDirectoryModal();
         }
         else {
-            System.out.println("Unsupported file");
+            this.showInfo("Unsupported file");
             return;
         }
 
@@ -477,7 +478,7 @@ public class CodePageController implements Initializable, Route {
             return;
         }
         if(!nfm.isSucceed()) {
-            System.out.println("File or directory already exists");
+            this.showInfo("File or directory already exists");
             return;
         }
         this.multiLevelDirectory.newFile();
@@ -546,22 +547,18 @@ public class CodePageController implements Initializable, Route {
     }
 
     private void openTree(Tab tab, File file) {
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
-        // TODO ScrollPane 应在 TreeEditor 内部
-
         AnchorPane anchorPane = new AnchorPane();
 
         String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
         TreeEditor treeEditor = new TreeEditor(projectPath, file);
         treeEditor.load();
-        anchorPane.getChildren().add(treeEditor.getNode());
+        Node node = treeEditor.getNode();
+        ((SplitPane) node).prefWidthProperty().bind(anchorPane.widthProperty());
+        ((SplitPane) node).prefHeightProperty().bind(anchorPane.heightProperty());
 
-        scrollPane.setContent(anchorPane);
-        scrollPane.setUserData(treeEditor);
+        anchorPane.getChildren().add(node);
 
-        tab.setContent(scrollPane);
+        tab.setContent(anchorPane);
         tab.setUserData(treeEditor);
     }
 }

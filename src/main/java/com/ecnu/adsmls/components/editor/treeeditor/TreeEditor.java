@@ -4,8 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.editor.Editor;
 import com.ecnu.adsmls.components.editor.treeeditor.impl.*;
 import com.ecnu.adsmls.model.*;
+import com.ecnu.adsmls.router.params.Global;
 import com.ecnu.adsmls.utils.Converter;
 import com.ecnu.adsmls.utils.Position;
+import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -15,13 +17,12 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class TreeEditor extends Editor {
@@ -29,6 +30,9 @@ public class TreeEditor extends Editor {
 
     private AnchorPane paletteWrapper;
     private AnchorPane canvasWrapper;
+    private ScrollPane scrollPane;
+    private double defaultCanvasWidth = 600;
+    private double defaultCanvasHeight = 400;
 
     // 组件栏
     private GridPane palette = new GridPane();
@@ -106,8 +110,14 @@ public class TreeEditor extends Editor {
     public void initCanvas() {
         this.canvasWrapper = new AnchorPane(this.canvas);
 
-        this.canvas.setPrefWidth(1200);
-        this.canvas.setPrefHeight(800);
+        this.canvas.setMinSize(this.defaultCanvasWidth, this.defaultCanvasHeight);
+        this.canvas.setPrefWidth(Control.USE_COMPUTED_SIZE);
+        this.canvas.setPrefHeight(Control.USE_COMPUTED_SIZE);
+
+        AnchorPane.setTopAnchor(this.canvas, 0d);
+        AnchorPane.setRightAnchor(this.canvas, 0d);
+        AnchorPane.setBottomAnchor(this.canvas, 0d);
+        AnchorPane.setLeftAnchor(this.canvas, 0d);
 
         canvasWrapper.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             System.out.println(e);
@@ -126,6 +136,12 @@ public class TreeEditor extends Editor {
             else if(e.isControlDown() && e.getCode() == KeyCode.S) {
                 this.save();
             }
+        });
+
+        // 调整画布大小
+        canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, event -> {
+            this.canvas.setPrefWidth(Control.USE_COMPUTED_SIZE);
+            this.canvas.setPrefHeight(Control.USE_COMPUTED_SIZE);
         });
 
         AtomicReference<Transition> transition = new AtomicReference<>();
@@ -426,11 +442,23 @@ public class TreeEditor extends Editor {
 
     @Override
     protected void createNode() {
+        // TODO canvas 一大变大，无法恢复，导致全屏后再缩小会出问题
         this.initPalette();
         this.initCanvas();
 
-        this.splitPane.getItems().addAll(this.paletteWrapper, this.canvasWrapper);
-        this.splitPane.setDividerPositions(.1f);
+        this.scrollPane = new ScrollPane(this.canvasWrapper);
+        AnchorPane scrollWrapper = new AnchorPane(this.scrollPane);
+        AnchorPane.setTopAnchor(this.scrollPane, 0d);
+        AnchorPane.setRightAnchor(this.scrollPane, 0d);
+        AnchorPane.setBottomAnchor(this.scrollPane, 0d);
+        AnchorPane.setLeftAnchor(this.scrollPane, 0d);
+
+        this.canvasWrapper.setPrefWidth(this.scrollPane.getPrefWidth());
+        this.canvasWrapper.setPrefHeight(this.scrollPane.getPrefHeight());
+        this.canvasWrapper.setBackground(new Background(new BackgroundFill(new Color(1, 1, 1, 1), null, null)));
+
+        this.splitPane.getItems().addAll(this.paletteWrapper, scrollWrapper);
+        this.paletteWrapper.maxWidthProperty().bind(this.splitPane.maxWidthProperty().multiply(0.1));
     }
 
     @Override
