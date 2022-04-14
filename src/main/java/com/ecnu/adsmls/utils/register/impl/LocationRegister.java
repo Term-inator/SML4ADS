@@ -33,7 +33,19 @@ public class LocationRegister extends FunctionRegister {
         lanePosition.addParam("max longitudinal offset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
                 new Between(new Reference("min longitudinal offset"), new Value(Double.MAX_VALUE), "[)"));
 
-        // TODO entity reference 检查
+        Function roadPosition = new Function("Road Position");
+        roadPosition.addParam("road id", Function.DataType.INT, Function.Necessity.REQUIRED);
+        roadPosition.addParam("min lateral offset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
+                new NotNegative());
+        // 根据 lateral 偏移确定 lane
+        roadPosition.addParam("max lateral offset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
+                new Between(new Reference("min lateral offset"), new Value(Double.MAX_VALUE), "[)"));
+        roadPosition.addParam("min longitudinal offset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
+                new NotNegative());
+        roadPosition.addParam("max longitudinal offset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
+                new Between(new Reference("min longitudinal offset"), new Value(Double.MAX_VALUE), "[)"));
+
+        // entity reference 的检查交给运行时
         Function relatedPosition = new Function("Related Position");
         relatedPosition.addParam("entity reference", Function.DataType.STRING, Function.Necessity.REQUIRED);
         relatedPosition.addParam("min lateral offset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
@@ -47,6 +59,7 @@ public class LocationRegister extends FunctionRegister {
 
         locationFunctions.add(globalPosition);
         locationFunctions.add(lanePosition);
+        locationFunctions.add(roadPosition);
         locationFunctions.add(relatedPosition);
     }
 
