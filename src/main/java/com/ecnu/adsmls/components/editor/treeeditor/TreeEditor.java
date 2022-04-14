@@ -442,6 +442,7 @@ public class TreeEditor extends Editor {
 
     @Override
     protected void createNode() {
+        // TODO canvas 一大变大，无法恢复，导致全屏后再缩小会出问题
         this.initPalette();
         this.initCanvas();
 
