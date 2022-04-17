@@ -208,49 +208,49 @@ public class ModelEditor extends Editor {
         this.gridPaneCar.setHgap(8);
         this.gridPaneCar.setVgap(8);
 
-        Label lbSimulatorType = new Label("Simulator Type");
+        Label lbSimulatorType = new Label("simulatorType");
         String[] simulators = {"Carla", "lgsvl"};
         this.cbSimulatorType = new ComboBox<>(FXCollections.observableArrayList(simulators));
         this.cbSimulatorType.getSelectionModel().select(0);
 
-        Label lbMap = new Label("Map");
+        Label lbMap = new Label("map");
         // 限定选择 *.xodr 文件
         Map<String, String> mapFilter = new HashMap<>();
         mapFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.MAP), FileSystem.Suffix.MAP.toString());
         this.btMap =  new ChooseFileButton(this.gridPane, this.projectPath, mapFilter).getNode();
 
-        Label lbWeather = new Label("Weather");
+        Label lbWeather = new Label("weather");
         // TODO 提供不同仿真器支持的天气选项
         String[] weathers = {"clear", "rainy", "foggy"};
         this.cbWeather = new ComboBox<>(FXCollections.observableArrayList(weathers));
         this.cbWeather.getSelectionModel().select(0);
 
-        Label lbSource = new Label("Actor Source");
+        Label lbSource = new Label("actorSource");
         // 限定选择 *.model 文件
         Map<String, String> actorFilter = new HashMap<>();
         actorFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.MODEL), FileSystem.Suffix.MODEL.toString());
         this.btSource = new ChooseFileButton(this.gridPane, this.projectPath, actorFilter).getNode();
 
-        Label lbTimeStep = new Label("Time Step");
+        Label lbTimeStep = new Label("timeStep");
         this.spTimeStep = new Spinner<>(this.timeStepMin, this.timeStepMax, 0.1, 0.1);
         // 可直接输入
         this.spTimeStep.setEditable(true);
         this.spTimeStep.setPrefWidth(80);
 
-        Label lbSimulationTime = new Label("Simulation Time");
+        Label lbSimulationTime = new Label("simulationTime");
         this.tfSimulationTime = new TextField();
 
-        Label lbCars = new Label("Cars");
+        Label lbCars = new Label("cars");
 
         Button btNewCar = new Button("New Car");
         btNewCar.setOnMouseClicked(e -> {
             this.newCar(new CarPane(this.projectPath));
         });
 
-        Label lbPedestrians = new Label("Pedestrians");
+        Label lbPedestrians = new Label("pedestrians");
         Button btNewPedestrian = new Button("New Pedestrian");
 
-        Label lbObstacles = new Label("Obstacles");
+        Label lbObstacles = new Label("obstacles");
         Button btNewObstacle = new Button("New Obstacle");
 
         this.gridPane.addRow(0, lbSimulatorType, this.cbSimulatorType);
