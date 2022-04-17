@@ -58,7 +58,7 @@ public class BehaviorRegister extends FunctionRegister {
 
         // 静止且什么都不做
         Function idle = new Function("Idle");
-        idle.addParam("duration", Function.DataType.DOUBLE, Function.Necessity.OPTIONAL,
+        idle.addParam("duration", Function.DataType.INT, Function.Necessity.OPTIONAL,
                 new Positive());
 
         behaviorFunctions.add(keep);
