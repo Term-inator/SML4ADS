@@ -161,21 +161,21 @@ public class CarPane {
         this.gridPane.setVgap(8);
         this.gridPane.setHgap(8);
 
-        Label lbName = new Label("name: ");
+        Label lbName = new Label("name");
         this.tfName = new TextField();
 
-        Label lbModel = new Label("model: ");
+        Label lbModel = new Label("model");
         String[] models = {"random", "vehicle.audi.a2"};
         this.cbModel = new ComboBox<>(FXCollections.observableArrayList(models));
         this.cbModel.getSelectionModel().select(0);
 
-        Label lbMaxSpeed = new Label("max speed: ");
+        Label lbMaxSpeed = new Label("maxSpeed");
         this.tfMaxSpeed = new TextField();
 
-        Label lbInitSpeed = new Label("initial speed: ");
+        Label lbInitSpeed = new Label("initialSpeed");
         this.tfInitSpeed = new TextField();
 
-        Label lbLocation = new Label("location: ");
+        Label lbLocation = new Label("location");
         List<String> locationTypes = LocationRegister.getLocationTypes();
         this.cbLocation = new ComboBox<>(FXCollections.observableArrayList(locationTypes));
         this.gridPaneLocationParams = new GridPane();
@@ -196,14 +196,14 @@ public class CarPane {
         });
         this.cbLocation.getSelectionModel().select(0);
 
-        Label lbHeading = new Label("heading: ");
+        Label lbHeading = new Label("heading");
         this.cbHeading = new ComboBox<>(FXCollections.observableArrayList("same", "opposite"));
         this.cbHeading.getSelectionModel().select(0);
 
-        Label lbRoadDeviation = new Label("road deviation: ");
+        Label lbRoadDeviation = new Label("roadDeviation");
         this.tfRoadDeviation = new TextField();
 
-        Label lbDynamic = new Label("Dynamic: ");
+        Label lbDynamic = new Label("dynamic");
         // 限定选择 *.tree 文件
         Map<String, String> treeFilter = new HashMap<>();
         treeFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.TREE), FileSystem.Suffix.TREE.toString());

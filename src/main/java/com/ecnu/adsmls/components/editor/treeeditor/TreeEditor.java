@@ -8,6 +8,7 @@ import com.ecnu.adsmls.router.params.Global;
 import com.ecnu.adsmls.utils.Converter;
 import com.ecnu.adsmls.utils.Position;
 import javafx.beans.value.ChangeListener;
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -36,6 +37,7 @@ public class TreeEditor extends Editor {
 
     // 组件栏
     private GridPane palette = new GridPane();
+    private ComboBox<String> cbTreeType;
     final ToggleGroup group = new ToggleGroup();
     private String componentSelected;
     private Pane canvas = new Pane();
@@ -76,10 +78,16 @@ public class TreeEditor extends Editor {
     private void initPalette() {
         this.paletteWrapper = new AnchorPane(this.palette);
 
-        this.palette.setPadding(new Insets(8, 0, 0, 0));
+        this.palette.setPadding(new Insets(8, 8, 0, 8));
         this.palette.setVgap(8);
         this.palette.setAlignment(Pos.TOP_CENTER);
-        this.palette.setPrefWidth(100);
+
+        // TODO 什么选择 BehaviorModal 对应显示什么行为
+        // TODO 切换选择提示将会清空画布
+        // TODO preprocess 检查 tree 类型
+        String[] treeTypes = {"Car", "Pedestrian", "Obstacle"};
+        this.cbTreeType = new ComboBox<>(FXCollections.observableArrayList(treeTypes));
+        this.cbTreeType.getSelectionModel().select(0);
 
         ToggleButton tb0 = new ToggleButton("Behavior");
         tb0.setUserData("Behavior");
@@ -88,9 +96,10 @@ public class TreeEditor extends Editor {
         ToggleButton tb2 = new ToggleButton("Transition");
         tb2.setUserData("Transition");
 
-        palette.addRow(0, tb0);
-        palette.addRow(1, tb1);
-        palette.addRow(2, tb2);
+        palette.addRow(0, this.cbTreeType);
+        palette.addRow(1, tb0);
+        palette.addRow(2, tb1);
+        palette.addRow(3, tb2);
         for(Node n : palette.getChildren()) {
             if(n instanceof ToggleButton) {
                 ((ToggleButton) n).setToggleGroup(group);
@@ -455,10 +464,9 @@ public class TreeEditor extends Editor {
 
         this.canvasWrapper.setPrefWidth(this.scrollPane.getPrefWidth());
         this.canvasWrapper.setPrefHeight(this.scrollPane.getPrefHeight());
-        this.canvasWrapper.setBackground(new Background(new BackgroundFill(new Color(1, 1, 1, 1), null, null)));
 
         this.splitPane.getItems().addAll(this.paletteWrapper, scrollWrapper);
-        this.paletteWrapper.maxWidthProperty().bind(this.splitPane.maxWidthProperty().multiply(0.1));
+        this.paletteWrapper.maxWidthProperty().bind(this.splitPane.maxWidthProperty().multiply(0.1d));
     }
 
     @Override

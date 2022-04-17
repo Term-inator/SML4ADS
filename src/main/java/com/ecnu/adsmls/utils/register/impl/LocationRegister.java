@@ -22,40 +22,40 @@ public class LocationRegister extends FunctionRegister {
         // 若 lateral offset 超过 lane 宽度, 则报错
         double laneWidth = 4.5;
         Function lanePosition = new Function("Lane Position");
-        lanePosition.addParam("road id", Function.DataType.INT, Function.Necessity.REQUIRED);
-        lanePosition.addParam("lane id", Function.DataType.INT, Function.Necessity.REQUIRED);
-        lanePosition.addParam("min lateral offset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
+        lanePosition.addParam("roadId", Function.DataType.INT, Function.Necessity.REQUIRED);
+        lanePosition.addParam("laneId", Function.DataType.INT, Function.Necessity.REQUIRED);
+        lanePosition.addParam("minLateralOffset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
                 new Between(new Value(0), new Value(laneWidth), "[]"));
-        lanePosition.addParam("max lateral offset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
-                new Between(new Reference("min lateral offset"), new Value(laneWidth), "[]"));
-        lanePosition.addParam("min longitudinal offset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
+        lanePosition.addParam("maxLateralOffset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
+                new Between(new Reference("minLateralOffset"), new Value(laneWidth), "[]"));
+        lanePosition.addParam("minLongitudinalOffset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
                 new NotNegative());
-        lanePosition.addParam("max longitudinal offset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
-                new Between(new Reference("min longitudinal offset"), new Value(Double.MAX_VALUE), "[)"));
+        lanePosition.addParam("maxLongitudinalOffset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
+                new Between(new Reference("minLongitudinalOffset"), new Value(Double.MAX_VALUE), "[)"));
 
         Function roadPosition = new Function("Road Position");
-        roadPosition.addParam("road id", Function.DataType.INT, Function.Necessity.REQUIRED);
-        roadPosition.addParam("min lateral offset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
+        roadPosition.addParam("roadId", Function.DataType.INT, Function.Necessity.REQUIRED);
+        roadPosition.addParam("minLateralOffset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
                 new NotNegative());
         // 根据 lateral 偏移确定 lane
-        roadPosition.addParam("max lateral offset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
-                new Between(new Reference("min lateral offset"), new Value(Double.MAX_VALUE), "[)"));
-        roadPosition.addParam("min longitudinal offset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
+        roadPosition.addParam("maxLateralOffset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
+                new Between(new Reference("minLateralOffset"), new Value(Double.MAX_VALUE), "[)"));
+        roadPosition.addParam("minLongitudinalOffset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
                 new NotNegative());
-        roadPosition.addParam("max longitudinal offset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
-                new Between(new Reference("min longitudinal offset"), new Value(Double.MAX_VALUE), "[)"));
+        roadPosition.addParam("maxLongitudinalOffset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
+                new Between(new Reference("minLongitudinalOffset"), new Value(Double.MAX_VALUE), "[)"));
 
         // entity reference 的检查交给运行时
         Function relatedPosition = new Function("Related Position");
-        relatedPosition.addParam("entity reference", Function.DataType.STRING, Function.Necessity.REQUIRED);
-        relatedPosition.addParam("min lateral offset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
+        relatedPosition.addParam("actorRef", Function.DataType.STRING, Function.Necessity.REQUIRED);
+        relatedPosition.addParam("minLateralOffset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
                 new Between(new Value(0), new Value(laneWidth), "[]"));
-        relatedPosition.addParam("max lateral offset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
-                new Between(new Reference("min lateral offset"), new Value(laneWidth), "[]"));
-        relatedPosition.addParam("min longitudinal offset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
+        relatedPosition.addParam("maxLateralOffset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
+                new Between(new Reference("minLateralOffset"), new Value(laneWidth), "[]"));
+        relatedPosition.addParam("minLongitudinalOffset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
                 new NotNegative());
-        relatedPosition.addParam("max longitudinal offset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
-                new Between(new Reference("min longitudinal offset"), new Value(Double.MAX_VALUE), "[)"));
+        relatedPosition.addParam("maxLongitudinalOffset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
+                new Between(new Reference("minLongitudinalOffset"), new Value(Double.MAX_VALUE), "[)"));
 
         locationFunctions.add(globalPosition);
         locationFunctions.add(lanePosition);
