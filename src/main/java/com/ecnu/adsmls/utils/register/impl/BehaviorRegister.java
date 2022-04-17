@@ -69,6 +69,7 @@ public class BehaviorRegister extends FunctionRegister {
         behaviorFunctions.add(turnLeft);
         behaviorFunctions.add(turnRight);
         behaviorFunctions.add(laneOffset);
+        behaviorFunctions.add(idle);
     }
 
     public static List<String> getBehaviorNames() {
