@@ -38,8 +38,6 @@ public class ModelEditor extends Editor {
     private Spinner<Double> spTimeStep;
     // 总模拟时间 是 time step 的倍数
     private TextField tfSimulationTime;
-    
-    private Node btSource;
 
     private GridPane gridPaneCar = new GridPane();
     // 临时 id ，用于删除
@@ -118,17 +116,6 @@ public class ModelEditor extends Editor {
             mModel.setSimulationTime(null);
         }
 
-
-        File source = ((ChooseFileButton) this.btSource.getUserData()).getFile();
-        if (source == null) {
-            mModel.setSource("");
-        } else {
-            // 转换成相对路径
-            String path = source.getAbsolutePath();
-            String relativePath = FileSystem.getRelativePath(this.projectPath, path);
-            mModel.setSource(relativePath);
-        }
-
         List<MCar> cars = new ArrayList<>();
         for (Map.Entry<Integer, CarPane> entry : this.carPanes.entrySet()) {
             CarPane carPane = entry.getValue();
@@ -175,10 +162,6 @@ public class ModelEditor extends Editor {
         }
         catch (Exception ignored) {}
 
-        if (!Objects.equals(mModel.getSource(), "")) {
-            // 恢复绝对路径
-            ((ChooseFileButton) this.btSource.getUserData()).setFile(new File(this.projectPath, mModel.getSource()));
-        }
         for (MCar mCar : mModel.getCars()) {
             CarPane carPane = new CarPane(this.projectPath);
             // 设置 carPane 数据
@@ -225,12 +208,6 @@ public class ModelEditor extends Editor {
         this.cbWeather = new ComboBox<>(FXCollections.observableArrayList(weathers));
         this.cbWeather.getSelectionModel().select(0);
 
-        Label lbSource = new Label("actorSource");
-        // 限定选择 *.model 文件
-        Map<String, String> actorFilter = new HashMap<>();
-        actorFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.MODEL), FileSystem.Suffix.MODEL.toString());
-        this.btSource = new ChooseFileButton(this.gridPane, this.projectPath, actorFilter).getNode();
-
         Label lbTimeStep = new Label("timeStep");
         this.spTimeStep = new Spinner<>(this.timeStepMin, this.timeStepMax, 0.1, 0.1);
         // 可直接输入
@@ -256,18 +233,17 @@ public class ModelEditor extends Editor {
         this.gridPane.addRow(0, lbSimulatorType, this.cbSimulatorType);
         this.gridPane.addRow(1, lbMap, this.btMap);
         this.gridPane.addRow(2, lbWeather, this.cbWeather);
-        this.gridPane.addRow(3, lbSource, this.btSource);
-        this.gridPane.addRow(4, lbTimeStep, this.spTimeStep);
-        this.gridPane.addRow(5, lbSimulationTime, this.tfSimulationTime);
-        this.gridPane.addRow(6, lbCars);
-        this.gridPane.add(this.gridPaneCar, 0, 7, 2, 1);
-        this.gridPane.addRow(8, btNewCar);
-        this.gridPane.addRow(9, lbPedestrians);
-        this.gridPane.add(this.gridPanePedestrian, 0, 10, 2, 1);
-        this.gridPane.addRow(11, btNewPedestrian);
-        this.gridPane.addRow(12, lbObstacles);
-        this.gridPane.add(this.gridPaneObstacle, 0, 13, 2, 1);
-        this.gridPane.addRow(14, btNewObstacle);
+        this.gridPane.addRow(3, lbTimeStep, this.spTimeStep);
+        this.gridPane.addRow(4, lbSimulationTime, this.tfSimulationTime);
+        this.gridPane.addRow(5, lbCars);
+        this.gridPane.add(this.gridPaneCar, 0, 6, 2, 1);
+        this.gridPane.addRow(7, btNewCar);
+        this.gridPane.addRow(8, lbPedestrians);
+        this.gridPane.add(this.gridPanePedestrian, 0, 9, 2, 1);
+        this.gridPane.addRow(10, btNewPedestrian);
+        this.gridPane.addRow(11, lbObstacles);
+        this.gridPane.add(this.gridPaneObstacle, 0, 12, 2, 1);
+        this.gridPane.addRow(13, btNewObstacle);
     }
 
     /**

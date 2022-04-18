@@ -101,6 +101,18 @@ public class CarPane {
             car.setInitSpeed(null);
         }
         car.setLocationType(this.cbLocation.getValue());
+
+        String locationParamName = "";
+        String locationParamValue = "";
+        for(Node node : this.gridPaneLocationParams.getChildren()) {
+            if(node instanceof Label) {
+                locationParamName = ((Label) node).getText();
+            }
+            else if(node instanceof TextField) {
+                locationParamValue = ((TextField) node).getText();
+                this.locationParams.put(locationParamName, locationParamValue);
+            }
+        }
         car.setLocationParams(this.locationParams);
 
         car.setHeading(Objects.equals("same", this.cbHeading.getValue()));
@@ -137,12 +149,14 @@ public class CarPane {
         this.cbLocation.getSelectionModel().select(mCar.getLocationType());
 
         String locationParamName = "";
+        String locationParamValue = "";
         for(Node node : this.gridPaneLocationParams.getChildren()) {
             if(node instanceof Label) {
                 locationParamName = ((Label) node).getText();
             }
             else if(node instanceof TextField) {
-                ((TextField) node).setText(mCar.getLocationParams().get(locationParamName));
+                locationParamValue = mCar.getLocationParams().get(locationParamName);
+                ((TextField) node).setText(locationParamValue);
             }
         }
 
