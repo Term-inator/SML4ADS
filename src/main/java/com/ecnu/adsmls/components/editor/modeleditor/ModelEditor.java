@@ -100,14 +100,20 @@ public class ModelEditor extends Editor {
 
         mModel.setSimulatorType(this.cbSimulatorType.getValue());
 
-        File map = ((ChooseFileButton) this.btMap.getUserData()).getFile();
-        if (map == null) {
-            mModel.setMap("");
-        } else {
-            // 转换成相对路径
-            String path = map.getAbsolutePath();
-            String relativePath = FileSystem.getRelativePath(this.projectPath, path);
-            mModel.setMap(relativePath);
+        mModel.setMapType(this.cbMapType.getValue());
+        if(Objects.equals(this.cbMapType.getValue(), "custom")) {
+            File map = ((ChooseFileButton) this.btMap.getUserData()).getFile();
+            if (map == null) {
+                mModel.setMap("");
+            } else {
+                // 转换成相对路径
+                String path = map.getAbsolutePath();
+                String relativePath = FileSystem.getRelativePath(this.projectPath, path);
+                mModel.setMap(relativePath);
+            }
+        }
+        else if(Objects.equals(this.cbMapType.getValue(), "default")) {
+            mModel.setMap(this.cbDefaultMap.getValue() + FileSystem.Suffix.MAP.value);
         }
 
         mModel.setWeather(this.cbWeather.getValue());
@@ -154,10 +160,18 @@ public class ModelEditor extends Editor {
         System.out.println(model);
 
         this.cbSimulatorType.getSelectionModel().select(mModel.getSimulatorType());
-        if (!Objects.equals(mModel.getMap(), "")) {
-            // 恢复绝对路径
-            ((ChooseFileButton) this.btMap.getUserData()).setFile(new File(this.projectPath, mModel.getMap()));
+
+        this.cbMapType.getSelectionModel().select(mModel.getMapType());
+        if(Objects.equals(mModel.getMapType(), "custom")) {
+            if (!Objects.equals(mModel.getMap(), "")) {
+                // 恢复绝对路径
+                ((ChooseFileButton) this.btMap.getUserData()).setFile(new File(this.projectPath, mModel.getMap()));
+            }
         }
+        else if(Objects.equals(mModel.getMapType(), "default")) {
+            this.cbDefaultMap.getSelectionModel().select(FileSystem.removeSuffix(mModel.getMap()));
+        }
+
         this.cbWeather.getSelectionModel().select(mModel.getWeather());
         this.spTimeStep.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(this.timeStepMin, this.timeStepMax, mModel.getTimeStep(), 0.1));
 
@@ -202,21 +216,22 @@ public class ModelEditor extends Editor {
 
         Label lbMap = new Label("map");
         // 限定选择 *.xodr 文件
-        this.cbMapType = new ComboBox<>(FXCollections.observableArrayList("customMap", "defaultMap"));
+        this.cbMapType = new ComboBox<>(FXCollections.observableArrayList("custom", "default"));
         this.cbMapType.getSelectionModel().select(0);
         Map<String, String> mapFilter = new HashMap<>();
         mapFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.MAP), FileSystem.Suffix.MAP.toString());
         this.btMap =  new ChooseFileButton(this.gridPane, this.projectPath, mapFilter).getNode();
         this.defaultMaps = new String[]{"Town01", "Town02", "Town03", "Town04", "Town05", "Town06", "Town07", "Town10"};
         this.cbDefaultMap = new ComboBox<>(FXCollections.observableArrayList(this.defaultMaps));
+        this.cbDefaultMap.getSelectionModel().select(0);
         this.mapPane.setHgap(8);
         this.mapPane.addRow(0, this.cbMapType, this.btMap);
         this.cbMapType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if(Objects.equals(newValue, "customMap")) {
+            if(Objects.equals(newValue, "custom")) {
                 this.mapPane.getChildren().remove(this.cbDefaultMap);
                 this.mapPane.add(this.btMap, 1, 0);
             }
-            else if(Objects.equals(newValue, "defaultMap")) {
+            else if(Objects.equals(newValue, "default")) {
                 this.mapPane.getChildren().remove(this.btMap);
                 this.mapPane.add(this.cbDefaultMap, 1, 0);
             }

@@ -176,6 +176,11 @@ public class FileSystem {
         }
     }
 
+    public static String removeSuffix(String filename) {
+        filename = filename.replaceAll("\\..*$", "");
+        return filename;
+    }
+
     /**
      * 打开 Project 时，获取 Project 名称
      * @param projectPath Project 路径
