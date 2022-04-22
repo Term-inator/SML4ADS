@@ -6,11 +6,11 @@ import java.util.List;
 public class MModel {
     private String simulatorType;
 
+    private String mapType;
+
     private String map;
 
     private String weather;
-
-    private String source;
 
     private double timeStep;
 
@@ -20,11 +20,11 @@ public class MModel {
 
     private List<String> requirements = new ArrayList<>();
 
-    public MModel(String simulatorType,String map, String weather, String source, double timeStep, double simulationTime, List<MCar> cars, List<String> requirements) {
+    public MModel(String simulatorType, String mapType, String map, String weather, double timeStep, double simulationTime, List<MCar> cars, List<String> requirements) {
         this.simulatorType = simulatorType;
+        this.mapType = mapType;
         this.map = map;
         this.weather = weather;
-        this.source = source;
         this.timeStep = timeStep;
         this.simulationTime = simulationTime;
         this.cars = cars;
@@ -42,6 +42,14 @@ public class MModel {
         this.simulatorType = simulatorType;
     }
 
+    public String getMapType() {
+        return mapType;
+    }
+
+    public void setMapType(String mapType) {
+        this.mapType = mapType;
+    }
+
     public String getMap() {
         return map;
     }
@@ -56,14 +64,6 @@ public class MModel {
 
     public void setWeather(String weather) {
         this.weather = weather;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
     }
 
     public double getTimeStep() {

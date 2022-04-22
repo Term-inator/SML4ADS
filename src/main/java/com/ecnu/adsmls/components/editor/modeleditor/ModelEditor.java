@@ -29,7 +29,11 @@ public class ModelEditor extends Editor {
     // 模拟器类型
     private ComboBox<String> cbSimulatorType;
     // 地图文件
+    private GridPane mapPane = new GridPane();
+    private ComboBox<String> cbMapType;
     private Node btMap;
+    private String[] defaultMaps = {};
+    private ComboBox<String> cbDefaultMap;
     // 天气
     private ComboBox<String> cbWeather;
     
@@ -38,8 +42,6 @@ public class ModelEditor extends Editor {
     private Spinner<Double> spTimeStep;
     // 总模拟时间 是 time step 的倍数
     private TextField tfSimulationTime;
-    
-    private Node btSource;
 
     private GridPane gridPaneCar = new GridPane();
     // 临时 id ，用于删除
@@ -98,14 +100,20 @@ public class ModelEditor extends Editor {
 
         mModel.setSimulatorType(this.cbSimulatorType.getValue());
 
-        File map = ((ChooseFileButton) this.btMap.getUserData()).getFile();
-        if (map == null) {
-            mModel.setMap("");
-        } else {
-            // 转换成相对路径
-            String path = map.getAbsolutePath();
-            String relativePath = FileSystem.getRelativePath(this.projectPath, path);
-            mModel.setMap(relativePath);
+        mModel.setMapType(this.cbMapType.getValue());
+        if(Objects.equals(this.cbMapType.getValue(), "custom")) {
+            File map = ((ChooseFileButton) this.btMap.getUserData()).getFile();
+            if (map == null) {
+                mModel.setMap("");
+            } else {
+                // 转换成相对路径
+                String path = map.getAbsolutePath();
+                String relativePath = FileSystem.getRelativePath(this.projectPath, path);
+                mModel.setMap(relativePath);
+            }
+        }
+        else if(Objects.equals(this.cbMapType.getValue(), "default")) {
+            mModel.setMap(this.cbDefaultMap.getValue() + FileSystem.Suffix.MAP.value);
         }
 
         mModel.setWeather(this.cbWeather.getValue());
@@ -116,17 +124,6 @@ public class ModelEditor extends Editor {
         }
         catch (Exception ignored) {
             mModel.setSimulationTime(null);
-        }
-
-
-        File source = ((ChooseFileButton) this.btSource.getUserData()).getFile();
-        if (source == null) {
-            mModel.setSource("");
-        } else {
-            // 转换成相对路径
-            String path = source.getAbsolutePath();
-            String relativePath = FileSystem.getRelativePath(this.projectPath, path);
-            mModel.setSource(relativePath);
         }
 
         List<MCar> cars = new ArrayList<>();
@@ -163,10 +160,18 @@ public class ModelEditor extends Editor {
         System.out.println(model);
 
         this.cbSimulatorType.getSelectionModel().select(mModel.getSimulatorType());
-        if (!Objects.equals(mModel.getMap(), "")) {
-            // 恢复绝对路径
-            ((ChooseFileButton) this.btMap.getUserData()).setFile(new File(this.projectPath, mModel.getMap()));
+
+        this.cbMapType.getSelectionModel().select(mModel.getMapType());
+        if(Objects.equals(mModel.getMapType(), "custom")) {
+            if (!Objects.equals(mModel.getMap(), "")) {
+                // 恢复绝对路径
+                ((ChooseFileButton) this.btMap.getUserData()).setFile(new File(this.projectPath, mModel.getMap()));
+            }
         }
+        else if(Objects.equals(mModel.getMapType(), "default")) {
+            this.cbDefaultMap.getSelectionModel().select(FileSystem.removeSuffix(mModel.getMap()));
+        }
+
         this.cbWeather.getSelectionModel().select(mModel.getWeather());
         this.spTimeStep.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(this.timeStepMin, this.timeStepMax, mModel.getTimeStep(), 0.1));
 
@@ -175,10 +180,6 @@ public class ModelEditor extends Editor {
         }
         catch (Exception ignored) {}
 
-        if (!Objects.equals(mModel.getSource(), "")) {
-            // 恢复绝对路径
-            ((ChooseFileButton) this.btSource.getUserData()).setFile(new File(this.projectPath, mModel.getSource()));
-        }
         for (MCar mCar : mModel.getCars()) {
             CarPane carPane = new CarPane(this.projectPath);
             // 设置 carPane 数据
@@ -215,21 +216,43 @@ public class ModelEditor extends Editor {
 
         Label lbMap = new Label("map");
         // 限定选择 *.xodr 文件
+        this.cbMapType = new ComboBox<>(FXCollections.observableArrayList("custom", "default"));
+        this.cbMapType.getSelectionModel().select(0);
         Map<String, String> mapFilter = new HashMap<>();
         mapFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.MAP), FileSystem.Suffix.MAP.toString());
         this.btMap =  new ChooseFileButton(this.gridPane, this.projectPath, mapFilter).getNode();
+        this.defaultMaps = new String[]{"Town01", "Town02", "Town03", "Town04", "Town05", "Town06", "Town07", "Town10"};
+        this.cbDefaultMap = new ComboBox<>(FXCollections.observableArrayList(this.defaultMaps));
+        this.cbDefaultMap.getSelectionModel().select(0);
+        this.mapPane.setHgap(8);
+        this.mapPane.addRow(0, this.cbMapType, this.btMap);
+        this.cbMapType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if(Objects.equals(newValue, "custom")) {
+                this.mapPane.getChildren().remove(this.cbDefaultMap);
+                this.mapPane.add(this.btMap, 1, 0);
+            }
+            else if(Objects.equals(newValue, "default")) {
+                this.mapPane.getChildren().remove(this.btMap);
+                this.mapPane.add(this.cbDefaultMap, 1, 0);
+            }
+        });
+
+        this.cbSimulatorType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if(Objects.equals(newValue, simulators[0])) {
+                this.defaultMaps = new String[]{"Town01", "Town02", "Town03", "Town04", "Town05", "Town06", "Town07", "Town10"};
+            }
+            else if(Objects.equals(newValue, simulators[1])) {
+                this.defaultMaps = new String[]{};
+            }
+            this.cbDefaultMap.setItems(FXCollections.observableArrayList(this.defaultMaps));
+        });
+
 
         Label lbWeather = new Label("weather");
         // TODO 提供不同仿真器支持的天气选项
         String[] weathers = {"clear", "rainy", "foggy"};
         this.cbWeather = new ComboBox<>(FXCollections.observableArrayList(weathers));
         this.cbWeather.getSelectionModel().select(0);
-
-        Label lbSource = new Label("actorSource");
-        // 限定选择 *.model 文件
-        Map<String, String> actorFilter = new HashMap<>();
-        actorFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.MODEL), FileSystem.Suffix.MODEL.toString());
-        this.btSource = new ChooseFileButton(this.gridPane, this.projectPath, actorFilter).getNode();
 
         Label lbTimeStep = new Label("timeStep");
         this.spTimeStep = new Spinner<>(this.timeStepMin, this.timeStepMax, 0.1, 0.1);
@@ -254,20 +277,20 @@ public class ModelEditor extends Editor {
         Button btNewObstacle = new Button("New Obstacle");
 
         this.gridPane.addRow(0, lbSimulatorType, this.cbSimulatorType);
-        this.gridPane.addRow(1, lbMap, this.btMap);
+        this.gridPane.add(lbMap, 0, 1);
+        this.gridPane.add(this.mapPane, 1, 1, 2, 1);
         this.gridPane.addRow(2, lbWeather, this.cbWeather);
-        this.gridPane.addRow(3, lbSource, this.btSource);
-        this.gridPane.addRow(4, lbTimeStep, this.spTimeStep);
-        this.gridPane.addRow(5, lbSimulationTime, this.tfSimulationTime);
-        this.gridPane.addRow(6, lbCars);
-        this.gridPane.add(this.gridPaneCar, 0, 7, 2, 1);
-        this.gridPane.addRow(8, btNewCar);
-        this.gridPane.addRow(9, lbPedestrians);
-        this.gridPane.add(this.gridPanePedestrian, 0, 10, 2, 1);
-        this.gridPane.addRow(11, btNewPedestrian);
-        this.gridPane.addRow(12, lbObstacles);
-        this.gridPane.add(this.gridPaneObstacle, 0, 13, 2, 1);
-        this.gridPane.addRow(14, btNewObstacle);
+        this.gridPane.addRow(3, lbTimeStep, this.spTimeStep);
+        this.gridPane.addRow(4, lbSimulationTime, this.tfSimulationTime);
+        this.gridPane.addRow(5, lbCars);
+        this.gridPane.add(this.gridPaneCar, 0, 6, 2, 1);
+        this.gridPane.addRow(7, btNewCar);
+        this.gridPane.addRow(8, lbPedestrians);
+        this.gridPane.add(this.gridPanePedestrian, 0, 9, 2, 1);
+        this.gridPane.addRow(10, btNewPedestrian);
+        this.gridPane.addRow(11, lbObstacles);
+        this.gridPane.add(this.gridPaneObstacle, 0, 12, 2, 1);
+        this.gridPane.addRow(13, btNewObstacle);
     }
 
     /**
