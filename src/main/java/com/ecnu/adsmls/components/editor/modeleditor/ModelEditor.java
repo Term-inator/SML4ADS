@@ -29,7 +29,11 @@ public class ModelEditor extends Editor {
     // 模拟器类型
     private ComboBox<String> cbSimulatorType;
     // 地图文件
+    private GridPane mapPane = new GridPane();
+    private ComboBox<String> cbMapType;
     private Node btMap;
+    private String[] defaultMaps = {};
+    private ComboBox<String> cbDefaultMap;
     // 天气
     private ComboBox<String> cbWeather;
     
@@ -198,9 +202,36 @@ public class ModelEditor extends Editor {
 
         Label lbMap = new Label("map");
         // 限定选择 *.xodr 文件
+        this.cbMapType = new ComboBox<>(FXCollections.observableArrayList("customMap", "defaultMap"));
+        this.cbMapType.getSelectionModel().select(0);
         Map<String, String> mapFilter = new HashMap<>();
         mapFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.MAP), FileSystem.Suffix.MAP.toString());
         this.btMap =  new ChooseFileButton(this.gridPane, this.projectPath, mapFilter).getNode();
+        this.defaultMaps = new String[]{"Town01", "Town02", "Town03", "Town04", "Town05", "Town06", "Town07", "Town10"};
+        this.cbDefaultMap = new ComboBox<>(FXCollections.observableArrayList(this.defaultMaps));
+        this.mapPane.setHgap(8);
+        this.mapPane.addRow(0, this.cbMapType, this.btMap);
+        this.cbMapType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if(Objects.equals(newValue, "customMap")) {
+                this.mapPane.getChildren().remove(this.cbDefaultMap);
+                this.mapPane.add(this.btMap, 1, 0);
+            }
+            else if(Objects.equals(newValue, "defaultMap")) {
+                this.mapPane.getChildren().remove(this.btMap);
+                this.mapPane.add(this.cbDefaultMap, 1, 0);
+            }
+        });
+
+        this.cbSimulatorType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if(Objects.equals(newValue, simulators[0])) {
+                this.defaultMaps = new String[]{"Town01", "Town02", "Town03", "Town04", "Town05", "Town06", "Town07", "Town10"};
+            }
+            else if(Objects.equals(newValue, simulators[1])) {
+                this.defaultMaps = new String[]{};
+            }
+            this.cbDefaultMap.setItems(FXCollections.observableArrayList(this.defaultMaps));
+        });
+
 
         Label lbWeather = new Label("weather");
         // TODO 提供不同仿真器支持的天气选项
@@ -231,7 +262,8 @@ public class ModelEditor extends Editor {
         Button btNewObstacle = new Button("New Obstacle");
 
         this.gridPane.addRow(0, lbSimulatorType, this.cbSimulatorType);
-        this.gridPane.addRow(1, lbMap, this.btMap);
+        this.gridPane.add(lbMap, 0, 1);
+        this.gridPane.add(this.mapPane, 1, 1, 2, 1);
         this.gridPane.addRow(2, lbWeather, this.cbWeather);
         this.gridPane.addRow(3, lbTimeStep, this.spTimeStep);
         this.gridPane.addRow(4, lbSimulationTime, this.tfSimulationTime);
