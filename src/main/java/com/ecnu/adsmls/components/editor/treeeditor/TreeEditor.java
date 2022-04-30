@@ -122,6 +122,7 @@ public class TreeEditor extends Editor {
         this.canvas.setMinSize(this.defaultCanvasWidth, this.defaultCanvasHeight);
         this.canvas.setPrefWidth(Control.USE_COMPUTED_SIZE);
         this.canvas.setPrefHeight(Control.USE_COMPUTED_SIZE);
+        this.canvas.setBackground(new Background(new BackgroundFill(new Color(1, 1, 1, 1), null, null)));
 
         AnchorPane.setTopAnchor(this.canvas, 0d);
         AnchorPane.setRightAnchor(this.canvas, 0d);

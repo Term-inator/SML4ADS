@@ -48,9 +48,9 @@ public class ModelEditor extends Editor {
     private int carId = 0;
     private Map<Integer, CarPane> carPanes = new LinkedHashMap<>();
 
-    private GridPane gridPanePedestrian = new GridPane();
-    //    private Map<Integer, PedestrianPane> pedestrianPanes = new LinkedHashMap<>();
-    private GridPane gridPaneObstacle = new GridPane();
+//    private GridPane gridPanePedestrian = new GridPane()
+//    private Map<Integer, PedestrianPane> pedestrianPanes = new LinkedHashMap<>();
+//    private GridPane gridPaneObstacle = new GridPane();
 //    private Map<Integer, ObstaclePane> obstaclePanes = new LinkedHashMap<>();
 
 
@@ -285,12 +285,12 @@ public class ModelEditor extends Editor {
         this.gridPane.addRow(5, lbCars);
         this.gridPane.add(this.gridPaneCar, 0, 6, 2, 1);
         this.gridPane.addRow(7, btNewCar);
-        this.gridPane.addRow(8, lbPedestrians);
-        this.gridPane.add(this.gridPanePedestrian, 0, 9, 2, 1);
-        this.gridPane.addRow(10, btNewPedestrian);
-        this.gridPane.addRow(11, lbObstacles);
-        this.gridPane.add(this.gridPaneObstacle, 0, 12, 2, 1);
-        this.gridPane.addRow(13, btNewObstacle);
+//        this.gridPane.addRow(8, lbPedestrians);
+//        this.gridPane.add(this.gridPanePedestrian, 0, 9, 2, 1);
+//        this.gridPane.addRow(10, btNewPedestrian);
+//        this.gridPane.addRow(11, lbObstacles);
+//        this.gridPane.add(this.gridPaneObstacle, 0, 12, 2, 1);
+//        this.gridPane.addRow(13, btNewObstacle);
     }
 
     /**
