@@ -43,6 +43,9 @@ public class ModelEditor extends Editor {
     // 总模拟时间 是 time step 的倍数
     private TextField tfSimulationTime;
 
+    // 模拟结束扳机
+    private TextArea taScenarioEndTrigger;
+
     private GridPane gridPaneCar = new GridPane();
     // 临时 id ，用于删除
     private int carId = 0;
@@ -126,6 +129,8 @@ public class ModelEditor extends Editor {
             mModel.setSimulationTime(null);
         }
 
+        mModel.setScenarioEndTrigger(this.taScenarioEndTrigger.getText());
+
         List<MCar> cars = new ArrayList<>();
         for (Map.Entry<Integer, CarPane> entry : this.carPanes.entrySet()) {
             CarPane carPane = entry.getValue();
@@ -179,6 +184,8 @@ public class ModelEditor extends Editor {
             this.tfSimulationTime.setText(Double.toString(mModel.getSimulationTime()));
         }
         catch (Exception ignored) {}
+
+        this.taScenarioEndTrigger.setText(mModel.getScenarioEndTrigger());
 
         for (MCar mCar : mModel.getCars()) {
             CarPane carPane = new CarPane(this.projectPath);
@@ -263,6 +270,14 @@ public class ModelEditor extends Editor {
         Label lbSimulationTime = new Label("simulationTime");
         this.tfSimulationTime = new TextField();
 
+        Label lbScenarioTrigger = new Label("scenarioTrigger");
+        this.taScenarioEndTrigger = new TextArea();
+        this.taScenarioEndTrigger.setPrefRowCount(10);
+        this.taScenarioEndTrigger.setPrefColumnCount(20);
+        this.taScenarioEndTrigger.setMinHeight(80);
+        //自动换行
+        this.taScenarioEndTrigger.setWrapText(true);
+
         Label lbCars = new Label("cars");
 
         Button btNewCar = new Button("New Car");
@@ -270,11 +285,11 @@ public class ModelEditor extends Editor {
             this.newCar(new CarPane(this.projectPath));
         });
 
-        Label lbPedestrians = new Label("pedestrians");
-        Button btNewPedestrian = new Button("New Pedestrian");
-
-        Label lbObstacles = new Label("obstacles");
-        Button btNewObstacle = new Button("New Obstacle");
+//        Label lbPedestrians = new Label("pedestrians");
+//        Button btNewPedestrian = new Button("New Pedestrian");
+//
+//        Label lbObstacles = new Label("obstacles");
+//        Button btNewObstacle = new Button("New Obstacle");
 
         this.gridPane.addRow(0, lbSimulatorType, this.cbSimulatorType);
         this.gridPane.add(lbMap, 0, 1);
@@ -282,9 +297,10 @@ public class ModelEditor extends Editor {
         this.gridPane.addRow(2, lbWeather, this.cbWeather);
         this.gridPane.addRow(3, lbTimeStep, this.spTimeStep);
         this.gridPane.addRow(4, lbSimulationTime, this.tfSimulationTime);
-        this.gridPane.addRow(5, lbCars);
-        this.gridPane.add(this.gridPaneCar, 0, 6, 2, 1);
-        this.gridPane.addRow(7, btNewCar);
+        this.gridPane.addRow(5, lbScenarioTrigger, this.taScenarioEndTrigger);
+        this.gridPane.addRow(6, lbCars);
+        this.gridPane.add(this.gridPaneCar, 0, 7, 2, 1);
+        this.gridPane.addRow(8, btNewCar);
 //        this.gridPane.addRow(8, lbPedestrians);
 //        this.gridPane.add(this.gridPanePedestrian, 0, 9, 2, 1);
 //        this.gridPane.addRow(10, btNewPedestrian);
