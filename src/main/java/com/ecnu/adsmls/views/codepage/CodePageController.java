@@ -425,9 +425,9 @@ public class CodePageController implements Initializable, Route {
         }
 
         StringBuilder params = new StringBuilder();
-        params.append("--");
-        params.append(sm.getMode());
         if(sm.isScene()) {
+            params.append("-");
+            params.append(sm.getMode());
             params.append(" ");
             params.append(sm.getScenarioNum());
         }
@@ -446,12 +446,19 @@ public class CodePageController implements Initializable, Route {
 //        params.append(res);
 
         try {
-            Process process = Runtime.getRuntime().exec(pythonEnv + " ./src/main/java/com/ecnu/adsmls/simulator/run.py --file " + file + " " + params);
+            Process process = Runtime.getRuntime().exec(pythonEnv + " ./src/main/java/com/ecnu/adsmls/simulator/run.py -path " + file + " " + params);
 //        proc.waitFor();
             BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = in.readLine()) != null) {
                 System.out.println(line);
+            }
+            in.close();
+
+            in = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            this.infoArea.clear();
+            while ((line = in.readLine()) != null) {
+                this.appendInfo(line);
             }
             in.close();
         } catch (IOException e) {
