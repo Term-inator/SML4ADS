@@ -17,6 +17,7 @@ import com.ecnu.adsmls.router.Router;
 import com.ecnu.adsmls.router.params.CodePageParams;
 import com.ecnu.adsmls.router.params.Global;
 import com.ecnu.adsmls.utils.FileSystem;
+import com.ecnu.adsmls.verifier.Verifier;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -362,14 +363,30 @@ public class CodePageController implements Initializable, Route {
 
         model = JSON.toJSONString(mModel);
         System.out.println(model);
-        String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
         try {
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(projectPath, "test.model"),false), StandardCharsets.UTF_8));
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file,false), StandardCharsets.UTF_8));
             bw.write(model);
             bw.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
+        String outputPath = vrm.getOutputPath();
+        if(outputPath.isEmpty()) {
+            outputPath = FileSystem.removeSuffix(file.getAbsolutePath());
+        }
+        File outputFile = new File(outputPath);
+        if(!outputFile.isAbsolute()) {
+            outputPath = FileSystem.concatAbsolutePath(file.getParent(), outputPath);
+        }
+        System.out.println(outputPath);
+        if(!Objects.equals(FileSystem.getSuffix(outputPath), FileSystem.Suffix.XML.value)) {
+            outputPath = outputPath + FileSystem.Suffix.XML.value;
+        }
+        Verifier.verify(new String[] {projectPath,
+                FileSystem.getRelativePath(projectPath,
+                        file.getAbsolutePath()), outputPath});
     }
 
     // 仿真
@@ -394,7 +411,6 @@ public class CodePageController implements Initializable, Route {
             return;
         }
 
-        System.out.println(Global.pythonEnv);
         if(Global.pythonEnv == null) {
             this.showInfo("set python environment first");
             return;
