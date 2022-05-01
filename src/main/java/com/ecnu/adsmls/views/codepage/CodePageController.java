@@ -72,8 +72,8 @@ public class CodePageController implements Initializable, Route {
         this.directory = CodePageParams.directory;
         this.projectName = CodePageParams.projectName;
         // 更新页面
-        this.updateProject();
         Global.clear();
+        this.updateProject();
     }
 
     private void initMenu() {
@@ -191,6 +191,7 @@ public class CodePageController implements Initializable, Route {
 
             Global.pythonEnv = this.mConfig.getPythonEnv();
         }
+        System.out.println("python env: " + Global.pythonEnv);
     }
 
     private void updateProject() {
@@ -375,10 +376,25 @@ public class CodePageController implements Initializable, Route {
     @FXML
     private void simulate() {
         System.out.println("simulating");
+        this.infoArea.clear();
+
+        boolean modelOpened = true; // 是否打开了 model 文件
         if(this.tabPane.getTabs().size() == 0) {
+            modelOpened = false;
+        }
+        // 当前显示的 tab
+        Editor editor = (Editor) this.tabPane.getSelectionModel().getSelectedItem().getUserData();
+        File file = editor.getFile();
+        if(!Objects.equals(FileSystem.getSuffix(file), FileSystem.Suffix.MODEL.value)) {
+            modelOpened = false;
+        }
+
+        if(!modelOpened) {
             this.showInfo("Please open model files first");
             return;
         }
+
+        System.out.println(Global.pythonEnv);
         if(Global.pythonEnv == null) {
             this.showInfo("set python environment first");
             return;
@@ -386,26 +402,27 @@ public class CodePageController implements Initializable, Route {
         String pythonEnv = Global.pythonEnv;
 
         // 模拟选项
-        SimulateModal sm = new SimulateModal();
-        sm.getWindow().showAndWait();
-        if(!sm.isConfirm()) {
-            return;
-        }
-        Map<String, Boolean> carConfig = sm.getCarConfiguration();
-        StringBuilder params = new StringBuilder();
-        int i = carConfig.size() - 1;
-        int res = 0;
-        for(Map.Entry<String, Boolean> param : carConfig.entrySet()) {
-            if(param.getValue() == true) {
-                res += (1 << i);
-            }
-            --i;
-        }
-        params.append("--car ");
-        params.append(res);
+//        SimulateModal sm = new SimulateModal();
+//        sm.getWindow().showAndWait();
+//        if(!sm.isConfirm()) {
+//            return;
+//        }
+//        Map<String, Boolean> carConfig = sm.getCarConfiguration();
+//        StringBuilder params = new StringBuilder();
+//        int i = carConfig.size() - 1;
+//        int res = 0;
+//        for(Map.Entry<String, Boolean> param : carConfig.entrySet()) {
+//            if(param.getValue() == true) {
+//                res += (1 << i);
+//            }
+//            --i;
+//        }
+//        params.append("--car ");
+//        params.append(res);
 
         try {
-            Process process = Runtime.getRuntime().exec(pythonEnv + " ./src/main/java/com/ecnu/adsmls/simulator/run.py --file ./a.adsml " + params);
+//            Process process = Runtime.getRuntime().exec(pythonEnv + " ./src/main/java/com/ecnu/adsmls/simulator/run.py --file ./a.adsml " + params);
+            Process process = Runtime.getRuntime().exec(pythonEnv + " ./src/main/java/com/ecnu/adsmls/simulator/run.py --file " + file);
 //        proc.waitFor();
             BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
