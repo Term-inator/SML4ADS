@@ -179,6 +179,7 @@ public class CarPane {
         this.tfName = new TextField();
 
         Label lbModel = new Label("model");
+        // TODO 根据模拟器类型确定蓝图
         String[] models = {"random", "vehicle.audi.a2"};
         this.cbModel = new ComboBox<>(FXCollections.observableArrayList(models));
         this.cbModel.getSelectionModel().select(0);

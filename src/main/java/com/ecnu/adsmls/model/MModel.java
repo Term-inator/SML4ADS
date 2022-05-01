@@ -16,17 +16,20 @@ public class MModel {
 
     private Double simulationTime;
 
+    private String scenarioEndTrigger;
+
     private List<MCar> cars = new ArrayList<>();
 
     private List<String> requirements = new ArrayList<>();
 
-    public MModel(String simulatorType, String mapType, String map, String weather, double timeStep, double simulationTime, List<MCar> cars, List<String> requirements) {
+    public MModel(String simulatorType, String mapType, String map, String weather, double timeStep, double simulationTime, String scenarioEndTrigger, List<MCar> cars, List<String> requirements) {
         this.simulatorType = simulatorType;
         this.mapType = mapType;
         this.map = map;
         this.weather = weather;
         this.timeStep = timeStep;
         this.simulationTime = simulationTime;
+        this.scenarioEndTrigger = scenarioEndTrigger;
         this.cars = cars;
         this.requirements = requirements;
     }
@@ -80,6 +83,14 @@ public class MModel {
 
     public void setSimulationTime(Double simulationTime) {
         this.simulationTime = simulationTime;
+    }
+
+    public String getScenarioEndTrigger() {
+        return scenarioEndTrigger;
+    }
+
+    public void setScenarioEndTrigger(String scenarioEndTrigger) {
+        this.scenarioEndTrigger = scenarioEndTrigger;
     }
 
     public List<MCar> getCars() {

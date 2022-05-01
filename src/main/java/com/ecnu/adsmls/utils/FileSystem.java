@@ -20,6 +20,7 @@ public class FileSystem {
         ADSML(".adsml"),
         MAP(".xodr"),
         EXE(".exe"),
+        XML(".xml"),
         PROP(".properties"),
         DIR("");
 
@@ -160,6 +161,21 @@ public class FileSystem {
         }
         else {
             System.out.println("invalid file");
+            return null;
+        }
+    }
+
+    /**
+     * 不管是不是文件, 获取其后缀
+     * @param filename
+     * @return
+     */
+    public static String getSuffix(String filename) {
+        int lastIndexOf = filename.lastIndexOf(".");
+        if(lastIndexOf != -1) {
+            return filename.substring(lastIndexOf);
+        }
+        else {
             return null;
         }
     }

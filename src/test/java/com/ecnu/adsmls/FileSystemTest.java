@@ -50,4 +50,12 @@ public class FileSystemTest {
         String filename = "D:/test/a/t.model";
         System.out.println(FileSystem.removeSuffix(new File(filename)));
     }
+
+    @Test
+    public void absoluteTest() {
+        File file1 = new File("D:/a/b");
+        File file2 = new File("./a/b");
+        File file3 = new File("");
+        System.out.println(file3.isAbsolute());
+    }
 }

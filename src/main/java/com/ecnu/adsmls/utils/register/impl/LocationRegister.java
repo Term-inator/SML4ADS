@@ -48,12 +48,10 @@ public class LocationRegister extends FunctionRegister {
         // entity reference 的检查交给运行时
         Function relatedPosition = new Function("Related Position");
         relatedPosition.addParam("actorRef", Function.DataType.STRING, Function.Necessity.REQUIRED);
-        relatedPosition.addParam("minLateralOffset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
-                new Between(new Value(0), new Value(laneWidth), "[]"));
+        relatedPosition.addParam("minLateralOffset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED);
         relatedPosition.addParam("maxLateralOffset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
-                new Between(new Reference("minLateralOffset"), new Value(laneWidth), "[]"));
-        relatedPosition.addParam("minLongitudinalOffset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
-                new NotNegative());
+                new Between(new Reference("minLateralOffset"), new Value(Double.MAX_VALUE), "[)"));
+        relatedPosition.addParam("minLongitudinalOffset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED);
         relatedPosition.addParam("maxLongitudinalOffset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
                 new Between(new Reference("minLongitudinalOffset"), new Value(Double.MAX_VALUE), "[)"));
 
