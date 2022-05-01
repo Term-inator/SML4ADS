@@ -418,11 +418,20 @@ public class CodePageController implements Initializable, Route {
         String pythonEnv = Global.pythonEnv;
 
         // 模拟选项
-//        SimulateModal sm = new SimulateModal();
-//        sm.getWindow().showAndWait();
-//        if(!sm.isConfirm()) {
-//            return;
-//        }
+        SimulateModal sm = new SimulateModal();
+        sm.getWindow().showAndWait();
+        if(!sm.isConfirm()) {
+            return;
+        }
+
+        StringBuilder params = new StringBuilder();
+        params.append("--");
+        params.append(sm.getMode());
+        if(sm.isScene()) {
+            params.append(" ");
+            params.append(sm.getScenarioNum());
+        }
+
 //        Map<String, Boolean> carConfig = sm.getCarConfiguration();
 //        StringBuilder params = new StringBuilder();
 //        int i = carConfig.size() - 1;
@@ -437,8 +446,7 @@ public class CodePageController implements Initializable, Route {
 //        params.append(res);
 
         try {
-//            Process process = Runtime.getRuntime().exec(pythonEnv + " ./src/main/java/com/ecnu/adsmls/simulator/run.py --file ./a.adsml " + params);
-            Process process = Runtime.getRuntime().exec(pythonEnv + " ./src/main/java/com/ecnu/adsmls/simulator/run.py --file " + file);
+            Process process = Runtime.getRuntime().exec(pythonEnv + " ./src/main/java/com/ecnu/adsmls/simulator/run.py --file " + file + " " + params);
 //        proc.waitFor();
             BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
