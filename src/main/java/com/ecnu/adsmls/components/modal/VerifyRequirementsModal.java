@@ -68,6 +68,7 @@ public class VerifyRequirementsModal extends Modal {
 
         Label lbOutputPath = new Label("output file path");
         this.tfOutputPath = new TextField();
+        this.tfOutputPath.setPromptText("default: ${model.dir}/${model.name}.xml");
 
         this.slot.addRow(0, lbRequirements);
         this.slot.addRow(1, this.listView, btWrapper);
