@@ -1,0 +1,47 @@
+{
+  "cars": [
+    {
+      "heading": true,
+      "initSpeed": 8.0,
+      "locationParams": {
+        "road id": "0",
+        "lane id": "-1",
+        "min lateral offset": "0",
+        "max lateral offset": "0",
+        "min longitudinal offset": "0",
+        "max longitudinal offset": "10"
+      },
+      "locationType": "Lane Position",
+      "maxSpeed": 40.0,
+      "model": "random",
+      "name": "car1",
+      "roadDeviation": 0.0,
+      "treePath": "car1.json"
+    },
+    {
+      "heading": true,
+      "initSpeed": 8.0,
+      "locationParams": {
+        "road id": "0",
+        "lane id": "-1",
+        "min lateral offset": "0",
+        "max lateral offset": "0",
+        "min longitudinal offset": "40",
+        "max longitudinal offset": "60"
+      },
+      "locationType": "Lane Position",
+      "maxSpeed": 40.0,
+      "model": "random",
+      "name": "car2",
+      "roadDeviation": 0.0,
+      "treePath": "car2.json"
+    }
+  ],
+  "map": "src/main/resources/maps/overtake.xodr",
+  "requirements": [],
+  "simulationTime": 100.0,
+  "simulatorType": "Carla",
+  "source": "",
+  "timeStep": 0.1,
+  "weather": "clear"
+}

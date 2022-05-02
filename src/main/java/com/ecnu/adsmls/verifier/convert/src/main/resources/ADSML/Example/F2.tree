@@ -1,0 +1,132 @@
+{
+  "behaviors": [
+    {
+      "id": 1,
+      "name": "Accelerate",
+      "params": {
+        "acceleration": "1",
+        "target speed": "15",
+        "duration": "10"
+      },
+      "position": {
+        "x": 153.4000000000001,
+        "y": 54.000000000000014
+      },
+      "treeTextPosition": {
+        "x": 187.4000000000001,
+        "y": 54.000000000000014
+      }
+    },
+    {
+      "id": 2,
+      "name": "Decelerate",
+      "params": {
+        "acceleration": "1",
+        "target speed": "10",
+        "duration": "5"
+      },
+      "position": {
+        "x": 158.0000061035156,
+        "y": 152.1999938964844
+      },
+      "treeTextPosition": {
+        "x": 192.0000061035156,
+        "y": 152.1999938964844
+      }
+    },
+    {
+      "id": 4,
+      "name": "Accelerate",
+      "params": {
+        "acceleration": "1",
+        "target speed": "20",
+        "duration": "10"
+      },
+      "position": {
+        "x": 157.4000000000001,
+        "y": 252.39999999999998
+      },
+      "treeTextPosition": {
+        "x": 191.4000000000001,
+        "y": 252.39999999999998
+      }
+    },
+    {
+      "id": 6,
+      "name": "Keep",
+      "params": {
+        "duration": ""
+      },
+      "position": {
+        "x": 156.60000000000002,
+        "y": 347.59999999999997
+      },
+      "treeTextPosition": {
+        "x": 190.60000000000002,
+        "y": 347.59999999999997
+      }
+    }
+  ],
+  "branchPoints": [],
+  "commonTransitions": [
+    {
+      "id": 3,
+      "linkPoints": [
+        {
+          "x": 165.14867092586337,
+          "y": 80.98247452194958
+        },
+        {
+          "x": 168.25133517765232,
+          "y": 147.21751937453482
+        }
+      ],
+      "sourceId": 1,
+      "targetId": 2,
+      "treeTextPosition": {
+        "x": 169.4000000000001,
+        "y": 70.8
+      }
+    },
+    {
+      "id": 5,
+      "linkPoints": [
+        {
+          "x": 168.9041984691841,
+          "y": 179.19970704695066
+        },
+        {
+          "x": 168.49580763433156,
+          "y": 247.4002868495337
+        }
+      ],
+      "sourceId": 2,
+      "targetId": 4,
+      "treeTextPosition": {
+        "x": 174.0000061035156,
+        "y": 168.1999938964844
+      }
+    },
+    {
+      "id": 7,
+      "linkPoints": [
+        {
+          "x": 168.26555096556257,
+          "y": 279.39943509806324
+        },
+        {
+          "x": 167.73444903443755,
+          "y": 342.6005649019367
+        }
+      ],
+      "sourceId": 4,
+      "targetId": 6,
+      "treeTextPosition": {
+        "x": 173.4000000000001,
+        "y": 268.4
+      }
+    }
+  ],
+  "probabilityTransitions": [],
+  "rootId": 1
+}

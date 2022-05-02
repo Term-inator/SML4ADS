@@ -1,0 +1,1113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>//**配置参数**/
+const int env_mode = 6;
+const int gammar = 10; //放大倍数
+const int timestep = 1;//实际时间频率= timestep / gammar
+const double lane_length = 40.0 * gammar;//交通车道线长
+const double lane_height = 4.5 * gammar;//交通车道线宽
+const double visRange = 20.0 * gammar;//普通车辆的可视范围
+
+const double td = 0.0;//刹车延迟时间
+const double am = 2.4;//刹车减速
+const double d0 = 3.0;//保留距离
+const double ep = 2.0;//误差距离区间
+
+
+//----------------//
+
+clock time;
+int Id = 0;
+
+/**常量声明**/
+
+const int INT32_MAX = 2147483647;
+const int INT32_MIN = - 214783648;
+typedef int[INT32_MIN, INT32_MAX] int32;
+
+
+
+const int N = 5;//车最大数量
+
+
+
+
+const int M = 4;
+
+/****地图配置变量****/
+    //mode range
+    //0:水平直行
+    //1：垂直直行
+    //2：左向丁子路
+    //3：前向丁子路
+    //4：右向丁子路
+    //5：后向丁子路
+    //6：十字路
+
+
+//**channel***/
+broadcast  chan syn, syn2;//车辆同步信号
+
+broadcast chan dontCare, ped, cy, car, yd, nd, ad_request_op;
+
+
+
+
+bool leftUp = false, leftDown = false, downLeft = false, downRight = false, rightUp = false, rightDown = false, upLeft = false, upRight = false;
+
+//bool sl = false, el = false, ss = false, es = false, ns = false, nl = false, ws = false, wl = false;
+// 
+
+
+/***vechicle配置**/
+
+typedef int[0, N - 1] v_id;
+
+clock v_velocity[N];//车速度
+
+int v_offset[N];//轨迹偏移量
+clock v_traj[N][3][2];
+
+int dirs[N];//车辆方向
+double ks[N];//转弯参数
+clock t[N];
+
+int stage[N];//车辆所处阶段：车道线上？ 交叉路口上？
+
+int vQue[N], idx = 0;
+
+
+bool ven = false;
+
+/**自动紧急刹车**/
+clock  rd, sbd;//车辆相对距离， 安全制动距离
+
+
+/**冲突检测**/
+
+double edges[M * 2][2], axes[M * 2][2];
+double minDots, maxDots;
+double p1[2], p2[2];
+
+/**函数声明**/
+
+/**车辆相关函数**/
+bool lane2junction(const int id){
+    int dir = dirs[id];
+    double locx = 1.0 * v_traj[id][0][0];
+    double locy = 1.0 * v_traj[id][0][1];
+    if (dir == 0 || dir == 1 || dir == 2)
+        return locx &gt;= lane_length;    
+    else if (dir == 3 || dir == 4 || dir == 5)
+        return locy &gt;= lane_length;
+    else if (dir == 6 || dir == 7 || dir == 8)
+        return locx &lt;= lane_length + lane_height * 4;
+    else if (dir == 9 || dir == 10 || dir == 11)
+        return locy &lt;= lane_length + lane_height * 4;
+    return false; 
+}
+bool junction2end(const int id){
+    int dir = dirs[id];
+    double locx = 1.0 * v_traj[id][0][0];
+    double locy = 1.0 * v_traj[id][0][1];
+    if (dir == 0 || dir == 1 || dir == 5)
+        return locy &gt;= lane_length + lane_height * 4;    
+    else if (dir == 2 || dir == 9 || dir == 10)
+        return locx &gt;= lane_length + lane_height * 4;
+    else if (dir == 3 || dir == 4 || dir == 8)
+        return locx &lt;= lane_length;
+    else if (dir == 6 || dir == 7 || dir == 11)
+        return locy &lt;= lane_length;
+
+    return false; 
+}
+void __setKS(const int id){
+    double a, b;
+    int dir = dirs[id];
+    if (dir == 0 || dir == 3 || dir == 6 || dir == 9){
+        ks[id] = 2.5 * lane_height;
+    }
+    else if (dir == 1 || dir == 4 || dir == 7 || dir == 10){
+        a = 3.5 * lane_height;
+        b = 2.5 * lane_height;
+        ks[id] = (a * a + b * b)  / (b * 2);//(a^2+b^2)/(2b)   
+    }
+}
+double getDx(const int id, const int tp){
+    //stage:0表示车道线，1表示交叉路口
+    int dir = dirs[id];
+    int st = stage[id];
+    
+    if (dir == 0 || dir == 1)
+        return st == 0 ? 1.0 * v_velocity[id] : 1.0 * v_velocity[id] * cos(1.0 * (t[id] + tp) * v_velocity[id] / ks[id]);
+    else if (dir == 2)
+        return 1.0 * v_velocity[id];
+    else if (dir == 3 || dir == 4)
+        return st == 0 ? 0.0 : - 1.0 * v_velocity[id] * sin((1.0 * (t[id] + tp) * v_velocity[id]) / fmax(ks[id], 1));
+    else if (dir == 5)
+        return 0.0;
+    else if (dir == 6 || dir == 7)
+        return st == 0 ? - 1.0 * v_velocity[id] : - 1.0 * v_velocity[id] * cos(1.0 * (t[id] + tp) * v_velocity[id] / ks[id]);    
+    else if (dir == 8)
+        return - 1.0 * v_velocity[id];
+    else if (dir == 9 || dir == 10)
+        return st == 0 ? 0.0 : 1.0 * v_velocity[id] * sin(1.0 * (t[id] + tp) * v_velocity[id] / ks[id]);
+    else return 0.0;
+}
+double getDy(const int id, const int tp){
+    int dir = dirs[id];
+    int st = stage[id];
+    if (dir == 0 || dir == 1)
+        return st == 0 ? 0.0 : 1.0 * v_velocity[id] * sin(1.0 * (t[id] + tp) * v_velocity[id] / ks[id]);
+    else if (dir == 2)
+        return 0.0;
+    else if (dir == 3 || dir == 4)
+        return st == 0 ? 1.0 * v_velocity[id] : 1.0 * v_velocity[id] * cos(1.0 * (t[id] + tp) * v_velocity[id] / fmax(ks[id], 1));
+    else if (dir == 5)
+        return 1.0 * v_velocity[id];
+    else if (dir == 6 || dir == 7)
+        return st == 0 ? 0.0 : - v_velocity[id] * sin(1.0 * (t[id] + tp) * v_velocity[id] / ks[id]);
+    else if (dir == 8)
+        return 0.0;
+    else if (dir == 9 || dir == 10)
+        return st == 0 ? - 1.0 * v_velocity[id] : - v_velocity[id] * cos(1.0 * (t[id] + tp) * v_velocity[id] / ks[id]);
+    else return - v_velocity[id]; 
+}
+void initialLoc(const int id){
+    int dir = dirs[id];
+    if (dir == 0 || dir == 1 || dir == 2){
+        v_traj[id][0][0] = 0.0;
+        v_traj[id][0][1] = lane_length + 1.5 * lane_height; 
+
+        //上偏移轨迹
+        v_traj[id][1][0] = 0.0;
+        v_traj[id][1][1] = lane_length + 1.5 * lane_height + v_offset[id];
+        //下偏移轨迹
+        v_traj[id][2][0] = 0.0;
+        v_traj[id][2][1] = lane_length + 1.5 * lane_height - v_offset[id];
+
+    }
+    else if (dir == 3 || dir == 4 || dir == 5){
+        v_traj[id][0][0] = lane_length + 2.5 * lane_height;
+        v_traj[id][0][1] = 0.0; 
+
+        //上偏移轨迹
+        v_traj[id][1][0] = lane_length + 2.5 * lane_height - v_offset[id];
+        v_traj[id][1][1] = 0.0;
+        //下偏移轨迹
+        v_traj[id][2][0] = lane_length + 2.5 * lane_height + v_offset[id];
+        v_traj[id][2][1] = 0.0;
+
+    }
+    else if (dir == 6 || dir == 7 || dir == 8){
+        v_traj[id][0][0] = lane_length * 2 + lane_height * 4;
+        v_traj[id][0][1] = lane_length + lane_height * 2.5; 
+
+        //上偏移轨迹
+        v_traj[id][1][0] = lane_length * 2 + lane_height * 4;
+        v_traj[id][1][1] = lane_length + lane_height * 2.5 - v_offset[id]; 
+        //下偏移轨迹
+        v_traj[id][2][0] = lane_length * 2 + lane_height * 4;
+        v_traj[id][2][1] = lane_length + lane_height * 2.5 + v_offset[id]; 
+
+    }
+    else if (dir == 9 || dir == 10 || dir == 11){
+        v_traj[id][0][0] = lane_length + 1.5 * lane_height;
+        v_traj[id][0][1] = lane_length * 2 + lane_height * 4; 
+
+        //上偏移轨迹
+        v_traj[id][1][0] = lane_length + 1.5 * lane_height + v_velocity[id];
+        v_traj[id][1][1] = lane_length * 2 + lane_height * 4; 
+
+        //下偏移轨迹
+        v_traj[id][2][0] = lane_length + 1.5 * lane_height - v_velocity[id];
+        v_traj[id][2][1] = lane_length * 2 + lane_height * 4; 
+
+    }
+}
+/****地图环境选择函数***/
+
+void setEnvir(const int[0, 6] mode){
+    //mode range
+    //0:水平直行
+    //1：垂直直行
+    //2：左向丁子路
+    //3：前向丁子路
+    //4：右向丁子路
+    //5：后向丁子路
+    //6：十字路
+    if (mode == 0) {
+        leftUp = true; leftDown = true; rightUp = true; rightDown = true;
+    }
+    else if (mode == 1) {
+        upLeft = true; upRight = true; downLeft = true; downRight = true;
+    }
+    else if (mode == 2) {
+        upLeft = true; upRight = true; downLeft = true; downRight = true; leftUp = true; leftDown = true; 
+    }
+    else if (mode == 3) {
+        leftUp = true; leftDown = true; rightUp = true; rightDown = true; upLeft = true; upRight = true;
+    }
+    else if (mode == 4) {
+        upLeft = true; upRight = true; downLeft = true; downRight = true; rightUp = true; rightDown = true;
+    }
+    else if (mode == 5) {
+        leftUp = true; leftDown = true; rightUp = true; rightDown = true; downLeft = true; downRight = true;
+    }
+    else {
+        leftUp = true; leftDown = true; rightUp = true; rightDown = true; downLeft = true; downRight = true; upLeft = true; upRight = true;
+    }
+}
+
+
+/**冲突检测**/
+
+void polyToEdges(double ploy1[M][2], double ploy2[M][2]){
+    int i, j ;
+    for (i = 0, j = 0; i &lt; M; i ++, j++){
+        edges[j][0] = ploy1[(i + 1) % M][0] - ploy1[i][0];
+        edges[j][1] = ploy1[(i + 1) % M][1] - ploy1[i][1];
+    }
+    for (i = 0; i &lt; M; i ++, j ++){
+        edges[j][0] = ploy2[(i + 1) % M][0] - ploy2[i][0];
+        edges[j][1] = ploy2[(i + 1) % M][1] - ploy2[i][1];
+    }
+}
+double dotProduct(double vector1[2], double vector2[2]){
+    return vector1[0] * vector2[0] + vector1[1] * vector2[1];
+}
+void project(double poly[M][2], double axis[2], int idx){
+    int i;
+    double t;
+    minDots = 1.0 * INT32_MAX;
+    maxDots = 1.0 * INT32_MIN;
+    for (i = 0; i &lt; M; i ++){
+        t = dotProduct(poly[i], axis);
+        minDots = fmin(minDots, t);
+        maxDots = fmax(maxDots, t);
+    }
+    if (idx == 1){
+        p1[0] = minDots;
+        p1[1] = maxDots;
+    }
+    else  {
+        p2[0] = minDots;
+        p2[1] = maxDots;
+    }
+
+}
+bool overlap(double projection1[2], double projection2[2]){
+    return projection1[0] &lt;= projection2[1] &amp;&amp; projection2[0] &lt;= projection1[1];
+}
+bool runSAT(double poly1[M][2], double poly2[M][2]){
+    // Implements the actual SAT algorithm
+    int i;
+    polyToEdges(poly1, poly2);
+    for (i = 0; i &lt; M * 2; i ++){
+        axes[i][0] = edges[i][1];
+        axes[i][1] = - edges[i][0];
+    }
+    for (i = 0; i &lt; M * 2; i ++){
+        project(poly1, axes[i], 1);
+        project(poly2, axes[i], 2);
+        if (!overlap(p1, p2)) return false;
+    }
+    return true;
+}
+</declaration>
+	<template>
+		<name>VEN</name>
+		<declaration>double dx, dy, a, b;
+bool randLoc = false;//随机成功true， 随机失败false
+int id;
+void initialVocAndOs(const int v, const int o){
+    id = ++Id; //注册id
+    v_velocity[id] = 1.0 * v;//随机速度
+    v_offset[id] = o;//随机偏移
+    vQue[idx ++] = id;//环境车辆入队列
+    stage[id] = 0;
+} 
+void getRandomLoc(const int l){
+    if (l == dirs[0]) return;
+
+    if (l == 0 || l == 1)
+        randLoc = leftDown &amp;&amp; upRight;
+    else if (l == 2)
+        randLoc = leftDown &amp;&amp; rightDown;
+    else if (l == 3 || l == 4)
+        randLoc = leftUp &amp;&amp; downRight;
+    else if (l == 5)
+        randLoc = downRight &amp;&amp; upRight;
+    else if (l == 6 || l == 7)
+        randLoc = rightUp &amp;&amp; downLeft;
+    else if (l == 8)
+        randLoc = leftUp &amp;&amp; rightUp;
+    else if (l == 9 || l == 10)
+        randLoc = upLeft &amp;&amp; rightDown;
+    else randLoc = upLeft &amp;&amp; downLeft;  
+
+
+    if (randLoc){
+       dirs[id] = l;//存储车辆的方向
+       __setKS(id);     
+    }
+}
+</declaration>
+		<location id="id0" x="-569" y="-850">
+			<name x="-629" y="-884">move_in_junction</name>
+			<label kind="invariant" x="-628" y="-1037">v_traj[id][0][0]' == getDx(id, 0) &amp;&amp;
+v_traj[id][0][1]' == getDy(id, 0)  &amp;&amp;
+v_traj[id][1][0]' == getDx(id, 0) &amp;&amp;
+v_traj[id][1][1]' == getDy(id, 0) &amp;&amp;
+v_traj[id][2][0]' == getDx(id, 0) &amp;&amp; 
+v_traj[id][2][1]' == getDy(id, 0) &amp;&amp;
+v_velocity[id]' == 0</label>
+		</location>
+		<location id="id1" x="-272" y="-850">
+			<name x="-282" y="-884">end</name>
+			<label kind="invariant" x="-348" y="-1037">v_traj[id][0][0]' ==0 &amp;&amp;
+v_traj[id][0][1]' == 0 &amp;&amp;
+v_traj[id][1][0]' ==0  &amp;&amp;
+v_traj[id][1][1]' ==  0 &amp;&amp;
+v_traj[id][2][0]' == 0 &amp;&amp;
+v_traj[id][2][1]' == 0 &amp;&amp;
+v_velocity[id]' == 0 &amp;&amp;
+t[id]' == 0</label>
+		</location>
+		<location id="id2" x="-850" y="-850">
+			<name x="-893" y="-884">move_in_lane</name>
+			<label kind="invariant" x="-901" y="-1037">v_traj[id][0][0]'== getDx(id, 0) &amp;&amp;
+v_traj[id][0][1]'== getDy(id, 0) &amp;&amp;
+v_traj[id][1][0]'== getDx(id, 0) &amp;&amp;
+v_traj[id][1][1]'== getDy(id, 0) &amp;&amp;
+v_traj[id][2][0]'== getDx(id, 0) &amp;&amp;
+v_traj[id][2][1]'== getDy(id, 0) &amp;&amp;
+v_velocity[id]' == 0</label>
+		</location>
+		<location id="id3" x="-1402" y="-850">
+			<name x="-1445" y="-885">initialVeAndOfs</name>
+			<urgent/>
+		</location>
+		<location id="id4" x="-1147" y="-849">
+			<name x="-1215" y="-883">initialLocation</name>
+			<committed/>
+		</location>
+		<location id="id5" x="-1487" y="-850">
+			<name x="-1497" y="-884">start</name>
+		</location>
+		<location id="id6" x="-969" y="-850">
+			<name x="-977" y="-893">u2</name>
+			<committed/>
+		</location>
+		<init ref="id5"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-629" y="-748">!junction2end(id)</label>
+			<label kind="synchronisation" x="-595" y="-765">syn?</label>
+			<nail x="-637" y="-765"/>
+			<nail x="-510" y="-765"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-901" y="-748">!lane2junction(id)</label>
+			<label kind="synchronisation" x="-867" y="-765">syn?</label>
+			<nail x="-918" y="-765"/>
+			<nail x="-790" y="-765"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-782" y="-875">lane2junction(id)</label>
+			<label kind="synchronisation" x="-756" y="-892">syn?</label>
+			<label kind="assignment" x="-765" y="-849">t[id] = 0,
+stage[id] = 1</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id4"/>
+			<label kind="guard" x="-1088" y="-833">!randLoc</label>
+			<nail x="-969" y="-807"/>
+			<nail x="-1147" y="-807"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id6"/>
+			<label kind="assignment" x="-1113" y="-875">getRandomLoc(11)</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-952" y="-875">randLoc</label>
+			<label kind="assignment" x="-952" y="-850">initialLoc(id)</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="-1462" y="-841">syn?</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="select" x="-1309" y="-884">v:int[2,5]</label>
+			<label kind="assignment" x="-1360" y="-841">initialVocAndOs(v, 2 * gammar)</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-442" y="-875">junction2end(id)</label>
+			<label kind="synchronisation" x="-416" y="-892">syn?</label>
+		</transition>
+	</template>
+	<template>
+		<name>VAD</name>
+		<parameter>const int dir</parameter>
+		<declaration>const int id = 0;
+
+double dx, dy, a, b;
+double poly1[M][2], poly2[M][2]; 
+bool brake = false;
+bool collision = false;
+
+
+void initialVocAndOs(const int v, const int o){
+    v_velocity[id] = 1.0 * v;//随机速度
+    v_offset[id] = o;//随机偏移
+
+    sbd = td * v_velocity[id] + 1.0 * v_velocity[id] * v_velocity[id] / (am * 2) + d0;//安全制动距离
+
+     dirs[id] = dir;//存储车辆的方向
+    __setKS(id);
+
+    stage[id] = 0;
+} 
+
+void setPoly(const int _id, double &amp;poly[M][2]){
+    const int _dir = dirs[_id];
+
+    poly[0][0] = v_traj[_id][1][0]; poly[0][1] = v_traj[_id][1][1];
+    poly[1][0] = v_traj[_id][2][0]; poly[1][1] = v_traj[_id][2][1];        
+    poly[2][0] = v_traj[_id][2][0] - getDx(_id, - timestep); poly[2][1] = v_traj[_id][2][1] -  getDy(_id, - timestep);
+    poly[3][0] = v_traj[_id][1][0] - getDx(_id, - timestep); poly[3][1] = v_traj[_id][1][1] -  getDy(_id, - timestep);    
+}
+
+void checkCollision(){
+    int i, c_id;
+    setPoly(id, poly1);
+    for (i = 0; i &lt; idx; i ++){
+        if (collision) return;//一旦车发生碰撞，停止检测
+        c_id = vQue[i];
+
+        setPoly(c_id, poly2);
+
+        if (runSAT(poly1, poly2))
+          collision = true;
+    }
+}
+
+void AEB(){
+    double _rd = 1.0 * rd, _sbd = 1.0 * sbd;
+    //if (relativeDis &lt; 0) return;
+    if (collision || brake) return;
+    if (_rd - _sbd &gt;= ep){
+        return;
+    }
+    /*
+    if (_bd - _sbd &lt; 0){
+        brake = true;
+        collision = true;
+    }
+    /*
+    if (_rd &lt;= _sbd - ep * gammar){
+        brake = true;
+        collision = true;
+        return;
+    }
+    */
+    brake = true;
+}
+</declaration>
+		<location id="id7" x="-722" y="-909">
+			<name x="-782" y="-943">move_in_junction</name>
+			<label kind="invariant" x="-782" y="-1122">v_traj[id][0][0]'== getDx(id, 0) &amp;&amp;
+v_traj[id][0][1]'== getDy(id, 0) &amp;&amp;
+v_traj[id][1][0]'== getDx(id, 0) &amp;&amp;
+v_traj[id][1][1]'== getDy(id, 0) &amp;&amp;
+v_traj[id][2][0]'== getDx(id, 0) &amp;&amp;
+v_traj[id][2][1]'== getDy(id, 0) &amp;&amp;
+v_velocity[id]' == 0 &amp;&amp;
+rd' == 0 &amp;&amp;
+sbd' == 0</label>
+		</location>
+		<location id="id8" x="221" y="-918">
+			<name x="211" y="-952">end</name>
+			<label kind="invariant" x="153" y="-1122">v_traj[id][0][0]' ==0 &amp;&amp;
+v_traj[id][0][1]' == 0 &amp;&amp;
+v_traj[id][1][0]' == 0 &amp;&amp;
+v_traj[id][1][1]' == 0 &amp;&amp;
+v_traj[id][2][0]' == 0 &amp;&amp;
+v_traj[id][2][1]' == 0 &amp;&amp;
+v_velocity[id]' == 0 &amp;&amp;
+rd' == 0 &amp;&amp;
+sbd' == 0 &amp;&amp;
+t[id]' == 0</label>
+		</location>
+		<location id="id9" x="-1598" y="-909">
+			<name x="-1641" y="-943">move_in_lane</name>
+			<label kind="invariant" x="-1658" y="-1122">v_traj[id][0][0]'== getDx(id, 0) &amp;&amp;
+v_traj[id][0][1]'== getDy(id, 0) &amp;&amp;
+v_traj[id][1][0]'== getDx(id, 0) &amp;&amp;
+v_traj[id][1][1]'== getDy(id, 0) &amp;&amp;
+v_traj[id][2][0]'== getDx(id, 0) &amp;&amp;
+v_traj[id][2][1]'== getDy(id, 0) &amp;&amp;
+v_velocity[id]' == 0 &amp;&amp;
+rd' == 0 &amp;&amp;
+sbd' == 0</label>
+		</location>
+		<location id="id10" x="-2167" y="-909">
+			<name x="-2227" y="-943">initialVeAndOfs</name>
+			<committed/>
+		</location>
+		<location id="id11" x="-722" y="-790">
+			<name x="-732" y="-824">p1</name>
+			<committed/>
+		</location>
+		<location id="id12" x="-1844" y="-909">
+			<name x="-1903" y="-943">initialLocation</name>
+			<committed/>
+		</location>
+		<location id="id13" x="-2346" y="-909">
+			<name x="-2356" y="-943">start</name>
+		</location>
+		<location id="id14" x="-722" y="-671">
+			<name x="-824" y="-688">perception</name>
+			<urgent/>
+		</location>
+		<location id="id15" x="-722" y="-535">
+			<name x="-790" y="-535">predict</name>
+			<urgent/>
+		</location>
+		<location id="id16" x="-323" y="-535">
+			<name x="-315" y="-569">p2</name>
+			<committed/>
+		</location>
+		<location id="id17" x="-323" y="-654">
+			<name x="-332" y="-697">p3</name>
+			<committed/>
+		</location>
+		<location id="id18" x="-628" y="-790">
+			<name x="-638" y="-824">p4</name>
+			<committed/>
+		</location>
+		<location id="id19" x="-135" y="-654">
+			<name x="-102" y="-654">braking</name>
+			<label kind="invariant" x="-289" y="-892">rd' == 0 &amp;&amp;
+sbd' == 0 &amp;&amp;
+v_velocity[id] &gt;= 0 &amp;&amp;
+v_velocity[id]' == - am / gammar &amp;&amp;
+v_traj[id][0][0]' == getDx(id, 0) &amp;&amp;
+v_traj[id][0][1]' == getDy(id, 0) &amp;&amp;
+v_traj[id][1][0]' == getDx(id, 0) &amp;&amp;
+v_traj[id][1][1]' == getDy(id, 0) &amp;&amp;
+v_traj[id][2][0]' == getDx(id, 0) &amp;&amp;
+v_traj[id][2][1]' == getDy(id, 0)</label>
+		</location>
+		<location id="id20" x="-136" y="-527">
+			<name x="-146" y="-561">p5</name>
+			<committed/>
+		</location>
+		<location id="id21" x="-1598" y="-765">
+			<name x="-1608" y="-799">k1</name>
+			<committed/>
+		</location>
+		<location id="id22" x="-1598" y="-646">
+			<name x="-1649" y="-663">k8</name>
+			<urgent/>
+		</location>
+		<location id="id23" x="-1598" y="-510">
+			<name x="-1640" y="-535">k6</name>
+			<urgent/>
+		</location>
+		<location id="id24" x="-1199" y="-510">
+			<name x="-1191" y="-544">k2</name>
+			<committed/>
+		</location>
+		<location id="id25" x="-1199" y="-629">
+			<name x="-1208" y="-672">k3</name>
+			<committed/>
+		</location>
+		<location id="id26" x="-1504" y="-765">
+			<name x="-1495" y="-808">k4</name>
+			<committed/>
+		</location>
+		<location id="id27" x="-1011" y="-629">
+			<name x="-977" y="-654">k7</name>
+			<label kind="invariant" x="-1122" y="-858">rd' == 0 &amp;&amp;
+sbd' == 0 &amp;&amp;
+v_velocity[id] &gt;= 0 &amp;&amp;
+v_velocity[id]' == - am / gammar &amp;&amp;
+v_traj[id][0][0]' == getDx(id, 0) &amp;&amp;
+v_traj[id][0][1]' == getDy(id, 0) &amp;&amp;
+v_traj[id][1][0]' == getDx(id, 0) &amp;&amp;
+v_traj[id][1][1]' == getDy(id, 0) &amp;&amp;
+v_traj[id][2][0]' == getDx(id, 0) &amp;&amp;
+v_traj[id][2][1]' == getDy(id, 0)</label>
+		</location>
+		<location id="id28" x="-1011" y="-501">
+			<name x="-1021" y="-535">k5</name>
+			<committed/>
+		</location>
+		<init ref="id13"/>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id20"/>
+			<label kind="guard" x="-127" y="-425">lane2junction(id)</label>
+			<label kind="synchronisation" x="-110" y="-450">syn?</label>
+			<label kind="assignment" x="-119" y="-391">stage[id] = 1</label>
+			<nail x="-850" y="-629"/>
+			<nail x="-850" y="-340"/>
+			<nail x="-136" y="-340"/>
+		</transition>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id8"/>
+			<label kind="guard" x="238" y="-612">v_velocity[id] == 0</label>
+			<nail x="-850" y="-629"/>
+			<nail x="-850" y="-340"/>
+			<nail x="221" y="-340"/>
+		</transition>
+		<transition>
+			<source ref="id26"/>
+			<target ref="id9"/>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id21"/>
+			<label kind="guard" x="-1768" y="-875">!lane2junction(id)</label>
+			<label kind="synchronisation" x="-1708" y="-841">syn?</label>
+			<nail x="-1691" y="-765"/>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id8"/>
+			<label kind="guard" x="76" y="-790">v_velocity[id] == 0</label>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id19"/>
+			<nail x="-42" y="-527"/>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id20"/>
+			<label kind="guard" x="-255" y="-510">v_velocity[id] &gt; 0</label>
+			<label kind="synchronisation" x="-212" y="-527">syn?</label>
+			<label kind="assignment" x="-246" y="-493">checkCollision()</label>
+			<nail x="-229" y="-527"/>
+		</transition>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id19"/>
+			<label kind="guard" x="-280" y="-680">brake</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-1309" y="-952">lane2junction(id)</label>
+			<label kind="synchronisation" x="-1249" y="-969">syn?</label>
+			<label kind="assignment" x="-1275" y="-901">stage[id] = 1,
+t[id] = 0</label>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id9"/>
+			<label kind="assignment" x="-1768" y="-935">initialLoc(id)</label>
+		</transition>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id18"/>
+			<label kind="guard" x="-526" y="-731">!brake</label>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id18"/>
+			<label kind="synchronisation" x="-671" y="-671">dontCare?</label>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id18"/>
+			<label kind="synchronisation" x="-705" y="-765">nd?</label>
+		</transition>
+		<transition>
+			<source ref="id18"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="-671" y="-867">syn2!</label>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id17"/>
+			<label kind="assignment" x="-314" y="-612">AEB()</label>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id16"/>
+			<label kind="synchronisation" x="-552" y="-603">ped?</label>
+			<nail x="-637" y="-578"/>
+			<nail x="-373" y="-578"/>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id16"/>
+			<label kind="synchronisation" x="-552" y="-518">cy?</label>
+			<nail x="-637" y="-501"/>
+			<nail x="-365" y="-501"/>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id16"/>
+			<label kind="synchronisation" x="-552" y="-561">car?</label>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id15"/>
+			<label kind="synchronisation" x="-773" y="-620">yd?</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="-824" y="-731">ad_request_op!</label>
+			<label kind="assignment" x="-824" y="-756">checkCollision()</label>
+			<nail x="-722" y="-714"/>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-2295" y="-935">syn?</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id11"/>
+			<label kind="guard" x="-901" y="-858">!junction2end(id)</label>
+			<label kind="synchronisation" x="-850" y="-875">syn?</label>
+			<nail x="-807" y="-790"/>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id12"/>
+			<label kind="select" x="-2149" y="-960">v:int[2,5]</label>
+			<label kind="assignment" x="-2099" y="-884">initialVocAndOs(v, 2 * gammar)</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id8"/>
+			<label kind="guard" x="-492" y="-934">junction2end(id)</label>
+			<label kind="synchronisation" x="-459" y="-952">syn?</label>
+			<nail x="-561" y="-909"/>
+		</transition>
+		<transition>
+			<source ref="id28"/>
+			<target ref="id27"/>
+			<nail x="-918" y="-502"/>
+		</transition>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id28"/>
+			<label kind="guard" x="-1122" y="-484">!lane2junction(id)</label>
+			<label kind="synchronisation" x="-1088" y="-527">syn?</label>
+			<nail x="-1105" y="-502"/>
+		</transition>
+		<transition>
+			<source ref="id25"/>
+			<target ref="id27"/>
+			<label kind="guard" x="-1156" y="-655">brake</label>
+			<label kind="assignment" x="-1147" y="-629">t[id] = 0</label>
+		</transition>
+		<transition>
+			<source ref="id25"/>
+			<target ref="id26"/>
+			<label kind="guard" x="-1402" y="-706">!brake</label>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id26"/>
+			<label kind="synchronisation" x="-1547" y="-646">dontCare?</label>
+		</transition>
+		<transition>
+			<source ref="id22"/>
+			<target ref="id26"/>
+			<label kind="synchronisation" x="-1581" y="-740">nd?</label>
+		</transition>
+		<transition>
+			<source ref="id24"/>
+			<target ref="id25"/>
+			<label kind="assignment" x="-1190" y="-587">AEB()</label>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id24"/>
+			<label kind="synchronisation" x="-1428" y="-578">ped?</label>
+			<nail x="-1513" y="-553"/>
+			<nail x="-1249" y="-553"/>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id24"/>
+			<label kind="synchronisation" x="-1428" y="-468">cy?</label>
+			<nail x="-1513" y="-476"/>
+			<nail x="-1241" y="-476"/>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id24"/>
+			<label kind="synchronisation" x="-1428" y="-536">car?</label>
+		</transition>
+		<transition>
+			<source ref="id22"/>
+			<target ref="id23"/>
+			<label kind="synchronisation" x="-1649" y="-595">yd?</label>
+		</transition>
+		<transition>
+			<source ref="id21"/>
+			<target ref="id22"/>
+			<label kind="synchronisation" x="-1700" y="-706">ad_request_op!</label>
+			<nail x="-1598" y="-689"/>
+		</transition>
+	</template>
+	<template>
+		<name>Control</name>
+		<declaration>clock x;
+double k, b;
+double _min;
+double mx, my;
+void __computeKB(){
+    double x1, y1, x2, y2;
+    x1 = v_traj[0][0][0]; y1 = v_traj[0][0][1];
+    x2 = v_traj[0][0][0] - getDx(0, - timestep); y2 = v_traj[0][0][1] - getDy(0, - timestep);
+    if (x1 == x2) k = 0;
+    else k = (y1 - y2) / (x1 - x2);
+    b = y1 - k * x1;
+}
+void __computeProj(int id){
+    double x0 = 1.0 * v_traj[id][0][0], y0 = 1.0 * v_traj[id][0][1];
+    mx = (k * (y0 - b) + x0) / (k * k + 1);
+    my = k * mx + b;
+}
+
+void updateDis(){
+    int i, c_id;
+    __computeKB();
+    
+    _min = INT32_MAX*1.0;
+    ven = false;
+    for (i = 0; i &lt; idx; i ++){
+        c_id = vQue[i];
+        __computeProj(c_id);
+        _min = fmin(_min, hypot((v_traj[0][0][0] - mx), (v_traj[0][0][1] - my)));
+        if (hypot((v_traj[0][0][0] - v_traj[c_id][0][0]), (v_traj[0][0][1] - v_traj[c_id][0][1])) &lt;= visRange)
+            ven = true;
+        
+    }
+    rd = _min / 10.0;
+}
+</declaration>
+		<location id="id29" x="-68" y="0">
+			<committed/>
+		</location>
+		<location id="id30" x="-68" y="-76">
+			<label kind="invariant" x="-102" y="-110">x &lt;= timestep</label>
+		</location>
+		<init ref="id29"/>
+		<transition>
+			<source ref="id30"/>
+			<target ref="id30"/>
+			<label kind="guard" x="-85" y="-221">x == timestep</label>
+			<label kind="synchronisation" x="-76" y="-246">syn!</label>
+			<label kind="assignment" x="170" y="-212">x = 0,
+updateDis()</label>
+			<nail x="144" y="-76"/>
+			<nail x="144" y="-221"/>
+			<nail x="-212" y="-221"/>
+			<nail x="-212" y="-76"/>
+		</transition>
+		<transition>
+			<source ref="id29"/>
+			<target ref="id30"/>
+			<label kind="synchronisation" x="-59" y="-68">syn!</label>
+			<label kind="assignment" x="-59" y="-51">x = 0,
+setEnvir(env_mode)</label>
+		</transition>
+	</template>
+	<template>
+		<name>OP</name>
+		<declaration>
+
+</declaration>
+		<location id="id31" x="-619" y="-68">
+			<name x="-645" y="-102">running</name>
+		</location>
+		<location id="id32" x="-467" y="-68">
+			<name x="-492" y="-110">judge</name>
+			<committed/>
+		</location>
+		<location id="id33" x="-348" y="-68">
+			<committed/>
+		</location>
+		<location id="id34" x="-221" y="-68">
+			<name x="-246" y="-102">no_detected</name>
+			<committed/>
+		</location>
+		<location id="id35" x="-161" y="-187">
+			<name x="-171" y="-221">detected</name>
+			<committed/>
+		</location>
+		<init ref="id31"/>
+		<transition>
+			<source ref="id35"/>
+			<target ref="id31"/>
+			<label kind="synchronisation" x="-51" y="17">dontCare!</label>
+			<nail x="17" y="-187"/>
+			<nail x="17" y="85"/>
+			<nail x="-619" y="85"/>
+		</transition>
+		<transition>
+			<source ref="id35"/>
+			<target ref="id31"/>
+			<label kind="synchronisation" x="-76" y="-42">cy!</label>
+			<nail x="-51" y="-187"/>
+			<nail x="-51" y="85"/>
+			<nail x="-619" y="85"/>
+		</transition>
+		<transition>
+			<source ref="id35"/>
+			<target ref="id31"/>
+			<label kind="synchronisation" x="-136" y="-93">ped!</label>
+			<nail x="-102" y="-187"/>
+			<nail x="-102" y="85"/>
+			<nail x="-619" y="85"/>
+		</transition>
+		<transition>
+			<source ref="id35"/>
+			<target ref="id31"/>
+			<label kind="synchronisation" x="-187" y="-136">car!</label>
+			<nail x="-161" y="85"/>
+			<nail x="-619" y="85"/>
+		</transition>
+		<transition>
+			<source ref="id33"/>
+			<target ref="id35"/>
+			<label kind="guard" x="-330" y="-221">false</label>
+			<label kind="synchronisation" x="-323" y="-212">yd!</label>
+			<nail x="-348" y="-187"/>
+		</transition>
+		<transition>
+			<source ref="id32"/>
+			<target ref="id33"/>
+			<label kind="guard" x="-425" y="-93">!ven</label>
+		</transition>
+		<transition>
+			<source ref="id32"/>
+			<target ref="id33"/>
+			<label kind="guard" x="-425" y="-127">ven</label>
+			<nail x="-450" y="-102"/>
+			<nail x="-374" y="-102"/>
+		</transition>
+		<transition>
+			<source ref="id33"/>
+			<target ref="id34"/>
+			<label kind="synchronisation" x="-323" y="-93">nd!</label>
+		</transition>
+		<transition>
+			<source ref="id34"/>
+			<target ref="id31"/>
+			<nail x="-221" y="0"/>
+			<nail x="-619" y="0"/>
+		</transition>
+		<transition>
+			<source ref="id31"/>
+			<target ref="id32"/>
+			<label kind="synchronisation" x="-594" y="-93">ad_request_op?</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+
+// List one or more processes to be composed into a system.
+
+e0 = VAD(3);
+v1 = VEN();
+ob = OP();
+ctrl = Control();
+system  e0, v1, ctrl, ob;
+    </system>
+	<queries>
+		<query>
+			<formula>simulate[&lt;=100 * gammar]{
+	v_velocity[1], dirs[1] * gammar,
+	v1.move_in_lane*10, v1.move_in_junction * 10,
+	v_traj[1][0][0],v_traj[1][0][1],
+	v_traj[1][1][0],v_traj[1][1][1],
+	v_traj[1][2][0],v_traj[1][2][1]
+	
+}</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>simulate[&lt;=100 * gammar]{
+	v_velocity[0], ks[0],
+	v_traj[0][0][0],v_traj[0][0][1],
+	v_traj[0][1][0],v_traj[0][1][1],
+	v_traj[0][2][0],v_traj[0][2][1]
+
+	
+}</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>simulate[&lt;=100]{
+	v_traj[0][1][0], e0.poly1[0][0]
+}</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula></formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>Pr[&lt;=300 * gammar](
+	[] ((e0.end and e0.brake) imply e0.collision)
+)</formula>
+			<comment>刹车但没有发生碰撞的情况</comment>
+		</query>
+		<query>
+			<formula>Pr[&lt;=300 * gammar](
+	[] ((e0.brake) imply !e0.collision)
+)</formula>
+			<comment>刹车但发生碰撞的情况</comment>
+		</query>
+		<query>
+			<formula>Pr[&lt;=400 * gammar]([]
+
+!e0.collision
+
+)</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>Pr[&lt;=350 * gammar]([]
+
+!e0.collision or e0.brake
+
+)</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>Pr[&lt;=350 * gammar]([]
+
+((v1.dir == 5) imply(!e0.collision or !e0.brake)) or ((v1.dir == 5) imply(!e0.collision or e0.brake))
+
+)</formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.</declaration>
+	<template>
+		<name x="5" y="5">Template</name>
+		<declaration>// Place local declarations here.</declaration>
+		<location id="id0" x="42" y="-119">
+			<name x="32" y="-153">Accelerate</name>
+		</location>
+		<location id="id1" x="-76" y="17">
+			<name x="-86" y="-17">Keep</name>
+		</location>
+		<location id="id2" x="170" y="17">
+			<name x="160" y="-17">Decelerate</name>
+		</location>
+		<location id="id3" x="-178" y="170">
+			<name x="-188" y="136">Accelerate</name>
+		</location>
+		<location id="id4" x="-85" y="170">
+			<name x="-95" y="136">Decelerate</name>
+		</location>
+		<location id="id5" x="102" y="170">
+			<name x="92" y="136">Accelerate</name>
+		</location>
+		<location id="id6" x="255" y="170">
+			<name x="245" y="136">Keep</name>
+		</location>
+		<location id="id7" x="0" y="170">
+			<name x="-10" y="136">Keep</name>
+		</location>
+		<location id="id8" x="34" y="314">
+			<name x="24" y="280">Keep</name>
+		</location>
+		<location id="id9" x="161" y="314">
+			<name x="151" y="280">Decelerate</name>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id9"/>
+			<label kind="select" x="127" y="229">342</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id8"/>
+			<label kind="guard" x="35" y="225">341</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-34" y="76">213</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id6"/>
+			<label kind="guard" x="204" y="68">222</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id5"/>
+			<label kind="guard" x="119" y="68">221</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="guard" x="110" y="-68">112</label>
+			<label kind="assignment" x="170" y="-161">The numbers on the edges represent the triplet identification of the edges (level, group, number). 
+For example, 213 indicates that level=2, group=1, and number=3。
+That is, the edge is in 
+- the 2nd layer of the tree, 
+- the 1st node of the layer, 
+- the 3rd edge of all the next edges of the node</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id4"/>
+			<label kind="guard" x="-110" y="76">212</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-161" y="68">211</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-8" y="-59">111</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+Process = Template();
+// List one or more processes to be composed into a system.
+system Process;
+    </system>
+	<queries>
+		<query>
+			<formula></formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>

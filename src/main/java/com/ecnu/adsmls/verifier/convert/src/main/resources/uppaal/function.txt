@@ -1,0 +1,607 @@
+
+/************************************* 常用函数 *************************************/
+
+/**
+   	获取两车的距离差:
+   	两车在同一road比才有意义, 否则直接距离差视为无穷大
+**/
+int distance(Car car1, Car car2){
+    int distance = car1.offset - car2.offset;
+	if(car1.roadIndex == car2.roadIndex) {
+        return distance;
+    } else {
+        return INT16_MAX;
+    }
+}
+
+int lateralDistance(Car car1, Car car2) {
+    return INT16_MAX;
+}
+
+int max(int a, int b) {
+    return (a &gt; b ? a : b);
+}
+
+int safeDistance(Car car1, Car car2){
+    int v1 = car1.speed, v2 = car2.speed;
+    return v1*ret+maxAcc*ret*ret*1/2 +(v1+ret*maxAcc)*(v1+ret*maxAcc)/(2*minBra) - v2*v2/(2*maxBra);
+}
+
+/**
+    同向行驶安全距离规约
+**/
+bool isSafeSameDirection(Car car1, Car car2){
+    if(car1.laneIndex == car2.laneIndex &amp;&amp; car1.heading == car2.heading){
+        return distance(car1, car2) &gt; safeDistance(car1, car2);
+    }
+    return true;
+}
+
+
+int oppsiteSafeDistance(Car car1, Car car2){
+    int v1p = car1.speed+maxAcc*ret, v2p = abs(car2.speed)+maxAcc*ret;
+    int v1 = car1.speed, v2 = car2.speed;
+    return (v1+v1p)*ret/2 + v1p*v1p/(2*minCor) + (abs(v2)+v2p)*ret/2 + v2p*v2p/(2*minBra);
+}
+
+/**
+    相对方向行驶安全距离规约
+**/
+bool isSafeOppositeDirection(Car car1, Car car2){
+    if(car1.laneIndex == car2.laneIndex &amp;&amp; car1.heading == car2.heading){
+        return max(oppsiteSafeDistance(car1,car2),0) &lt; distance(car1, car2);
+    }
+    return true;
+}
+
+int changeLaneSafeDistance(Car car1, Car car2){
+    int v1 = car1.speed, v2 = car2.speed;
+    int v1p = v1+minLatAcc*ret, v2p = v2+maxLatAcc*ret;
+    return (v1+v1p)*ret/2 + v1p*v1p/(2*minLatBra) - ((v2+v2p)*ret/2 - v2p*v2p/(2*minLatBra));
+}
+
+/**
+    横向换道安全距离规约
+**/
+bool isSafeChangeLane(Car car1, Car car2){
+    if(car1.laneIndex == car2.laneIndex &amp;&amp; car1.heading == car2.heading){
+        return max(changeLaneSafeDistance(car1,car2),0) &lt; distance(car1, car2);
+    }
+    return true;
+}
+
+/**
+    道路最大限速规约
+**/
+bool isLessThanMaxSpeed(Car car){
+    return car.speed &lt; roads[car.roadIndex].maxSpeed;
+}
+
+/**
+   	初始化汽车，加入随机性
+**/
+void initCar(Car&amp; car, int offset){
+    car.offset = offset;
+}
+
+/**
+    汽车到路尽头的距离
+**/
+int distanceToEnd(Car car){
+    return car.heading? roads[car.roadIndex].length-car.offset : car.offset;
+}
+
+/**
+    所在road是junction
+**/
+bool isJunction(Car car) {
+    return roads[car.roadIndex].junctionId != -1;
+}
+
+/**
+    可以左转；可以右转；可以左换道；可以右换道；
+**/
+bool canTurnLeft(Car car){
+    int i;
+    if(!isJunction(car)) { // not in a junction
+        return false;
+    }
+    for(i=0; i&lt;10; i++) { // one of the connections'direction is 1(left)
+        tempConnection = connections[junctions[roads[car.roadIndex].junctionIndex].connections[i]];
+        if(tempConnection.connectingRoadId == car.roadId &amp;&amp; tempConnection.direction == 1){
+            return true;
+        }
+    }
+    return false;
+}
+
+bool canTurnRight(Car car){
+    int i;
+    if(!isJunction(car)) { // not in a junction
+        return false;
+    }
+    for(i=0; i&lt;10; i++) { // one of the connections'direction is 3(right)
+        tempConnection = connections[junctions[roads[car.roadIndex].junctionIndex].connections[i]];
+        if(tempConnection.connectingRoadId == car.roadId &amp;&amp; tempConnection.direction == 3){
+            return true;
+        }
+    }
+    return false;
+}
+
+bool canChangeLeft(Car car){
+    return lanes[car.laneIndex].laneChange == 1 || lanes[car.laneIndex].laneChange == 3;
+}
+
+bool canChangeRight(Car car){
+    return lanes[car.laneIndex].laneChange == 2 || lanes[car.laneIndex].laneChange == 3;
+}
+
+
+/************************************* 车辆查询方法 *************************************/
+
+/**
+	车的前驱lane
+**/
+int preLaneIndex(Lane lane){
+    return lane.predecessorIndex;
+}
+
+/**
+  	车的后继lane
+**/
+int sucLaneIndex(Lane lane){
+	return lane.successorIndex;
+}
+
+/**
+   	车的左侧lane:
+   	0. 根据laneId的性质来写: 中心线为0 左边的道路id依次递增 右边的道路id依次递减
+   	1. 在同一laneSection中, 若某个laneId1与当前laneId2差为1, 或laneId关系为中心线左右两侧(即1, -1), 则该lane为当前左侧lane
+**/
+int leftLaneIndex(Lane lane){
+    int i;
+	for(i=0; i&lt;10; i++) {
+        int index = laneSections[lane.laneSectionIndex].lanes[i];
+        if(index == -1){
+            return -1;
+        }
+        tempLane = lanes[index];
+        if((tempLane.laneId != 0 &amp;&amp; tempLane.laneId - lane.laneId == 1) || (tempLane.laneId == 1 &amp;&amp; lane.laneId == -1)) {
+            return index;
+        }
+    }
+    return -1;
+}
+
+/**
+   	车的右侧lane:
+   	0. 同上; 若差值为-1, 则该lane为当前右侧lane
+**/
+int rightLaneIndex(Lane lane){
+    int i;
+    for(i=0; i&lt;10; i++) {
+        int index = laneSections[lane.laneSectionIndex].lanes[i];
+        if(index == -1){
+            return -1;
+        }
+        tempLane = lanes[index];
+        if((tempLane.laneId != 0 &amp;&amp; tempLane.laneId - lane.laneId == -1) || (tempLane.laneId == -1 &amp;&amp; lane.laneId == 1)) {
+            return index;
+        }
+    }
+    return -1;
+}
+
+/************************************* 地图查询方法 *************************************/
+
+/**
+   road的前驱类型, 返回elementType
+**/
+int preRoadType(Road road){
+	return road.predecessorElementType;
+}
+
+/**
+   road的后继类型, 返回elementType
+**/
+int sucRoadType(Road road){
+	return road.successorElementType;
+}
+
+/**
+   road的前驱, 返回road或者junction的索引
+**/
+int preRoadIndex(Road road){
+    return road.predecessorIndex;
+}
+
+/**
+   road的后继, 返回road或者junction的索引
+**/
+int sucRoadIndex(Road road){
+	return road.successorIndex;
+}
+
+/**
+   laneSection的前驱: 可根据lane的前驱计算
+**/
+int preLaneSectionIndex(LaneSection laneSection){
+    return lanes[preLaneIndex(lanes[laneSection.lanes[0]])].laneSectionIndex;
+}
+
+/**
+   laneSection的后继: 同上
+**/
+int sucLaneSectionIndex(LaneSection laneSection){
+    return lanes[sucLaneIndex(lanes[laneSection.lanes[0]])].laneSectionIndex;
+}
+
+
+/************************************* 行为实现 *************************************/
+
+/**
+    车的一些属性:
+    - int roadId            	当前所在road的id
+    - int laneSectionId			当前所在laneSection的id
+    - int laneId            	当前所在lane的id
+    - int offset				车辆在当前lane上的位置
+    - int speed             	当前速度大小
+    - int acceleration        	当前加速度(包含方向)
+
+    全局的属性:
+    - double timestep 			设置的时间步长
+    - clock time				时钟
+**/
+
+
+/**
+	辅助函数:
+	accelerate_s	匀加速直线运动位移公式; 加速度a为负代表减速
+	accelerate_v 	匀加速直线运动速度公式
+	modifyRoadLane 	运动一段时间后可能改变了road和lane信息, 这时根据偏移修改
+**/
+int accelerate_s(int v, int a, int t) {
+    return v*t/FACTOR +   a * t * t/2 / (FACTOR * FACTOR);
+}
+
+int accelerate_v(int v, int a, int t) {
+    return v + a * t / FACTOR;
+}
+
+void modifyRoadLane(Car&amp; car) {
+    int length = roads[car.roadIndex].length;
+    int offset = car.offset;
+    int ls = car.laneSectionIndex;
+    int i = 0, index = 0;
+    for(i = 0; i &lt; 10; i++) {
+        if(ls == roads[car.roadIndex].laneSections[i]) {
+            index = i;
+        }
+    }
+    if(car.heading) { // the same direction as the road
+        // lane, laneSection: 若偏移大于next laneSection.startPostion, 即进入了下一lane和laneSection
+        if(i &lt; 9 &amp;&amp; roads[car.roadIndex].laneSections[i+1] != -1 &amp;&amp; laneSections[roads[car.roadIndex].laneSections[i+1]].startPosition &gt; offset) { // next lane
+            car.offset -= laneSections[roads[car.roadIndex].laneSections[i+1]].startPosition;
+            car.laneIndex = sucLaneIndex(lanes[car.laneIndex]);
+            car.laneId = lanes[car.laneIndex].laneId;
+            car.laneSectionIndex = sucLaneSectionIndex(laneSections[car.laneSectionIndex]);
+            car.laneSectionId =laneSections[car.laneSectionIndex].laneSectionId;
+        }
+        if(car.offset &gt; roads[car.roadIndex].length) { // next road
+            car.offset = 0;
+            car.roadIndex = sucRoadIndex(roads[car.roadIndex]);
+            car.roadId = roads[car.roadIndex].roadId;
+            car.laneIndex = sucLaneIndex(lanes[car.laneIndex]);
+            car.laneId = lanes[car.laneIndex].laneId;
+            car.laneSectionIndex = sucLaneSectionIndex(laneSections[car.laneSectionIndex]);
+            car.laneSectionId =laneSections[car.laneSectionIndex].laneSectionId;
+        }
+    } else { // driving as a different direction to the road
+        if(i &gt; 0 &amp;&amp; laneSections[roads[car.roadIndex].laneSections[i]].startPosition &lt; offset) { // next lane
+            car.offset = laneSections[roads[car.roadIndex].laneSections[i]].startPosition - car.offset;
+            car.laneIndex = preLaneIndex(lanes[car.laneIndex]);
+            car.laneId = lanes[car.laneIndex].laneId;
+            car.laneSectionIndex = preLaneSectionIndex(laneSections[car.laneSectionIndex]);
+            car.laneSectionId =laneSections[car.laneSectionIndex].laneSectionId;
+        }
+        if(car.offset &lt; 0) { // next road
+            car.roadIndex = sucRoadIndex(roads[car.roadIndex]);
+            car.offset = roads[car.roadIndex].length;
+            car.roadId = roads[car.roadIndex].roadId;
+            car.laneIndex = sucLaneIndex(lanes[car.laneIndex]);
+            car.laneId = lanes[car.laneIndex].laneId;
+            car.laneSectionIndex = sucLaneSectionIndex(laneSections[car.laneSectionIndex]);
+            car.laneSectionId =laneSections[car.laneSectionIndex].laneSectionId;
+        }
+    }
+}
+
+/**
+	加速:
+	1. 根据加速度公式v'=v+at计算速度: speed += timestep * acceletion? 同时需要判断是否到达最大车速
+	2. 根据位移公式x=vt+0.5at^2计算移动距离(需根据是否到达最大速度计算): movement = speed * timestep + 0.5 * acceletion * timestep * timestep
+    3. 判断是否驶出当前车道, 修改road和lane信息并计算偏移: offset += movement?
+**/
+void speedUp(Car&amp; car, int targetSpeed){
+    int roadMaxSpeed = roads[car.roadIndex].maxSpeed;
+    int carMaxSpeed = car.maxSpeed;
+    int maxSpeed = (roadMaxSpeed &gt; carMaxSpeed? carMaxSpeed : roadMaxSpeed);
+
+    int v1 = car.speed;
+    int a = car.acceleration;
+    int v2 = accelerate_v(v1, a, TIME_STEP);
+    int t = 0;
+    int movement = 0;
+
+    maxSpeed = (maxSpeed &gt; targetSpeed? targetSpeed : maxSpeed);
+    if(v2 &gt; maxSpeed) { //在时间段之前已经到达最大速度了, 后面保持匀速
+		v2 = maxSpeed;
+        t = (v2 - v1) / a; //加速时间
+        movement = accelerate_s(v1, a, t) + v2 * (TIME_STEP - t) / FACTOR;
+    } else {
+        movement = accelerate_s(v1, a, TIME_STEP);
+    }
+
+    car.speed = v2;
+    car.offset += (car.heading? movement : -movement);
+    modifyRoadLane(car);
+}
+
+
+/**
+	减速:
+    0. 与加速逻辑同理, 此时acclation大小为负
+    1. 无需考虑是否到达最大速度, 应考虑速度是否变为0
+**/
+void speedDown(Car&amp; car, int targetSpeed){
+    int v1 = car.speed;
+    int a = car.acceleration;
+    int v2 = accelerate_v(v1, -a, TIME_STEP);
+    int t = 0;
+    int movement = 0;
+    int minSpeed = (targetSpeed &gt; 0? targetSpeed : 0);
+
+    if(v2 &lt; minSpeed) { //在时间段之前已经到达最小速度了, 后面保持匀速
+		v2 = minSpeed;
+        t = (v1 - v2) / a; //减速时间
+        movement = accelerate_s(v1, -a, t) + v2 * (TIME_STEP - t) / FACTOR;
+    } else {
+        movement = accelerate_s(v1, -a, TIME_STEP);
+    }
+
+    car.speed = v2;
+    car.offset += (car.heading? movement : -movement);
+    modifyRoadLane(car);
+}
+
+/**
+	匀速:
+    0. 可看作加速度为0的加速运动, 逻辑同上
+    1. 无需考虑速度是否为0或达到最大, 只需考虑是否驶出当前lane和road
+**/
+void keep(Car&amp; car){
+    int v = car.speed;
+    int movement = v * TIME_STEP / FACTOR;
+    car.offset += movement;
+    modifyRoadLane(car);
+}
+
+/**
+    转到左车道:
+    0. 可视为一个瞬时动作
+    1. speed不变, road不变, lane变为其左侧lane; 若无?
+    2. 设置一个因子k, 因为左转也会前进一部分, k代表左转道前进的路程占直接匀速前进路程的比例
+    3. 若无法左转该?
+**/
+void changeLeft(Car&amp; car){
+    int k = 8;
+    int v = car.speed;
+    int movement = v * TIME_STEP * k / (FACTOR * FACTOR);
+    car.offset += (car.heading? movement : -movement);
+    if(lanes[car.laneIndex].laneChange == 1 || lanes[car.laneIndex].laneChange == 3) {
+     	car.laneIndex = leftLaneIndex(lanes[car.laneIndex]);
+        car.laneId = lanes[car.laneIndex].laneId;
+    }
+    modifyRoadLane(car);
+}
+
+/**
+    转到右车道:
+    0. 逻辑同上转到左车道
+**/
+void changeRight(Car&amp; car){
+    int k = 8;
+    int v = car.speed;
+    int movement = v * TIME_STEP * k / (FACTOR * FACTOR);
+    car.offset += (car.heading? movement : -movement);
+    if(lanes[car.laneIndex].laneChange == 2 || lanes[car.laneIndex].laneChange == 3) {
+     	car.laneIndex = leftLaneIndex(lanes[car.laneIndex]);
+        car.laneId = lanes[car.laneIndex].laneId;
+    }
+    modifyRoadLane(car);
+}
+
+/**
+    左转:
+    0. 视为一个瞬时动作
+    1. speed不变, road和lane都变为左转后的; 若无?
+**/
+void turnLeft(Car&amp; car){
+    int i = 0;
+    if(!canTurnLeft(car)) {
+        return;
+    } else {
+        for(i=0; i&lt;10; i++) { // one of the connections'direction is 1(left)
+            tempConnection = connections[junctions[roads[car.roadIndex].junctionIndex].connections[i]];
+            if(tempConnection.connectingRoadId == car.roadId &amp;&amp; tempConnection.direction == 1){ // enter the begin of next road
+                car.offset = 0;
+                car.roadId = tempConnection.incomingRoadId;
+                car.roadIndex = tempConnection.incomingRoadIndex;
+                car.laneSectionId = laneSections[roads[car.roadIndex].laneSections[0]].laneSectionId;
+                car.laneSectionIndex = roads[car.roadIndex].laneSections[0];
+                car.laneId = lanes[laneSections[car.laneSectionIndex].lanes[0]].laneId;
+                car.laneIndex = laneSections[car.laneSectionIndex].lanes[0];
+            }
+        }
+    }
+}
+
+/**
+   右转:
+   0. 逻辑同上左转
+**/
+void turnRight(Car&amp; car){
+    int i = 0;
+    if(!canTurnRight(car)) {
+        return;
+    } else {
+        for(i=0; i&lt;10; i++) { // one of the connections'direction is 3(right)
+            tempConnection = connections[junctions[roads[car.roadIndex].junctionIndex].connections[i]];
+            if(tempConnection.connectingRoadId == car.roadId &amp;&amp; tempConnection.direction == 3){ // enter the begin of next road
+                car.offset = 0;
+                car.roadId = tempConnection.incomingRoadId;
+                car.roadIndex = tempConnection.incomingRoadIndex;
+                car.laneSectionId = laneSections[roads[car.roadIndex].laneSections[0]].laneSectionId;
+                car.laneSectionIndex = roads[car.roadIndex].laneSections[0];
+                car.laneId = lanes[laneSections[car.laneSectionIndex].lanes[0]].laneId;
+                car.laneIndex = laneSections[car.laneSectionIndex].lanes[0];
+            }
+        }
+    }
+}
+
+/************************************* Guard条件规范 *************************************/
+
+/**
+    1：是否在同一条车道内
+    *2：车道是否是前后继关系(其他车辆在当前车的前方, car1可能会撞上car2)
+**/
+bool isInSameLane(Car car1, Car car2) {
+    return car1.laneIndex == car2.laneIndex
+            || (!car1.heading &amp;&amp; lanes[car1.laneIndex].predecessorIndex == car2.laneIndex)
+            || (car1.heading &amp;&amp; lanes[car1.laneIndex].successorIndex == car2.laneIndex);
+}
+
+/**
+    1：在当前车的左边lane或者在其左边前继lane
+    *2：其他车辆在当前车的前方, car1可能会撞上car2
+**/
+bool isInLeftLane(Car car1, Car car2) {
+    int left;
+    left = leftLaneIndex(lanes[car1.laneIndex]);
+    if(left == -1) {
+        return false;
+    } else if(left == car2.laneIndex) { // in left
+        if(car1.heading &amp;&amp; car1.offset &lt;= car2.offset) { // car1与道路同向, car2在car1在前方
+            return true;
+        } else if(!car1.heading &amp;&amp; car1.offset &gt;= car2.offset) { // car1与道路反向, car2在car1前方
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+}
+
+/**
+    1：在当前车的右边lane或者在其右边前继lane
+**/
+bool isInRightLane(Car car1, Car car2) {
+    int right;
+    right = rightLaneIndex(lanes[car1.laneIndex]);
+    if(right == -1) {
+        return false;
+    } else if(right == car2.laneIndex) { // in left
+        if(car1.heading &amp;&amp; car1.offset &lt;= car2.offset) { // car1与道路同向, car2在car1在前方
+            return true;
+        } else if(!car1.heading &amp;&amp; car1.offset &gt;= car2.offset) { // car1与道路反向, car2在car1前方
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+}
+
+/**
+    检查当前车辆是否在给定车辆的距离范围内
+    1：其他车辆在当前车的前方（不用强调是否在一个车道内）
+    2：是否在距离范围内
+**/
+bool withinDisToObjsInRoad(Car car1, Car car2, int distance) {
+    if(car1.roadId != car2.roadId) {  // 不在同一Road
+        return false;
+    } else if(car1.heading &amp;&amp; car2.offset - car1.offset &lt;= distance) { // car1和road同向, 那car2.offset应该在car1.offset到road.length之间
+        return true;
+    } else if(!car1.heading &amp;&amp; car1.offset - car2.offset &lt;= distance) { // car1和road反向, 那car2.offset应该在0到car1.offset之间
+        return true;
+    }
+    return false;
+}
+
+/**
+    检查当前车辆是否在给定车辆的距离范围内
+    1：与当前车在同一个lane或者在其前继lane
+    2：其他车辆在当前车的前方
+    3：是否在距离范围内
+**/
+bool withinDisToObjsInLane(Car car1, Car car2, int distance) {
+    return withinDisToObjsInRoad(car1, car2, distance) &amp;&amp; isInSameLane(car1, car2);
+}
+
+/**
+    检查是否在一定距离内存在物体
+    1：与当前车在同一个lane或者在其前继lane
+    2：在给定的距离范围内
+    3：在当前车的前方
+**/
+bool hasObjWithinDisInLane(Car car, int distance) {
+    int i = 0;
+    int count = car.length;
+    for(i = 0; i &lt; count; i++) {
+        if(withinDisToObjsInLane(car, cars[i], distance)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+    检查是否在一定距离内存在物体
+    1：在当前车的左边lane或者在其左边前继lane
+    2：在给定的距离范围内
+    3：在当前车的前方
+    4：没有左边lane则返回false
+**/
+bool hasObjWithinDisInLeftLane(Car car, int distance) {
+    int i = 0;
+    int count = car.length;
+    for(i = 0; i &lt; count; i++) {
+        if(isInLeftLane(car, cars[i]) &amp;&amp; abs(car.offset-cars[i].offset) &lt;= distance) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+    检查是否在一定距离内存在物体
+    1：在当前车的右边lane或者在其右边前继lane
+    2：在给定的距离范围内
+    3：在当前车的前方
+    4：没有右边lane则返回false
+**/
+bool hasObjWithinDisInRightLane(Car car, int distance) {
+    int i = 0;
+    int count = car.length;
+    for(i = 0; i &lt; count; i++) {
+        if(isInRightLane(car, cars[i]) &amp;&amp; abs(car.offset-cars[i].offset) &lt;= distance) {
+            return true;
+        }
+    }
+    return false;
+}
+

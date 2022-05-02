@@ -1,0 +1,252 @@
+{
+	"cars": [{
+		"heading": true,
+		"initSpeed": 1.0,
+		"laneId": 0,
+		"mTree": {
+			"behaviors": [{
+				"id": 0,
+				"name": "Accelerate",
+				"params": {
+					"acceleration": "2",
+					"target speed": "12",
+					"duration": "6"
+				},
+				"position": {
+					"x": 283.79999999999995,
+					"y": 24.79999961853028
+				},
+				"treeTextPosition": {
+					"x": 326.5824218749999,
+					"y": 20.79999961853028
+				}
+			}, {
+				"id": 1,
+				"name": "Decelerate",
+				"params": {
+					"acceleration": "2",
+					"target speed": "2",
+					"duration": "6"
+				},
+				"position": {
+					"x": 206.9999938964844,
+					"y": 140.79999389648435
+				},
+				"treeTextPosition": {
+					"x": 246.58241577148442,
+					"y": 135.19999389648436
+				}
+			}, {
+				"id": 2,
+				"name": "ChangeRight",
+				"params": {
+					"acceleration": "-2",
+					"target speed": "0"
+				},
+				"position": {
+					"x": 208.60000305175788,
+					"y": 253.59998779296876
+				},
+				"treeTextPosition": {
+					"x": 110.59998779296882,
+					"y": 250.39998779296872
+				}
+			}, {
+				"id": 3,
+				"name": "Keep",
+				"params": {
+					"duration": "3"
+				},
+				"position": {
+					"x": 206.99999694824237,
+					"y": 361.59999389648436
+				},
+				"treeTextPosition": {
+					"x": 244.20001220703136,
+					"y": 364.79999389648435
+				}
+			}, {
+				"id": 4,
+				"name": "Accelerate",
+				"params": {
+					"acceleration": "5",
+					"target speed": "15",
+					"duration": "2"
+				},
+				"position": {
+					"x": 207.8000030517577,
+					"y": 472.8000061035156
+				},
+				"treeTextPosition": {
+					"x": 241.79998779296864,
+					"y": 472.8000061035156
+				}
+			}, {
+				"id": 10,
+				"name": "TurnLeft",
+				"params": {
+					"acceleration": "0",
+					"target speed": "12"
+				},
+				"position": {
+					"x": 336.6000061035155,
+					"y": 250.39999694824218
+				},
+				"treeTextPosition": {
+					"x": 370.6000061035155,
+					"y": 250.39999694824218
+				}
+			}, {
+				"id": 11,
+				"name": "Decelerate",
+				"params": {
+					"acceleration": "5",
+					"target speed": "0",
+					"duration": "3"
+				},
+				"position": {
+					"x": 503.19999999999976,
+					"y": 240.19999999999993
+				},
+				"treeTextPosition": {
+					"x": 537.1999694824217,
+					"y": 240.19999999999993
+				}
+			}],
+			"branchPoints": [{
+				"id": 9,
+				"position": {
+					"x": 382.4,
+					"y": 142.59999999999997
+				}
+			}],
+			"commonTransitions": [{
+				"guards": ["distanceToEnd(car1) < 20", "distanceToEnd(car1) > 10"],
+				"id": 5,
+				"linkPoints": [{
+					"x": 285.9673060914619,
+					"y": 49.14104599121317
+				}, {
+					"x": 226.83268780502243,
+					"y": 138.45894752380147
+				}],
+				"sourceId": 0,
+				"targetId": 1,
+				"treeTextPosition": {
+					"x": 135.79999694824215,
+					"y": 77.66327800750737
+				}
+			}, {
+				"guards": ["canChangeLeft(car1)"],
+				"id": 6,
+				"linkPoints": [{
+					"x": 218.22692273416467,
+					"y": 167.7983845437535
+				}, {
+					"x": 219.3730742140776,
+					"y": 248.6015971456996
+				}],
+				"sourceId": 1,
+				"targetId": 2,
+				"treeTextPosition": {
+					"x": 133.8003970478269,
+					"y": 208.00000507236263
+				}
+			}, {
+				"guards": [],
+				"id": 7,
+				"linkPoints": [{
+					"x": 219.36299113219928,
+					"y": 280.5982322388443
+				}, {
+					"x": 218.23700886780097,
+					"y": 356.60174945060885
+				}],
+				"sourceId": 2,
+				"targetId": 3,
+				"treeTextPosition": {
+					"x": 252.80000000000007,
+					"y": 285.8
+				}
+			}, {
+				"guards": [],
+				"id": 8,
+				"linkPoints": [{
+					"x": 218.1349928746797,
+					"y": 388.59942438946894
+				}, {
+					"x": 218.68824004509767,
+					"y": 467.800396451079
+				}],
+				"sourceId": 3,
+				"targetId": 4,
+				"treeTextPosition": {
+					"x": 251.20000000000005,
+					"y": 415.4
+				}
+			}, {
+				"guards": ["isJunction(car1)"],
+				"id": 12,
+				"linkPoints": [{
+					"x": 304.9799323369354,
+					"y": 48.14378257252847
+				}, {
+					"x": 380.30823234593817,
+					"y": 139.42959465212778
+				}],
+				"sourceId": 0,
+				"targetId": 9,
+				"treeTextPosition": {
+					"x": 363.64408234143684,
+					"y": 93.98668861232811
+				}
+			}],
+			"probabilityTransitions": [{
+				"id": 13,
+				"linkPoints": [{
+					"x": 382.91751275390016,
+					"y": 153.2050810037074
+				}, {
+					"x": 352.56498059571516,
+					"y": 246.18983494082732
+				}],
+				"sourceId": 9,
+				"targetId": 10,
+				"treeTextPosition": {
+					"x": 373.1945785506166,
+					"y": 205.58254245781214
+				},
+				"weight": "1"
+			}, {
+				"id": 14,
+				"linkPoints": [{
+					"x": 391.58651911842435,
+					"y": 150.6721771654162
+				}, {
+					"x": 501.82696176315113,
+					"y": 241.05564566916743
+				}],
+				"sourceId": 9,
+				"targetId": 11,
+				"treeTextPosition": {
+					"x": 461.989879274841,
+					"y": 189.01666545048806
+				},
+				"weight": "2"
+			}],
+			"rootId": 0
+		},
+		"maxSpeed": 10.0,
+		"model": "vehicle.audi.a2",
+		"name": "car1",
+		"minOffset": 0.0,
+		"maxOffset": 20.0,
+		"roadDeviation": -20.0,
+		"roadId": 1,
+		"treePath": "test2.tree"
+	}],
+	"map": "src/main/java/resources/maps/test.xodr",
+	"source": "",
+	"timeStep": 1,
+	"weather": "clear"
+}

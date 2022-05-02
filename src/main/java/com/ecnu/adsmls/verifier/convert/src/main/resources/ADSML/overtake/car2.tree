@@ -1,0 +1,23 @@
+{
+  "behaviors": [
+    {
+      "id": 0,
+      "name": "Keep",
+      "params": {
+        "duration": "100"
+      },
+      "position": {
+        "x": 185.0,
+        "y": 113.0
+      },
+      "treeTextPosition": {
+        "x": 219.0,
+        "y": 113.0
+      }
+    }
+  ],
+  "branchPoints": [],
+  "commonTransitions": [],
+  "probabilityTransitions": [],
+  "rootId": 0
+}
