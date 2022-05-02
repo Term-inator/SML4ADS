@@ -1,5 +1,7 @@
 package com.ecnu.adsmls.verifier;
 
+import com.ecnu.adsmls.verifier.convert.src.main.java.Convert;
+
 import java.util.Arrays;
 
 public class Verifier {
@@ -10,6 +12,7 @@ public class Verifier {
 
         try {
             System.out.println(Arrays.toString(args));
+            Convert.ADSML2Uppaal(ADSML_PATH, JSON_PATH, XML_PATH);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>typedef struct{
+    int i;
+    int j[2];
+}B;
+
+B b = {1,{1,2}}; // right
+</declaration>
+	<template>
+		<name x="5" y="5">tree</name>
+		<declaration>/**
+    三元组算法: 由树转化为自动机时，状态迁出时应走行为树对应的边，该算法用于判断相应的边
+    (level,group,number)三元组用于标识自动机运行到达的边
+    level:  表示边所在行为树的第几层
+    group:  表示边所在层的第几棵子树
+    number: 表示边所在子树的第几条
+
+    Transition(实线)信息如下(虚线不需要Guard):
+    Select -&gt; i:int[1,1], j:int[2,2], k:int[3,3]
+    Guard  -&gt; level==i &amp;&amp; group==j
+    Update -&gt; group=(group-1)*N+k, level=level+1, number=k
+    其中，ijk的值在Java中已读取获得
+**/
+int level = 1;
+int group = 1;
+int number = 1;
+int N = 3;
+
+</declaration>
+		<location id="id0" x="-229" y="-25">
+			<name x="-239" y="-59">A</name>
+		</location>
+		<location id="id1" x="85" y="-178">
+			<name x="75" y="-212">B</name>
+		</location>
+		<location id="id2" x="93" y="119">
+			<name x="83" y="85">C</name>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="select" x="-211" y="42">i: int[3,3], j:int[4,4], k:int[2,2]</label>
+			<label kind="guard" x="-211" y="59">level == i &amp;&amp; group == j</label>
+			<label kind="assignment" x="-211" y="93">group = (group-1)*N+k, level = level+1, number=k</label>
+			<nail x="-161" y="212"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="select" x="-211" y="-93">i: int[3,3], j:int[4,4], k:int[1,1]</label>
+			<label kind="guard" x="-211" y="-76">level == i &amp;&amp; group == j</label>
+			<label kind="assignment" x="-211" y="-42">group = (group-1)*N+k, level = level+1, number=k</label>
+			<nail x="-59" y="-59"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="select" x="111" y="0">i: int[2,2], j:int[2,2], k:int[2,2]</label>
+			<label kind="guard" x="111" y="17">level == i &amp;&amp; group == j</label>
+			<label kind="assignment" x="111" y="51">group = (group-1)*N+k, level = level+1, number=k</label>
+			<nail x="178" y="-17"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="select" x="-92" y="80">i: int[2,2], j:int[2,2], k:int[1,1]</label>
+			<label kind="guard" x="-92" y="97">level == i &amp;&amp; group == j</label>
+			<label kind="assignment" x="-92" y="131">group = (group-1)*N+k, level = level+1, number=k</label>
+			<nail x="-110" y="144"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="select" x="145" y="-284">i: int[2,2], j:int[1,1], k:int[3,3]</label>
+			<label kind="guard" x="145" y="-267">level == i &amp;&amp; group == j</label>
+			<label kind="assignment" x="145" y="-233">group = (group-1)*N+k, level = level+1, number=k</label>
+			<nail x="127" y="-289"/>
+			<nail x="212" y="-178"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="select" x="-152" y="-259">i: int[2,2], j:int[1,1], k:int[1,1]</label>
+			<label kind="guard" x="-152" y="-242">level == i &amp;&amp; group == j</label>
+			<label kind="assignment" x="-152" y="-208">group = (group-1)*N+k, level = level+1, number=k</label>
+			<nail x="-170" y="-238"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="select" x="-211" y="-4">i: int[1,1], j:int[1,1], k:int[2,2]</label>
+			<label kind="guard" x="-211" y="13">level == i &amp;&amp; group == j</label>
+			<label kind="assignment" x="-211" y="47">group = (group-1)*N+k, level = level+1, number=k</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="select" x="89" y="-80">i: int[2,2], j:int[1,1], k:int[2,2]</label>
+			<label kind="guard" x="89" y="-63">level == i &amp;&amp; group == j</label>
+			<label kind="assignment" x="89" y="-29">group = (group-1)*N+k, level = level+1, number=k</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="select" x="-211" y="-152">i: int[1,1], j:int[1,1], k:int[1,1]</label>
+			<label kind="guard" x="-211" y="-135">level == i &amp;&amp; group == j</label>
+			<label kind="assignment" x="-211" y="-101">group = (group-1)*N+k, level = level+1, number=k</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+Process = tree();
+// List one or more processes to be composed into a system.
+system Process;
+    </system>
+	<queries>
+		<query>
+			<formula>Pr[&lt;=20](&lt;&gt; b.i&gt;5)</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>A[] b.i==1</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula></formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>

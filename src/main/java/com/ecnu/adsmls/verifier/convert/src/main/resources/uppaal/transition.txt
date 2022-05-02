@@ -1,0 +1,36 @@
+/**
+    三元组算法: 由树转化为自动机时，状态迁出时应走行为树对应的边，该算法用于判断相应的边
+    (level,group,number)三元组用于标识自动机运行到达的边
+    level:  表示边所在行为树的第几层
+    group:  表示边所在层的第几棵子树
+    number: 表示边所在子树的第几条
+
+    Transition(实线)信息如下(虚线不需要Guard):
+    Select -&gt; i:int[1,1], j:int[2,2], k:int[3,3]
+    Guard  -&gt; level==i &amp;&amp; group==j
+    Update -&gt; group=(group-1)*N+k, level=level+1, number=k
+    其中，ijk的值在Java中已读取获得
+**/
+int level = 1;
+int group = 1;
+int number = 1;
+int N = 3;
+
+/**
+    自循环加锁算法: 进入一个Location后，应先"完成行为"再迁出，该算法使用了锁，保证了流程的正确性
+    (t, v, lock) 用于判断是否可以迁出
+    t: 时间，用于计算是否达到一个行为的持续时间
+    v: 速度，用于计算是否达到一个行为的目标速度
+    lock: 锁，用于标识是否完成一个行为，完成时释放锁，lock=false；未完成则保留锁，lock=true
+    1 迁入:
+      Update -&gt; t=0, v=0, lock=true
+    2 自循环:
+      Guard  -&gt; t&lt;duration &amp;&amp; v&lt;target_speed &amp;&amp; lock
+      Update -&gt; t=t+TIME_STEP, v据算法而定, lock=(duration&gt;=t||v&gt;=target_speed)
+    3 迁出:
+      Guard  -&gt; !lock
+      Update -&gt; t=0, v=0, lock=true
+**/
+int v = 0;
+int t = 0;
+bool lock = true;

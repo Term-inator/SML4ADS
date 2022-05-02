@@ -1,0 +1,430 @@
+{
+  "cars": [
+    {
+      "heading": true,
+      "initSpeed": 10.0,
+      "locationParams": {
+        "roadId": "0",
+        "laneId": "-2",
+        "minLateralOffset": "0",
+        "maxLateralOffset": "0",
+        "minLongitudinalOffset": "60",
+        "maxLongitudinalOffset": "100"
+      },
+      "locationType": "Lane Position",
+      "mTree": {
+        "behaviors": [
+          {
+            "id": 0,
+            "name": "Accelerate",
+            "params": {
+              "acceleration": "1",
+              "target speed": "20",
+              "duration": ""
+            },
+            "position": {
+              "x": 200.39999389648438,
+              "y": 19.400000381469724
+            },
+            "treeTextPosition": {
+              "x": 247.36484374999998,
+              "y": 14.524219131469735
+            }
+          },
+          {
+            "id": 1,
+            "name": "ChangeLeft",
+            "params": {
+              "acceleration": "1",
+              "target speed": "20"
+            },
+            "position": {
+              "x": 206.59999389648442,
+              "y": 123.19999999999999
+            },
+            "treeTextPosition": {
+              "x": 248.21756591796873,
+              "y": 118.52421874999999
+            }
+          },
+          {
+            "id": 3,
+            "name": "Accelerate",
+            "params": {
+              "acceleration": "1",
+              "target speed": "20",
+              "duration": ""
+            },
+            "position": {
+              "x": 213.0,
+              "y": 224.8
+            },
+            "treeTextPosition": {
+              "x": 251.96483764648428,
+              "y": 213.52421875000005
+            }
+          },
+          {
+            "id": 5,
+            "name": "ChangeRight",
+            "params": {
+              "acceleration": "1",
+              "target speed": "20"
+            },
+            "position": {
+              "x": 216.39999999999998,
+              "y": 332.1999938964844
+            },
+            "treeTextPosition": {
+              "x": 250.39999999999998,
+              "y": 332.1999938964844
+            }
+          },
+          {
+            "id": 7,
+            "name": "Decelerate",
+            "params": {
+              "acceleration": "1",
+              "target speed": "10",
+              "duration": ""
+            },
+            "position": {
+              "x": 216.40000305175772,
+              "y": 444.19999999999993
+            },
+            "treeTextPosition": {
+              "x": 250.40000305175772,
+              "y": 444.19999999999993
+            }
+          }
+        ],
+        "branchPoints": [],
+        "commonTransitions": [
+          {
+            "guard": "",
+            "id": 4,
+            "linkPoints": [
+              {
+                "x": 218.60587517296617,
+                "y": 150.16835003554291
+              },
+              {
+                "x": 222.99411872351823,
+                "y": 219.83164996445709
+              }
+            ],
+            "sourceId": 1,
+            "targetId": 3,
+            "treeTextPosition": {
+              "x": 183.80000000000007,
+              "y": 294.79999999999995
+            }
+          },
+          {
+            "guard": "withinDisToObjsInLane(Ego, F1, 8)",
+            "id": 2,
+            "linkPoints": [
+              {
+                "x": 212.35397765755926,
+                "y": 46.37153490334975
+              },
+              {
+                "x": 216.64601013540954,
+                "y": 118.22846547811996
+              }
+            ],
+            "sourceId": 0,
+            "targetId": 1,
+            "treeTextPosition": {
+              "x": 228.19998779296873,
+              "y": 76.1875
+            }
+          },
+          {
+            "guard": "withinDisToObjsInLane(Ego, F2, 8)",
+            "id": 6,
+            "linkPoints": [
+              {
+                "x": 224.5062640972159,
+                "y": 251.79198851499933
+              },
+              {
+                "x": 226.89373590278407,
+                "y": 327.20800538148507
+              }
+            ],
+            "sourceId": 3,
+            "targetId": 5,
+            "treeTextPosition": {
+              "x": 242.6999969482422,
+              "y": 293.8875
+            }
+          },
+          {
+            "id": 8,
+            "linkPoints": [
+              {
+                "x": 227.40000043596535,
+                "y": 359.1999938964844
+              },
+              {
+                "x": 227.40000261579235,
+                "y": 439.19999999999993
+              }
+            ],
+            "sourceId": 5,
+            "targetId": 7,
+            "treeTextPosition": {
+              "x": 232.39999999999998,
+              "y": 348.1999938964844
+            }
+          }
+        ],
+        "probabilityTransitions": [],
+        "rootId": 0
+      },
+      "maxSpeed": 20.0,
+      "model": "random",
+      "name": "Ego",
+      "roadDeviation": 0.0,
+      "treePath": "Ego.tree"
+    },
+    {
+      "heading": true,
+      "initSpeed": 10.0,
+      "locationParams": {
+        "actorRef": "Ego",
+        "minLateralOffset": "-4.5",
+        "maxLateralOffset": "-4.5",
+        "minLongitudinalOffset": "-40",
+        "maxLongitudinalOffset": "-20"
+      },
+      "locationType": "Related Position",
+      "mTree": {
+        "behaviors": [
+          {
+            "id": 0,
+            "name": "Keep",
+            "params": {
+              "duration": ""
+            },
+            "position": {
+              "x": 167.80000000000007,
+              "y": 81.99999999999999
+            },
+            "treeTextPosition": {
+              "x": 201.80000000000007,
+              "y": 81.99999999999999
+            }
+          }
+        ],
+        "branchPoints": [],
+        "commonTransitions": [],
+        "probabilityTransitions": [],
+        "rootId": 0
+      },
+      "maxSpeed": 10.0,
+      "model": "random",
+      "name": "B1",
+      "roadDeviation": 0.0,
+      "treePath": "B1.tree"
+    },
+    {
+      "heading": true,
+      "initSpeed": 10.0,
+      "locationParams": {
+        "actorRef": "Ego",
+        "minLateralOffset": "0",
+        "maxLateralOffset": "0",
+        "minLongitudinalOffset": "50",
+        "maxLongitudinalOffset": "50"
+      },
+      "locationType": "Related Position",
+      "mTree": {
+        "behaviors": [
+          {
+            "id": 0,
+            "name": "Keep",
+            "params": {
+              "duration": ""
+            },
+            "position": {
+              "x": 221.4000000000001,
+              "y": 113.99999999999997
+            },
+            "treeTextPosition": {
+              "x": 255.4000000000001,
+              "y": 113.99999999999997
+            }
+          }
+        ],
+        "branchPoints": [],
+        "commonTransitions": [],
+        "probabilityTransitions": [],
+        "rootId": 0
+      },
+      "maxSpeed": 10.0,
+      "model": "random",
+      "name": "F1",
+      "roadDeviation": 0.0,
+      "treePath": "F1.tree"
+    },
+    {
+      "heading": true,
+      "initSpeed": 10.0,
+      "locationParams": {
+        "actorRef": "F1",
+        "minLateralOffset": "-4.5",
+        "maxLateralOffset": "-4.5",
+        "minLongitudinalOffset": "20",
+        "maxLongitudinalOffset": "50"
+      },
+      "locationType": "Related Position",
+      "mTree": {
+        "behaviors": [
+          {
+            "id": 1,
+            "name": "Accelerate",
+            "params": {
+              "acceleration": "1",
+              "target speed": "15",
+              "duration": "10"
+            },
+            "position": {
+              "x": 153.4000000000001,
+              "y": 54.000000000000014
+            },
+            "treeTextPosition": {
+              "x": 187.4000000000001,
+              "y": 54.000000000000014
+            }
+          },
+          {
+            "id": 2,
+            "name": "Decelerate",
+            "params": {
+              "acceleration": "1",
+              "target speed": "10",
+              "duration": "5"
+            },
+            "position": {
+              "x": 158.0000061035156,
+              "y": 152.1999938964844
+            },
+            "treeTextPosition": {
+              "x": 192.0000061035156,
+              "y": 152.1999938964844
+            }
+          },
+          {
+            "id": 4,
+            "name": "Accelerate",
+            "params": {
+              "acceleration": "1",
+              "target speed": "20",
+              "duration": "10"
+            },
+            "position": {
+              "x": 157.4000000000001,
+              "y": 252.39999999999998
+            },
+            "treeTextPosition": {
+              "x": 191.4000000000001,
+              "y": 252.39999999999998
+            }
+          },
+          {
+            "id": 6,
+            "name": "Keep",
+            "params": {
+              "duration": ""
+            },
+            "position": {
+              "x": 156.60000000000002,
+              "y": 347.59999999999997
+            },
+            "treeTextPosition": {
+              "x": 190.60000000000002,
+              "y": 347.59999999999997
+            }
+          }
+        ],
+        "branchPoints": [],
+        "commonTransitions": [
+          {
+            "id": 3,
+            "linkPoints": [
+              {
+                "x": 165.14867092586337,
+                "y": 80.98247452194958
+              },
+              {
+                "x": 168.25133517765232,
+                "y": 147.21751937453482
+              }
+            ],
+            "sourceId": 1,
+            "targetId": 2,
+            "treeTextPosition": {
+              "x": 169.4000000000001,
+              "y": 70.8
+            }
+          },
+          {
+            "id": 5,
+            "linkPoints": [
+              {
+                "x": 168.9041984691841,
+                "y": 179.19970704695066
+              },
+              {
+                "x": 168.49580763433156,
+                "y": 247.4002868495337
+              }
+            ],
+            "sourceId": 2,
+            "targetId": 4,
+            "treeTextPosition": {
+              "x": 174.0000061035156,
+              "y": 168.1999938964844
+            }
+          },
+          {
+            "id": 7,
+            "linkPoints": [
+              {
+                "x": 168.26555096556257,
+                "y": 279.39943509806324
+              },
+              {
+                "x": 167.73444903443755,
+                "y": 342.6005649019367
+              }
+            ],
+            "sourceId": 4,
+            "targetId": 6,
+            "treeTextPosition": {
+              "x": 173.4000000000001,
+              "y": 268.4
+            }
+          }
+        ],
+        "probabilityTransitions": [],
+        "rootId": 1
+      },
+      "maxSpeed": 20.0,
+      "model": "random",
+      "name": "F2",
+      "roadDeviation": 0.0,
+      "treePath": "F2.tree"
+    }
+  ],
+  "map": "custom.xodr",
+  "mapType": "custom",
+  "requirements": [],
+  "scenarioEndTrigger": "Ego.intersection || B1.intersection || F1.intersection || F2.intersection",
+  "simulationTime": 40.0,
+  "simulatorType": "Carla",
+  "timeStep": 0.1,
+  "weather": "clear"
+}

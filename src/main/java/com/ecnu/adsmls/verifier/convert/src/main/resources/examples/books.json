@@ -1,0 +1,26 @@
+{
+  "message": "这是一个中文测试",
+  "info": {
+    "fileType": "json",
+    "fileUsage": "我在哪里？我要做什么？"
+  },
+  "books": [{
+    "title": "Everyday Italian",
+    "author": "Giada De Laurentiis",
+    "year": "2005",
+    "price": "30.00"
+  },
+    {
+      "title": "Harry Potter",
+      "author": "J K. Rowling",
+      "year": "2005",
+      "price": "29.99"
+    },
+    {
+      "title": "Learning JSON",
+      "author": "Erik T. Ray",
+      "year": "2005",
+      "price": "39.95"
+    }
+  ]
+}

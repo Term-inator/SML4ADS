@@ -1,0 +1,1040 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>
+/************************************* 地图类型定义 *************************************/
+
+/**  
+    Road的结构体
+
+    elementType = 1        表示Road类型
+    roadId                 唯一标识一条Road
+    junctionId             junction的id 表示当前Road在哪一个junction中作为连接路   -1表示不是连接路 不属于任何一条junction
+    junctionIndex          索引值 用于在junction数组中索引
+    length                 路的总长度
+    predecessorElementType predecessor的类型 根据这个类型 在不同的数组中进行索引
+    predecessorIndex       索引值 表示当前Road的前继 可以是Road 也可以是一个junction  需要配合predecessorElementType在对应的类型数组中索引    用-1表示空
+    successorElementType   successor的类型 根据这个类型 在不同的数组中进行索引
+    successorIndex         索引值 表示当前Road的后继 可以是Road 也可以是一个junction  需要配合successorElementType在对应的类型数组中索引    用-1表示空
+    maxSpeed               路的最大限速
+    laneSections[]         表示当前Road中的道路段索引数组  道路段的顺序就是数组的顺序   道路段中又有很多不同的道路Lane
+**/
+typedef struct {
+    int elementType;
+    int roadId;
+    int junctionIndex;
+    int junctionId;
+    int length;
+    int predecessorElementType;
+    int predecessorIndex;
+    int successorElementType;
+    int successorIndex;
+    int maxSpeed;
+    int laneSections[10];
+}Road;
+
+/**
+    LaneSection结构体
+
+    elementType = 2          表示LaneSection类型
+    roadIndex                索引值 表示当前LaneSection属于那一条道路 可以在roads数组中查找
+    roadId                   唯一标志当前LaneSection所属Road
+    LaneSectionId            唯一标志一个LaneSection
+    startPosition            起始偏移位置, 当前LaneSection是距离Road起始位置多少m开始
+    lanes                    LaneSection的道路Lane的索引值列表
+    length                   LaneSection长度
+**/
+typedef struct {
+    int elementType;
+    int roadIndex;
+    int roadId;
+    int laneSectionId;
+    int startPosition;
+    int lanes[10];
+    int length;
+}LaneSection;
+
+/**
+    Lane结构体
+
+    elementType = 3          表示Lane类型
+    roadId                   当前Lane所属Road的id
+    roadIndex                当前Lane所属Road的索引值
+    laneSectionIndex         当前Lane所属LaneSection的索引值
+    laneId                   标志当前Lane在LaneSection中的相对位置 中心线为0 左边的道路id依次递增 右边的道路id依次递减
+    type                     表示当前lane是什么类型 1表示driving
+    predecessorIndex         前继Lane的索引值
+    successorIndex           后继Lane的索引值
+    laneChange               int类型 由于车道从右到左id递增 用该变量表示当前lane是否允许变道 -1表示不知道 1表示允许向左变道 2表示允许向右变道 3表示两边都允许 4表示两边都不允许
+
+**/
+typedef struct{
+    int elementType;
+    int roadId;
+    int roadIndex;
+    int laneSectionIndex;
+    int laneId;
+    int type;
+    int predecessorIndex;
+    int successorIndex;
+    int laneChange;
+}Lane;
+
+/**
+    Junction结构体
+
+    elementType = 4          表示Junction类型
+    junctionId               唯一标志一个junction
+    connections[]            Connection结构体数组 表示当前junction连接的 incomingRoad 和 connectingRoad
+
+**/
+typedef struct {
+    int elementType;
+    int junctionId;
+    int connections[10];
+}Junction;
+
+/**
+    Connection结构体
+
+    direction               1 left, 2 straight, 3 right, 4 none
+    incomingRoadId          驶入Road的id
+    connectingRoadId        驶出Road的id
+    incomingRoadIndex       索引值 表示当前Connection连接的驶入Road
+    connectingRoadIndex     索引值 表示当前Connection连接Road
+    laneLinks               LaneLink结构体数组 表示当前连接Road的Lane 连接 驶入Road的Lane 的信息
+**/
+typedef struct {
+    int direction;
+    int incomingRoadId;
+    int connectingRoadId;
+    int incomingRoadIndex;
+    int connectingRoadIndex;
+    int laneLinks[10];
+}Connection;
+
+/**
+    LaneLink结构体
+
+    from                    表示当前LaneLink连接的 驶入lane的下标索引
+    to                      表示当前LaneLink连接的 驶出lane的下标索引
+    laneLinks               表示当前连接Road的Lane 连接 驶入Road的Lane的信息
+**/
+typedef struct {
+    int from;
+    int to;
+} LaneLink;
+
+/************************************* 车辆类型定义 *************************************/
+
+typedef struct {
+    //车的静态信息: id编号, 宽度, 长度
+    int id;
+    int width;
+    int length;
+
+    //车的动态信息: 朝向, 速度, 加速度, 最大速度
+    bool heading;
+    int speed;
+    int acceleration;
+    int maxSpeed;
+
+    //车的车道信息: 所在road, laneSection, lane及在road上的偏移量
+    int roadId;
+    int laneSectionId;
+    int laneId;
+    int roadIndex;
+    int laneSectionIndex;
+    int laneIndex;
+    int offset;
+
+    //为了初始化简便, 可以将carId和后面所有的Index设置为同一个, 按序号来, 找索引时直接使用id
+}Car;
+
+/************************************* 变量和数据 *************************************/
+
+clock time; // 时钟
+broadcast chan update, end;
+
+const int FACTOR = 10; // 为保留小数而放大的倍数
+const int MIN_DISTANCE_TO_OVERTAKE = 30 * FACTOR; // 超车的最小距离
+const int MIN_DISTANCE_TO_CLOSE = 20 * FACTOR; // 两车最小的距离
+const int INT16_MIN = -32768;
+const int INT16_MAX =  32767;
+
+// RSS
+const int ret = 1; // 司机反应时间
+const int maxAcc = 6; // 最大加速度
+const int minBra = 2; // 最小刹车加速度
+const int maxBra = 6; // 最大刹车加速度
+const int minCor = 5; // 最小刹车加速度？
+const int minLatBra = 2; // 横向换道最小刹车加速度
+const int minLatAcc = 1;
+const int maxLatAcc = 2;
+
+// 函数中不能声明结构体，在这里临时声明
+Lane tempLane;
+Connection tempConnection;
+
+
+const int TIME_STEP = 1;
+Road roads[1] = {{1,0,-1,-1,9647,0,-1,0,-1,250,{0,-1,-1,-1,-1,-1,-1,-1,-1,-1}}
+};
+LaneSection laneSections[1] = {{2,0,0,0,0,{0,1,2,-1,-1,-1,-1,-1,-1,-1},0}
+};
+Lane lanes[3] = {{3,0,0,0,1,1,-1,-1,2},
+{3,0,0,0,0,0,-1,-1,4},
+{3,0,0,0,-1,1,-1,-1,1}
+};
+Junction junctions[2];
+Connection connections[2];
+LaneLink laneLinks[2];
+//id, width, length, heading, speed, acceleration, maxSpeed, ..., offset
+Car car[2] = {{0, 15, 25, true, 80, 0, 400, 0, 0, -1, 0, 0, 2, 0},{1, 15, 25, true, 80, 0, 400, 0, 0, -1, 0, 0, 2, 0}};
+
+/************************************* 常用函数 *************************************/
+
+/**
+   	获取两车的距离差:
+   	两车在同一road比才有意义, 否则直接距离差视为无穷大
+**/
+int distance(Car car1, Car car2){
+    int distance = car1.offset - car2.offset;
+	if(car1.roadIndex == car2.roadIndex) {
+        return distance;
+    } else {
+        return INT16_MAX;
+    }
+}
+
+int lateralDistance(Car car1, Car car2) {
+    return INT16_MAX;
+}
+
+int max(int a, int b) {
+    return (a &gt; b ? a : b);
+}
+
+int safeDistance(Car car1, Car car2){
+    int v1 = car1.speed, v2 = car2.speed;
+    return v1*ret+maxAcc*ret*ret*1/2 +(v1+ret*maxAcc)*(v1+ret*maxAcc)/(2*minBra) - v2*v2/(2*maxBra);
+}
+
+/**
+    同向行驶安全距离规约
+**/
+bool isSafeSameDirection(Car car1, Car car2){
+    if(car1.laneIndex == car2.laneIndex &amp;&amp; car1.heading == car2.heading){
+        return distance(car1, car2) &gt; safeDistance(car1, car2);
+    }
+    return true;
+}
+
+
+int oppsiteSafeDistance(Car car1, Car car2){
+    int v1p = car1.speed+maxAcc*ret, v2p = abs(car2.speed)+maxAcc*ret;
+    int v1 = car1.speed, v2 = car2.speed;
+    return (v1+v1p)*ret/2 + v1p*v1p/(2*minCor) + (abs(v2)+v2p)*ret/2 + v2p*v2p/(2*minBra);
+}
+
+/**
+    相对方向行驶安全距离规约
+**/
+bool isSafeOppositeDirection(Car car1, Car car2){
+    if(car1.laneIndex == car2.laneIndex &amp;&amp; car1.heading == car2.heading){
+        return max(oppsiteSafeDistance(car1,car2),0) &lt; distance(car1, car2);
+    }
+    return true;
+}
+
+int changeLaneSafeDistance(Car car1, Car car2){
+    int v1 = car1.speed, v2 = car2.speed;
+    int v1p = v1+minLatAcc*ret, v2p = v2+maxLatAcc*ret;
+    return (v1+v1p)*ret/2 + v1p*v1p/(2*minLatBra) - ((v2+v2p)*ret/2 - v2p*v2p/(2*minLatBra));
+}
+
+/**
+    横向换道安全距离规约
+**/
+bool isSafeChangeLane(Car car1, Car car2){
+    if(car1.laneIndex == car2.laneIndex &amp;&amp; car1.heading == car2.heading){
+        return max(changeLaneSafeDistance(car1,car2),0) &lt; distance(car1, car2);
+    }
+    return true;
+}
+
+/**
+    道路最大限速规约
+**/
+bool isLessThanMaxSpeed(Car car){
+    return car.speed &lt; roads[car.roadIndex].maxSpeed;
+}
+
+
+/**
+   	初始化汽车，加入随机性
+**/
+void initCar(Car&amp; car, int offset){
+    car.offset = offset;
+}
+
+/**
+    汽车到路尽头的距离
+**/
+int distanceToEnd(Car car){
+    return car.heading? roads[car.roadIndex].length-car.offset : car.offset;
+}
+
+/**
+    所在road是junction
+**/
+bool isJunction(Car car) {
+    return roads[car.roadIndex].junctionId != -1;
+}
+
+/**
+    可以左转；可以右转；可以左换道；可以右换道；
+**/
+bool canTurnLeft(Car car){
+    int i;
+    if(!isJunction(car)) { // not in a junction
+        return false;
+    }
+    for(i=0; i&lt;10; i++) { // one of the connections'direction is 1(left)
+        tempConnection = connections[junctions[roads[car.roadIndex].junctionIndex].connections[i]];
+        if(tempConnection.connectingRoadId == car.roadId &amp;&amp; tempConnection.direction == 1){
+            return true;
+        }
+    }
+    return false;
+}
+
+bool canTurnRight(Car car){
+    int i;
+    if(!isJunction(car)) { // not in a junction
+        return false;
+    }
+    for(i=0; i&lt;10; i++) { // one of the connections'direction is 3(right)
+        tempConnection = connections[junctions[roads[car.roadIndex].junctionIndex].connections[i]];
+        if(tempConnection.connectingRoadId == car.roadId &amp;&amp; tempConnection.direction == 3){
+            return true;
+        }
+    }
+    return false;
+}
+
+bool canChangeLeft(Car car){
+    return lanes[car.laneIndex].laneChange == 1 || lanes[car.laneIndex].laneChange == 3;
+}
+
+bool canChangeRight(Car car){
+    return lanes[car.laneIndex].laneChange == 2 || lanes[car.laneIndex].laneChange == 3;
+}
+
+
+/************************************* 车辆查询方法 *************************************/
+
+/**
+	车的前驱lane
+**/
+int preLaneIndex(Lane lane){
+    return lane.predecessorIndex;
+}
+
+/**
+  	车的后继lane
+**/
+int sucLaneIndex(Lane lane){
+	return lane.successorIndex;
+}
+
+/**
+   	车的左侧lane:
+   	0. 根据laneId的性质来写: 中心线为0 左边的道路id依次递增 右边的道路id依次递减
+   	1. 在同一laneSection中, 若某个laneId1与当前laneId2差为1, 或laneId关系为中心线左右两侧(即1, -1), 则该lane为当前左侧lane
+**/
+int leftLaneIndex(Lane&amp; lane){
+    int i;
+    int index;
+	for(i=0; i&lt;10; i++) {
+        index = laneSections[lane.laneSectionIndex].lanes[i];
+        if(index == -1){
+            return -1;
+        }
+        tempLane = lanes[index];
+        if((tempLane.laneId != 0 &amp;&amp; tempLane.laneId - lane.laneId == 1) || (tempLane.laneId == 1 &amp;&amp; lane.laneId == -1)) {
+            return index;
+        }
+    }
+    return -1;
+}
+
+/**
+   	车的右侧lane:
+   	0. 同上; 若差值为-1, 则该lane为当前右侧lane
+**/
+int rightLaneIndex(Lane lane){
+    int i;
+    for(i=0; i&lt;10; i++) {
+        int index = laneSections[lane.laneSectionIndex].lanes[i];
+        if(index == -1){
+            return -1;
+        }
+        tempLane = lanes[index];
+        if((tempLane.laneId != 0 &amp;&amp; tempLane.laneId - lane.laneId == -1) || (tempLane.laneId == -1 &amp;&amp; lane.laneId == 1)) {
+            return index;
+        }
+    }
+    return -1;
+}
+
+/************************************* 地图查询方法 *************************************/
+
+/**
+   road的前驱类型, 返回elementType
+**/
+int preRoadType(Road road){
+	return road.predecessorElementType;
+}
+
+/**
+   road的后继类型, 返回elementType
+**/
+int sucRoadType(Road road){
+	return road.successorElementType;
+}
+
+/**
+   road的前驱, 返回road或者junction的索引
+**/
+int preRoadIndex(Road road){
+    return road.predecessorIndex;
+}
+
+/**
+   road的后继, 返回road或者junction的索引
+**/
+int sucRoadIndex(Road road){
+	return road.successorIndex;
+}
+
+/**
+   laneSection的前驱: 可根据lane的前驱计算
+**/
+int preLaneSectionIndex(LaneSection laneSection){
+    return lanes[preLaneIndex(lanes[laneSection.lanes[0]])].laneSectionIndex;
+}
+
+/**
+   laneSection的后继: 同上
+**/
+int sucLaneSectionIndex(LaneSection laneSection){
+    return lanes[sucLaneIndex(lanes[laneSection.lanes[0]])].laneSectionIndex;
+}
+
+
+/************************************* 行为实现 *************************************/
+
+/**
+    车的一些属性:
+    - int roadId            	当前所在road的id
+    - int laneSectionId			当前所在laneSection的id
+    - int laneId            	当前所在lane的id
+    - int offset				车辆在当前lane上的位置
+    - int speed             	当前速度大小
+    - int acceleration        	当前加速度(包含方向)
+
+    全局的属性:
+    - double timestep 			设置的时间步长
+    - clock time				时钟
+**/
+
+
+/**
+	辅助函数:
+	accelerate_s	匀加速直线运动位移公式; 加速度a为负代表减速
+	accelerate_v 	匀加速直线运动速度公式
+	modifyRoadLane 	运动一段时间后可能改变了road和lane信息, 这时根据偏移修改
+**/
+int accelerate_s(int v, int a, int t) {
+    return v*t/FACTOR +   a * t * t/2 / (FACTOR * FACTOR);
+}
+
+int accelerate_v(int v, int a, int t) {
+    return v + a * t / FACTOR;
+}
+
+void modifyRoadLane(Car&amp; car) {
+    int length = roads[car.roadIndex].length;
+    int offset = car.offset;
+    int ls = car.laneSectionIndex;
+    int i = 0, index = 0;
+    for(i = 0; i &lt; 10; i++) {
+        if(ls == roads[car.roadIndex].laneSections[i]) {
+            index = i;
+        }
+    }
+    if(car.heading) { // the same direction as the road
+        // lane, laneSection: 若偏移大于next laneSection.startPostion, 即进入了下一lane和laneSection
+        if(i &lt; 9 &amp;&amp; roads[car.roadIndex].laneSections[i+1] != -1 &amp;&amp; laneSections[roads[car.roadIndex].laneSections[i+1]].startPosition &gt; offset) { // next lane
+            car.offset -= laneSections[roads[car.roadIndex].laneSections[i+1]].startPosition;
+            car.laneIndex = sucLaneIndex(lanes[car.laneIndex]);
+            car.laneId = lanes[car.laneIndex].laneId;
+            car.laneSectionIndex = sucLaneSectionIndex(laneSections[car.laneSectionIndex]);
+            car.laneSectionId =laneSections[car.laneSectionIndex].laneSectionId;
+        }
+        if(car.offset &gt; roads[car.roadIndex].length) { // next road
+            car.offset = 0;
+            car.roadIndex = sucRoadIndex(roads[car.roadIndex]);
+            car.roadId = roads[car.roadIndex].roadId;
+            car.laneIndex = sucLaneIndex(lanes[car.laneIndex]);
+            car.laneId = lanes[car.laneIndex].laneId;
+            car.laneSectionIndex = sucLaneSectionIndex(laneSections[car.laneSectionIndex]);
+            car.laneSectionId =laneSections[car.laneSectionIndex].laneSectionId;
+        }
+    } else { // driving as a different direction to the road
+        if(i &gt; 0 &amp;&amp; laneSections[roads[car.roadIndex].laneSections[i]].startPosition &lt; offset) { // next lane
+            car.offset = laneSections[roads[car.roadIndex].laneSections[i]].startPosition - car.offset;
+            car.laneIndex = preLaneIndex(lanes[car.laneIndex]);
+            car.laneId = lanes[car.laneIndex].laneId;
+            car.laneSectionIndex = preLaneSectionIndex(laneSections[car.laneSectionIndex]);
+            car.laneSectionId =laneSections[car.laneSectionIndex].laneSectionId;
+        }
+        if(car.offset &lt; 0) { // next road
+            car.roadIndex = sucRoadIndex(roads[car.roadIndex]);
+            car.offset = roads[car.roadIndex].length;
+            car.roadId = roads[car.roadIndex].roadId;
+            car.laneIndex = sucLaneIndex(lanes[car.laneIndex]);
+            car.laneId = lanes[car.laneIndex].laneId;
+            car.laneSectionIndex = sucLaneSectionIndex(laneSections[car.laneSectionIndex]);
+            car.laneSectionId =laneSections[car.laneSectionIndex].laneSectionId;
+        }
+    }
+}
+
+/**
+	加速:
+	1. 根据加速度公式v'=v+at计算速度: speed += timestep * acceletion? 同时需要判断是否到达最大车速
+	2. 根据位移公式x=vt+0.5at^2计算移动距离(需根据是否到达最大速度计算): movement = speed * timestep + 0.5 * acceletion * timestep * timestep
+    3. 判断是否驶出当前车道, 修改road和lane信息并计算偏移: offset += movement?
+**/
+void speedUp(Car&amp; car, int targetSpeed){
+    int roadMaxSpeed = roads[car.roadIndex].maxSpeed;
+    int carMaxSpeed = car.maxSpeed;
+    int maxSpeed = (roadMaxSpeed &gt; carMaxSpeed? carMaxSpeed : roadMaxSpeed);
+
+    int v1 = car.speed;
+    int a = car.acceleration;
+    int v2 = accelerate_v(v1, a, TIME_STEP);
+    int t = 0;
+    int movement = 0;
+
+    maxSpeed = (maxSpeed &gt; targetSpeed? targetSpeed : maxSpeed);
+    if(v2 &gt; maxSpeed) { //在时间段之前已经到达最大速度了, 后面保持匀速
+		v2 = maxSpeed;
+        t = (v2 - v1) / a; //加速时间
+        movement = accelerate_s(v1, a, t) + v2 * (TIME_STEP - t) / FACTOR;
+    } else {
+        movement = accelerate_s(v1, a, TIME_STEP);
+    }
+
+    car.speed = v2;
+    car.offset += (car.heading? movement : -movement);
+    modifyRoadLane(car);
+}
+
+
+/**
+	减速:
+    0. 与加速逻辑同理, 此时acclation大小为负
+    1. 无需考虑是否到达最大速度, 应考虑速度是否变为0
+**/
+void speedDown(Car&amp; car, int targetSpeed){
+    int v1 = car.speed;
+    int a = car.acceleration;
+    int v2 = accelerate_v(v1, -a, TIME_STEP);
+    int t = 0;
+    int movement = 0;
+    int minSpeed = (targetSpeed &gt; 0? targetSpeed : 0);
+
+    if(v2 &lt; minSpeed) { //在时间段之前已经到达最小速度了, 后面保持匀速
+		v2 = minSpeed;
+        t = (v1 - v2) / a; //减速时间
+        movement = accelerate_s(v1, -a, t) + v2 * (TIME_STEP - t) / FACTOR;
+    } else {
+        movement = accelerate_s(v1, -a, TIME_STEP);
+    }
+
+    car.speed = v2;
+    car.offset += (car.heading? movement : -movement);
+    modifyRoadLane(car);
+}
+
+/**
+	匀速:
+    0. 可看作加速度为0的加速运动, 逻辑同上
+    1. 无需考虑速度是否为0或达到最大, 只需考虑是否驶出当前lane和road
+**/
+void keep(Car&amp; car){
+    int v = car.speed;
+    int movement = v * TIME_STEP / FACTOR;
+    car.offset += movement;
+    modifyRoadLane(car);
+}
+
+/**
+    转到左车道:
+    0. 可视为一个瞬时动作
+    1. speed不变, road不变, lane变为其左侧lane; 若无?
+    2. 设置一个因子k, 因为左转也会前进一部分, k代表左转道前进的路程占直接匀速前进路程的比例
+    3. 若无法左转该?
+**/
+void changeLeft(Car&amp; car){
+    int k = 8;
+    int v = car.speed;
+    int movement = v * TIME_STEP * k / (FACTOR * FACTOR);
+    car.offset += (car.heading? movement : -movement);
+    if(lanes[car.laneIndex].laneChange == 1 || lanes[car.laneIndex].laneChange == 3) {
+     	car.laneIndex = leftLaneIndex(lanes[car.laneIndex]);
+        car.laneId = lanes[car.laneIndex].laneId;
+    }
+    modifyRoadLane(car);
+}
+
+/**
+    转到右车道:
+    0. 逻辑同上转到左车道
+**/
+void changeRight(Car&amp; car){
+    int k = 8;
+    int v = car.speed;
+    int movement = v * TIME_STEP * k / (FACTOR * FACTOR);
+    car.offset += (car.heading? movement : -movement);
+    if(lanes[car.laneIndex].laneChange == 2 || lanes[car.laneIndex].laneChange == 3) {
+     	car.laneIndex = leftLaneIndex(lanes[car.laneIndex]);
+        car.laneId = lanes[car.laneIndex].laneId;
+    }
+    modifyRoadLane(car);
+}
+
+/**
+    左转:
+    0. 视为一个瞬时动作
+    1. speed不变, road和lane都变为左转后的; 若无?
+**/
+void turnLeft(Car&amp; car){
+    int i = 0;
+    if(!canTurnLeft(car)) {
+        return;
+    } else {
+        for(i=0; i&lt;10; i++) { // one of the connections'direction is 1(left)
+            tempConnection = connections[junctions[roads[car.roadIndex].junctionIndex].connections[i]];
+            if(tempConnection.connectingRoadId == car.roadId &amp;&amp; tempConnection.direction == 1){ // enter the begin of next road
+                car.offset = 0;
+                car.roadId = tempConnection.incomingRoadId;
+                car.roadIndex = tempConnection.incomingRoadIndex;
+                car.laneSectionId = laneSections[roads[car.roadIndex].laneSections[0]].laneSectionId;
+                car.laneSectionIndex = roads[car.roadIndex].laneSections[0];
+                car.laneId = lanes[laneSections[car.laneSectionIndex].lanes[0]].laneId;
+                car.laneIndex = laneSections[car.laneSectionIndex].lanes[0];
+            }
+        }
+    }
+}
+
+/**
+   右转:
+   0. 逻辑同上左转
+**/
+void turnRight(Car&amp; car){
+    int i = 0;
+    if(!canTurnRight(car)) {
+        return;
+    } else {
+        for(i=0; i&lt;10; i++) { // one of the connections'direction is 3(right)
+            tempConnection = connections[junctions[roads[car.roadIndex].junctionIndex].connections[i]];
+            if(tempConnection.connectingRoadId == car.roadId &amp;&amp; tempConnection.direction == 3){ // enter the begin of next road
+                car.offset = 0;
+                car.roadId = tempConnection.incomingRoadId;
+                car.roadIndex = tempConnection.incomingRoadIndex;
+                car.laneSectionId = laneSections[roads[car.roadIndex].laneSections[0]].laneSectionId;
+                car.laneSectionIndex = roads[car.roadIndex].laneSections[0];
+                car.laneId = lanes[laneSections[car.laneSectionIndex].lanes[0]].laneId;
+                car.laneIndex = laneSections[car.laneSectionIndex].lanes[0];
+            }
+        }
+    }
+}
+
+	</declaration>
+	<template>
+		<name>timer</name>
+		<location id="id0" x="-144" y="-8">
+			<name x="-154" y="-42">Start</name>
+			<label kind="invariant" x="-154" y="9">time &lt;= TIME_STEP</label>
+		</location>
+		<location id="id1" x="144" y="-8">
+			<name x="127" y="-42">End</name>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-126" y="-25">end?</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-245" y="-135">time == TIME_STEP</label>
+			<label kind="synchronisation" x="-245" y="-118">update!</label>
+			<label kind="assignment" x="-245" y="-101">time = 0</label>
+			<nail x="-272" y="-161"/>
+			<nail x="-51" y="-161"/>
+		</transition>
+	</template>
+	<template>
+		<name>car1</name>
+		<declaration>
+/**
+    三元组算法: 由树转化为自动机时，状态迁出时应走行为树对应的边，该算法用于判断相应的边
+    (level,group,number)三元组用于标识自动机运行到达的边
+    level:  表示边所在行为树的第几层
+    group:  表示边所在层的第几棵子树
+    number: 表示边所在子树的第几条
+
+    Transition(实线)信息如下(虚线不需要Guard):
+    Select -&gt; i:int[1,1], j:int[2,2], k:int[3,3]
+    Guard  -&gt; level==i &amp;&amp; group==j
+    Update -&gt; group=(group-1)*N+k, level=level+1, number=k
+    其中，ijk的值在Java中已读取获得
+**/
+int level = 1;
+int group = 1;
+int number = 1;
+int N = 3;
+
+/**
+    自循环加锁算法: 进入一个Location后，应先"完成行为"再迁出，该算法使用了锁，保证了流程的正确性
+    (t, v, lock) 用于判断是否可以迁出
+    t: 时间，用于计算是否达到一个行为的持续时间
+    v: 速度，用于计算是否达到一个行为的目标速度
+    lock: 锁，用于标识是否完成一个行为，完成时释放锁，lock=false；未完成则保留锁，lock=true
+    1 迁入:
+      Update -&gt; t=0, v=0, lock=true
+    2 自循环:
+      Guard  -&gt; t&lt;duration &amp;&amp; v&lt;target_speed &amp;&amp; lock
+      Update -&gt; t=t+TIME_STEP, v据算法而定, lock=(duration&gt;=t||v&gt;=target_speed)
+    3 迁出:
+      Guard  -&gt; !lock
+      Update -&gt; t=0, v=0, lock=true
+**/
+int v = 0;
+int t = 0;
+bool lock = true;
+		</declaration>
+		<location id="id2" x="-161" y="-127">
+			<name x="-171" y="-157">Start</name>
+			<committed/>
+		</location>
+		<location id="id3" x="365" y="-102">
+			<name x="399" y="-111">Keep</name>
+		</location>
+		<location id="id4" x="263" y="493">
+			<name x="280" y="476">ChangeLeft</name>
+		</location>
+		<location id="id5" x="-119" y="246">
+			<name x="-93" y="238">Accelerate</name>
+		</location>
+		<location id="id6" x="1054" y="-238">
+			<name x="1071" y="-247">ChangeRight</name>
+		</location>
+		<location id="id7" x="1096" y="442">
+			<name x="1121" y="434">Decelerate</name>
+		</location>
+		<branchpoint id="id8" x="790" y="42">
+		</branchpoint>
+		<init ref="id2"/>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="select" x="-110" y="-144">offset:int[0,100]</label>
+			<label kind="assignment" x="-127" y="-118">initCar(car[0], offset)</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="select" x="178" y="248">i: int[1,1], j:int[1,1], k:int[1,1]</label>
+			<label kind="guard" x="178" y="263">level == i &amp;&amp; group == j &amp;&amp; !lock</label>
+			<label kind="synchronisation" x="178" y="278">update?</label>
+			<label kind="assignment" x="178" y="293">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id5"/>
+			<label kind="select" x="-68" y="359">i: int[2,2], j:int[1,1], k:int[1,1]</label>
+			<label kind="guard" x="-68" y="374">level == i &amp;&amp; group == j &amp;&amp; !lock</label>
+			<label kind="synchronisation" x="-68" y="389">update?</label>
+			<label kind="assignment" x="-68" y="404">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id3"/>
+			<label kind="select" x="-42" y="34">i: int[3,3], j:int[1,1], k:int[1,1]</label>
+			<label kind="guard" x="-42" y="49">level == i &amp;&amp; group == j &amp;&amp; !lock</label>
+			<label kind="synchronisation" x="-42" y="64">update?</label>
+			<label kind="assignment" x="-42" y="79">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id6"/>
+			<label kind="select" x="603" y="-212">i: int[4,4], j:int[1,1], k:int[1,1]</label>
+			<label kind="guard" x="603" y="-197">level == i &amp;&amp; group == j &amp;&amp; !lock</label>
+			<label kind="synchronisation" x="603" y="-182">update?</label>
+			<label kind="assignment" x="603" y="-167">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id8"/>
+			<label kind="select" x="782" y="-59">i: int[5,5], j:int[1,1], k:int[1,1]</label>
+			<label kind="guard" x="782" y="-44">level == i &amp;&amp; group == j &amp;&amp; !lock</label>
+			<label kind="synchronisation" x="782" y="-29">update?</label>
+			<label kind="assignment" x="773" y="-16">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id3"/>
+			<label kind="select" x="205" y="110">i: int[7,7], j:int[1,1], k:int[1,1]</label>
+			<label kind="guard" x="205" y="125">level == i &amp;&amp; group == j &amp;&amp; !lock</label>
+			<label kind="synchronisation" x="205" y="140">update?</label>
+			<label kind="assignment" x="205" y="155">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="select" x="603" y="-134">i: int[3,3], j:int[1,1], k:int[2,2]</label>
+			<label kind="guard" x="603" y="-119">level == i &amp;&amp; group == j &amp;&amp; !lock</label>
+			<label kind="synchronisation" x="603" y="-104">update?</label>
+			<label kind="assignment" x="603" y="-89">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="select" x="1011" y="25">i: int[4,4], j:int[2,2], k:int[1,1]</label>
+			<label kind="guard" x="1011" y="40">level == i &amp;&amp; group == j &amp;&amp; !lock</label>
+			<label kind="synchronisation" x="1011" y="55">update?</label>
+			<label kind="assignment" x="1011" y="70">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id3"/>
+			<label kind="select" x="654" y="204">i: int[5,5], j:int[4,4], k:int[1,1]</label>
+			<label kind="guard" x="654" y="219">level == i &amp;&amp; group == j &amp;&amp; !lock</label>
+			<label kind="synchronisation" x="654" y="234">update?</label>
+			<label kind="assignment" x="654" y="249">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id7"/>
+			<label kind="select" x="790" y="144">i: int[6,6], j:int[1,1], k:int[1,1]</label>
+			<label kind="assignment" x="790" y="169">level = level+1, group = (group-1)*N+k, number=k</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id3"/>
+			<label kind="select" x="535" y="-17">i: int[6,6], j:int[1,1], k:int[2,2]</label>
+			<label kind="assignment" x="518" y="3">level = level+1, group = (group-1)*N+k, number=k</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id3"/>
+			<label kind="select" x="8" y="-91">i: int[1,1], j:int[1,1]</label>
+			<label kind="guard" x="8" y="-76">level == i &amp;&amp; group == j &amp;&amp; lock</label>
+			<label kind="synchronisation" x="8" y="-63">update?</label>
+			<label kind="assignment" x="8" y="-46">t=t+TIME_STEP, keep(car[0]), lock = (t&lt;20)</label>
+			<nail x="136" y="4"/>
+			<nail x="85" y="-97"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id4"/>
+			<label kind="select" x="136" y="529">i: int[2,2], j:int[1,1]</label>
+			<label kind="guard" x="136" y="544">level == i &amp;&amp; group == j &amp;&amp; lock</label>
+			<label kind="synchronisation" x="136" y="559">update?</label>
+			<label kind="assignment" x="136" y="574">t=t+TIME_STEP, car[0].acceleration = 0, changeLeft(car[0]), lock = false</label>
+			<nail x="246" y="578"/>
+			<nail x="391" y="552"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id5"/>
+			<label kind="select" x="-221" y="282">i: int[3,3], j:int[1,1]</label>
+			<label kind="guard" x="-221" y="297">level == i &amp;&amp; group == j &amp;&amp; lock</label>
+			<label kind="synchronisation" x="-221" y="312">update?</label>
+			<label kind="assignment" x="-221" y="327">t=t+TIME_STEP, car[0].acceleration = 20, speedUp(car[0],120), lock = (t&lt;80 &amp;&amp; car[0].speed&lt;120)</label>
+			<nail x="-191" y="297"/>
+			<nail x="-93" y="365"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id3"/>
+			<label kind="select" x="288" y="-380">i: int[4,4], j:int[1,1]</label>
+			<label kind="guard" x="288" y="-365">level == i &amp;&amp; group == j &amp;&amp; lock</label>
+			<label kind="synchronisation" x="288" y="-350">update?</label>
+			<label kind="assignment" x="288" y="-335">t=t+TIME_STEP, keep(car[0]), lock = (t&lt;50)</label>
+			<nail x="195" y="-348"/>
+			<nail x="560" y="-348"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id6"/>
+			<label kind="select" x="1087" y="-204">i: int[5,5], j:int[1,1]</label>
+			<label kind="guard" x="1045" y="-187">level == i &amp;&amp; group == j &amp;&amp; lock</label>
+			<label kind="synchronisation" x="1121" y="-170">update?</label>
+			<label kind="assignment" x="1003" y="-153">t=t+TIME_STEP, car[0].acceleration = 0, changeRight(car[0]), lock = false</label>
+			<nail x="1156" y="-102"/>
+			<nail x="1258" y="-212"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id7"/>
+			<label kind="select" x="756" y="346">i: int[7,7], j:int[1,1]</label>
+			<label kind="guard" x="756" y="361">level == i &amp;&amp; group == j &amp;&amp; lock</label>
+			<label kind="synchronisation" x="756" y="376">update?</label>
+			<label kind="assignment" x="756" y="391">t=t+TIME_STEP, car[0].acceleration = 20, speedDown(car[0],80), lock = (t&lt;60 &amp;&amp; car[0].speed&gt;80)</label>
+			<nail x="926" y="348"/>
+			<nail x="900" y="425"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id3"/>
+			<label kind="select" x="552" y="-287">i: int[8,8], j:int[1,1]</label>
+			<label kind="guard" x="552" y="-272">level == i &amp;&amp; group == j &amp;&amp; lock</label>
+			<label kind="synchronisation" x="552" y="-257">update?</label>
+			<label kind="assignment" x="509" y="-242">t=t+TIME_STEP, keep(car[0]), lock = (t&lt;1000)</label>
+			<nail x="586" y="-293"/>
+			<nail x="672" y="-200"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id3"/>
+			<label kind="select" x="85" y="-238">i: int[7,7], j:int[2,2]</label>
+			<label kind="guard" x="85" y="-223">level == i &amp;&amp; group == j &amp;&amp; lock</label>
+			<label kind="synchronisation" x="85" y="-208">update?</label>
+			<label kind="assignment" x="85" y="-193">t=t+TIME_STEP, keep(car[0]), lock = (t&lt;1000)</label>
+			<nail x="204" y="-240"/>
+			<nail x="119" y="-164"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id6"/>
+			<label kind="select" x="901" y="-348">i: int[4,4], j:int[2,2]</label>
+			<label kind="guard" x="867" y="-331">level == i &amp;&amp; group == j &amp;&amp; lock</label>
+			<label kind="synchronisation" x="926" y="-314">update?</label>
+			<label kind="assignment" x="782" y="-296">t=t+TIME_STEP, car[0].acceleration = 0, changeRight(car[0]), lock = false</label>
+			<nail x="901" y="-271"/>
+			<nail x="1113" y="-348"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id7"/>
+			<label kind="select" x="765" y="478">i: int[5,5], j:int[4,4]</label>
+			<label kind="guard" x="765" y="493">level == i &amp;&amp; group == j &amp;&amp; lock</label>
+			<label kind="synchronisation" x="765" y="508">update?</label>
+			<label kind="assignment" x="765" y="523">t=t+TIME_STEP, car[0].acceleration = 20, speedDown(car[0],80), lock = (t&lt;60 &amp;&amp; car[0].speed&gt;80)</label>
+			<nail x="884" y="467"/>
+			<nail x="1028" y="578"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id3"/>
+			<label kind="select" x="8" y="-338">i: int[6,6], j:int[10,10]</label>
+			<label kind="guard" x="8" y="-323">level == i &amp;&amp; group == j &amp;&amp; lock</label>
+			<label kind="synchronisation" x="8" y="-308">update?</label>
+			<label kind="assignment" x="8" y="-293">t=t+TIME_STEP, keep(car[0]), lock = (t&lt;1000)</label>
+			<nail x="-33" y="-276"/>
+			<nail x="306" y="-267"/>
+		</transition>
+	</template>
+	<template>
+		<name>car2</name>
+		<declaration>
+/**
+    三元组算法: 由树转化为自动机时，状态迁出时应走行为树对应的边，该算法用于判断相应的边
+    (level,group,number)三元组用于标识自动机运行到达的边
+    level:  表示边所在行为树的第几层
+    group:  表示边所在层的第几棵子树
+    number: 表示边所在子树的第几条
+
+    Transition(实线)信息如下(虚线不需要Guard):
+    Select -&gt; i:int[1,1], j:int[2,2], k:int[3,3]
+    Guard  -&gt; level==i &amp;&amp; group==j
+    Update -&gt; group=(group-1)*N+k, level=level+1, number=k
+    其中，ijk的值在Java中已读取获得
+**/
+int level = 1;
+int group = 1;
+int number = 1;
+int N = 3;
+
+/**
+    自循环加锁算法: 进入一个Location后，应先"完成行为"再迁出，该算法使用了锁，保证了流程的正确性
+    (t, v, lock) 用于判断是否可以迁出
+    t: 时间，用于计算是否达到一个行为的持续时间
+    v: 速度，用于计算是否达到一个行为的目标速度
+    lock: 锁，用于标识是否完成一个行为，完成时释放锁，lock=false；未完成则保留锁，lock=true
+    1 迁入:
+      Update -&gt; t=0, v=0, lock=true
+    2 自循环:
+      Guard  -&gt; t&lt;duration &amp;&amp; v&lt;target_speed &amp;&amp; lock
+      Update -&gt; t=t+TIME_STEP, v据算法而定, lock=(duration&gt;=t||v&gt;=target_speed)
+    3 迁出:
+      Guard  -&gt; !lock
+      Update -&gt; t=0, v=0, lock=true
+**/
+int v = 0;
+int t = 0;
+bool lock = true;
+		</declaration>
+		<location id="id9" x="-110" y="76">
+			<name x="-120" y="46">Start</name>
+			<committed/>
+		</location>
+		<location id="id10" x="190" y="80">
+			<name x="180" y="50">Keep</name>
+		</location>
+		<init ref="id9"/>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id10"/>
+			<label kind="select" x="-8" y="51">offset:int[400,600]</label>
+			<label kind="assignment" x="-8" y="85">initCar(car[1], offset)</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id10"/>
+			<label kind="select" x="131" y="-142">i: int[1,1], j:int[1,1]</label>
+			<label kind="guard" x="131" y="-127">level == i &amp;&amp; group == j &amp;&amp; lock</label>
+			<label kind="synchronisation" x="131" y="-112">update?</label>
+			<label kind="assignment" x="131" y="-97">t=t+TIME_STEP, keep(car[1]), lock = (t&lt;1000)</label>
+			<nail x="25" y="-110"/>
+			<nail x="374" y="-110"/>
+		</transition>
+	</template>
+	<system>
+system timer, car1, car2;
+	</system>
+	<queries>
+		<query>
+			<formula>Pr[&lt;=100](&lt;&gt; car[0].speed &lt;= 100)</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula></formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>Pr[&lt;=100](&lt;&gt; car[0].speed == 200)</formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>

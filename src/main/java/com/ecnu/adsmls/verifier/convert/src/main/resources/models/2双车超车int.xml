@@ -1,0 +1,633 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+
+/*************************************************************************************** 地图相关类型定义 ************************************************************************************************/
+
+// 路的长度列表 单位m
+double roadLengths[1000];
+// 路的最大限速列表 单位m/s
+double  roadMaxSpeeds[1000];
+
+/**  
+    Road的结构体
+
+    elementType = 1        表示Road类型
+    roadId                 唯一标识一条Road
+    junctionId             junction的id 表示当前Road在那一个junction中作为连接路   -1表示不是连接路 不属于任何一条junction
+    junctionIndex          索引值 用于在junction数组中索引
+    roadLengthIndex        路的总长度索引   根据这个索引值可以在roadLengths数组中找到路的总长度
+    predecessorElementType predecessor的类型 根据这个类型 在不同的数组中进行索引
+    predecessorIndex       索引值 表示当前Road的前继 可以是Road 也可以是一个junction  需要配合predecessorElementType在对应的类型数组中索引    用-1表示空
+    successorElementType   successor的类型 根据这个类型 在不同的数组中进行索引
+    successorIndex         索引值 表示当前Road的后继 可以是Road 也可以是一个junction  需要配合successorElementType在对应的类型数组中索引    用-1表示空
+    maxSpeedIndex          路的最大限速索引 根据这个索引可以在roadMaxSpeeds数组中找到路的最大限速
+    laneSections[]         表示当前Road中的道路段索引数组  道路段的顺序就是数组的顺序   道路段中又有很多不同的道路Lane
+**/
+typedef struct {
+    int elementType;
+    int roadId;
+    int junctionIndex;
+    int junctionId;
+    int roadLengthIndex;
+    int predecessorElementType;
+    int predecessorIndex;
+    int successorElementType;
+    int successorIndex;
+    int maxSpeedIndex;
+    int laneSections[10];
+}Road;
+
+// 起始位置偏移量列表 单位m
+double  startPositions[1000];
+//  laneScetion道路段长度列表 单位m
+double  laneSectionLengths[1000];
+
+/**
+    LaneSection结构体
+    
+    elementType = 2          表示LaneSection类型
+    roadIndex                索引值 表示当前LaneSection属于那一条道路 可以在roads数组中查找 
+    roadId                   唯一标志当前LaneSection所属Road
+    LaneSectionId            唯一标志一个LaneSection
+    startPositionIndex       起始偏移位置索引值  可以在startPositions数组中找到当前LaneSection是距离Road起始位置多少m开始
+    lanes                    LaneSection的道路Lane的索引值列表
+    laneSectionLengthIndex   LaneSection长度索引值  可以在laneSectionLengths数组中找到道路段长度
+**/
+typedef struct {
+    int elementType;
+    int roadIndex;
+    int roadId;
+    int laneSectionId;
+    int startPositionIndex;
+    int lanes[10];
+    int laneSectionLengthIndex;
+}LaneSection;
+
+/**
+    Lane结构体
+    
+    elementType = 3          表示Lane类型
+    roadId                   当前Lane所属Road的id
+    roadIndex                当前Lane所属Road的索引值
+    laneSectionIndex         当前Lane所属LaneSection的索引值
+    laneId                   标志当前Lane在LaneSection中的相对位置 中心线为0 左边的道路id一次递减 右边的道路id一次递增
+    type                     表示当前lane是什么类型 1表示driving
+    predecessorIndex         前继Lane的索引值
+    successorIndex           后继Lane的索引值
+    laneChange               int类型 由于车道从右到左id递增 用该变量表示当前lane是否允许变道 -1表示不知道 1表示允许向左变道 2表示允许向右变道 3表示两边都允许 4表示两边都不允许
+    
+**/
+typedef struct{
+    int elementType;
+    int roadId;
+    int roadIndex;
+    int laneSectionIndex;
+    int laneId;
+    int type;
+    int predecessorIndex;
+    int successorIndex;
+    int laneChange;
+}Lane;
+
+/**
+    Junction结构体
+    
+    elementType = 4          表示Junction类型
+    junctionId               唯一标志一个junction
+    connections[]            Connection结构体数组 表示当前junction连接的 incomingRoad 和 connectingRoad
+    
+**/
+typedef struct {
+    int elementType;
+    int junctionId;
+    int connections[10];
+}Junction;
+
+/**
+    Connection结构体
+        
+    incomingRoadId          驶入Road的id  
+    connectingRoadId        驶出Road的id
+    incomingRoadIndex       索引值 表示当前Connection连接的驶入Road
+    connectingRoadIndex     索引值 表示当前Connection连接Road
+    laneLinks               LaneLink结构体数组 表示当前连接Road的Lane 连接 驶入Road的Lane 的信息
+**/
+typedef struct {
+    int incomingRoadId;
+    int connectingRoadId;
+    int incomingRoadIndex;
+    int connectingRoadIndex;
+    int laneLinks[10];
+}Connection;
+
+/**
+    LaneLink结构体
+        
+    from                    表示当前LaneLink连接的 驶入lane的下标索引
+    to                      表示当前LaneLink连接的 驶出lane的下标索引
+    laneLinks               表示当前连接Road的Lane 连接 驶入Road的Lane的信息
+**/
+typedef struct {
+    int from;
+    int to;
+} LaneLink;
+
+
+/*************************************************************************************** 广播信号 ************************************************************************************************/
+
+//为了让函数名和信号名区分开, 在信号变量前都加上c_, 如之前的update信号变为c_update
+broadcast chan c_update;
+broadcast chan c_end;
+
+broadcast chan c_speedUp; 
+broadcast chan c_speedDown;
+broadcast chan c_keep;
+broadcast chan c_changeToLeftLane;
+broadcast chan c_changeToRightLane;
+broadcast chan c_turnLeft;
+broadcast chan c_turnRight;
+
+
+/*************************************************************************************** 车辆类型定义 ************************************************************************************************/
+const int COUNT_OF_CARS = 2;
+
+double widths[COUNT_OF_CARS];
+double lengths[COUNT_OF_CARS];
+double speeds[COUNT_OF_CARS];
+double accelerations[COUNT_OF_CARS];
+double roadOffsets[COUNT_OF_CARS];
+double laneOffsets[COUNT_OF_CARS];
+
+typedef struct {
+    //车的静态信息: id编号, 宽度, 长度
+    int id;
+    int widthIndex;
+    int lengthIndex;
+    
+    //车的动态信息: 速度, 加速度
+    bool heading;
+    int speedIndex;
+    int accelerationIndex;
+    
+    //车的车道信息: 所在road, lanesection, lane及在road和lane上的偏移量 
+    int roadId;
+    int laneSectionId;
+    int laneId;
+    int roadIndex;
+    int laneSectionIndex;
+    int laneIndex;
+    int roadOffsetIndex;
+    int laneOffsetIndex;
+ 
+    //为了初始化简便, 可以将id和后面所有的Index设置为同一个, 按序号来, 找索引时直接使用id
+}Car;
+//Car c = {1,1,1,true,2,2,3,3,3,3,3,3,3,3};
+
+/*************************************************************************************** 变量和数据 ************************************************************************************************/
+/** 
+    time                         时钟
+    timestep                     时间步长
+
+    MIN_DISTANCE_TO_OVERTAKE     超车的最小距离 
+    MIN_DISTANCE_TO_CLOSE        两车最小的距离
+    ACCELERATION                 加速加速度 
+    DECELERATION                 减速加速度
+**/
+clock time;
+const double TIMESTEP = 1.0;
+
+const double MIN_DISTANCE_TO_OVERTAKE = 30.0; 
+const double MIN_DISTANCE_TO_CLOSE = 20.0;
+const double ACCELERATION = 5.0;
+const double DECELERATION = -5.0;
+
+Lane tempLane;
+// ?
+Road roads[1000];
+LaneSection laneSections[1000]; 
+Lane lanes[1000];
+Junction junctions[1000];
+Connection connections[1000];
+LaneLink laneLinks[1000];
+Car cars[2];
+
+/**
+    道路信息和车辆信息初始化: 尚未完成. 
+**/
+LaneLink test = {1, 2};
+int ll[10] = {1,2,3,4,5,6,7,8,9,10};
+Road r[2] = {{1,2,3,4,5,6,7,8,9,10,{0,1,2,3,4,5,6,7,8,9}},{1,2,3,4,5,6,7,8,9,10,{1,2,3,4,5,6,7,8,9,10}}};
+
+
+
+
+
+
+/*************************************************************************************** 车辆的查询方法 ************************************************************************************************/
+
+/**
+	车的前驱lane
+**/
+int preLaneIndex(Lane lane){
+    return lane.predecessorIndex;
+}
+
+/**
+  	车的后继lane
+**/
+int sucLaneIndex(Lane lane){
+	return lane.successorIndex;
+}
+
+/**
+   	车的左侧lane:
+   	0. 根据laneId的性质来写: 中心线为0 左边的道路id依次递减 右边的道路id一次递增
+   	1. 在同一laneSection中, 若某个laneId1与当前laneId2差为-1, 则该lane为当前左侧lane
+**/
+int leftLaneIndex(Lane lane){
+    int i;
+	for(i=0; i&lt;10; i++) {
+        int index = laneSections[roads[lane.roadIndex].laneSections[lane.laneSectionIndex]].lanes[i];
+        tempLane = lanes[index];
+        if(tempLane.laneId - lane.laneId == -1) {
+            return index;            
+        }
+    }
+    return -1;
+}
+
+/**
+   	车的右侧lane:
+   	0. 同上; 若差值为+1, 则该lane为当前右侧lane
+**/
+int rightLaneIndex(Lane lane){
+    int i;
+    for(i=0; i&lt;10; i++) {
+        int index = laneSections[roads[lane.roadIndex].laneSections[lane.laneSectionIndex]].lanes[i];
+        tempLane = lanes[index];
+        if(tempLane.laneId - lane.laneId == -1) {
+            return index;            
+        }
+    }
+    return -1;
+}
+
+/*************************************************************************************** 地图的查询方法 ************************************************************************************************/
+
+/**
+   road的前驱类型, 返回elementType
+**/
+int preRoadType(Road road){
+	return road.predecessorElementType;
+}
+
+/**
+   road的后继类型, 返回elementType
+**/
+int sucRoadType(Road road){
+	return road.successorElementType;
+}
+
+/**
+   road的前驱, 返回road或者junction的索引
+**/
+int preRoadIndex(Road road){
+    return road.predecessorIndex;
+}
+
+/**
+   road的后继, 返回road或者junction的索引
+**/
+int sucRoadIndex(Road road){
+	return road.successorIndex;
+}
+
+/**
+   laneSection的前驱: 可根据lane的前驱计算
+**/
+int preLaneSectionIndex(LaneSection laneSection){
+    return lanes[preLaneIndex(lanes[laneSection.lanes[0]])].laneSectionIndex;
+}
+
+/**
+   laneSection的后继: 同上
+**/
+int sucLaneSectionIndex(LaneSection laneSection){
+    return lanes[sucLaneIndex(lanes[laneSection.lanes[0]])].laneSectionIndex;
+}
+
+
+/*************************************************************************************** 行为的操作语义 ************************************************************************************************/
+
+/**
+    车的一些属性:
+    - int roadId            	当前所在road的id
+    - int laneSectionId			当前所在laneSection的id
+    - int laneId            	当前所在lane的id
+    - double offset				车辆在当前lane上的位置
+    - double speed             	当前速度大小
+    - double accelaration        	当前加速度(包含方向)
+    
+    全局的属性:
+    - double timestep 			设置的时间步长
+    - clock time				时钟
+**/
+
+
+/**
+	辅助函数: 
+	accelerate_s	匀加速直线运动位移公式; 加速度a为负代表减速 
+	accelerate_v 	匀加速直线运动速度公式
+	modifyRoadLane 	运动一段时间后可能改变了road和lane信息, 这时根据偏移修改
+**/
+double accelerate_s(double v, double a, double t) {
+    return v*t + 0.5 * a * t * t; 
+}
+
+double accelerate_v(double v, double a, double t) {
+    return v + a * t;
+}
+
+void modifyRoadLane(Car car) {
+    // lane, laneSection: 若偏移大于laneSection长度, 即进入了下一lane和laneSection
+    double lsLength = laneSectionLengths[laneSections[car.laneSectionIndex].laneSectionLengthIndex];
+    double rLength = roadLengths[roads[car.roadIndex].roadLengthIndex];
+    if(laneOffsets[car.id] &gt;= lsLength) {
+        laneOffsets[car.id] = laneOffsets[car.id] - lsLength;
+        laneSections[car.laneSectionIndex] = laneSections[sucLaneSectionIndex(laneSections[car.laneSectionIndex])];
+        car.laneIndex = sucLaneIndex(lanes[car.laneIndex]);
+    }
+    // road: 同理
+    if(roadOffsets[car.id] &gt;= rLength) {
+        roadOffsets[car.id] = roadOffsets[car.id] - rLength;
+        roads[car.roadIndex] = roads[sucRoadIndex(roads[car.roadIndex])];
+    }
+}
+
+/**
+	加速:
+	1. 根据加速度公式v'=v+at计算速度: speed += timestep * accelation? 同时需要判断是否到达最大车速
+	2. 根据位移公式x=vt+0.5at^2计算移动距离(需根据是否到达最大速度计算): movement = speed * timestep + 0.5 * accelation * timestep * timestep
+    3. 判断是否驶出当前车道, 修改road和lane信息并计算偏移: offset += movement?
+**/
+void speedUp(Car car){
+	double v1 = speeds[car.id];
+    double a = accelerations[car.id];
+    double v2 = accelerate_v(v1, a, TIMESTEP);
+    double t = 0.0;
+    double movement = 0.0;
+    double maxSpeed = roadMaxSpeeds[roads[car.roadIndex].maxSpeedIndex];
+    if(v2 &gt; maxSpeed) { //在时间段之前已经到达最大速度了, 后面保持匀速
+		v2 = maxSpeed;
+        t = (v2 - v1) / a; //加速时间
+        movement = accelerate_s(v1, a, t) + v2 * (TIMESTEP - t);
+    } else {
+        movement = accelerate_s(v1, a, TIMESTEP);
+    }
+    speeds[car.speedIndex] = v2;
+    roadOffsets[car.roadOffsetIndex] = roadOffsets[car.roadOffsetIndex] + movement;
+    laneOffsets[car.laneOffsetIndex] = laneOffsets[car.laneOffsetIndex] + movement;
+    modifyRoadLane(car);
+}
+ 
+ 
+/**
+	减速:
+    0. 与加速逻辑同理, 此时acclation大小为负
+    1. 无需考虑是否到达最大速度, 应考虑速度是否变为0
+**/
+void speedDown(Car car){
+    double v1 = speeds[car.id];
+    double a = accelerations[car.id];
+    double v2 = accelerate_v(v1, a, TIMESTEP);
+    double t = 0.0;
+    double movement = 0.0;
+    double minSpeed = 0.0;
+    if(v2 &lt; minSpeed) { //在时间段之前已经到达最大速度了, 后面保持匀速
+		v2 = minSpeed;
+        t = (v2 - v1) / a; //加速时间
+        movement = accelerate_s(v1, a, t) + v2 * (TIMESTEP - t);
+    } else {
+        movement = accelerate_s(v1, a, TIMESTEP);
+    }
+    speeds[car.speedIndex] = v2;
+    roadOffsets[car.roadOffsetIndex] = roadOffsets[car.roadOffsetIndex] + movement;
+    laneOffsets[car.laneOffsetIndex] = laneOffsets[car.laneOffsetIndex] + movement;
+    modifyRoadLane(car);
+}
+
+/**
+	匀速:
+    0. 可看作加速度为0的加速运动, 逻辑同上
+    1. 无需考虑速度是否为0或达到最大, 只需考虑是否驶出当前lane和road
+**/
+void keep(Car car){
+    double v = speeds[car.id];
+    double movement = v * TIMESTEP;
+    roadOffsets[car.roadOffsetIndex] = roadOffsets[car.roadOffsetIndex] + movement;
+    laneOffsets[car.laneOffsetIndex] = laneOffsets[car.laneOffsetIndex] + movement;
+    modifyRoadLane(car);
+}
+
+/**
+    转到左车道:
+    0. 可视为一个瞬时动作
+    1. speed不变, road不变, lane变为其左侧lane; 若无?
+    2. 设置一个因子k, 因为左转也会前进一部分, k代表左转道前进的路程占直接匀速前进路程的比例
+    3. 若无法左转该?
+**/
+void changeToLeftLane(Car car){
+    double k = 0.8;
+    double v = speeds[car.id];
+    double movement = v * TIMESTEP * k;
+    roadOffsets[car.roadOffsetIndex] = roadOffsets[car.roadOffsetIndex] + movement;
+    laneOffsets[car.laneOffsetIndex] = laneOffsets[car.laneOffsetIndex] + movement;
+    if(lanes[car.laneIndex].laneChange == 1 || lanes[car.laneIndex].laneChange == 3) {
+     	car.laneIndex = leftLaneIndex(lanes[car.laneIndex]);
+    }
+    modifyRoadLane(car);
+}
+
+
+
+/**
+    转到右车道:
+    0. 逻辑同上转到左车道
+**/
+void changeToRightLane(Car car){
+    double k = 0.8;
+    double v = speeds[car.id];
+    double movement = v * TIMESTEP * k;
+    roadOffsets[car.roadOffsetIndex] = roadOffsets[car.roadOffsetIndex] + movement;
+    laneOffsets[car.laneOffsetIndex] = laneOffsets[car.laneOffsetIndex] + movement;
+    if(lanes[car.laneIndex].laneChange == 2 || lanes[car.laneIndex].laneChange == 3) {
+     	car.laneIndex = rightLaneIndex(lanes[car.laneIndex]);
+    }
+    modifyRoadLane(car);
+}
+
+/**
+    左转:
+    0. 视为一个瞬时动作
+    1. speed不变, road和lane都变为左转后的; 若无?
+**/
+void turnLeft(){
+    // 存疑, 暂未实现
+}
+
+/**
+   右转:
+   0. 逻辑同上左转
+**/
+void turnRight(){
+    // 存疑, 暂未实现
+}
+
+/*************************************************************************************** 常用函数 ************************************************************************************************/
+
+/**
+   	获取两车的距离差:
+   	两车在同一road比才有意义, 否则直接距离差视为无穷大
+**/
+double getDistance(Car car1, Car car2){
+    double distance = roadOffsets[car1.id] - roadOffsets[car2.id];
+	if(car1.roadIndex == car2.roadIndex) {
+         if(distance &lt; 0) {
+             return -1 * distance;
+         } else {
+             return distance;
+         }
+    } else {
+        return 9999999.9;
+    }
+}
+
+
+
+
+
+</declaration>
+	<template>
+		<name>followedCar</name>
+		<location id="id0" x="178" y="120">
+			<name x="168" y="86">Keep</name>
+			<label kind="invariant" x="168" y="137">time &lt;= 1</label>
+		</location>
+		<location id="id1" x="416" y="110">
+			<name x="406" y="76">End</name>
+		</location>
+		<location id="id2" x="416" y="110">
+		</location>
+		<location id="id3" x="416" y="110">
+		</location>
+		<location id="id4" x="416" y="110">
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="246" y="93">c_end?</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="guard" x="34" y="93">time == 1</label>
+			<label kind="synchronisation" x="35" y="111">c_update!</label>
+			<label kind="assignment" x="35" y="128">time = 0</label>
+			<nail x="25" y="187"/>
+			<nail x="34" y="-7"/>
+		</transition>
+	</template>
+	<template>
+		<name>ego</name>
+		<location id="id5" x="-1088" y="-552">
+			<name x="-1105" y="-535">Keep</name>
+		</location>
+		<location id="id6" x="-408" y="-765">
+			<name x="-442" y="-748">SpeedUp</name>
+		</location>
+		<location id="id7" x="-850" y="-340">
+			<name x="-884" y="-323">SpeedDown</name>
+		</location>
+		<location id="id8" x="-850" y="-765">
+			<name x="-901" y="-748">ChangeToLeftLane</name>
+		</location>
+		<location id="id9" x="-399" y="-340">
+			<name x="-450" y="-323">ChangeToRightLane</name>
+		</location>
+		<init ref="id5"/>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-1130" y="-306">speeds[cars[0].id] &gt; speeds[cars[1].id] + TIMESTEP * accelerations[cars[0].id]</label>
+			<label kind="synchronisation" x="-976" y="-288">c_speedDown?</label>
+			<label kind="assignment" x="-976" y="-271">speedDown(cars[0])</label>
+			<label kind="comments" x="-976" y="-246">希望在ego车减速到和car2前就停止减速</label>
+			<nail x="-858" y="-229"/>
+			<nail x="-994" y="-314"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="-347" y="-845">c_speedUp?</label>
+			<label kind="assignment" x="-347" y="-828">speedUp(cars[0])</label>
+			<nail x="-365" y="-892"/>
+			<nail x="-246" y="-765"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-1351" y="-603">getDistance(cars[1], cars[0]) &gt; MIN_DISTANCE_TO_CLOSE</label>
+			<label kind="synchronisation" x="-1249" y="-578">c_update?</label>
+			<label kind="assignment" x="-1266" y="-561">keep(cars[0])</label>
+			<nail x="-1215" y="-501"/>
+			<nail x="-1173" y="-654"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-1147" y="-484">getDistance(cars[0], cars[1]) &lt;= MIN_DISTANCE_TO_CLOSE</label>
+			<label kind="synchronisation" x="-1054" y="-467">c_keep!</label>
+			<label kind="assignment" x="-1070" y="-446">keep(cars[0])</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="-705" y="-365">c_speedDown!</label>
+			<label kind="assignment" x="-722" y="-340">speedDown(cars[0])</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id9"/>
+			<label kind="guard" x="-561" y="-603">getDistance(cars[0], cars[1]) &gt; MIN_DISTANCE_TO_OVERTAKE</label>
+			<label kind="synchronisation" x="-450" y="-561">c_changeToRightLane!</label>
+			<label kind="assignment" x="-459" y="-527">changeToRightLane(cars[0])</label>
+			<label kind="comments" x="-476" y="-501">距离达到最小超车距离</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="-705" y="-790">c_update?</label>
+			<label kind="assignment" x="-731" y="-765">speedUp(cars[0])</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id8"/>
+			<label kind="guard" x="-1122" y="-697">getDistance(cars[1], cars[0]) &lt;= MIN_DISTANCE_TO_CLOSE</label>
+			<label kind="synchronisation" x="-1045" y="-680">c_update?</label>
+			<label kind="assignment" x="-1096" y="-663">changeToLeftLane(cars[0])</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+
+// List one or more processes to be composed into a system.
+system followedCar, ego;</system>
+	<queries>
+		<query>
+			<formula>simulate [&lt;=30] {car1Dis}</formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>

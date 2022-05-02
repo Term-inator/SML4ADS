@@ -1,0 +1,406 @@
+{
+  "behaviors": [
+    {
+      "id": 0,
+      "name": "Keep",
+      "params": {
+        "duration": "2"
+      },
+      "position": {
+        "x": 207.0,
+        "y": 3.0
+      },
+      "treeTextPosition": {
+        "x": 241.0,
+        "y": 3.0
+      }
+    },
+    {
+      "id": 1,
+      "name": "ChangeLeft",
+      "params": {
+        "acceleration": "",
+        "target speed": ""
+      },
+      "position": {
+        "x": 206.0,
+        "y": 62.0
+      },
+      "treeTextPosition": {
+        "x": 240.0,
+        "y": 62.0
+      }
+    },
+    {
+      "id": 2,
+      "name": "Accelerate",
+      "params": {
+        "acceleration": "2",
+        "target speed": "12",
+        "duration": "8"
+      },
+      "position": {
+        "x": 204.0,
+        "y": 123.0
+      },
+      "treeTextPosition": {
+        "x": 238.0,
+        "y": 123.0
+      }
+    },
+    {
+      "id": 6,
+      "name": "Keep",
+      "params": {
+        "duration": "5"
+      },
+      "position": {
+        "x": 119.0,
+        "y": 184.0
+      },
+      "treeTextPosition": {
+        "x": 153.0,
+        "y": 184.0
+      }
+    },
+    {
+      "id": 3,
+      "name": "ChangeRight",
+      "params": {
+        "acceleration": "",
+        "target speed": ""
+      },
+      "position": {
+        "x": 307.0,
+        "y": 194.0
+      },
+      "treeTextPosition": {
+        "x": 341.0,
+        "y": 194.0
+      }
+    },
+    {
+      "id": 4,
+      "name": "Decelerate",
+      "params": {
+        "acceleration": "2",
+        "target speed": "8",
+        "duration": "6"
+      },
+      "position": {
+        "x": 310.0,
+        "y": 276.0
+      },
+      "treeTextPosition": {
+        "x": 344.0,
+        "y": 276.0
+      }
+    },
+    {
+      "id": 7,
+      "name": "ChangeRight",
+      "params": {
+        "acceleration": "",
+        "target speed": ""
+      },
+      "position": {
+        "x": 115.0,
+        "y": 251.0
+      },
+      "treeTextPosition": {
+        "x": 149.0,
+        "y": 251.0
+      }
+    },
+    {
+      "id": 9,
+      "name": "Decelerate",
+      "params": {
+        "acceleration": "2",
+        "target speed": "8",
+        "duration": "6"
+      },
+      "position": {
+        "x": 42.0,
+        "y": 371.0
+      },
+      "treeTextPosition": {
+        "x": 76.0,
+        "y": 371.0
+      }
+    },
+    {
+      "id": 10,
+      "name": "Keep",
+      "params": {
+        "duration": "100"
+      },
+      "position": {
+        "x": 43.0,
+        "y": 442.0
+      },
+      "treeTextPosition": {
+        "x": 77.0,
+        "y": 442.0
+      }
+    },
+    {
+      "id": 8,
+      "name": "Keep",
+      "params": {
+        "duration": "100"
+      },
+      "position": {
+        "x": 155.0,
+        "y": 376.0
+      },
+      "treeTextPosition": {
+        "x": 189.0,
+        "y": 376.0
+      }
+    },
+    {
+      "id": 5,
+      "name": "Keep",
+      "params": {
+        "duration": "100"
+      },
+      "position": {
+        "x": 310.0,
+        "y": 350.0
+      },
+      "treeTextPosition": {
+        "x": 344.0,
+        "y": 350.0
+      }
+    }
+  ],
+  "branchPoints": [
+    {
+      "id": 11,
+      "position": {
+        "x": 112.0,
+        "y": 327.0
+      }
+    }
+  ],
+  "commonTransitions": [
+    {
+      "id": 12,
+      "linkPoints": [
+        {
+          "x": 217.7288525033074,
+          "y": 29.997702304863573
+        },
+        {
+          "x": 217.2711474966926,
+          "y": 57.00229769513643
+        }
+      ],
+      "sourceId": 0,
+      "targetId": 1,
+      "treeTextPosition": {
+        "x": 223.0,
+        "y": 19.0
+      }
+    },
+    {
+      "id": 13,
+      "linkPoints": [
+        {
+          "x": 216.4756915708678,
+          "y": 88.99140708853167
+        },
+        {
+          "x": 215.5243084291322,
+          "y": 118.00859291146833
+        }
+      ],
+      "sourceId": 1,
+      "targetId": 2,
+      "treeTextPosition": {
+        "x": 222.0,
+        "y": 78.0
+      }
+    },
+    {
+      "id": 15,
+      "linkPoints": [
+        {
+          "x": 318.5849744936116,
+          "y": 220.98930282538373
+        },
+        {
+          "x": 320.4150255063884,
+          "y": 271.01069717461627
+        }
+      ],
+      "sourceId": 3,
+      "targetId": 4,
+      "treeTextPosition": {
+        "x": 323.0,
+        "y": 210.0
+      }
+    },
+    {
+      "id": 16,
+      "linkPoints": [
+        {
+          "x": 320.9999979998502,
+          "y": 302.9999999999999
+        },
+        {
+          "x": 320.9999994482345,
+          "y": 345.0
+        }
+      ],
+      "sourceId": 4,
+      "targetId": 5,
+      "treeTextPosition": {
+        "x": 322.0,
+        "y": 292.7998046875
+      }
+    },
+    {
+      "id": 19,
+      "linkPoints": [
+        {
+          "x": 123.44497849738602,
+          "y": 277.7946783797955
+        },
+        {
+          "x": 116.27751075130699,
+          "y": 322.10266081010224
+        }
+      ],
+      "sourceId": 7,
+      "targetId": 11,
+      "treeTextPosition": {
+        "x": 131.0,
+        "y": 267.0
+      }
+    },
+    {
+      "id": 21,
+      "linkPoints": [
+        {
+          "x": 53.22532976407554,
+          "y": 397.99841324936386
+        },
+        {
+          "x": 53.774670235924454,
+          "y": 437.00158675063614
+        }
+      ],
+      "sourceId": 9,
+      "targetId": 10,
+      "treeTextPosition": {
+        "x": 58.0,
+        "y": 387.0
+      }
+    },
+    {
+      "guard": "distance(car1,car2)<=30",
+      "id": 17,
+      "linkPoints": [
+        {
+          "x": 202.00096280392853,
+          "y": 143.32872081129833
+        },
+        {
+          "x": 142.99903719607144,
+          "y": 185.67127918870165
+        }
+      ],
+      "sourceId": 2,
+      "targetId": 6,
+      "treeTextPosition": {
+        "x": 177.5,
+        "y": 169.5
+      }
+    },
+    {
+      "guard": "distance(car1,car2)>=20",
+      "id": 14,
+      "linkPoints": [
+        {
+          "x": 228.17346543978806,
+          "y": 143.08073831286364
+        },
+        {
+          "x": 304.82653456021194,
+          "y": 195.91926168713638
+        }
+      ],
+      "sourceId": 2,
+      "targetId": 3,
+      "treeTextPosition": {
+        "x": 271.5,
+        "y": 174.5
+      }
+    },
+    {
+      "guard": "distance(ca1,car2)>=20",
+      "id": 18,
+      "linkPoints": [
+        {
+          "x": 129.04647391924422,
+          "y": 210.9715618526592
+        },
+        {
+          "x": 126.95352608075578,
+          "y": 246.0284381473408
+        }
+      ],
+      "sourceId": 6,
+      "targetId": 7,
+      "treeTextPosition": {
+        "x": 133.0,
+        "y": 233.5
+      }
+    }
+  ],
+  "probabilityTransitions": [
+    {
+      "id": 20,
+      "linkPoints": [
+        {
+          "x": 108.87046765499366,
+          "y": 335.1408980958118
+        },
+        {
+          "x": 65.25906469001268,
+          "y": 371.7182038083765
+        }
+      ],
+      "sourceId": 11,
+      "targetId": 9,
+      "treeTextPosition": {
+        "x": 120.0,
+        "y": 335.0
+      },
+      "weight": "7"
+    },
+    {
+      "id": 22,
+      "linkPoints": [
+        {
+          "x": 120.33435887575861,
+          "y": 335.9619305082008
+        },
+        {
+          "x": 155.33128224848278,
+          "y": 375.0761389835984
+        }
+      ],
+      "sourceId": 11,
+      "targetId": 8,
+      "treeTextPosition": {
+        "x": 120.0,
+        "y": 335.0
+      },
+      "weight": "3"
+    }
+  ],
+  "rootId": 0
+}

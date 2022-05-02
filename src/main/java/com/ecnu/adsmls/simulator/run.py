@@ -1,12 +1,14 @@
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--file', type=str, help='file path.')
+parser.add_argument('-path', type=str, help='file path.')
+parser.add_argument('-scene', type=int, help='image num under static scenes')
 # parser.add_argument('--car', type=int, help='car config')
 
 args = parser.parse_args()
 
-print(args.file)
+print(args.path)
+print(args.scene)
 # car_config_num = args.car
 # car_config_order = ['x', 'y', 'v', 'deviation', 'road']
 # car_config = {}

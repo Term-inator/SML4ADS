@@ -2,6 +2,7 @@ package com.ecnu.adsmls.views.codepage;
 
 import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.editor.Editor;
+import com.ecnu.adsmls.utils.log.MyStaticOutputStreamAppender;
 import com.ecnu.adsmls.utils.register.impl.LocationRegister;
 import com.ecnu.adsmls.components.editor.modeleditor.ModelEditor;
 import com.ecnu.adsmls.components.editor.treeeditor.TreeEditor;
@@ -66,6 +67,9 @@ public class CodePageController implements Initializable, Route {
         new BehaviorRegister().init();
         new LocationRegister().init();
         this.initMenu();
+
+        OutputStream os = new TextAreaOutputStream(this.infoArea);
+        MyStaticOutputStreamAppender.setStaticOutputStream(os);
     }
 
     @Override
@@ -75,6 +79,7 @@ public class CodePageController implements Initializable, Route {
         // 更新页面
         Global.clear();
         this.updateProject();
+        this.infoArea.clear();
     }
 
     private void initMenu() {
@@ -238,10 +243,11 @@ public class CodePageController implements Initializable, Route {
     }
 
     private void appendInfo(String info) {
-        StringBuilder text = new StringBuilder(this.infoArea.getText());
-        text.append('\n');
-        text.append(info);
-        this.showInfo(text.toString());
+//        StringBuilder text = new StringBuilder(this.infoArea.getText());
+//        text.append('\n');
+//        text.append(info);
+//        this.showInfo(text.toString());
+        this.infoArea.appendText(info);
     }
 
     // 将 model 和 tree 拼在一起
@@ -327,6 +333,7 @@ public class CodePageController implements Initializable, Route {
     @FXML
     private void verify() {
         System.out.println("verifying");
+
         if(this.tabPane.getTabs().size() == 0) {
             this.showInfo("Please open model files first");
             return;
@@ -354,6 +361,8 @@ public class CodePageController implements Initializable, Route {
         if(!vrm.isConfirm()) {
             return;
         }
+
+        this.infoArea.clear();
 
         List<String> requirements = vrm.getRequirements();
         System.out.println(requirements);
@@ -384,16 +393,19 @@ public class CodePageController implements Initializable, Route {
         if(!Objects.equals(FileSystem.getSuffix(outputPath), FileSystem.Suffix.XML.value)) {
             outputPath = outputPath + FileSystem.Suffix.XML.value;
         }
-        Verifier.verify(new String[] {projectPath,
-                FileSystem.getRelativePath(projectPath,
-                        file.getAbsolutePath()), outputPath});
+        // TODO 所有的 log 都会在该函数完成时全部出现，可能得开个线程来 log
+        Verifier.verify(new String[] {projectPath + "/",
+                FileSystem.getRelativePath(projectPath, FileSystem.removeSuffix(file) + FileSystem.Suffix.ADSML.value),
+                outputPath});
+
+        // 更新同级目录
+        this.multiLevelDirectory.updateSameLevel(file);
     }
 
     // 仿真
     @FXML
     private void simulate() {
         System.out.println("simulating");
-        this.infoArea.clear();
 
         boolean modelOpened = true; // 是否打开了 model 文件
         if(this.tabPane.getTabs().size() == 0) {
@@ -418,11 +430,22 @@ public class CodePageController implements Initializable, Route {
         String pythonEnv = Global.pythonEnv;
 
         // 模拟选项
-//        SimulateModal sm = new SimulateModal();
-//        sm.getWindow().showAndWait();
-//        if(!sm.isConfirm()) {
-//            return;
-//        }
+        SimulateModal sm = new SimulateModal();
+        sm.getWindow().showAndWait();
+        if(!sm.isConfirm()) {
+            return;
+        }
+
+        this.infoArea.clear();
+
+        StringBuilder params = new StringBuilder();
+        if(sm.isScene()) {
+            params.append("-");
+            params.append(sm.getMode());
+            params.append(" ");
+            params.append(sm.getScenarioNum());
+        }
+
 //        Map<String, Boolean> carConfig = sm.getCarConfiguration();
 //        StringBuilder params = new StringBuilder();
 //        int i = carConfig.size() - 1;
@@ -437,13 +460,19 @@ public class CodePageController implements Initializable, Route {
 //        params.append(res);
 
         try {
-//            Process process = Runtime.getRuntime().exec(pythonEnv + " ./src/main/java/com/ecnu/adsmls/simulator/run.py --file ./a.adsml " + params);
-            Process process = Runtime.getRuntime().exec(pythonEnv + " ./src/main/java/com/ecnu/adsmls/simulator/run.py --file " + file);
+            Process process = Runtime.getRuntime().exec(pythonEnv + " ./src/main/java/com/ecnu/adsmls/simulator/run.py -path " + file + " " + params);
 //        proc.waitFor();
             BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = in.readLine()) != null) {
                 System.out.println(line);
+            }
+            in.close();
+
+            in = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            this.infoArea.clear();
+            while ((line = in.readLine()) != null) {
+                this.appendInfo(line);
             }
             in.close();
         } catch (IOException e) {
@@ -593,5 +622,22 @@ public class CodePageController implements Initializable, Route {
 
         tab.setContent(anchorPane);
         tab.setUserData(treeEditor);
+    }
+
+    /**
+     * 用于将 log 输出到 InfoArea
+     */
+    private static class TextAreaOutputStream extends OutputStream {
+
+        private TextArea textArea;
+
+        public TextAreaOutputStream(TextArea textArea) {
+            this.textArea = textArea;
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            textArea.appendText(String.valueOf((char) b));
+        }
     }
 }

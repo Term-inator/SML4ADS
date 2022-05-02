@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenDRIVE>
+    <header revMajor="1" revMinor="4" name="" version="1" date="2019-04-06T10:36:39" north="-7.9090730819086616e+1" south="-3.3286070685222353e+2" east="2.2004081926282689e+2" west="-3.3759860179346290e+1" vendor="VectorZero">
+        <geoReference><![CDATA[+lat_0=4.9000000000000000e+1 +lon_0=8.0000000000000000e+0]]></geoReference>
+        <userData>
+            <vectorScene program="RoadRunner" version="2019.0.0 (build 739aef7bb)"/>
+        </userData>
+    </header>
+    <road name="Road 0" length="9.6467364565343161e+2" id="0" junction="-1">
+        <link>
+        </link>
+        <type s="0.0000000000000000e+0" type="town">
+            <speed max="25" unit="mph"/>
+        </type>
+        <planView>
+            <geometry s="0.0000000000000000e+0" x="-5.3699998855590820e+0" y="-2.9469998168945313e+2" hdg="1.5723843516166358e+0" length="4.3739481989604030e+1">
+                <line/>
+            </geometry>
+            <geometry s="4.3739481989604030e+1" x="-5.4394592394545498e+0" y="-2.5096055485144973e+2" hdg="-4.7108009555629504e+0" length="6.8112022202715394e-1">
+                <arc curvature="-2.0000000000000000e-3"/>
+            </geometry>
+            <geometry s="4.4420602211631191e+1" x="-5.4400769503844177e+0" y="-2.5027943496218978e+2" hdg="1.5710221111725580e+0" length="4.3949441880769804e+1">
+                <line/>
+            </geometry>
+            <geometry s="8.8370044092400988e+1" x="-5.4500000476837158e+0" y="-2.0632999420166016e+2" hdg="1.5710221111725580e+0" length="8.0973204729421724e+0">
+                <line/>
+            </geometry>
+        </planView>
+        <elevationProfile>
+            <elevation s="0.0000000000000000e+0" a="0.0000000000000000e+0" b="0.0000000000000000e+0" c="0.0000000000000000e+0" d="0.0000000000000000e+0"/>
+            <elevation s="4.4050736407948328e+1" a="0.0000000000000000e+0" b="0.0000000000000000e+0" c="0.0000000000000000e+0" d="0.0000000000000000e+0"/>
+            <elevation s="7.3577486452905816e+1" a="0.0000000000000000e+0" b="0.0000000000000000e+0" c="0.0000000000000000e+0" d="0.0000000000000000e+0"/>
+        </elevationProfile>
+        <lanes>
+            <laneOffset s="0.0000000000000000e+0" a="0.0000000000000000e+0" b="0.0000000000000000e+0" c="0.0000000000000000e+0" d="0.0000000000000000e+0"/>
+            <laneSection s="0.0000000000000000e+0">
+                <left>
+                    <lane id="1" type="driving" level="false">
+                        <link>
+                        </link>
+                        <width sOffset="0.0000000000000000e+0" a="4.0000000000000000e+0" b="0.0000000000000000e+0" c="0.0000000000000000e+0" d="0.0000000000000000e+0"/>
+                        <roadMark sOffset="0.0000000000000000e+0" type="none" material="standard" color="white" laneChange="decrease"/>
+                        <userData>
+                            <vectorLane travelDir="backward"/>
+                        </userData>
+                    </lane>
+                </left>
+                <center>
+                    <lane id="0" type="none" level="false">
+                        <roadMark sOffset="0.0000000000000000e+0" type="broken" material="standard" color="yellow" width="1.2500000000000000e-1" laneChange="none"/>
+                    </lane>
+                </center>
+                <right>
+                    <lane id="-1" type="driving" level="false">
+                        <link>
+                        </link>
+                        <width sOffset="0.0000000000000000e+0" a="4.0000000000000000e+0" b="0.0000000000000000e+0" c="0.0000000000000000e+0" d="0.0000000000000000e+0"/>
+                        <roadMark sOffset="0.0000000000000000e+0" type="none" material="standard" color="white" laneChange="increase"/>
+                        <userData>
+                            <vectorLane travelDir="forward"/>
+                        </userData>
+                    </lane>
+                </right>
+            </laneSection>
+        </lanes>
+    </road>
+</OpenDRIVE>
