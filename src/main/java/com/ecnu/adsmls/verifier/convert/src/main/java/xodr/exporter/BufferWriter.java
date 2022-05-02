@@ -20,8 +20,9 @@ public class BufferWriter {
     private static List<LaneLink> laneLinks;
 
     public static void write(MapDataContainer container, StringBuffer buffer) {
-        log.info("开始写入地图声明...");
-        
+//        log.info("开始写入地图声明...");
+        log.info("Writing map declaration.");
+
         init(container);
 
         addRoad(buffer);
@@ -31,7 +32,8 @@ public class BufferWriter {
         addConnection(buffer);
         addLaneLink(buffer);
 
-        log.info("地图声明写入已完成！");
+//        log.info("地图声明写入已完成！");
+        log.info("Writing map declaration is completed.");
     }
     
     private static void init(MapDataContainer container) {

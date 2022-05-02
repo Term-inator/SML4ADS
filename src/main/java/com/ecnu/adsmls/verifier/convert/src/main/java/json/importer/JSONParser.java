@@ -63,7 +63,8 @@ public class JSONParser {
 
     private static void initFromRelatedCar(Car car) {
         if(car.getLocationType().equals(TreeConstant.RELATED_POSITION)) {
-            log.info("{}的关联车辆为{}", car.getName(), car.getActorRef());
+//            log.info("{}的关联车辆为{}", car.getName(), car.getActorRef());
+            log.info("{} is associated with {}", car.getName(), car.getActorRef());
             Car relatedCar = nameCarMap.get(car.getActorRef());
             car.setRoadId(relatedCar.getRoadId());
             car.setLaneId(relatedCar.getLaneId());
@@ -72,7 +73,9 @@ public class JSONParser {
             car.setMinLateralOffset(relatedCar.getMinLateralOffset() + car.getMinLateralOffset());
             car.setMaxLateralOffset(relatedCar.getMaxLateralOffset() + car.getMaxLateralOffset());
         }
-        log.info("{}车的定位方式为：{}, 道路初步信息（需再计算）：road id: {}, lane id: {}, min offset: {}, max offset: {}",
+//        log.info("{}车的定位方式为：{}, 道路初步信息（需再计算）：road id: {}, lane id: {}, min offset: {}, max offset: {}",
+//                car.getName(), car.getLocationType(), car.getRoadId(), car.getLaneId(), car.getMinOffset(), car.getMaxOffset());
+        log.info("The location type of Car {}: {}, Primary info of roads(need calculating): road id: {}, lane id: {}, min offset: {}, max offset: {}",
                 car.getName(), car.getLocationType(), car.getRoadId(), car.getLaneId(), car.getMinOffset(), car.getMaxOffset());
     }
 
@@ -355,7 +358,8 @@ public class JSONParser {
     }
 
     public static TreeDataContainer parse(String input, String treePathPrefix) {
-        log.info("开始解析各车辆...");
+//        log.info("开始解析各车辆...");
+        log.info("Start parsing cars...");
 
         nameCarMap = new HashMap<>();
         TreeDataContainer container = JSONObject.parseObject(input, TreeDataContainer.class);
@@ -386,7 +390,8 @@ public class JSONParser {
 
         container.setCars(cars);
 
-        log.info("车辆解析完成!");
+//        log.info("车辆解析完成!");
+        log.info("The parse of cars is completed.");
         return container;
     }
 

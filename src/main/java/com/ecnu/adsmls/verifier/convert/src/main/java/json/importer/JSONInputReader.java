@@ -18,10 +18,13 @@ public class JSONInputReader {
             } else if (JSONPath.contains("\\")) { // Windows
                 start = JSONPath.lastIndexOf("\\");
             }
-            log.info("开始解析{}的动态行为模型(JSON)...",
+//            log.info("开始解析{}的动态行为模型(JSON)...",
+//                    JSONPath.substring(start+1, JSONPath.lastIndexOf('.')));
+            log.info("Start parsing the dynamic model(JSON) of {}...",
                     JSONPath.substring(start+1, JSONPath.lastIndexOf('.')));
         } else {
-            log.info("开始解析JSON文件：{}...", JSONPath);
+//            log.info("开始解析JSON文件：{}...", JSONPath);
+            log.info("Start parsing JSON file: {}...", JSONPath);
         }
 
 
@@ -32,7 +35,7 @@ public class JSONInputReader {
             e.printStackTrace();
         }
 
-        log.info("完成解析JSON!");
+        log.info("The parse of JSON completed.");
         return jsonStr;
     }
 

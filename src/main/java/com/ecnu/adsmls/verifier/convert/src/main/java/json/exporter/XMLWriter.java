@@ -97,11 +97,13 @@ public class XMLWriter {
     // 1.2.4 根据地图信息更新车辆的索引；另外，通过偏移重新计算laneId
     private static void initCarFromMap(MapDataContainer container) {
         if(container == null) {
-            log.warn("地图解析发生错误，返回了null对象！");
+//            log.warn("地图解析发生错误，返回了null对象！");
+            log.warn("An error occurred while paring tha map, received null.");
             return;
         }
 
-        log.info("开始解析车辆(包括地图带来的索引更新)...");
+//        log.info("开始解析车辆(包括地图带来的索引更新)...");
+        log.info("Start parsing cars(including index update brought by the map.)");
         List<Road> roads = container.getRoads();
         List<LaneSection> laneSections = container.getLaneSections();
         List<Lane> lanes = container.getLanes();
@@ -131,7 +133,8 @@ public class XMLWriter {
                 road = roadMap.get(car.getRoadId());
                 car.setRoadIndex(roadMap.get(car.getRoadId()).getIndex());
             } else {
-                log.error("{}车的道路信息roadId({})不存在！", car.getName(), car.getRoadId());
+//                log.error("{}车的道路信息roadId({})不存在！", car.getName(), car.getRoadId());
+                log.error("roadId({}) of the {} car doesn't exist!", car.getRoadId(), car.getName());
                 break;
             }
 
@@ -190,12 +193,16 @@ public class XMLWriter {
                 tempOffset += currentLanes.get(i).getWidth();
             }
 
-            log.info("{}车的道路信息为: Road(id={}, index={}), LaneSection(id={}, index={}), Lane(id={}, index={})",
+//            log.info("{}车的道路信息为: Road(id={}, index={}), LaneSection(id={}, index={}), Lane(id={}, index={})",
+//                    car.getName(), car.getRoadId(), car.getRoadIndex(), car.getLaneSectionId(),
+//                    car.getLaneSectionIndex(), car.getLaneId(), car.getLaneIndex());
+            log.info("Road info of car {}: Road(id={}, index={}), LaneSection(id={}, index={}), Lane(id={}, index={})",
                     car.getName(), car.getRoadId(), car.getRoadIndex(), car.getLaneSectionId(),
                     car.getLaneSectionIndex(), car.getLaneId(), car.getLaneIndex());
         }
 
-        log.info("车辆解析完成！");
+//        log.info("车辆解析完成！");
+        log.info("Parse of cars completed.");
     }
 
     // 1.3 添加车辆声明
@@ -426,12 +433,14 @@ public class XMLWriter {
                             replaceAll(">", "&gt;").
                             replaceAll("<", "&lt;");
                     buffer.append(" &amp;&amp; " + s);
-                    log.info("Guard解析成功：原guard：{}, 转化后guard：{}", guard, s);
+//                    log.info("Guard解析成功：原guard：{}, 转化后guard：{}", guard, s);
+                    log.info("Parse of Guard completed: original guard：{}, after being parsed: {}", guard, s);
                     break;
                 }
             }
             if (!isMatch) {
-                log.error("Guard条件不合法：{}", guard);
+//                log.error("Guard条件不合法：{}", guard);
+                log.error("invalid Guard {}", guard);
             }
         }
         return buffer.toString();
@@ -607,7 +616,8 @@ public class XMLWriter {
 
     // 从这里开始
     public static void write(TreeDataContainer container, String XMLpath) {
-        log.info("开始输出到文件：{}", XMLpath);
+//        log.info("开始输出到文件：{}", XMLpath);
+        log.info("Start writing to file {}.", XMLpath);
 
         init(container);
         try {
@@ -633,7 +643,8 @@ public class XMLWriter {
             e.printStackTrace();
         }
 
-        log.info("输出结束，Uppaal SMC的XML格式的随机混成自动机已转化完成！");
+//        log.info("输出结束，Uppaal SMC的XML格式的随机混成自动机已转化完成！");
+        log.info("File writing completed. The parse of random hybrid automaton in Uppaal SMC style is completed.");
     }
 
 }

@@ -10,7 +10,8 @@ import java.io.IOException;
 public class XODRInputReader {
 
     public static String readFromFile(String xodrPath) {
-        log.info("OpenDRIVE地图文件路径：{}", xodrPath);
+//        log.info("OpenDRIVE地图文件路径：{}", xodrPath);
+        log.info("Path of OpenDRIVE map file: {}", xodrPath);
 
         String xodrStr = null;
         try {

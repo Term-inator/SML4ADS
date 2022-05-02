@@ -51,7 +51,8 @@ public class XODRParser {
     }};
 
     public static MapDataContainer parse(String input) {
-        log.info("开始解析地图...");
+//        log.info("开始解析地图...");
+        log.info("Start parsing the map.");
         List<Road> roads = new ArrayList<>();
         List<Junction> junctions = new ArrayList<>();
         List<LaneSection> laneSections = new ArrayList<>();
@@ -91,12 +92,14 @@ public class XODRParser {
             // 3. 初始化index; 初始化connection的direction
             initIndex(roads, laneSections, lanes, junctions, connections, laneLinks);
 
-            log.info("解析地图完成！");
+//            log.info("解析地图完成！");
+            log.info("The parse of map is completed.");
             return new MapDataContainer(roads, junctions, laneSections, lanes, connections, laneLinks);
 
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
-            log.error("解析OpenDRIVE文件时发生错误！");
+//            log.error("解析OpenDRIVE文件时发生错误！");
+            log.error("An error occurred when parsing OpenDRIVE file!");
             return null;
         }
 
@@ -444,7 +447,8 @@ public class XODRParser {
     }
 
     private static void initLane(List<Lane> lanes, List<LaneSection> laneSections, List<Road> roads) {
-        log.warn("Lane的前驱后继索引初始化尚未完成：跨road部分");
+//        log.warn("Lane的前驱后继索引初始化尚未完成：跨road部分");
+        log.warn("The index initialization of predecessor and successor of Lane remains undone: cross road section.");
         for(Lane lane : lanes) {
             Road currentRoad = roads.get(lane.getRoadIndex());
             LaneSection currentLaneSection = laneSections.get(lane.getLaneSectionIndex());

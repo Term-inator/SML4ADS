@@ -25,9 +25,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.URL;
@@ -82,6 +79,7 @@ public class CodePageController implements Initializable, Route {
         // 更新页面
         Global.clear();
         this.updateProject();
+        this.infoArea.clear();
     }
 
     private void initMenu() {
@@ -335,6 +333,7 @@ public class CodePageController implements Initializable, Route {
     @FXML
     private void verify() {
         System.out.println("verifying");
+
         if(this.tabPane.getTabs().size() == 0) {
             this.showInfo("Please open model files first");
             return;
@@ -362,6 +361,8 @@ public class CodePageController implements Initializable, Route {
         if(!vrm.isConfirm()) {
             return;
         }
+
+        this.infoArea.clear();
 
         List<String> requirements = vrm.getRequirements();
         System.out.println(requirements);
@@ -392,6 +393,7 @@ public class CodePageController implements Initializable, Route {
         if(!Objects.equals(FileSystem.getSuffix(outputPath), FileSystem.Suffix.XML.value)) {
             outputPath = outputPath + FileSystem.Suffix.XML.value;
         }
+        // TODO 所有的 log 都会在该函数完成时全部出现，可能得开个线程来 log
         Verifier.verify(new String[] {projectPath + "/",
                 FileSystem.getRelativePath(projectPath, FileSystem.removeSuffix(file) + FileSystem.Suffix.ADSML.value),
                 outputPath});
@@ -404,7 +406,6 @@ public class CodePageController implements Initializable, Route {
     @FXML
     private void simulate() {
         System.out.println("simulating");
-        this.infoArea.clear();
 
         boolean modelOpened = true; // 是否打开了 model 文件
         if(this.tabPane.getTabs().size() == 0) {
@@ -434,6 +435,8 @@ public class CodePageController implements Initializable, Route {
         if(!sm.isConfirm()) {
             return;
         }
+
+        this.infoArea.clear();
 
         StringBuilder params = new StringBuilder();
         if(sm.isScene()) {
