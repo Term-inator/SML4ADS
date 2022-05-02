@@ -384,9 +384,9 @@ public class CodePageController implements Initializable, Route {
         if(!Objects.equals(FileSystem.getSuffix(outputPath), FileSystem.Suffix.XML.value)) {
             outputPath = outputPath + FileSystem.Suffix.XML.value;
         }
-        Verifier.verify(new String[] {projectPath,
-                FileSystem.getRelativePath(projectPath,
-                        file.getAbsolutePath()), outputPath});
+        Verifier.verify(new String[] {projectPath + "/",
+                FileSystem.getRelativePath(projectPath, FileSystem.removeSuffix(file) + FileSystem.Suffix.ADSML.value),
+                outputPath});
     }
 
     // 仿真
