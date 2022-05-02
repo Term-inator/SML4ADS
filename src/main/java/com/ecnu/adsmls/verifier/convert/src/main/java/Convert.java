@@ -30,7 +30,7 @@ public class Convert {
 
     public static void main(String[] args) {
         /*
-            Example: "src/main/resources/ADSML/Example/" "example.model" "src/main/resources/models/Example.xml"
+            Example: "src/main/java/com/ecnu/adsmls/verifier/convert/src/main/resources/ADSML/Example/" "example.model" "src/main/java/com/ecnu/adsmls/verifier/convert/src/main/resources/models/Example.xml"
          */
         final String ADSML_PATH = args[0];
         final String JSON_PATH = ADSML_PATH + args[1];

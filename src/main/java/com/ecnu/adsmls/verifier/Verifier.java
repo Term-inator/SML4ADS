@@ -4,6 +4,7 @@ import com.ecnu.adsmls.verifier.convert.src.main.java.Convert;
 
 import java.util.Arrays;
 
+// TODO 把 catch 的 err log 出来
 public class Verifier {
     public static void verify(String[] args) {
         final String ADSML_PATH = args[0];
