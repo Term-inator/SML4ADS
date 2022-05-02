@@ -53,10 +53,17 @@
         <appender-ref ref="FILE"/>
     </logger>
 
+    <appender name="MyAppender" class="com.ecnu.adsmls.utils.log.MyStaticOutputStreamAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <!-- 至多只能配置一个root -->
     <root level="debug">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
+        <appender-ref ref="MyAppender" />
     </root>
 
 </configuration>

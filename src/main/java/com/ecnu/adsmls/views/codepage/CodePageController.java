@@ -2,6 +2,7 @@ package com.ecnu.adsmls.views.codepage;
 
 import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.editor.Editor;
+import com.ecnu.adsmls.utils.log.MyStaticOutputStreamAppender;
 import com.ecnu.adsmls.utils.register.impl.LocationRegister;
 import com.ecnu.adsmls.components.editor.modeleditor.ModelEditor;
 import com.ecnu.adsmls.components.editor.treeeditor.TreeEditor;
@@ -24,6 +25,9 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.URL;
@@ -66,6 +70,9 @@ public class CodePageController implements Initializable, Route {
         new BehaviorRegister().init();
         new LocationRegister().init();
         this.initMenu();
+
+        OutputStream os = new TextAreaOutputStream(this.infoArea);
+        MyStaticOutputStreamAppender.setStaticOutputStream(os);
     }
 
     @Override
@@ -238,10 +245,11 @@ public class CodePageController implements Initializable, Route {
     }
 
     private void appendInfo(String info) {
-        StringBuilder text = new StringBuilder(this.infoArea.getText());
-        text.append('\n');
-        text.append(info);
-        this.showInfo(text.toString());
+//        StringBuilder text = new StringBuilder(this.infoArea.getText());
+//        text.append('\n');
+//        text.append(info);
+//        this.showInfo(text.toString());
+        this.infoArea.appendText(info);
     }
 
     // 将 model 和 tree 拼在一起
@@ -387,6 +395,9 @@ public class CodePageController implements Initializable, Route {
         Verifier.verify(new String[] {projectPath + "/",
                 FileSystem.getRelativePath(projectPath, FileSystem.removeSuffix(file) + FileSystem.Suffix.ADSML.value),
                 outputPath});
+
+        // 更新同级目录
+        this.multiLevelDirectory.updateSameLevel(file);
     }
 
     // 仿真
@@ -608,5 +619,22 @@ public class CodePageController implements Initializable, Route {
 
         tab.setContent(anchorPane);
         tab.setUserData(treeEditor);
+    }
+
+    /**
+     * 用于将 log 输出到 InfoArea
+     */
+    private static class TextAreaOutputStream extends OutputStream {
+
+        private TextArea textArea;
+
+        public TextAreaOutputStream(TextArea textArea) {
+            this.textArea = textArea;
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            textArea.appendText(String.valueOf((char) b));
+        }
     }
 }
