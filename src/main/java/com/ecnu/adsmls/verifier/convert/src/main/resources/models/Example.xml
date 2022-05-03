@@ -172,11 +172,20 @@ const int minLatBra = 2; // 横向换道最小刹车加速度
 const int minLatAcc = 1;
 const int maxLatAcc = 2;
 
+// 用于检测模型是否正常进行; 不正常的行为(如车辆左变道到没有左侧Lane将会使safeChangeLeft变为false)
+bool safeTurnLeft = true;
+bool safeTurnRight = true;
+bool safeChangeLeft= true;
+bool safeChangeRight= true;
+bool safeAccelerate = true;
+bool safeDecelerate = true;
+bool safeKeep = true;
+bool safeModifyRoadLane = true;
+bool safe = true;
+
 // 函数中不能声明结构体，在这里临时声明
 Lane tempLane;
 Connection tempConnection;
-
-int a=-1, b=-1, c=-1;
 
 const int TIME_STEP = 1;
 Road roads[1] = {
@@ -476,6 +485,7 @@ void modifyRoadLane(Car&amp; car) {
     int offset = car.offset;
     int ls = car.laneSectionIndex;
     int i = 0, index = 0;
+    int nextRoadIndex, nextType;
     for(i = 0; i &lt; 10; i++) {
         if(ls == roads[car.roadIndex].laneSections[i]) {
             index = i;
@@ -490,14 +500,24 @@ void modifyRoadLane(Car&amp; car) {
             car.laneSectionIndex = sucLaneSectionIndex(laneSections[car.laneSectionIndex]);
             car.laneSectionId =laneSections[car.laneSectionIndex].laneSectionId;
         }
-        if(car.offset &gt; roads[car.roadIndex].length) { // next road
-            car.offset = 0;
-            car.roadIndex = sucRoadIndex(roads[car.roadIndex]);
-            car.roadId = roads[car.roadIndex].roadId;
-            car.laneIndex = sucLaneIndex(lanes[car.laneIndex]);
-            car.laneId = lanes[car.laneIndex].laneId;
-            car.laneSectionIndex = sucLaneSectionIndex(laneSections[car.laneSectionIndex]);
-            car.laneSectionId =laneSections[car.laneSectionIndex].laneSectionId;
+        if(car.offset &gt;= length) { // next road
+            nextType = sucRoadType(roads[car.roadIndex]);
+            nextRoadIndex = sucRoadIndex(roads[car.roadIndex]);
+            if(nextType == -1) {
+                safeModifyRoadLane = false;
+                return;
+            } else if(nextType == 1) {
+                car.offset -= length;
+                car.roadIndex = nextRoadIndex;
+                car.roadId = roads[car.roadIndex].roadId;
+                car.laneIndex = sucLaneIndex(lanes[car.laneIndex]);
+                car.laneId = lanes[car.laneIndex].laneId;
+                car.laneSectionIndex = sucLaneSectionIndex(laneSections[car.laneSectionIndex]);
+                car.laneSectionId =laneSections[car.laneSectionIndex].laneSectionId;
+            } else if(nextType == 4) {
+                // TODO
+                return;
+            }
         }
     } else { // driving as a different direction to the road
         if(i &gt; 0 &amp;&amp; laneSections[roads[car.roadIndex].laneSections[i]].startPosition &lt; offset) { // next lane
@@ -618,7 +638,7 @@ void changeRight(Car&amp; car){
     int movement = v * TIME_STEP * k / (FACTOR * FACTOR);
     car.offset += (car.heading? movement : -movement);
     if(lanes[car.laneIndex].laneChange == 2 || lanes[car.laneIndex].laneChange == 3) {
-     	car.laneIndex = leftLaneIndex(lanes[car.laneIndex]);
+     	car.laneIndex = rightLaneIndex(lanes[car.laneIndex]);
         car.laneId = lanes[car.laneIndex].laneId;
     }
     modifyRoadLane(car);
@@ -809,31 +829,31 @@ bool hasObjWithinDisInRightLane(Car car, int distance) {
 
 
 	</declaration>
-	<template>
-		<name>timer</name>
-		<location id="id0" x="-144" y="-8">
-			<name x="-154" y="-42">Start</name>
-			<label kind="invariant" x="-154" y="9">time &lt;= TIME_STEP</label>
-		</location>
-		<location id="id1" x="144" y="-8">
-			<name x="127" y="-42">End</name>
-		</location>
-		<init ref="id0"/>
-		<transition>
-			<source ref="id0"/>
-			<target ref="id1"/>
-			<label kind="synchronisation" x="-126" y="-25">end?</label>
-		</transition>
-		<transition>
-			<source ref="id0"/>
-			<target ref="id0"/>
-			<label kind="guard" x="-245" y="-135">time == TIME_STEP</label>
-			<label kind="synchronisation" x="-245" y="-118">update!</label>
-			<label kind="assignment" x="-245" y="-101">time = 0</label>
-			<nail x="-272" y="-161"/>
-			<nail x="-51" y="-161"/>
-		</transition>
-	</template>
+    <template>
+        <name>Timer</name>
+        <location id="id3" x="-144" y="-8">
+            <name x="-154" y="-42">Start</name>
+            <label kind="invariant" x="-154" y="9">time &lt;= TIME_STEP</label>
+        </location>
+        <location id="id4" x="144" y="-8">
+            <name x="127" y="-42">End</name>
+        </location>
+        <init ref="id3"/>
+        <transition>
+            <source ref="id3"/>
+            <target ref="id4"/>
+            <label kind="synchronisation" x="-126" y="-25">end?</label>
+        </transition>
+        <transition>
+            <source ref="id3"/>
+            <target ref="id3"/>
+            <label kind="guard" x="-245" y="-135">time == TIME_STEP</label>
+            <label kind="synchronisation" x="-245" y="-118">update!</label>
+            <label kind="assignment" x="-245" y="-101">time = 0</label>
+            <nail x="-272" y="-161"/>
+            <nail x="-51" y="-161"/>
+        </transition>
+    </template>
 	<template>
 		<name>Ego</name>
 		<declaration>
@@ -874,116 +894,123 @@ int v = 0;
 int t = 0;
 bool lock = true;
 		</declaration>
-		<location id="id2" x="136" y="-144">
-			<name x="126" y="-174">Start</name>
+		<location id="id0">
+			<name>Start</name>
 			<committed/>
 		</location>
-		<location id="id3" x="187" y="-25">
-			<name x="177" y="-55">Accelerate</name>
+		<location id="id5">
+			<name>End</name>
 		</location>
-		<location id="id4" x="493" y="212">
-			<name x="483" y="182">ChangeLeft</name>
+		<location id="id1">
+			<name>Accelerate</name>
 		</location>
-		<location id="id5" x="40" y="230">
-			<name x="30" y="200">ChangeRight</name>
+		<location id="id2">
+			<name>ChangeLeft</name>
 		</location>
-		<location id="id6" x="132" y="404">
-			<name x="122" y="374">Decelerate</name>
+		<location id="id3">
+			<name>ChangeRight</name>
 		</location>
-		<init ref="id2"/>
+		<location id="id4">
+			<name>Decelerate</name>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="select">offset:int[600,1000]</label>
+			<label kind="assignment">initCar(cars[0], offset), modifyRoadLane(cars[0])</label>
+		</transition>
 		<transition>
 			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="select">i: int[2,2], j:int[1,1], k:int[1,1]</label>
+			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; !lock</label>
+			<label kind="synchronisation">update?</label>
+			<label kind="assignment">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="select">i: int[1,1], j:int[1,1], k:int[1,1]</label>
+			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; !lock &amp;&amp; withinDisToObjsInLane(cars[0], cars[2], 80)</label>
+			<label kind="synchronisation">update?</label>
+			<label kind="assignment">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
 			<target ref="id3"/>
-			<label kind="select" x="55" y="35">offset:int[600,1000]</label>
-			<label kind="assignment" x="-8" y="51">initCar(cars[0], offset), modifyRoadLane(cars[0])</label>
+			<label kind="select">i: int[3,3], j:int[1,1], k:int[1,1]</label>
+			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; !lock &amp;&amp; withinDisToObjsInLane(cars[0], cars[3], 80)</label>
+			<label kind="synchronisation">update?</label>
+			<label kind="assignment">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
 		</transition>
 		<transition>
 			<source ref="id3"/>
 			<target ref="id4"/>
-			<label kind="select" x="130" y="110">i: int[1,1], j:int[1,1], k:int[1,1]</label>
-			<label kind="guard" x="130" y="125">level == i &amp;&amp; group == j &amp;&amp; !lock &amp;&amp; withinDisToObjsInLane(cars[0], cars[2], 80)</label>
-			<label kind="synchronisation" x="130" y="140">update?</label>
-			<label kind="assignment" x="130" y="155">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
+			<label kind="select">i: int[4,4], j:int[1,1], k:int[1,1]</label>
+			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; !lock</label>
+			<label kind="synchronisation">update?</label>
+			<label kind="assignment">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
 		</transition>
 		<transition>
-			<source ref="id4"/>
-			<target ref="id3"/>
-			<label kind="select" x="130" y="110">i: int[2,2], j:int[1,1], k:int[1,1]</label>
-			<label kind="guard" x="130" y="125">level == i &amp;&amp; group == j &amp;&amp; !lock</label>
-			<label kind="synchronisation" x="130" y="140">update?</label>
-			<label kind="assignment" x="130" y="155">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
-			<nail x="433" y="25"/>
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="select">i: int[1,1], j:int[1,1]</label>
+			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; lock</label>
+			<label kind="synchronisation">update?</label>
+			<label kind="assignment">t=t+TIME_STEP, cars[0].acceleration = 10, speedUp(cars[0],200), lock = !(true &amp;&amp; withinDisToObjsInLane(cars[0], cars[2], 80))</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id2"/>
+			<label kind="select">i: int[2,2], j:int[1,1]</label>
+			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; lock</label>
+			<label kind="synchronisation">update?</label>
+			<label kind="assignment">t=t+TIME_STEP, cars[0].acceleration = 10, changeLeft(cars[0]), lock = false</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="select">i: int[3,3], j:int[1,1]</label>
+			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; lock</label>
+			<label kind="synchronisation">update?</label>
+			<label kind="assignment">t=t+TIME_STEP, cars[0].acceleration = 10, speedUp(cars[0],200), lock = !(true &amp;&amp; withinDisToObjsInLane(cars[0], cars[3], 80))</label>
 		</transition>
 		<transition>
 			<source ref="id3"/>
-			<target ref="id5"/>
-			<label kind="select" x="55" y="110">i: int[3,3], j:int[1,1], k:int[1,1]</label>
-			<label kind="guard" x="55" y="125">level == i &amp;&amp; group == j &amp;&amp; !lock &amp;&amp; withinDisToObjsInLane(cars[0], cars[3], 80)</label>
-			<label kind="synchronisation" x="55" y="140">update?</label>
-			<label kind="assignment" x="55" y="155">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
-		</transition>
-		<transition>
-			<source ref="id5"/>
-			<target ref="id6"/>
-			<label kind="select" x="130" y="110">i: int[4,4], j:int[1,1], k:int[1,1]</label>
-			<label kind="guard" x="130" y="125">level == i &amp;&amp; group == j &amp;&amp; !lock</label>
-			<label kind="synchronisation" x="130" y="140">update?</label>
-			<label kind="assignment" x="130" y="155">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
-		</transition>
-		<transition>
-			<source ref="id3"/>
 			<target ref="id3"/>
-			<label kind="select" x="127" y="-70">i: int[1,1], j:int[1,1]</label>
-			<label kind="guard" x="127" y="-55">level == i &amp;&amp; group == j &amp;&amp; lock</label>
-			<label kind="synchronisation" x="127" y="-40">update?</label>
-			<label kind="assignment" x="127" y="-25">t=t+TIME_STEP, 
-cars[0].acceleration = 10, speedUp(cars[0],200), 
-lock = (t&lt;32767 &amp;&amp; cars[0].speed&lt;200),
-a= withinDisToObjsInRoad(cars[0], cars[2], 80),
-b = isInSameLane(cars[0], cars[2]),
-c = withinDisToObjsInLane(cars[0], cars[2], 80)</label>
-			<nail x="157" y="-55"/>
-			<nail x="303" y="-113"/>
+			<label kind="select">i: int[4,4], j:int[1,1]</label>
+			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; lock</label>
+			<label kind="synchronisation">update?</label>
+			<label kind="assignment">t=t+TIME_STEP, cars[0].acceleration = 10, changeRight(cars[0]), lock = false</label>
 		</transition>
 		<transition>
 			<source ref="id4"/>
 			<target ref="id4"/>
-			<label kind="select" x="433" y="167">i: int[2,2], j:int[1,1]</label>
-			<label kind="guard" x="433" y="182">level == i &amp;&amp; group == j &amp;&amp; lock</label>
-			<label kind="synchronisation" x="433" y="197">update?</label>
-			<label kind="assignment" x="433" y="212">t=t+TIME_STEP, cars[0].acceleration = 10, changeLeft(cars[0]), lock = false</label>
-			<nail x="463" y="182"/>
-			<nail x="634" y="177"/>
+			<label kind="select">i: int[5,5], j:int[1,1]</label>
+			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; lock</label>
+			<label kind="synchronisation">update?</label>
+			<label kind="assignment">t=t+TIME_STEP, cars[0].acceleration = 10, speedDown(cars[0],100), lock = true</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id5"/>
+			<label kind="synchronisation">end?</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id5"/>
+			<label kind="synchronisation">end?</label>
 		</transition>
 		<transition>
 			<source ref="id3"/>
-			<target ref="id3"/>
-			<label kind="select" x="195" y="-68">i: int[3,3], j:int[1,1]</label>
-			<label kind="guard" x="127" y="-55">level == i &amp;&amp; group == j &amp;&amp; lock</label>
-			<label kind="synchronisation" x="127" y="-40">update?</label>
-			<label kind="assignment" x="127" y="-25">t=t+TIME_STEP, cars[0].acceleration = 10, speedUp(cars[0],200), lock = (t&lt;32767 &amp;&amp; cars[0].speed&lt;200)</label>
-			<nail x="157" y="-55"/>
-			<nail x="260" y="-147"/>
-		</transition>
-		<transition>
-			<source ref="id5"/>
 			<target ref="id5"/>
-			<label kind="select" x="-20" y="185">i: int[4,4], j:int[1,1]</label>
-			<label kind="guard" x="-20" y="200">level == i &amp;&amp; group == j &amp;&amp; lock</label>
-			<label kind="synchronisation" x="-20" y="215">update?</label>
-			<label kind="assignment" x="-20" y="230">t=t+TIME_STEP, cars[0].acceleration = 10, changeRight(cars[0]), lock = false</label>
-			<nail x="-51" y="246"/>
-			<nail x="70" y="200"/>
+			<label kind="synchronisation">end?</label>
 		</transition>
 		<transition>
-			<source ref="id6"/>
-			<target ref="id6"/>
-			<label kind="select" x="72" y="359">i: int[5,5], j:int[1,1]</label>
-			<label kind="guard" x="72" y="374">level == i &amp;&amp; group == j &amp;&amp; lock</label>
-			<label kind="synchronisation" x="72" y="389">update?</label>
-			<label kind="assignment" x="72" y="404">t=t+TIME_STEP, cars[0].acceleration = 10, speedDown(cars[0],100), lock = (t&lt;32767 &amp;&amp; cars[0].speed&gt;100)</label>
-			<nail x="102" y="374"/>
-			<nail x="251" y="324"/>
+			<source ref="id4"/>
+			<target ref="id5"/>
+			<label kind="synchronisation">end?</label>
 		</transition>
 	</template>
 	<template>
@@ -1026,29 +1053,35 @@ int v = 0;
 int t = 0;
 bool lock = true;
 		</declaration>
-		<location id="id7" x="40" y="80">
-			<name x="30" y="50">Start</name>
+		<location id="id0">
+			<name>Start</name>
 			<committed/>
 		</location>
-		<location id="id8" x="190" y="80">
-			<name x="180" y="50">Keep</name>
+		<location id="id5">
+			<name>End</name>
 		</location>
-		<init ref="id7"/>
+		<location id="id1">
+			<name>Keep</name>
+		</location>
+		<init ref="id0"/>
 		<transition>
-			<source ref="id7"/>
-			<target ref="id8"/>
-			<label kind="select" x="55" y="35">offset:int[200,800]</label>
-			<label kind="assignment" x="55" y="80">initCar(cars[1], offset), modifyRoadLane(cars[1])</label>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="select">offset:int[200,800]</label>
+			<label kind="assignment">initCar(cars[1], offset), modifyRoadLane(cars[1])</label>
 		</transition>
 		<transition>
-			<source ref="id8"/>
-			<target ref="id8"/>
-			<label kind="select" x="130" y="35">i: int[1,1], j:int[1,1]</label>
-			<label kind="guard" x="130" y="50">level == i &amp;&amp; group == j &amp;&amp; lock</label>
-			<label kind="synchronisation" x="130" y="65">update?</label>
-			<label kind="assignment" x="130" y="80">t=t+TIME_STEP, keep(cars[1]), lock = (t&lt;32767)</label>
-			<nail x="160" y="50"/>
-			<nail x="220" y="50"/>
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="select">i: int[1,1], j:int[1,1]</label>
+			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; lock</label>
+			<label kind="synchronisation">update?</label>
+			<label kind="assignment">t=t+TIME_STEP, keep(cars[1]), lock = true</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id5"/>
+			<label kind="synchronisation">end?</label>
 		</transition>
 	</template>
 	<template>
@@ -1091,29 +1124,35 @@ int v = 0;
 int t = 0;
 bool lock = true;
 		</declaration>
-		<location id="id9" x="40" y="80">
-			<name x="30" y="50">Start</name>
+		<location id="id0">
+			<name>Start</name>
 			<committed/>
 		</location>
-		<location id="id10" x="190" y="80">
-			<name x="180" y="50">Keep</name>
+		<location id="id5">
+			<name>End</name>
 		</location>
-		<init ref="id9"/>
+		<location id="id1">
+			<name>Keep</name>
+		</location>
+		<init ref="id0"/>
 		<transition>
-			<source ref="id9"/>
-			<target ref="id10"/>
-			<label kind="select" x="55" y="35">offset:int[1100,1500]</label>
-			<label kind="assignment" x="55" y="80">initCar(cars[2], offset), modifyRoadLane(cars[2])</label>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="select">offset:int[1100,1500]</label>
+			<label kind="assignment">initCar(cars[2], offset), modifyRoadLane(cars[2])</label>
 		</transition>
 		<transition>
-			<source ref="id10"/>
-			<target ref="id10"/>
-			<label kind="select" x="130" y="35">i: int[1,1], j:int[1,1]</label>
-			<label kind="guard" x="130" y="50">level == i &amp;&amp; group == j &amp;&amp; lock</label>
-			<label kind="synchronisation" x="130" y="65">update?</label>
-			<label kind="assignment" x="130" y="80">t=t+TIME_STEP, keep(cars[2]), lock = (t&lt;32767)</label>
-			<nail x="160" y="50"/>
-			<nail x="220" y="50"/>
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="select">i: int[1,1], j:int[1,1]</label>
+			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; lock</label>
+			<label kind="synchronisation">update?</label>
+			<label kind="assignment">t=t+TIME_STEP, keep(cars[2]), lock = true</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id5"/>
+			<label kind="synchronisation">end?</label>
 		</transition>
 	</template>
 	<template>
@@ -1156,93 +1195,136 @@ int v = 0;
 int t = 0;
 bool lock = true;
 		</declaration>
-		<location id="id11" x="40" y="80">
-			<name x="30" y="50">Start</name>
+		<location id="id0">
+			<name>Start</name>
 			<committed/>
 		</location>
-		<location id="id12" x="190" y="80">
-			<name x="180" y="50">Accelerate</name>
+		<location id="id5">
+			<name>End</name>
 		</location>
-		<location id="id13" x="190" y="230">
-			<name x="180" y="200">Decelerate</name>
+		<location id="id1">
+			<name>Accelerate</name>
 		</location>
-		<location id="id14" x="40" y="230">
-			<name x="30" y="200">Keep</name>
+		<location id="id2">
+			<name>Decelerate</name>
 		</location>
-		<init ref="id11"/>
+		<location id="id3">
+			<name>Keep</name>
+		</location>
+		<init ref="id0"/>
 		<transition>
-			<source ref="id11"/>
-			<target ref="id12"/>
-			<label kind="select" x="55" y="35">offset:int[1300,2000]</label>
-			<label kind="assignment" x="55" y="80">initCar(cars[3], offset), modifyRoadLane(cars[3])</label>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="select">offset:int[1300,2000]</label>
+			<label kind="assignment">initCar(cars[3], offset), modifyRoadLane(cars[3])</label>
 		</transition>
 		<transition>
-			<source ref="id12"/>
-			<target ref="id13"/>
-			<label kind="select" x="130" y="110">i: int[1,1], j:int[1,1], k:int[1,1]</label>
-			<label kind="guard" x="130" y="125">level == i &amp;&amp; group == j &amp;&amp; !lock</label>
-			<label kind="synchronisation" x="130" y="140">update?</label>
-			<label kind="assignment" x="130" y="155">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="select">i: int[1,1], j:int[1,1], k:int[1,1]</label>
+			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; !lock</label>
+			<label kind="synchronisation">update?</label>
+			<label kind="assignment">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
 		</transition>
 		<transition>
-			<source ref="id13"/>
-			<target ref="id12"/>
-			<label kind="select" x="130" y="110">i: int[2,2], j:int[1,1], k:int[1,1]</label>
-			<label kind="guard" x="130" y="125">level == i &amp;&amp; group == j &amp;&amp; !lock</label>
-			<label kind="synchronisation" x="130" y="140">update?</label>
-			<label kind="assignment" x="130" y="155">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="select">i: int[2,2], j:int[1,1], k:int[1,1]</label>
+			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; !lock</label>
+			<label kind="synchronisation">update?</label>
+			<label kind="assignment">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
 		</transition>
 		<transition>
-			<source ref="id12"/>
-			<target ref="id14"/>
-			<label kind="select" x="55" y="110">i: int[3,3], j:int[1,1], k:int[1,1]</label>
-			<label kind="guard" x="55" y="125">level == i &amp;&amp; group == j &amp;&amp; !lock</label>
-			<label kind="synchronisation" x="55" y="140">update?</label>
-			<label kind="assignment" x="55" y="155">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
+			<source ref="id1"/>
+			<target ref="id3"/>
+			<label kind="select">i: int[3,3], j:int[1,1], k:int[1,1]</label>
+			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; !lock</label>
+			<label kind="synchronisation">update?</label>
+			<label kind="assignment">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
 		</transition>
 		<transition>
-			<source ref="id12"/>
-			<target ref="id12"/>
-			<label kind="select" x="130" y="35">i: int[1,1], j:int[1,1]</label>
-			<label kind="guard" x="130" y="50">level == i &amp;&amp; group == j &amp;&amp; lock</label>
-			<label kind="synchronisation" x="130" y="65">update?</label>
-			<label kind="assignment" x="130" y="80">t=t+TIME_STEP, cars[3].acceleration = 10, speedUp(cars[3],150), lock = (t&lt;100 &amp;&amp; cars[3].speed&lt;150)</label>
-			<nail x="160" y="50"/>
-			<nail x="220" y="50"/>
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="select">i: int[1,1], j:int[1,1]</label>
+			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; lock</label>
+			<label kind="synchronisation">update?</label>
+			<label kind="assignment">t=t+TIME_STEP, cars[3].acceleration = 10, speedUp(cars[3],150), lock = (t&lt;100 &amp;&amp; cars[3].speed&lt;150)</label>
 		</transition>
 		<transition>
-			<source ref="id13"/>
-			<target ref="id13"/>
-			<label kind="select" x="130" y="185">i: int[2,2], j:int[1,1]</label>
-			<label kind="guard" x="130" y="200">level == i &amp;&amp; group == j &amp;&amp; lock</label>
-			<label kind="synchronisation" x="130" y="215">update?</label>
-			<label kind="assignment" x="130" y="230">t=t+TIME_STEP, cars[3].acceleration = 10, speedDown(cars[3],100), lock = (t&lt;50 &amp;&amp; cars[3].speed&gt;100)</label>
-			<nail x="160" y="200"/>
-			<nail x="220" y="200"/>
+			<source ref="id2"/>
+			<target ref="id2"/>
+			<label kind="select">i: int[2,2], j:int[1,1]</label>
+			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; lock</label>
+			<label kind="synchronisation">update?</label>
+			<label kind="assignment">t=t+TIME_STEP, cars[3].acceleration = 10, speedDown(cars[3],100), lock = (t&lt;50 &amp;&amp; cars[3].speed&gt;100)</label>
 		</transition>
 		<transition>
-			<source ref="id12"/>
-			<target ref="id12"/>
-			<label kind="select" x="130" y="35">i: int[3,3], j:int[1,1]</label>
-			<label kind="guard" x="130" y="50">level == i &amp;&amp; group == j &amp;&amp; lock</label>
-			<label kind="synchronisation" x="130" y="65">update?</label>
-			<label kind="assignment" x="130" y="80">t=t+TIME_STEP, cars[3].acceleration = 10, speedUp(cars[3],200), lock = (t&lt;100 &amp;&amp; cars[3].speed&lt;200)</label>
-			<nail x="160" y="50"/>
-			<nail x="220" y="50"/>
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="select">i: int[3,3], j:int[1,1]</label>
+			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; lock</label>
+			<label kind="synchronisation">update?</label>
+			<label kind="assignment">t=t+TIME_STEP, cars[3].acceleration = 10, speedUp(cars[3],200), lock = (t&lt;100 &amp;&amp; cars[3].speed&lt;200)</label>
 		</transition>
 		<transition>
-			<source ref="id14"/>
-			<target ref="id14"/>
-			<label kind="select" x="-20" y="185">i: int[4,4], j:int[1,1]</label>
-			<label kind="guard" x="-20" y="200">level == i &amp;&amp; group == j &amp;&amp; lock</label>
-			<label kind="synchronisation" x="-20" y="215">update?</label>
-			<label kind="assignment" x="-20" y="230">t=t+TIME_STEP, keep(cars[3]), lock = (t&lt;32767)</label>
-			<nail x="10" y="200"/>
-			<nail x="70" y="200"/>
+			<source ref="id3"/>
+			<target ref="id3"/>
+			<label kind="select">i: int[4,4], j:int[1,1]</label>
+			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; lock</label>
+			<label kind="synchronisation">update?</label>
+			<label kind="assignment">t=t+TIME_STEP, keep(cars[3]), lock = true</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id5"/>
+			<label kind="synchronisation">end?</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id5"/>
+			<label kind="synchronisation">end?</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id5"/>
+			<label kind="synchronisation">end?</label>
+		</transition>
+	</template>
+<template>
+		<name>EndTrigger</name>
+		<location id="id19" x="-399" y="-144">
+			<name x="-409" y="-178">Start</name>
+		</location>
+		<location id="id20" x="-102" y="-144">
+			<name x="-112" y="-178">Temp</name>
+			<urgent/>
+		</location>
+		<location id="id21" x="153" y="-144">
+			<name x="143" y="-178">End</name>
+		</location>
+		<init ref="id19"/>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id21"/>
+			<label kind="synchronisation" x="8" y="-161">end!</label>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id20"/>
+			<label kind="guard" x="-348" y="-127">!(safeTurnLeft &amp;&amp;
+safeTurnRight &amp;&amp;
+safeChangeLeft &amp;&amp;
+safeChangeRight &amp;&amp;
+safeAccelerate &amp;&amp;
+safeDecelerate &amp;&amp;
+safeKeep &amp;&amp;
+safeModifyRoadLane)
+|| false</label>
+			<label kind="synchronisation" x="-314" y="-170">update?</label>
 		</transition>
 	</template>
 	<system>
-system timer, Ego, B1, F1, F2;
+system Timer, Ego, B1, F1, F2, EndTrigger;
 	</system>
 	<queries>
 		<query>
