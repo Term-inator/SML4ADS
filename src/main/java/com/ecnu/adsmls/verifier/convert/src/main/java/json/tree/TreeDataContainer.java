@@ -14,5 +14,6 @@ public class TreeDataContainer {
     private double timeStep;
     private String weather;
     private List<String> requirements;
+    private String scenarioEndTrigger;
 
 }

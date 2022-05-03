@@ -33,6 +33,9 @@ public class XMLWriter {
     private static List<Car> cars;
     private static String map;
     private static double timeStep;
+    private static String scenarioEndTrigger;
+
+    private static int endId;
 
     // car映射: name -> Index
     private static Map<String, Integer> carNameIndexMap;
@@ -46,10 +49,11 @@ public class XMLWriter {
         buffer.append("<nta>\n");
 
         addDeclaration(buffer);
-        addTimer(buffer);
-        for(int i = 0; i < cars.size(); i++) {
+        addTimer(buffer); //已定义好的自动机
+        for(int i = 0; i < cars.size(); i++) { // 车辆的自动机
             addTemplate(buffer, i);
         }
+        addEndTrigger(buffer);
         addSystem(buffer);
         addQueries(buffer);
 
@@ -98,12 +102,13 @@ public class XMLWriter {
     private static void initCarFromMap(MapDataContainer container) {
         if(container == null) {
 //            log.warn("地图解析发生错误，返回了null对象！");
-            log.warn("An error occurred while paring tha map, received null.");
+            log.warn("An error occurred while paring tha map. Received null.");
+
             return;
         }
 
 //        log.info("开始解析车辆(包括地图带来的索引更新)...");
-        log.info("Start parsing cars(including index update brought by the map.)");
+        log.info("Start parsing cars(including index update brought by the map).");
         List<Road> roads = container.getRoads();
         List<LaneSection> laneSections = container.getLaneSections();
         List<Lane> lanes = container.getLanes();
@@ -134,7 +139,7 @@ public class XMLWriter {
                 car.setRoadIndex(roadMap.get(car.getRoadId()).getIndex());
             } else {
 //                log.error("{}车的道路信息roadId({})不存在！", car.getName(), car.getRoadId());
-                log.error("roadId({}) of the {} car doesn't exist!", car.getRoadId(), car.getName());
+                log.error("roadId({}) of the car {} doesn't exist!", car.getRoadId(), car.getName());
                 break;
             }
 
@@ -196,13 +201,13 @@ public class XMLWriter {
 //            log.info("{}车的道路信息为: Road(id={}, index={}), LaneSection(id={}, index={}), Lane(id={}, index={})",
 //                    car.getName(), car.getRoadId(), car.getRoadIndex(), car.getLaneSectionId(),
 //                    car.getLaneSectionIndex(), car.getLaneId(), car.getLaneIndex());
-            log.info("Road info of car {}: Road(id={}, index={}), LaneSection(id={}, index={}), Lane(id={}, index={})",
+            log.info("Road info of car {}: Road(id={}, index={}), LaneSection(id={}, index={}), Lane(id={}, index={}).",
                     car.getName(), car.getRoadId(), car.getRoadIndex(), car.getLaneSectionId(),
                     car.getLaneSectionIndex(), car.getLaneId(), car.getLaneIndex());
         }
 
 //        log.info("车辆解析完成！");
-        log.info("Parse of cars completed.");
+        log.info("Parse of cars is completed.");
     }
 
     // 1.3 添加车辆声明
@@ -246,10 +251,27 @@ public class XMLWriter {
         }
     }
 
-    // 2.0 timer自动机，用于同步时间
+    // 2.0 Timer自动机，用于同步时间
     private static void addTimer(StringBuffer buffer) {
         try {
-            String definedContent = FileUtils.readFileToString(new File(TIMER_PATH), "UTF-8");
+            String definedContent = FileUtils.readFileToString(new File(AUTOMATON_PATH), "UTF-8");
+            buffer.append(definedContent);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // EndTrigger自动机，用于检测安全
+    private static void addEndTrigger(StringBuffer buffer) {
+        try {
+            String definedContent = FileUtils.readFileToString(new File(END_TRIGGER_PATH), "UTF-8");
+            String endGuard = resolveGuard(scenarioEndTrigger);
+            if(endGuard.equals("")) {
+                endGuard = "false";
+            } else {
+                endGuard = "(true " + endGuard + ")";
+            }
+            definedContent = definedContent.replaceAll("%placeholder%", endGuard);
             buffer.append(definedContent);
         } catch (IOException e) {
             e.printStackTrace();
@@ -267,6 +289,7 @@ public class XMLWriter {
         addInit(buffer);
         addTransitions(buffer, index);
         addSelfTransitions(buffer, index);
+        addTransitionToEnd(buffer, index);
 
         buffer.append("\t</template>\n");
     }
@@ -300,6 +323,11 @@ public class XMLWriter {
         buffer.append("\t\t<location id=\"id0\">\n" +
                 "\t\t\t<name>Start</name>\n" +
                 "\t\t\t<committed/>\n" +
+                "\t\t</location>\n");
+        // 再加一个结束状态
+        endId = carNameIndexMap.size() + 1; // 最后一个节点名id + 1
+        buffer.append("\t\t<location id=\"id" + endId + "\">\n" +
+                "\t\t\t<name>End</name>\n" +
                 "\t\t</location>\n");
 
         List<Behavior> behaviors = cars.get(index).getMTree().getBehaviors();
@@ -366,7 +394,7 @@ public class XMLWriter {
             // guard 这里需先比对边是否衔接（坐标对应），再比较其他条件
             buffer.append("\t\t\t<label kind=\"guard\">" +
                     "level == i &amp;&amp; group == j &amp;&amp; !lock" +
-                    addGuard(commonTransition.getGuard(), index) + "</label>\n");
+                    addGuard(commonTransition.getGuard()) + "</label>\n");
 
             // sync 普通迁移也需要信号，否则在验证时可能会无法迁出
              buffer.append("\t\t\t<label kind=\"synchronisation\">update?</label>\n");
@@ -404,46 +432,60 @@ public class XMLWriter {
     /*
         guard条件命名参照GuardType
      */
-    private static String addGuard(List<String> guards, int index) {
+    private static String addGuard(List<String> guards) {
         StringBuffer buffer = new StringBuffer();
         if(guards == null) {
             return "";
         }
 
         for(String guard : guards) {
-            boolean isMatch = false;
-            for(String guardType : GuardType.allGuards) {
-                if(guard.matches(guardType)) {
-                    isMatch = true;
-                    String s = guard;
-                    for(String name : carNameIndexMap.keySet()) {
-                        s = s.replaceAll(name, "cars[" + carNameIndexMap.get(name) + "]");
-                    }
-
-                    // guard参数中的数字放大十倍（这里很乱，需要改一下）
-                    Pattern numberPattern = Pattern.compile("[+-]?\\d+.?\\d*\\)"); //最后加一个右括号，只匹配最后一个distance的数字
-                    Matcher m = numberPattern.matcher(s);
-                    if(m.find()) {
-                        String result = m.group();
-                        String number = result.substring(0, result.length()-1);
-                        s = s.replaceAll(result.replaceAll("\\)", "\\\\)"), f(Double.parseDouble(number)) + ")");
-                    }
-
-                    s = s.replaceAll("&", "&amp;").
-                            replaceAll(">", "&gt;").
-                            replaceAll("<", "&lt;");
-                    buffer.append(" &amp;&amp; " + s);
-//                    log.info("Guard解析成功：原guard：{}, 转化后guard：{}", guard, s);
-                    log.info("Parse of Guard completed: original guard：{}, after being parsed: {}", guard, s);
-                    break;
-                }
-            }
-            if (!isMatch) {
-//                log.error("Guard条件不合法：{}", guard);
-                log.error("invalid Guard {}", guard);
-            }
+            buffer.append(resolveGuard(guard));
         }
         return buffer.toString();
+    }
+
+    private static String resolveGuard(String guard) {
+        if(guard == null || guard.equals("")) {
+            return "";
+        }
+
+        String buffer = "";
+
+        boolean isMatch = false;
+        for(String guardType : GuardType.allGuards) {
+            if(guard.matches(guardType)) {
+                isMatch = true;
+                String s = guard;
+                for(String name : carNameIndexMap.keySet()) {
+                    s = s.replaceAll(name, "cars[" + carNameIndexMap.get(name) + "]");
+                }
+
+                // guard参数中的数字放大十倍（这里很乱，需要改一下）
+                Pattern numberPattern = Pattern.compile("[+-]?\\d+.?\\d*\\)"); //最后加一个右括号，只匹配最后一个distance的数字
+                Matcher m = numberPattern.matcher(s);
+                if(m.find()) {
+                    String result = m.group();
+                    String number = result.substring(0, result.length()-1);
+                    s = s.replaceAll(result.replaceAll("\\)", "\\\\)"), f(Double.parseDouble(number)) + ")");
+                }
+
+                // 替换会影响XML语法的符号
+                s = s.replaceAll("&", "&amp;").
+                        replaceAll(">", "&gt;").
+                        replaceAll("<", "&lt;");
+
+                buffer = " &amp;&amp; " + s;
+//                log.info("Guard解析成功：原guard：{}, 转化后guard：{}", guard, s);
+                log.info("Parse of Guard is completed: original guard: {}, after being parsed: {}.", guard, s);
+                break;
+            }
+        }
+        if (!isMatch) {
+//            log.error("Guard条件不合法：{}", guard);
+            log.error("Invalid Guard {}.", guard);
+        }
+
+        return buffer;
     }
 
     // 2.7 自循环边
@@ -511,43 +553,59 @@ public class XMLWriter {
 
         if(behavior.getName().equals(BehaviorType.ACCELERATE.getValue())) {
             // *acceleration, *target speed, duration
-            buffer.append(", cars["+ index + "].acceleration = " + f(acceleration));
+            buffer.append(", cars[" + index + "].acceleration = " + f(acceleration));
             buffer.append(", speedUp(cars[" + index + "]," + f(targetSpeed) + ")");
-            buffer.append(", lock = (t&lt;" + f(duration) + " &amp;&amp; cars[" + index + "].speed&lt;" + f(targetSpeed) + ")");
+            String lock = nextGuardAndNot(behavior, index);
+            if(lock == null) {
+                buffer.append(", lock = (t&lt;" + f(duration) + " &amp;&amp; cars[" + index + "].speed&lt;" + f(targetSpeed) + ")");
+            } else {
+                buffer.append(", lock = " + lock); // 加速减速匀速自循环的条件是：其后面所有迁移guard的和的非
+            }
 
         } else if(behavior.getName().equals(BehaviorType.DECELERATE.getValue())) {
             // *acceleration, *target speed, duration
-            buffer.append(", cars["+ index + "].acceleration = " + f(acceleration));
+            buffer.append(", cars[" + index + "].acceleration = " + f(acceleration));
             buffer.append(", speedDown(cars[" + index + "]," + f(targetSpeed) + ")");
-            buffer.append(", lock = (t&lt;" + f(duration) + " &amp;&amp; cars[" + index + "].speed&gt;" + f(targetSpeed) + ")");
+            String lock = nextGuardAndNot(behavior, index);
+            if(lock == null) {
+                buffer.append(", lock = (t&lt;" + f(duration) + " &amp;&amp; cars[" + index + "].speed&gt;" + f(targetSpeed) + ")");
+            } else {
+                buffer.append(", lock = " + lock); // 加速减速匀速自循环的条件是：其后面所有迁移guard的和的非
+            }
 
         } else if(behavior.getName().equals(BehaviorType.KEEP.getValue())) {
             // duration
             // , keep(cars[0])
             //, lock=(t<5)
             buffer.append(", keep(cars[" + index + "])");
-            buffer.append(", lock = (t&lt;" + f(duration) + ")");
+            String lock = nextGuardAndNot(behavior, index);
+            if(lock == null) {
+                buffer.append(", lock = (t&lt;" + f(duration) + ")");
+            } else {
+                buffer.append(", lock = " + lock); // 加速减速匀速自循环的条件是：其后面所有迁移guard的和的非
+            }
+
         } else if(behavior.getName().equals(BehaviorType.TURN_LEFT.getValue())) {
             // *acceleration, *target speed
-            buffer.append(", cars["+ index + "].acceleration = " + f(acceleration));
+            buffer.append(", cars[" + index + "].acceleration = " + f(acceleration));
             buffer.append(", turnLeft(cars[" + index + "])");
 //            buffer.append(", lock = (cars[" + index + "].speed&lt;" + f(targetSpeed) + ")");
             buffer.append(", lock = false");
         } else if(behavior.getName().equals(BehaviorType.TURN_RIGHT.getValue())) {
             // *acceleration, *target speed
-            buffer.append(", cars["+ index + "].acceleration = " + f(acceleration));
+            buffer.append(", cars[" + index + "].acceleration = " + f(acceleration));
             buffer.append(", turnRight(cars[" + index + "])");
 //            buffer.append(", lock = (cars[" + index + "].speed&lt;" + f(targetSpeed) + ")");
             buffer.append(", lock = false");
         } else if(behavior.getName().equals(BehaviorType.CHANGE_LEFT.getValue())) {
             // acceleration, target speed
-            buffer.append(", cars["+ index + "].acceleration = " + f(acceleration));
+            buffer.append(", cars[" + index + "].acceleration = " + f(acceleration));
             buffer.append(", changeLeft(cars[" + index + "])");
 //            buffer.append(", lock = (cars[" + index + "].speed&lt;" + f(targetSpeed) + ")");
             buffer.append(", lock = false");
         } else if(behavior.getName().equals(BehaviorType.CHANGE_RIGHT.getValue())) {
             // acceleration, target speed
-            buffer.append(", cars["+ index + "].acceleration = " + f(acceleration));
+            buffer.append(", cars[" + index + "].acceleration = " + f(acceleration));
             buffer.append(", changeRight(cars[" + index + "])");
 //            buffer.append(", lock = (cars[" + index + "].speed&lt;" + f(targetSpeed) + ")");
             buffer.append(", lock = false");
@@ -564,20 +622,66 @@ public class XMLWriter {
         return buffer.toString();
     }
 
+    // 2.7.3 后面guard条件的 和的非；没有条件则返回null
+    private static String nextGuardAndNot(Behavior behavior, int index) {
+        int level = behavior.getLevel();
+        int group = behavior.getGroup();
+        boolean existGuard = false;
+
+        List<CommonTransition> commonTransitions = behavior.getNextTransitions();
+
+        if(commonTransitions.size() == 0) { // 是最后一个节点了，那么不迁出，继续走
+            return "true";
+        }
+
+        StringBuffer buffer = new StringBuffer("!(true"); // 下面会多一个&&
+        for(CommonTransition commonTransition : commonTransitions) {
+            // 找后面所有的迁移，进行"&&"操作
+            if(level == commonTransition.getLevel() && group == commonTransition.getGroup()) {
+                if(commonTransition.getGuard() != null) {
+                    existGuard = true;
+                    buffer.append(addGuard(commonTransition.getGuard()));
+                }
+            }
+        }
+        buffer.append(")");
+
+        if(!existGuard) { // 后续不存在guard则返回null
+            return null;
+        }
+        return buffer.toString();
+    }
+
+    // 2.8 指向End的迁移，接收一个End信号，发生错误时结束
+    private static void addTransitionToEnd(StringBuffer buffer, int index) {
+        Map<Integer, Integer> behaviorMap = new HashMap<>();
+        for(Behavior behavior : cars.get(index).getMTree().getBehaviors()) {
+            if(behaviorMap.containsKey(behavior.getId())) {
+                continue;
+            }
+            behaviorMap.put(behavior.getId(), 1);
+            buffer.append("\t\t<transition>\n" +
+                    "\t\t\t<source ref=\"id" + behavior.getId() + "\"/>\n" +
+                    "\t\t\t<target ref=\"id" + endId + "\"/>\n" +
+                    "\t\t\t<label kind=\"synchronisation\">end?</label>\n" +
+                    "\t\t</transition>\n");
+        }
+    }
+
     // 3 对应system部分，即系统模版声明处
     private static void addSystem(StringBuffer buffer) {
         buffer.append("\t<system>\n");
 
-        buffer.append("system timer");
+        buffer.append("system Timer");
         for (Car car : cars) {
             buffer.append(", " + car.getName());
         }
-        buffer.append(";\n");
+        buffer.append(", EndTrigger;\n");
 
         buffer.append("\t</system>\n");
     }
 
-    // 4 对应queries部分，即性质规约？
+    // 4 对应queries部分，即性质规约
     private static void addQueries(StringBuffer buffer) {
         buffer.append("\t<queries>\n");
 
@@ -607,6 +711,7 @@ public class XMLWriter {
         cars = container.getCars();
         map = container.getMap();
         timeStep = container.getTimeStep();
+        scenarioEndTrigger = container.getScenarioEndTrigger();
 
         carNameIndexMap = new HashMap<>();
         for (int i = 0; i < cars.size(); i++) {
@@ -644,7 +749,7 @@ public class XMLWriter {
         }
 
 //        log.info("输出结束，Uppaal SMC的XML格式的随机混成自动机已转化完成！");
-        log.info("File writing completed. The parse of random hybrid automaton in Uppaal SMC style is completed.");
+        log.info("File writing is finished. The parse of random hybrid automaton in Uppaal SMC style is completed.");
     }
 
 }

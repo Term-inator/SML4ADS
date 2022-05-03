@@ -274,6 +274,7 @@ void modifyRoadLane(Car&amp; car) {
     int offset = car.offset;
     int ls = car.laneSectionIndex;
     int i = 0, index = 0;
+    int nextRoadIndex, nextType;
     for(i = 0; i &lt; 10; i++) {
         if(ls == roads[car.roadIndex].laneSections[i]) {
             index = i;
@@ -288,14 +289,24 @@ void modifyRoadLane(Car&amp; car) {
             car.laneSectionIndex = sucLaneSectionIndex(laneSections[car.laneSectionIndex]);
             car.laneSectionId =laneSections[car.laneSectionIndex].laneSectionId;
         }
-        if(car.offset &gt; roads[car.roadIndex].length) { // next road
-            car.offset = 0;
-            car.roadIndex = sucRoadIndex(roads[car.roadIndex]);
-            car.roadId = roads[car.roadIndex].roadId;
-            car.laneIndex = sucLaneIndex(lanes[car.laneIndex]);
-            car.laneId = lanes[car.laneIndex].laneId;
-            car.laneSectionIndex = sucLaneSectionIndex(laneSections[car.laneSectionIndex]);
-            car.laneSectionId =laneSections[car.laneSectionIndex].laneSectionId;
+        if(car.offset &gt;= length) { // next road
+            nextType = sucRoadType(roads[car.roadIndex]);
+            nextRoadIndex = sucRoadIndex(roads[car.roadIndex]);
+            if(nextType == -1) {
+                safeModifyRoadLane = false;
+                return;
+            } else if(nextType == 1) {
+                car.offset -= length;
+                car.roadIndex = nextRoadIndex;
+                car.roadId = roads[car.roadIndex].roadId;
+                car.laneIndex = sucLaneIndex(lanes[car.laneIndex]);
+                car.laneId = lanes[car.laneIndex].laneId;
+                car.laneSectionIndex = sucLaneSectionIndex(laneSections[car.laneSectionIndex]);
+                car.laneSectionId =laneSections[car.laneSectionIndex].laneSectionId;
+            } else if(nextType == 4) {
+                // TODO
+                return;
+            }
         }
     } else { // driving as a different direction to the road
         if(i &gt; 0 &amp;&amp; laneSections[roads[car.roadIndex].laneSections[i]].startPosition &lt; offset) { // next lane
@@ -416,7 +427,7 @@ void changeRight(Car&amp; car){
     int movement = v * TIME_STEP * k / (FACTOR * FACTOR);
     car.offset += (car.heading? movement : -movement);
     if(lanes[car.laneIndex].laneChange == 2 || lanes[car.laneIndex].laneChange == 3) {
-     	car.laneIndex = leftLaneIndex(lanes[car.laneIndex]);
+     	car.laneIndex = rightLaneIndex(lanes[car.laneIndex]);
         car.laneId = lanes[car.laneIndex].laneId;
     }
     modifyRoadLane(car);

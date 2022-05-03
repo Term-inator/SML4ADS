@@ -168,8 +168,18 @@ const int minLatBra = 2; // 横向换道最小刹车加速度
 const int minLatAcc = 1;
 const int maxLatAcc = 2;
 
+// 用于检测模型是否正常进行; 不正常的行为(如车辆左变道到没有左侧Lane将会使safeChangeLeft变为false)
+bool safeTurnLeft = true;
+bool safeTurnRight = true;
+bool safeChangeLeft= true;
+bool safeChangeRight= true;
+bool safeAccelerate = true;
+bool safeDecelerate = true;
+bool safeKeep = true;
+bool safeModifyRoadLane = true;
+bool safe = true;
+
 // 函数中不能声明结构体，在这里临时声明
 Lane tempLane;
 Connection tempConnection;
-
 

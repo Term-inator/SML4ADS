@@ -1,5 +1,5 @@
     <template>
-        <name>timer</name>
+        <name>Timer</name>
         <location id="id3" x="-144" y="-8">
             <name x="-154" y="-42">Start</name>
             <label kind="invariant" x="-154" y="9">time &lt;= TIME_STEP</label>

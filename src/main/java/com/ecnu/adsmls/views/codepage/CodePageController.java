@@ -460,7 +460,9 @@ public class CodePageController implements Initializable, Route {
 //        params.append(res);
 
         try {
-            Process process = Runtime.getRuntime().exec(pythonEnv + " ./src/main/java/com/ecnu/adsmls/simulator/run.py -path " + file + " " + params);
+            Process process = Runtime.getRuntime().exec(pythonEnv +
+                    " ./src/main/java/com/ecnu/adsmls/simulator/adsml_carla_simulation/src/main.py " +
+                    FileSystem.removeSuffix(file) + FileSystem.Suffix.ADSML.value + " " + params);
 //        proc.waitFor();
             BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
@@ -472,7 +474,7 @@ public class CodePageController implements Initializable, Route {
             in = new BufferedReader(new InputStreamReader(process.getErrorStream()));
             this.infoArea.clear();
             while ((line = in.readLine()) != null) {
-                this.appendInfo(line);
+                this.appendInfo(line + "\n");
             }
             in.close();
         } catch (IOException e) {

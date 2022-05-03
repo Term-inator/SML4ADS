@@ -172,10 +172,20 @@ const int minLatBra = 2; // 横向换道最小刹车加速度
 const int minLatAcc = 1;
 const int maxLatAcc = 2;
 
+// 用于检测模型是否正常进行; 不正常的行为(如车辆左变道到没有左侧Lane将会使safeChangeLeft变为false)
+bool safeTurnLeft = true;
+bool safeTurnRight = true;
+bool safeChangeLeft= true;
+bool safeChangeRight= true;
+bool safeAccelerate = true;
+bool safeDecelerate = true;
+bool safeKeep = true;
+bool safeModifyRoadLane = true;
+bool safe = true;
+
 // 函数中不能声明结构体，在这里临时声明
 Lane tempLane;
 Connection tempConnection;
-
 
 const int TIME_STEP = 1;
 Road roads[1] = {
@@ -475,6 +485,7 @@ void modifyRoadLane(Car&amp; car) {
     int offset = car.offset;
     int ls = car.laneSectionIndex;
     int i = 0, index = 0;
+    int nextRoadIndex, nextType;
     for(i = 0; i &lt; 10; i++) {
         if(ls == roads[car.roadIndex].laneSections[i]) {
             index = i;
@@ -489,14 +500,24 @@ void modifyRoadLane(Car&amp; car) {
             car.laneSectionIndex = sucLaneSectionIndex(laneSections[car.laneSectionIndex]);
             car.laneSectionId =laneSections[car.laneSectionIndex].laneSectionId;
         }
-        if(car.offset &gt; roads[car.roadIndex].length) { // next road
-            car.offset = 0;
-            car.roadIndex = sucRoadIndex(roads[car.roadIndex]);
-            car.roadId = roads[car.roadIndex].roadId;
-            car.laneIndex = sucLaneIndex(lanes[car.laneIndex]);
-            car.laneId = lanes[car.laneIndex].laneId;
-            car.laneSectionIndex = sucLaneSectionIndex(laneSections[car.laneSectionIndex]);
-            car.laneSectionId =laneSections[car.laneSectionIndex].laneSectionId;
+        if(car.offset &gt;= length) { // next road
+            nextType = sucRoadType(roads[car.roadIndex]);
+            nextRoadIndex = sucRoadIndex(roads[car.roadIndex]);
+            if(nextType == -1) {
+                safeModifyRoadLane = false;
+                return;
+            } else if(nextType == 1) {
+                car.offset -= length;
+                car.roadIndex = nextRoadIndex;
+                car.roadId = roads[car.roadIndex].roadId;
+                car.laneIndex = sucLaneIndex(lanes[car.laneIndex]);
+                car.laneId = lanes[car.laneIndex].laneId;
+                car.laneSectionIndex = sucLaneSectionIndex(laneSections[car.laneSectionIndex]);
+                car.laneSectionId =laneSections[car.laneSectionIndex].laneSectionId;
+            } else if(nextType == 4) {
+                // TODO
+                return;
+            }
         }
     } else { // driving as a different direction to the road
         if(i &gt; 0 &amp;&amp; laneSections[roads[car.roadIndex].laneSections[i]].startPosition &lt; offset) { // next lane
@@ -617,7 +638,7 @@ void changeRight(Car&amp; car){
     int movement = v * TIME_STEP * k / (FACTOR * FACTOR);
     car.offset += (car.heading? movement : -movement);
     if(lanes[car.laneIndex].laneChange == 2 || lanes[car.laneIndex].laneChange == 3) {
-     	car.laneIndex = leftLaneIndex(lanes[car.laneIndex]);
+     	car.laneIndex = rightLaneIndex(lanes[car.laneIndex]);
         car.laneId = lanes[car.laneIndex].laneId;
     }
     modifyRoadLane(car);
@@ -809,7 +830,7 @@ bool hasObjWithinDisInRightLane(Car car, int distance) {
 
 	</declaration>
     <template>
-        <name>timer</name>
+        <name>Timer</name>
         <location id="id3" x="-144" y="-8">
             <name x="-154" y="-42">Start</name>
             <label kind="invariant" x="-154" y="9">time &lt;= TIME_STEP</label>
@@ -877,6 +898,9 @@ bool lock = true;
 			<name>Start</name>
 			<committed/>
 		</location>
+		<location id="id5">
+			<name>End</name>
+		</location>
 		<location id="id1">
 			<name>Accelerate</name>
 		</location>
@@ -897,18 +921,18 @@ bool lock = true;
 			<label kind="assignment">initCar(cars[0], offset), modifyRoadLane(cars[0])</label>
 		</transition>
 		<transition>
-			<source ref="id1"/>
-			<target ref="id2"/>
-			<label kind="select">i: int[1,1], j:int[1,1], k:int[1,1]</label>
-			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; !lock &amp;&amp; withinDisToObjsInLane(cars[0], cars[2], 80)</label>
-			<label kind="synchronisation">update?</label>
-			<label kind="assignment">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
-		</transition>
-		<transition>
 			<source ref="id2"/>
 			<target ref="id1"/>
 			<label kind="select">i: int[2,2], j:int[1,1], k:int[1,1]</label>
 			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; !lock</label>
+			<label kind="synchronisation">update?</label>
+			<label kind="assignment">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="select">i: int[1,1], j:int[1,1], k:int[1,1]</label>
+			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; !lock &amp;&amp; withinDisToObjsInLane(cars[0], cars[2], 80)</label>
 			<label kind="synchronisation">update?</label>
 			<label kind="assignment">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>
 		</transition>
@@ -934,7 +958,7 @@ bool lock = true;
 			<label kind="select">i: int[1,1], j:int[1,1]</label>
 			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; lock</label>
 			<label kind="synchronisation">update?</label>
-			<label kind="assignment">t=t+TIME_STEP, cars[0].acceleration = 10, speedUp(cars[0],200), lock = (t&lt;32767 &amp;&amp; cars[0].speed&lt;200)</label>
+			<label kind="assignment">t=t+TIME_STEP, cars[0].acceleration = 10, speedUp(cars[0],200), lock = !(true &amp;&amp; withinDisToObjsInLane(cars[0], cars[2], 80))</label>
 		</transition>
 		<transition>
 			<source ref="id2"/>
@@ -950,7 +974,7 @@ bool lock = true;
 			<label kind="select">i: int[3,3], j:int[1,1]</label>
 			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; lock</label>
 			<label kind="synchronisation">update?</label>
-			<label kind="assignment">t=t+TIME_STEP, cars[0].acceleration = 10, speedUp(cars[0],200), lock = (t&lt;32767 &amp;&amp; cars[0].speed&lt;200)</label>
+			<label kind="assignment">t=t+TIME_STEP, cars[0].acceleration = 10, speedUp(cars[0],200), lock = !(true &amp;&amp; withinDisToObjsInLane(cars[0], cars[3], 80))</label>
 		</transition>
 		<transition>
 			<source ref="id3"/>
@@ -966,7 +990,27 @@ bool lock = true;
 			<label kind="select">i: int[5,5], j:int[1,1]</label>
 			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; lock</label>
 			<label kind="synchronisation">update?</label>
-			<label kind="assignment">t=t+TIME_STEP, cars[0].acceleration = 10, speedDown(cars[0],100), lock = (t&lt;32767 &amp;&amp; cars[0].speed&gt;100)</label>
+			<label kind="assignment">t=t+TIME_STEP, cars[0].acceleration = 10, speedDown(cars[0],100), lock = true</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id5"/>
+			<label kind="synchronisation">end?</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id5"/>
+			<label kind="synchronisation">end?</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id5"/>
+			<label kind="synchronisation">end?</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id5"/>
+			<label kind="synchronisation">end?</label>
 		</transition>
 	</template>
 	<template>
@@ -1013,6 +1057,9 @@ bool lock = true;
 			<name>Start</name>
 			<committed/>
 		</location>
+		<location id="id5">
+			<name>End</name>
+		</location>
 		<location id="id1">
 			<name>Keep</name>
 		</location>
@@ -1029,7 +1076,12 @@ bool lock = true;
 			<label kind="select">i: int[1,1], j:int[1,1]</label>
 			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; lock</label>
 			<label kind="synchronisation">update?</label>
-			<label kind="assignment">t=t+TIME_STEP, keep(cars[1]), lock = (t&lt;32767)</label>
+			<label kind="assignment">t=t+TIME_STEP, keep(cars[1]), lock = true</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id5"/>
+			<label kind="synchronisation">end?</label>
 		</transition>
 	</template>
 	<template>
@@ -1076,6 +1128,9 @@ bool lock = true;
 			<name>Start</name>
 			<committed/>
 		</location>
+		<location id="id5">
+			<name>End</name>
+		</location>
 		<location id="id1">
 			<name>Keep</name>
 		</location>
@@ -1092,7 +1147,12 @@ bool lock = true;
 			<label kind="select">i: int[1,1], j:int[1,1]</label>
 			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; lock</label>
 			<label kind="synchronisation">update?</label>
-			<label kind="assignment">t=t+TIME_STEP, keep(cars[2]), lock = (t&lt;32767)</label>
+			<label kind="assignment">t=t+TIME_STEP, keep(cars[2]), lock = true</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id5"/>
+			<label kind="synchronisation">end?</label>
 		</transition>
 	</template>
 	<template>
@@ -1138,6 +1198,9 @@ bool lock = true;
 		<location id="id0">
 			<name>Start</name>
 			<committed/>
+		</location>
+		<location id="id5">
+			<name>End</name>
 		</location>
 		<location id="id1">
 			<name>Accelerate</name>
@@ -1209,11 +1272,59 @@ bool lock = true;
 			<label kind="select">i: int[4,4], j:int[1,1]</label>
 			<label kind="guard">level == i &amp;&amp; group == j &amp;&amp; lock</label>
 			<label kind="synchronisation">update?</label>
-			<label kind="assignment">t=t+TIME_STEP, keep(cars[3]), lock = (t&lt;32767)</label>
+			<label kind="assignment">t=t+TIME_STEP, keep(cars[3]), lock = true</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id5"/>
+			<label kind="synchronisation">end?</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id5"/>
+			<label kind="synchronisation">end?</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id5"/>
+			<label kind="synchronisation">end?</label>
+		</transition>
+	</template>
+<template>
+		<name>EndTrigger</name>
+		<location id="id19" x="-399" y="-144">
+			<name x="-409" y="-178">Start</name>
+		</location>
+		<location id="id20" x="-102" y="-144">
+			<name x="-112" y="-178">Temp</name>
+			<urgent/>
+		</location>
+		<location id="id21" x="153" y="-144">
+			<name x="143" y="-178">End</name>
+		</location>
+		<init ref="id19"/>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id21"/>
+			<label kind="synchronisation" x="8" y="-161">end!</label>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id20"/>
+			<label kind="guard" x="-348" y="-127">!(safeTurnLeft &amp;&amp;
+safeTurnRight &amp;&amp;
+safeChangeLeft &amp;&amp;
+safeChangeRight &amp;&amp;
+safeAccelerate &amp;&amp;
+safeDecelerate &amp;&amp;
+safeKeep &amp;&amp;
+safeModifyRoadLane)
+|| false</label>
+			<label kind="synchronisation" x="-314" y="-170">update?</label>
 		</transition>
 	</template>
 	<system>
-system timer, Ego, B1, F1, F2;
+system Timer, Ego, B1, F1, F2, EndTrigger;
 	</system>
 	<queries>
 		<query>

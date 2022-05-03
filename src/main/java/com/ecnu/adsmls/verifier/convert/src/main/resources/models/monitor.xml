@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>typedef int [-100,0] ub;
+
+const double c = 2.0;
+
+const int v_origin = 10;
+
+const int v_max = 20;
+const int v_min = v_origin;
+const int acc = 1;  // The acceleration
+
+const int safe_dis = 50;
+
+broadcast chan end;
+broadcast chan update;
+broadcast chan accelerate;
+broadcast chan decelerate;
+broadcast chan back;
+broadcast chan finish;
+broadcast chan not_overtaking;
+broadcast chan overtaking;
+
+// init coordinates of cars
+const int init_loc_1b = 60;
+const int init_loc_e = 100;
+const int init_loc_0f = 150;
+const int init_loc_1f = init_loc_0f + fint(random(0.0 + init_loc_0f - init_loc_e));
+
+// coordinates of cars
+hybrid clock loc_1b = 60.0;
+hybrid clock loc_e = 100.0;
+hybrid clock loc_0f = 150.0;
+hybrid clock loc_1f = 0.0 + init_loc_1f;
+
+// lane of cars
+ub lane_e = -100;
+ub lane_1b = 0;
+ub lane_0f = -100;
+ub lane_1f = -100;
+
+int dis_e = init_loc_e;
+int dis_1b = init_loc_1b;
+int dis_0f = init_loc_0f;
+int dis_1f = init_loc_1f;
+
+// velocity of four cars (initial velocities are the same)
+
+int v_e = v_origin;
+const int v_0f = v_origin;
+const int v_1b = v_origin;
+int v_1f = v_origin;
+
+</declaration>
+	<template>
+		<name>Veh_1f</name>
+		<declaration>clock c_1f;
+const int speed_change_period = 2;
+//clock t;
+
+// update the velocity of 1f car (speed_up)
+void speedUp(){
+    if ((v_1f+acc) &lt; v_max){
+        v_1f += acc;
+    }
+}
+
+// update the velocity of 1f car (speed_up)
+void speedDown(){
+    if ((v_1f-acc) &gt; v_min){
+        v_1f -= acc;
+    }
+}</declaration>
+		<location id="id0" x="-169" y="-127">
+			<committed/>
+		</location>
+		<location id="id1" x="-289" y="-25">
+			<name x="-332" y="-59">SpeedUp</name>
+			<label kind="invariant" x="-527" y="-25">c_1f &lt;= speed_change_period + 0.1</label>
+		</location>
+		<location id="id2" x="-51" y="-25">
+			<name x="-61" y="-59">SpeedDown</name>
+			<label kind="invariant" x="-25" y="-25">c_1f &lt;= speed_change_period + 0.1</label>
+		</location>
+		<location id="id3" x="-221" y="-221">
+			<name x="-272" y="-238">Keep</name>
+			<label kind="invariant" x="-433" y="-212">c_1f &lt;= speed_change_period</label>
+		</location>
+		<location id="id4" x="-170" y="-357">
+		</location>
+		<branchpoint id="id5" x="-169" y="-25">
+		</branchpoint>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="42" y="-255">end?</label>
+			<nail x="34" y="-187"/>
+			<nail x="34" y="-306"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="127" y="-297">end?</label>
+			<nail x="161" y="-85"/>
+			<nail x="93" y="-357"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="-229" y="-306">end?</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="-442" y="-297">end?</label>
+			<nail x="-501" y="-85"/>
+			<nail x="-434" y="-357"/>
+			<nail x="-323" y="-357"/>
+			<nail x="-212" y="-357"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-204" y="-246">c_1f == speed_change_period</label>
+			<nail x="-119" y="-221"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id3"/>
+			<label kind="assignment" x="-229" y="-178">c_1f = 0</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-110" y="-119">c_1f == speed_change_period</label>
+			<label kind="synchronisation" x="-110" y="-102">update?</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-408" y="-119">c_1f == speed_change_period</label>
+			<label kind="synchronisation" x="-280" y="-102">update?</label>
+			<nail x="-229" y="-76"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-85" y="68">c_1f &lt; speed_change_period</label>
+			<label kind="synchronisation" x="-85" y="85">update?</label>
+			<label kind="assignment" x="-85" y="102">speedDown()</label>
+			<nail x="-93" y="59"/>
+			<nail x="-8" y="59"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-374" y="68">c_1f &lt; speed_change_period</label>
+			<label kind="synchronisation" x="-374" y="85">update?</label>
+			<label kind="assignment" x="-374" y="102">speedUp()</label>
+			<nail x="-332" y="59"/>
+			<nail x="-247" y="59"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id2"/>
+			<label kind="probability" x="-119" y="-51">1</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id1"/>
+			<label kind="probability" x="-221" y="-51">1</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id5"/>
+			<label kind="assignment" x="-187" y="-76">c_1f = 0</label>
+		</transition>
+	</template>
+	<template>
+		<name>Controller</name>
+		<declaration>clock t;
+
+// update the discrete distance of three cars
+void updateDis(){
+    dis_e += v_e;
+    dis_1b += v_1b;
+    dis_0f += v_0f;
+    dis_1f += v_1f;
+}
+
+// update the velocity of ego car (speed_up)
+void speedUp(){
+    if ((v_e+acc) &lt; v_max){
+        v_e += acc;
+    }
+}
+
+// update the velocity of ego car (speed_down)
+void speedDown(){
+    if ((v_e-acc) &gt; v_origin){
+        v_e -= acc;
+    }
+}</declaration>
+		<location id="id6" x="-102" y="8">
+			<name x="-112" y="-26">c9</name>
+		</location>
+		<location id="id7" x="-195" y="8">
+			<name x="-205" y="-26">c10</name>
+		</location>
+		<location id="id8" x="272" y="-204">
+			<name x="289" y="-213">c5</name>
+			<committed/>
+		</location>
+		<location id="id9" x="204" y="8">
+			<name x="194" y="-26">c7</name>
+			<label kind="comments" x="187" y="-51">减速</label>
+		</location>
+		<location id="id10" x="-8" y="8">
+			<name x="-18" y="-26">c8</name>
+			<committed/>
+		</location>
+		<location id="id11" x="-551" y="-204">
+		</location>
+		<location id="id12" x="-161" y="-204">
+			<name x="-186" y="-187">Change_lane</name>
+			<committed/>
+		</location>
+		<location id="id13" x="-382" y="-204">
+			<name x="-373" y="-195">Acc_or_DeAcc_0</name>
+		</location>
+		<location id="id14" x="59" y="-204">
+			<name x="-42" y="-195">Acc_or_DeAcc</name>
+		</location>
+		<init ref="id11"/>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id14"/>
+			<label kind="guard" x="-42" y="-119">abs(dis_1f - dis_e) &lt;= safe_dis &amp;&amp;
+dis_e - dis_0f &lt; c + 1.5*v_0f</label>
+			<label kind="synchronisation" x="-42" y="-85">update?</label>
+			<label kind="assignment" x="-42" y="-68">updateDis(), speedDown()</label>
+			<nail x="25" y="-127"/>
+			<nail x="93" y="-127"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id8"/>
+			<label kind="guard" x="85" y="-238">dis_e - dis_0f &gt;= c + 1.5*v_0f</label>
+			<label kind="synchronisation" x="85" y="-221">update?</label>
+			<label kind="assignment" x="85" y="-204">updateDis()</label>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id14"/>
+			<label kind="guard" x="8" y="-357">abs(dis_1f - dis_e) &gt; safe_dis &amp;&amp;
+dis_e - dis_0f &lt; c + 1.5*v_0f</label>
+			<label kind="synchronisation" x="8" y="-323">update?</label>
+			<label kind="assignment" x="8" y="-306">updateDis(), speedUp()</label>
+			<nail x="25" y="-280"/>
+			<nail x="85" y="-280"/>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id13"/>
+			<label kind="guard" x="-476" y="-102">abs(dis_0f - dis_e) &lt;= safe_dis &amp;&amp;
+dis_e - dis_1b &lt; c + 1.5*v_1b</label>
+			<label kind="synchronisation" x="-476" y="-68">update?</label>
+			<label kind="assignment" x="-476" y="-52">updateDis(), speedDown()</label>
+			<nail x="-415" y="-110"/>
+			<nail x="-356" y="-110"/>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id13"/>
+			<label kind="guard" x="-441" y="-340">abs(dis_0f - dis_e) &gt; safe_dis &amp;&amp;
+dis_e - dis_1b &lt; c + 1.5*v_1b</label>
+			<label kind="synchronisation" x="-433" y="-306">update?</label>
+			<label kind="assignment" x="-433" y="-289">updateDis(),speedUp()</label>
+			<nail x="-416" y="-272"/>
+			<nail x="-348" y="-272"/>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id12"/>
+			<label kind="guard" x="-340" y="-255">dis_e - dis_1b &gt;= c + 1.5*v_1b</label>
+			<label kind="synchronisation" x="-322" y="-238">update?</label>
+			<label kind="assignment" x="-322" y="-221">updateDis()</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id13"/>
+			<label kind="guard" x="-518" y="-238">v_1f &gt;= v_e + 4</label>
+			<label kind="synchronisation" x="-518" y="-221">update?</label>
+			<label kind="assignment" x="-518" y="-204">updateDis()</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id11"/>
+			<label kind="guard" x="-577" y="-323">v_1f &lt; v_e + 4</label>
+			<label kind="synchronisation" x="-577" y="-306">update?</label>
+			<label kind="assignment" x="-577" y="-289">updateDis()</label>
+			<nail x="-586" y="-272"/>
+			<nail x="-518" y="-272"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="-135" y="-221">overtaking!</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="-68" y="-8">finish!</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id10"/>
+			<label kind="guard" x="25" y="-42">(v_e-acc) &lt;= v_origin</label>
+			<label kind="synchronisation" x="51" y="-25">update?</label>
+			<label kind="assignment" x="51" y="-8">updateDis()</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id9"/>
+			<label kind="guard" x="178" y="84">(v_e-acc) &gt; v_origin</label>
+			<label kind="synchronisation" x="178" y="101">update?</label>
+			<label kind="assignment" x="179" y="118">updateDis(), speedDown()</label>
+			<nail x="170" y="76"/>
+			<nail x="238" y="76"/>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id9"/>
+			<label kind="synchronisation" x="280" y="-68">back!</label>
+			<nail x="272" y="8"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="-161" y="-8">end?</label>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">Veh_ego</name>
+		<declaration>
+//clock tick;
+
+double speed_up(double v_e){
+    if(v_e &lt; v_max){
+        v_e = v_e + 1;
+    }
+    return v_e;
+}</declaration>
+		<location id="id15" x="314" y="68">
+			<name x="280" y="85">Forward</name>
+		</location>
+		<location id="id16" x="816" y="68">
+			<name x="799" y="85">END</name>
+		</location>
+		<location id="id17" x="450" y="68">
+			<name x="390" y="85">Waiting_For_Back</name>
+		</location>
+		<location id="id18" x="603" y="68">
+			<name x="578" y="85">Return</name>
+			<committed/>
+		</location>
+		<location id="id19" x="714" y="68">
+			<name x="663" y="85">Finish_Overtaking</name>
+			<committed/>
+		</location>
+		<init ref="id15"/>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id17"/>
+			<label kind="synchronisation" x="339" y="34">overtaking?</label>
+			<label kind="assignment" x="339" y="51">lane_e=0</label>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id16"/>
+			<label kind="synchronisation" x="748" y="51">end!</label>
+		</transition>
+		<transition>
+			<source ref="id18"/>
+			<target ref="id19"/>
+			<label kind="synchronisation" x="629" y="51">finish?</label>
+		</transition>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id18"/>
+			<label kind="synchronisation" x="484" y="34">back?</label>
+			<label kind="assignment" x="484" y="51">lane_e=-100</label>
+		</transition>
+	</template>
+	<template>
+		<name>Timer</name>
+		<declaration>clock timer;
+</declaration>
+		<location id="id20" x="-34" y="0">
+			<name x="-44" y="-34">t1</name>
+			<label kind="invariant" x="-59" y="17">timer&lt;=1</label>
+		</location>
+		<location id="id21" x="68" y="0">
+			<name x="58" y="-34">t2</name>
+		</location>
+		<init ref="id20"/>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id21"/>
+			<label kind="synchronisation" x="0" y="-17">end?</label>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id20"/>
+			<label kind="guard" x="-68" y="-119">timer == 1</label>
+			<label kind="synchronisation" x="-68" y="-85">update!</label>
+			<label kind="assignment" x="-68" y="-102">timer=0</label>
+			<nail x="-68" y="-68"/>
+			<nail x="0" y="-68"/>
+		</transition>
+	</template>
+	<template>
+		<name>Monitor</name>
+		<declaration>// This template is used to monitor the real distance of cars</declaration>
+		<location id="id22" x="-136" y="-102">
+			<name x="-146" y="-136">m1</name>
+			<label kind="invariant" x="-178" y="-85">loc_e' == v_e &amp;&amp;
+loc_1b' == v_1b &amp;&amp;
+loc_0f' == v_0f &amp;&amp; 
+loc_1f' == v_1f</label>
+		</location>
+		<location id="id23" x="0" y="-102">
+			<name x="-10" y="-136">m2</name>
+			<label kind="invariant" x="-25" y="-85">loc_e' == 0 &amp;&amp;
+loc_1b' == 0 &amp;&amp; 
+loc_0f' == 0 &amp;&amp;
+loc_1f' == 0</label>
+		</location>
+		<init ref="id22"/>
+		<transition>
+			<source ref="id22"/>
+			<target ref="id23"/>
+			<label kind="synchronisation" x="-93" y="-119">end?</label>
+		</transition>
+	</template>
+	<system>//system veh_ego, veh_0f, veh_1f, veh_1b;
+//system veh_ego, veh_0f, veh_1b;
+system Veh_ego, Timer, Controller, Monitor, Veh_1f;</system>
+	<queries>
+		<query>
+			<formula>simulate [&lt;=10] {loc_e, loc_1b, loc_0f, dis_e, dis_1b, dis_0f}</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>simulate [&lt;=100] {v_e}</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>simulate [&lt;=25] {loc_e, loc_1b, loc_0f, lane_e}</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>simulate [&lt;=25 ; 20] {loc_e, loc_1b, loc_0f, loc_1f, lane_e}</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>simulate [&lt;=25 ; 20] {loc_e, loc_1b, loc_0f, loc_1f}</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>simulate [&lt;=100] {loc_e, loc_1b, loc_0f, loc_1f, lane_e}</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>Pr [&lt;=15] ([] loc_1f - loc_e &gt; c + 1.5 * v_e)</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>simulate [&lt;=25] {v_1f}</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>simulate [&lt;=25] {loc_1f, loc_e}</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>simulate [&lt;=25] {loc_1f - loc_e}</formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>

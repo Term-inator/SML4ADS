@@ -30,13 +30,13 @@ int N = 3;
 
 </declaration>
 		<location id="id0" x="-229" y="-25">
-			<name x="-239" y="-59">A</name>
+			<name x="-314" y="-51">Accelerate</name>
 		</location>
 		<location id="id1" x="85" y="-178">
-			<name x="75" y="-212">B</name>
+			<name x="110" y="-178">Keep</name>
 		</location>
 		<location id="id2" x="93" y="119">
-			<name x="83" y="85">C</name>
+			<name x="110" y="110">Decelerate</name>
 		</location>
 		<init ref="id0"/>
 		<transition>
