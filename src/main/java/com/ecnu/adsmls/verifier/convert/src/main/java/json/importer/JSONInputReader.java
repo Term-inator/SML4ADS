@@ -35,7 +35,8 @@ public class JSONInputReader {
             e.printStackTrace();
         }
 
-        log.info("The parse of JSON completed.");
+//        log.info("完成解析JSON!");
+        log.info("The parse of JSON is completed.");
         return jsonStr;
     }
 

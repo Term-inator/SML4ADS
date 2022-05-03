@@ -73,7 +73,7 @@
   "map": "custom.xodr",
   "mapType": "custom",
   "requirements": [],
-  "scenarioEndTrigger": "Ego.intersection || B1.intersection || F1.intersection || F2.intersection",
+  "scenarioEndTrigger": "",
   "simulationTime": 40.0,
   "simulatorType": "Carla",
   "timeStep": 0.1,

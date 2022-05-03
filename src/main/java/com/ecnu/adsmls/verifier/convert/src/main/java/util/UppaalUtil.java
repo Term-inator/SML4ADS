@@ -21,13 +21,14 @@ public class UppaalUtil {
     public static final int INT16_MIN = -32768;
     
     /*
-        已定义好的数据结构路径、函数路径、边的变量路径、同步的自动机模型
+        已定义好的数据结构路径、函数路径、边的变量路径、自动机模型(Time/EndTrigger)
      */
     public static final String DEFINED_PATH = "src/main/java/com/ecnu/adsmls/verifier/convert/src/main/resources/uppaal/defined.txt";
     public static final String FUNCTION_PATH = "src/main/java/com/ecnu/adsmls/verifier/convert/src/main/resources/uppaal/function.txt";
     public static final String TRANSITION_PATH = "src/main/java/com/ecnu/adsmls/verifier/convert/src/main/resources/uppaal/transition.txt";
-    public static final String TIMER_PATH = "src/main/java/com/ecnu/adsmls/verifier/convert/src/main/resources/uppaal/timer.xml";
-    
+    public static final String AUTOMATON_PATH = "src/main/java/com/ecnu/adsmls/verifier/convert/src/main/resources/uppaal/Timer.txt";
+    public static final String END_TRIGGER_PATH = "src/main/java/com/ecnu/adsmls/verifier/convert/src/main/resources/uppaal/EndTrigger.txt";
+
     /*
         地图信息
      */

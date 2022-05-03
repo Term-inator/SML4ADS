@@ -1,0 +1,33 @@
+<template>
+		<name>EndTrigger</name>
+		<location id="id19" x="-399" y="-144">
+			<name x="-409" y="-178">Start</name>
+		</location>
+		<location id="id20" x="-102" y="-144">
+			<name x="-112" y="-178">Temp</name>
+			<urgent/>
+		</location>
+		<location id="id21" x="153" y="-144">
+			<name x="143" y="-178">End</name>
+		</location>
+		<init ref="id19"/>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id21"/>
+			<label kind="synchronisation" x="8" y="-161">end!</label>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id20"/>
+			<label kind="guard" x="-348" y="-127">!(safeTurnLeft &amp;&amp;
+safeTurnRight &amp;&amp;
+safeChangeLeft &amp;&amp;
+safeChangeRight &amp;&amp;
+safeAccelerate &amp;&amp;
+safeDecelerate &amp;&amp;
+safeKeep &amp;&amp;
+safeModifyRoadLane)
+|| %placeholder%</label>
+			<label kind="synchronisation" x="-314" y="-170">update?</label>
+		</transition>
+	</template>

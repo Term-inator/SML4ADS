@@ -99,7 +99,7 @@ public class XODRParser {
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
 //            log.error("解析OpenDRIVE文件时发生错误！");
-            log.error("An error occurred when parsing OpenDRIVE file!");
+            log.error("An error occurred while parsing OpenDRIVE file!");
             return null;
         }
 
@@ -453,14 +453,14 @@ public class XODRParser {
             Road currentRoad = roads.get(lane.getRoadIndex());
             LaneSection currentLaneSection = laneSections.get(lane.getLaneSectionIndex());
 
+            /*
+                前驱：
+                1 当前laneSection不是当前road的第一个车道段，那么
+                - 当前laneSection的index-1，即前一个laneSection，找到对应的predecessorLaneId即可
+                2 当前laneSection是当前road的第一个车道段，那么
+                - 找到当前road的前驱road，根据两条road的连接方式判断predecessorLaneId属于前驱road的第一个还是最后一个车道段
+            */
             if(lane.getPredecessorLaneId() != 0) {
-                /*
-                    前驱：
-                    1 当前laneSection不是当前road的第一个车道段，那么
-                    - 当前laneSection的index-1，即前一个laneSection，找到对应的predecessorLaneId即可
-                    2 当前laneSection是当前road的第一个车道段，那么
-                    - 找到当前road的前驱road，根据两条road的连接方式判断predecessorLaneId属于前驱road的第一个还是最后一个车道段
-                */
                 LaneSection preLaneSection;
                 if(currentLaneSection.getStartPosition() != 0.0) { // 不是第一个车道段
                     preLaneSection = laneSections.get(currentLaneSection.getIndex() - 1);
@@ -474,18 +474,19 @@ public class XODRParser {
                         preLaneSection = preRoad.getLaneSections().get(length-1);
                     }
                 }
-                updatePreLaneIndex(currentLaneSection, preLaneSection, lane);
+                updatePreLaneIndex(lane, preLaneSection);
             }
 
+            /*
+                后继：
+                1 当前laneSection不是当前road的最后一个车道段，那么
+                - 当前laneSection的index+1，即后一个laneSection，找到对应的successorLaneId即可
+                2 当前laneSection是当前road的最后一个车道段，那么
+                - 找到当前road的后继road，根据两条road的连接方式判断successorLaneId属于后继road的第一个还是最后一个车道段
+             */
             if(lane.getSuccessorLaneId() != 0) {
-                /*
-                    后继：
-                    1 当前laneSection不是当前road的最后一个车道段，那么
-                    - 当前laneSection的index+1，即后一个laneSection，找到对应的successorLaneId即可
-                    2 当前laneSection是当前road的最后一个车道段，那么
-                    - 找到当前road的后继road，根据两条road的连接方式判断successorLaneId属于后继road的第一个还是最后一个车道段
-                 */
                 LaneSection sucLaneSection;
+                // 最后一个车道段
                 int lastIndex = currentRoad.getLaneSections().size() - 1;
                 LaneSection lastLaneSection = currentRoad.getLaneSections().get(lastIndex);
 
@@ -501,14 +502,14 @@ public class XODRParser {
                         sucLaneSection = sucRoad.getLaneSections().get(length-1);
                     }
                 }
-                updateSucLaneIndex(currentLaneSection, sucLaneSection, lane);
+                updateSucLaneIndex(lane, sucLaneSection);
             }
 
         }
     }
 
     // 抽取出来的一个方法，通过前驱laneSection更新lane的前驱
-    private static void updatePreLaneIndex(LaneSection currentLaneSection, LaneSection preLaneSection, Lane lane) {
+    private static void updatePreLaneIndex(Lane lane, LaneSection preLaneSection) {
         // 更新lane
         for(Lane preLane : preLaneSection.getLanes()) {
             if(preLane.getLaneId() == lane.getPredecessorLaneId()) {
@@ -517,21 +518,10 @@ public class XODRParser {
                 break;
             }
         }
-
-        // 记得更新局部的lane，即当前所属的laneSection中的lane也应该改变
-        List<Lane> currentLanes = currentLaneSection.getLanes();
-        for(Lane curLane : currentLanes) {
-            if(curLane.getLaneId() == lane.getLaneId()) {
-                curLane.setPredecessorSingleId(lane.getSingleId());
-                curLane.setPredecessorIndex(lane.getPredecessorIndex());
-                break;
-            }
-        }
-        currentLaneSection.setLanes(currentLanes);
     }
 
-    // 抽取出来的一个方法，通过前驱laneSection更新lane的后继
-    private static void updateSucLaneIndex(LaneSection currentLaneSection, LaneSection sucLaneSection, Lane lane) {
+    // 抽取出来的一个方法，通过后继laneSection更新lane的后继
+    private static void updateSucLaneIndex(Lane lane, LaneSection sucLaneSection) {
         for(Lane preLane : sucLaneSection.getLanes()) {
             if(preLane.getLaneId() == lane.getPredecessorLaneId()) {
                 lane.setSuccessorSingleId(preLane.getSingleId());
@@ -539,17 +529,6 @@ public class XODRParser {
                 break;
             }
         }
-
-        // 记得更新局部的lane，即当前所属的laneSection中的lane也应该改变
-        List<Lane> currentLanes = currentLaneSection.getLanes();
-        for(Lane curLane : currentLanes) {
-            if(curLane.getLaneId() == lane.getLaneId()) {
-                curLane.setSuccessorSingleId(lane.getSingleId());
-                curLane.setSuccessorIndex(lane.getSuccessorIndex());
-                break;
-            }
-        }
-        currentLaneSection.setLanes(currentLanes);
     }
 
     private static void initConnection(List<Connection> connections, List<Junction> junctions, List<Road> roads) {
@@ -559,23 +538,15 @@ public class XODRParser {
             connection.setConnectingRoadIndex(roadMap.getOrDefault(connection.getConnectingRoadId(), -1));
         }
 
-        // 设置direction（这里可以优化）
+        // 设置direction
         for(Road road : roads) {
             if(road.getJunctionId() != -1) {
                 int direction = 1; // 1左转 2直行 3右转 其他都不正常忽略掉
                 for(Junction junction : junctions) {
-                    List<Connection> junctionConnections = junction.getConnections();
-                    for(Connection connection : junctionConnections) {
+                    for(Connection connection : junction.getConnections()) {
                         if(connection.getConnectingRoadId() == road.getRoadId()) { // 作为连接路
                             connection.setDirection(direction++);
                         }
-                    }
-                    junction.setConnections(junctionConnections);
-                }
-                direction = 1; // 全局的connections也要初始化一遍
-                for(Connection connection : connections) {
-                    if(connection.getConnectingRoadId() == road.getRoadId()) {
-                        connection.setDirection(direction++);
                     }
                 }
             }
