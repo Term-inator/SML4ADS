@@ -57,7 +57,7 @@ def pre_process_args(args: dict):
     :param args:
     :return:
     """
-    args['path'] = args['path'].replace('\\', '/')
+#     args['path'] = args['path'].replace('\\', '/')
     args['scenario_img_path'] = args['scenario_img_path'].replace('\\', '/')
     args['mp4_path'] = args['mp4_path'].replace('\\', '/')
     args['scene_img_path'] = args['scene_img_path'].replace('\\', '/')

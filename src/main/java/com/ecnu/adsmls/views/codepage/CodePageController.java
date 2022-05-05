@@ -463,21 +463,54 @@ public class CodePageController implements Initializable, Route {
             Process process = Runtime.getRuntime().exec(pythonEnv +
                     " ./src/main/java/com/ecnu/adsmls/simulator/adsml_carla_simulation/src/main.py " +
                     FileSystem.removeSuffix(file) + FileSystem.Suffix.ADSML.value + " " + params);
-//        proc.waitFor();
-            BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            while ((line = in.readLine()) != null) {
-                System.out.println(line);
-            }
-            in.close();
 
-            in = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-            this.infoArea.clear();
-            while ((line = in.readLine()) != null) {
-                this.appendInfo(line + "\n");
-            }
-            in.close();
-        } catch (IOException e) {
+//            new Thread(() -> {
+//                BufferedReader err = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+//                String line;
+//
+//                try {
+//                    while((line = err.readLine()) != null) {
+//                        System.out.println(line);
+//                    }
+//                }
+//                catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                finally {
+//                    try {
+//                        err.close();
+//                    }
+//                    catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }).start();
+
+            new Thread(() -> {
+                BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String line;
+
+                try {
+                    while((line = in.readLine()) != null) {
+                        System.out.println(line);
+                    }
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+                finally {
+                    try {
+                        in.close();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+
+            process.waitFor();
+            System.out.println("Simulation finished");
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }

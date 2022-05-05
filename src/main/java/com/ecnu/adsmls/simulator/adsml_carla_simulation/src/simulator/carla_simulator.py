@@ -228,6 +228,7 @@ class CarlaSimulation(Simulation):
         self.agents = {}
         spawn_tfs: dict = self.get_spawn_transforms(cars)
         for index, car in enumerate(cars):
+            print(car)
             print(f'car {index}:')
             if car.model != 'random':
                 bp = self.bpl.find(car.model)
@@ -290,6 +291,7 @@ class CarlaSimulation(Simulation):
                 temp_wp = self.map.get_waypoint(spawn_tf.location)
                 if not temp_wp.is_junction:
                     spawn_wps.append((index, temp_wp))
+            print(spawn_wps)
             choices = random.choices(spawn_wps, k=length)
             for choice in choices:
                 wps.append(choice[1])
@@ -521,7 +523,7 @@ class CarlaSimulation(Simulation):
         :return:
         """
         print('read config')
-        with open(os.path.abspath('./simulator/config.json'), 'r', encoding='utf-8') as file:
+        with open(os.path.abspath('./src/main/java/com/ecnu/adsmls/simulator/adsml_carla_simulation/src/simulator/config.json'), 'r', encoding='utf-8') as file:
             json_file = json.load(file)
             self.models = json_file['models']
         print('read config finished')
@@ -585,7 +587,7 @@ class CarlaSimulation(Simulation):
                 print(f'offset:{offset}; lat_offset:{lateral_offset}; lane_id:{wp.lane_id}')
             else:
                 relate_qu.append(car)
-            print(f'chosen transform: {chosen_tfs[car.name]}')
+#             print(f'chosen transform: {chosen_tfs[car.name]}')
         for car in relate_qu:
             print(f'relate location of car {car.name}:')
             print(f'ref car:{car.actor_ref}')
@@ -593,7 +595,7 @@ class CarlaSimulation(Simulation):
             ref_loc = ref_tf.location
             longitudinal_offset = MapFilter.choice_lane_random(car.road_min_offset, car.road_max_offset)
             forward_vector = ref_tf.get_forward_vector()
-            lateral_offset = MapFilter.choice_lane_random(car.min_lateral_offsetm, car.max_lateral_offset)
+            lateral_offset = MapFilter.choice_lane_random(car.min_lateral_offset, car.max_lateral_offset)
             right_vector = ref_tf.get_right_vector()
             spawn_loc = ref_loc + longitudinal_offset * forward_vector + lateral_offset * right_vector
             spawn_wp = self.map.get_waypoint(spawn_loc, project_to_road=False)
