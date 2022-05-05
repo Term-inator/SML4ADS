@@ -13,6 +13,7 @@ class CarInfo:
     """
 
     def __init__(self):
+        self.name = ''
         self.roadId = -1
         self.laneSectionId = -1
         self.laneId = -1

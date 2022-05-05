@@ -19,7 +19,6 @@ try:
 #     parent_dir = curr_dir[:curr_dir.rfind('\\')]
 #     src_dir = parent_dir[:parent_dir.rfind('\\')]
 #     sys.path.append(parent_dir)
-    print(curr_dir + "/src/main/java/com/ecnu/adsmls/simulator/adsml_carla_simulation")
     sys.path.append(curr_dir + "/src/main/java/com/ecnu/adsmls/simulator/adsml_carla_simulation")
 except IndexError:
     print('append path error!')
@@ -90,7 +89,7 @@ class CarlaSimulation(Simulation):
             self.world = self.client.load_world(scene.map)
         elif scene.mapType == 'custom':
             if scene.map.endswith('.xodr'):
-                print('parsing xodr file')
+                print(f'parsing xodr file:{scene.map}')
                 with open(scene.map) as odr_file:
                     self.world = self.client.generate_opendrive_world(odr_file.read())
                 print('parsing finished')
@@ -188,6 +187,9 @@ class CarlaSimulation(Simulation):
                 spec_loc = ego_tf.location + carla.Location(0, 0, 5)
                 spec_loc += forward_vector * (-8)
                 spec_rot = ego_tf.rotation
+                # spec_loc = ego_tf.location + carla.Location(0, 0, 20)
+                # spec_rot = ego_tf.rotation
+                # spec_rot.pitch = -90
                 spectator.set_transform(carla.Transform(spec_loc, spec_rot))
                 if self.camera is not None:
                     self.camera.set_transform(carla.Transform(spec_loc, spec_rot))
@@ -228,7 +230,6 @@ class CarlaSimulation(Simulation):
         self.agents = {}
         spawn_tfs: dict = self.get_spawn_transforms(cars)
         for index, car in enumerate(cars):
-            print(car)
             print(f'car {index}:')
             if car.model != 'random':
                 bp = self.bpl.find(car.model)
@@ -291,7 +292,6 @@ class CarlaSimulation(Simulation):
                 temp_wp = self.map.get_waypoint(spawn_tf.location)
                 if not temp_wp.is_junction:
                     spawn_wps.append((index, temp_wp))
-            print(spawn_wps)
             choices = random.choices(spawn_wps, k=length)
             for choice in choices:
                 wps.append(choice[1])
@@ -325,6 +325,7 @@ class CarlaSimulation(Simulation):
                 info.lane_s = wp.s
                 info.waypoint = wp
                 info.vehicle = vehicle
+                info.name = name
                 # TODO: info.offset
                 states[name] = info
                 print(f'{name} state:{info}')
@@ -554,16 +555,18 @@ class CarlaSimulation(Simulation):
                         lateral_offset = MapFilter.choice_lane_random(car.min_lateral_offset, car.max_lateral_offset)
                         right_vector = tf.get_right_vector()
                         tf.location += right_vector * lateral_offset
-                        tf.location += carla.Location(0, 0, 0.3)
+                        tf.location += carla.Location(0, 0, 0.6)
                         chosen_tfs[car.name] = tf
                         print(f'long offset:{offset}, lateral offset:{lateral_offset}')
+                print(f'chosen transform: {chosen_tfs[car.name]}')
             elif car.location_type == 'Global Position':
                 spawn_wp = self.map.get_waypoint(carla.Location(car.x, car.y, 0))
                 if spawn_wp is None:
                     raise RuntimeError('cannot get spawn point from given x and y values.')
                 else:
-                    spawn_wp.transform.location += carla.Location(0, 0, 0.3)
+                    spawn_wp.transform.location += carla.Location(0, 0, 0.6)
                     chosen_tfs[car.name] = spawn_wp.transform
+                print(f'chosen transform: {chosen_tfs[car.name]}')
             elif car.location_type == 'Road Position':
                 offset = MapFilter.choice_lane_random(car.road_min_offset, car.road_max_offset)
                 lateral_offset = MapFilter.choice_lane_random(car.min_lateral_offset, car.max_lateral_offset)
@@ -582,12 +585,12 @@ class CarlaSimulation(Simulation):
                     wp = self.map.get_waypoint_xodr(car.init_road_id, lane_id, offset)
                 tf = wp.transform
                 tf.location += tf.get_right_vector() * (abs_offset - (wp.lane_width / 2))
-                tf.location += carla.Location(0, 0, 0.3)
+                tf.location += carla.Location(0, 0, 0.6)
                 chosen_tfs[car.name] = tf
                 print(f'offset:{offset}; lat_offset:{lateral_offset}; lane_id:{wp.lane_id}')
+                print(f'chosen transform: {chosen_tfs[car.name]}')
             else:
                 relate_qu.append(car)
-#             print(f'chosen transform: {chosen_tfs[car.name]}')
         for car in relate_qu:
             print(f'relate location of car {car.name}:')
             print(f'ref car:{car.actor_ref}')
@@ -597,10 +600,14 @@ class CarlaSimulation(Simulation):
             forward_vector = ref_tf.get_forward_vector()
             lateral_offset = MapFilter.choice_lane_random(car.min_lateral_offset, car.max_lateral_offset)
             right_vector = ref_tf.get_right_vector()
-            spawn_loc = ref_loc + longitudinal_offset * forward_vector + lateral_offset * right_vector
+            longitudinal_vec = longitudinal_offset * forward_vector
+            lateral_vec = lateral_offset * right_vector
+            spawn_loc = ref_loc + longitudinal_vec + lateral_vec
             spawn_wp = self.map.get_waypoint(spawn_loc, project_to_road=False)
-            spawn_wp.transform.location += carla.Location(0, 0, 0.3)
-            chosen_tfs[car.name] = spawn_wp.transform
-            print(f'long offset:{longitudinal_offset}, lateral offset:{lateral_offset}')
+            spawn_tf = spawn_wp.transform
+            spawn_tf.location += carla.Location(0, 0, 0.6)
+            chosen_tfs[car.name] = carla.Transform(spawn_loc, ref_tf.rotation)
+            print(f'long offset:{longitudinal_offset}, lateral offset:{lateral_offset}, lane:{spawn_wp.lane_id}')
+            print(f'longitudinal vec:{longitudinal_vec}, lateral vec:{lateral_vec}, spawn_loc:{spawn_loc}')
             print(f'chosen transform: {chosen_tfs[car.name]}')
         return chosen_tfs

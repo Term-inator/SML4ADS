@@ -2,6 +2,7 @@ package com.ecnu.adsmls.views.codepage;
 
 import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.editor.Editor;
+import com.ecnu.adsmls.utils.ProcessStreamReader;
 import com.ecnu.adsmls.utils.log.MyStaticOutputStreamAppender;
 import com.ecnu.adsmls.utils.register.impl.LocationRegister;
 import com.ecnu.adsmls.components.editor.modeleditor.ModelEditor;
@@ -459,61 +460,24 @@ public class CodePageController implements Initializable, Route {
 //        params.append("--car ");
 //        params.append(res);
 
+        System.out.println(FileSystem.removeSuffix(file));
         try {
             Process process = Runtime.getRuntime().exec(pythonEnv +
                     " ./src/main/java/com/ecnu/adsmls/simulator/adsml_carla_simulation/src/main.py " +
                     FileSystem.removeSuffix(file) + FileSystem.Suffix.ADSML.value + " " + params);
 
-            new Thread() {
-                @Override
-                public void run() {
-                    BufferedReader err = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-                    String line;
-
-                    try {
-                        while ((line = err.readLine()) != null) {
-                            System.out.println(line);
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        try {
-                            err.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }.start();
-
-            new Thread() {
-                @Override
-                public void run() {
-                    BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                    String line;
-
-                    try {
-                        System.out.println("printing...");
-                        while ((line = in.readLine()) != null) {
-                            System.out.println(line);
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        try {
-                            in.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }.start();
+            Thread outputThread = new ProcessStreamReader(process.getInputStream());
+            Thread errorThread = new ProcessStreamReader(process.getErrorStream());
+            outputThread.start();
+            errorThread.start();
 
             if (process.waitFor() != 0) {
                 if (process.exitValue() == 1) {
                     System.out.println("==================================命令执行失败!");
                 }
             }
+            outputThread.join();
+            errorThread.join();
             System.out.println("Simulation finished");
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

@@ -198,6 +198,7 @@ class Simulator:
         scene = Scenario()
         scene.mapType = json_data['mapType']
         if scene.mapType == 'custom':
+            print(f'map type: custom; file path:{path}')
             scene.map = path[:path.rfind(os.path.sep)+1] + json_data['map']
         else:
             scene.map = json_data['map']
