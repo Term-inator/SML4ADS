@@ -464,51 +464,56 @@ public class CodePageController implements Initializable, Route {
                     " ./src/main/java/com/ecnu/adsmls/simulator/adsml_carla_simulation/src/main.py " +
                     FileSystem.removeSuffix(file) + FileSystem.Suffix.ADSML.value + " " + params);
 
-//            new Thread(() -> {
-//                BufferedReader err = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-//                String line;
-//
-//                try {
-//                    while((line = err.readLine()) != null) {
-//                        System.out.println(line);
-//                    }
-//                }
-//                catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//                finally {
-//                    try {
-//                        err.close();
-//                    }
-//                    catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }).start();
+            new Thread() {
+                @Override
+                public void run() {
+                    BufferedReader err = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                    String line;
 
-            new Thread(() -> {
-                BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                String line;
-
-                try {
-                    while((line = in.readLine()) != null) {
-                        System.out.println(line);
-                    }
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
-                finally {
                     try {
-                        in.close();
-                    }
-                    catch (IOException e) {
+                        while ((line = err.readLine()) != null) {
+                            System.out.println(line);
+                        }
+                    } catch (IOException e) {
                         e.printStackTrace();
+                    } finally {
+                        try {
+                            err.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
-            }).start();
+            }.start();
 
-            process.waitFor();
+            new Thread() {
+                @Override
+                public void run() {
+                    BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                    String line;
+
+                    try {
+                        System.out.println("printing...");
+                        while ((line = in.readLine()) != null) {
+                            System.out.println(line);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            in.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }.start();
+
+            if (process.waitFor() != 0) {
+                if (process.exitValue() == 1) {
+                    System.out.println("==================================命令执行失败!");
+                }
+            }
             System.out.println("Simulation finished");
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
