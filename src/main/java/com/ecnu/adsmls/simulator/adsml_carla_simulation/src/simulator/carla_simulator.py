@@ -6,7 +6,10 @@
 """
 import os
 import queue
+import random
 import sys
+
+import carla
 import cv2
 import csv
 import traceback
@@ -42,7 +45,7 @@ class CarlaSimulator(Simulator):
     针对Carla仿真器对Simulator的实现
     """
 
-    def __init__(self, img_path, mp4_path, address='127.0.0.1', port=2000, render=True, record=''):
+    def __init__(self, img_path, mp4_path, address='127.0.0.1', port=2000, render=True, record='', data_path=''):
         super().__init__()
         self.client = carla.Client(address, port)
         self.client.set_timeout(5)
@@ -51,6 +54,7 @@ class CarlaSimulator(Simulator):
         self.scenario_number = 0  # 正在进行仿真的场景数量
         self.img_path = img_path
         self.mp4_path = mp4_path
+        self.data_path = data_path
 
     def destroy(self):
         """
@@ -65,7 +69,7 @@ class CarlaSimulator(Simulator):
         :return: Simulation
         """
         return CarlaSimulation(scene, self.client, self.render, self.scenario_number, self.img_path, self.mp4_path,
-                               recorder=self.record)
+                               recorder=self.record, data_path=self.data_path)
 
 
 class CarlaSimulation(Simulation):
@@ -103,12 +107,13 @@ class CarlaSimulation(Simulation):
         self.data_path = data_path
         self.action = Action(self.map, self.parser, 3)
         self.models = []
+        self.spec_tf = None
         self.read_config()
 
         if self.data_path != "":
             self.data_file = open(self.data_path, 'w', encoding='utf-8')
             self.data_writer = csv.writer(self.data_file)
-            self.data_writer.writerow(('name', 'x', 'y', 'velocity'))
+            self.data_writer.writerow(('name', 'x', 'y', 'velocity', 'acceleration', 'forward', 'bounding box', 'semantic tags'))
         else:
             self.data_file = None
 
@@ -172,7 +177,8 @@ class CarlaSimulation(Simulation):
             if self.recorder != '':
                 self.client.start_recorder(self.recorder)
             spectator = self.world.get_spectator()
-            spectator.set_transform(self.vehicles[0].get_transform())
+            spectator.set_transform(self.spec_tf)
+            self.camera.set_transform(self.spec_tf)
             while True:
                 ego_tf = self.vehicles[0].get_transform()
                 ego_loc = ego_tf.location
@@ -180,7 +186,7 @@ class CarlaSimulation(Simulation):
                     ego_tf = self.vehicles[0].get_transform()
                 forward_vector = ego_tf.get_forward_vector()
                 spec_loc = ego_tf.location + carla.Location(0, 0, 5)
-                spec_loc += forward_vector * (-10)
+                spec_loc += forward_vector * (-8)
                 spec_rot = ego_tf.rotation
                 spectator.set_transform(carla.Transform(spec_loc, spec_rot))
                 if self.camera is not None:
@@ -199,7 +205,6 @@ class CarlaSimulation(Simulation):
                     self.timestamp += self.time_step
                     sensor_queue.get()
             result.duration = self.timestamp
-            self.generate_mp4()
             return result
         except Exception as err:
             print(err.args)
@@ -220,8 +225,8 @@ class CarlaSimulation(Simulation):
         :param is_test:
         :return: list[].
         """
-        spawn_wps = self.get_vehicle_spawn_point(length=len(cars))
         self.agents = {}
+        spawn_tfs: dict = self.get_spawn_transforms(cars)
         for index, car in enumerate(cars):
             print(f'car {index}:')
             if car.model != 'random':
@@ -230,34 +235,22 @@ class CarlaSimulation(Simulation):
                 bp = self.bpl.find(random.choice(self.models))
             print(f'blueprint: {bp.id}')
             bp.set_attribute('role_name', car.name)
-            if car.location_type == 'Lane Position':
-                if car.init_lane_id == 0:
-                    spawn_wp = spawn_wps[index]
-                else:
-                    offset = MapFilter.choice_lane_random(car.road_min_offset, car.road_max_offset)
-                    print(f'offset {offset}')
-                    spawn_wp = self.map.get_waypoint_xodr(car.init_road_id, car.init_lane_id, offset)
-                    if spawn_wp is None:
-                        raise RuntimeError('cannot get spawn point from given road and lane ids.')
-            else:
-                spawn_wp = self.map.get_waypoint(car.x, car.y)
-                if spawn_wp is None:
-                    raise RuntimeError('cannot get spawn point from given x and y values.')
-            spawn_tf = spawn_wp.transform
+            spawn_tf = spawn_tfs[car.name]
+            if spawn_tf is None:
+                raise RuntimeError(f'Cannot generate car {car.name}')
+            print(f'road deviation:{car.road_deviation}')
             spawn_tf.rotation.yaw += car.road_deviation
-            location = spawn_tf.location + carla.Location(0, 0, 0.2)
-            if car.min_lateral_offset != 0 or car.max_lateral_offset != 0:
-                lateral_offset = MapFilter.choice_lane_random(car.min_lateral_offset, car.max_lateral_offset)
-                vector = lateral_offset * spawn_tf.get_right_vector()
-                location += carla.Location(vector)
-                print(f'deviation:{car.road_deviation}, offset:{lateral_offset}, vector:{vector}')
-            print(location)
-            tf = carla.Transform(location, spawn_tf.rotation)
+            tf = spawn_tf
             vehicle = self.world.spawn_actor(bp, tf)
+            if index == 0:
+                self.spec_tf = tf
+                self.spec_tf.location += self.spec_tf.get_forward_vector() * (-8)
+                self.spec_tf.location.z += 5
             if car.init_speed > 0 and not is_test:
                 vec = vehicle.get_transform().get_forward_vector()
                 vec.z = 0.0
                 vel = car.init_speed * vec
+                print(f'init speed: {car.init_speed}; vel vec: {vel}')
                 vehicle.enable_constant_velocity(vel)
             self.vehicles.append(vehicle)
             model = 'asy' if self.time_step == 0 else 'sy'
@@ -316,13 +309,10 @@ class CarlaSimulation(Simulation):
                 pos = vehicle.get_transform().location
                 wp = self.map.get_waypoint(pos)
                 acc = vehicle.get_acceleration()
-                print(f'acc: {acc}')
                 vel = vehicle.get_velocity()
                 info.laneId = wp.lane_id
                 info.roadId = wp.lane_id
                 info.acceleration = math.sqrt(acc.x ** 2 + acc.y ** 2 + acc.z ** 2)
-                if abs(info.acceleration - 1) < 0.3:
-                    print(f'\033[0;31;40m acc:{info.acceleration} \033[0m')
                 info.intersection = wp.is_junction
                 info.junctionId = wp.get_junction().id if wp.get_junction() is not None else -1
                 info.laneSectionId = wp.section_id
@@ -332,6 +322,7 @@ class CarlaSimulation(Simulation):
                 info.road_s = wp.s
                 info.lane_s = wp.s
                 info.waypoint = wp
+                info.vehicle = vehicle
                 # TODO: info.offset
                 states[name] = info
                 print(f'{name} state:{info}')
@@ -343,13 +334,18 @@ class CarlaSimulation(Simulation):
         """
         for name, state in self.curr_states.items():
             loc = state.waypoint.transform.location
-            self.data_writer.writerow((name, loc.x, loc.y, state.speed))
+            forward_vec = state.vehicle.get_transform().get_forward_vector()
+            bounding_box = state.vehicle.bounding_box
+            semantic_tags = state.vehicle.semantic_tags
+            self.data_writer.writerow((name, loc.x, loc.y, state.speed, state.acceleration, forward_vec,
+                                       bounding_box, semantic_tags))
 
     def check_end(self):
         """
         检查本次仿真是否结束
         :return:
         """
+        print(f'check end, simulation duration:{self.timestamp}, simulation time:{self.scene.simulationTime}')
         if self.timestamp >= self.scene.simulationTime or \
                 (self.time_step == 0 and
                  datetime.now().timestamp() - self.timestamp.timestamp() >= self.scene.simulationTime):
@@ -387,7 +383,8 @@ class CarlaSimulation(Simulation):
         """
         # if os.path.exists():
         #     os.remove()
-        self.data_file.close()
+        if self.data_file is not None:
+            self.data_file.close()
         self.client.apply_batch([carla.command.DestroyActor(x) for x in self.vehicles])
         self.client.apply_batch([carla.command.DestroyActor(self.camera)])
         self.vehicles.clear()
@@ -463,15 +460,19 @@ class CarlaSimulation(Simulation):
         """
         创建同步需要用到的传感器和队列
         """
+        ls = os.listdir(store_path)
+        for i in ls:
+            c_path = os.path.join(store_path, i)
+            os.remove(c_path)
         blueprint = self.bpl.find('sensor.camera.rgb')
-        blueprint.set_attribute('image_size_x', '1920')
-        blueprint.set_attribute('image_size_y', '1080')
-        blueprint.set_attribute('fov', '110')
+        blueprint.set_attribute('image_size_x', '1000')
+        blueprint.set_attribute('image_size_y', '1000')
+        blueprint.set_attribute('fov', '60')
         # blueprint.set_attribute('sensor_tick', '0.05')
         ego_tf = self.vehicles[0].get_transform()
         forward_vector = ego_tf.get_forward_vector()
         spec_loc = ego_tf.location + carla.Location(0, 0, 5)
-        spec_loc += forward_vector * (-10)
+        spec_loc += forward_vector * (-5)
         spec_rot = ego_tf.rotation
         # spec_rot.pitch -= 90
         sensor = self.world.spawn_actor(blueprint, carla.Transform(spec_loc, spec_rot))
@@ -498,26 +499,106 @@ class CarlaSimulation(Simulation):
         """
         :return:
         """
-        size = (1920, 1080)
+        print(f'generating mp4, path:{self.mp4_path}, pic_count:{self.pic_count}, img_path:{self.img_path}')
+        size = (1000, 1000)
         fourcc = cv2.VideoWriter_fourcc(*"mp4v")
         videowrite = cv2.VideoWriter(self.mp4_path, fourcc, 8, size)
         img_array = []
-        for i in range(self.pic_count):
+        for i in range(self.pic_count-1):
             filename = self.img_path + f'/{i}.png'
             img = cv2.imread(filename)
             if img is None:
                 print(filename + " is error!")
                 continue
             img_array.append(img)
-        for i in range(self.pic_count):
-            videowrite.write(img_array[i])
+        print(f'pic file number:{len(img_array)}')
+        for img in img_array:
+            videowrite.write(img)
+        print('generate mp4 succeed.')
 
     def read_config(self):
         """
         :return:
         """
         print('read config')
-        with open(os.path.abspath('./config.json'), 'r', encoding='utf-8') as file:
+        with open(os.path.abspath('./simulator/config.json'), 'r', encoding='utf-8') as file:
             json_file = json.load(file)
             self.models = json_file['models']
         print('read config finished')
+
+    def get_spawn_transforms(self, cars: list) -> dict:
+        """
+        :param cars:
+        :return:
+        """
+        print('choosing spawn waypoints of cars.')
+        spawn_wps = self.get_vehicle_spawn_point(length=len(cars))
+        chosen_tfs = {}
+        relate_qu = []
+        for car in cars:
+            print(f'car name: {car.name}, loc type: {car.location_type}')
+            if car.location_type == 'Lane Position':
+                if car.init_lane_id == 0:
+                    random_wp = random.choice(spawn_wps)
+                    chosen_tfs[car.name] = random_wp.transform
+                    spawn_wps.remove(random_wp)
+                else:
+                    offset = MapFilter.choice_lane_random(car.road_min_offset, car.road_max_offset)
+                    spawn_wp = self.map.get_waypoint_xodr(car.init_road_id, car.init_lane_id, offset)
+                    if spawn_wp is None or spawn_wp.lane_type != carla.LaneType.Driving:
+                        raise RuntimeError('cannot get spawn point from given road and lane ids.')
+                    else:
+                        tf: carla.Transform = spawn_wp.transform
+                        lateral_offset = MapFilter.choice_lane_random(car.min_lateral_offset, car.max_lateral_offset)
+                        right_vector = tf.get_right_vector()
+                        tf.location += right_vector * lateral_offset
+                        tf.location += carla.Location(0, 0, 0.3)
+                        chosen_tfs[car.name] = tf
+                        print(f'long offset:{offset}, lateral offset:{lateral_offset}')
+            elif car.location_type == 'Global Position':
+                spawn_wp = self.map.get_waypoint(carla.Location(car.x, car.y, 0))
+                if spawn_wp is None:
+                    raise RuntimeError('cannot get spawn point from given x and y values.')
+                else:
+                    spawn_wp.transform.location += carla.Location(0, 0, 0.3)
+                    chosen_tfs[car.name] = spawn_wp.transform
+            elif car.location_type == 'Road Position':
+                offset = MapFilter.choice_lane_random(car.road_min_offset, car.road_max_offset)
+                lateral_offset = MapFilter.choice_lane_random(car.min_lateral_offset, car.max_lateral_offset)
+                abs_offset = abs(lateral_offset)
+                if lateral_offset >= 0:
+                    lane_id = -1
+                else:
+                    lane_id = 1
+                wp = self.map.get_waypoint_xodr(car.init_road_id, lane_id, offset)
+                while abs_offset > wp.lane_width:
+                    abs_offset -= wp.lane_width
+                    if lateral_offset >= 0:
+                        lane_id -= 1
+                    else:
+                        lane_id += 1
+                    wp = self.map.get_waypoint_xodr(car.init_road_id, lane_id, offset)
+                tf = wp.transform
+                tf.location += tf.get_right_vector() * (abs_offset - (wp.lane_width / 2))
+                tf.location += carla.Location(0, 0, 0.3)
+                chosen_tfs[car.name] = tf
+                print(f'offset:{offset}; lat_offset:{lateral_offset}; lane_id:{wp.lane_id}')
+            else:
+                relate_qu.append(car)
+            print(f'chosen transform: {chosen_tfs[car.name]}')
+        for car in relate_qu:
+            print(f'relate location of car {car.name}:')
+            print(f'ref car:{car.actor_ref}')
+            ref_tf: carla.Transform = chosen_tfs[car.actor_ref]
+            ref_loc = ref_tf.location
+            longitudinal_offset = MapFilter.choice_lane_random(car.road_min_offset, car.road_max_offset)
+            forward_vector = ref_tf.get_forward_vector()
+            lateral_offset = MapFilter.choice_lane_random(car.min_lateral_offsetm, car.max_lateral_offset)
+            right_vector = ref_tf.get_right_vector()
+            spawn_loc = ref_loc + longitudinal_offset * forward_vector + lateral_offset * right_vector
+            spawn_wp = self.map.get_waypoint(spawn_loc, project_to_road=False)
+            spawn_wp.transform.location += carla.Location(0, 0, 0.3)
+            chosen_tfs[car.name] = spawn_wp.transform
+            print(f'long offset:{longitudinal_offset}, lateral offset:{lateral_offset}')
+            print(f'chosen transform: {chosen_tfs[car.name]}')
+        return chosen_tfs

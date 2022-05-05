@@ -16,9 +16,9 @@ def generate_mp4():
     """
     size = (1920, 1080)
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-    videowrite = cv2.VideoWriter(r'D:/Carla/Data/video/example2.mp4', fourcc, 8, size)
+    videowrite = cv2.VideoWriter(r'D:/Python/Pycharm Programs/AutonomousDrivingSimulation/store/scenario/mp4/default.mp4', fourcc, 8, size)
     img_array = []
-    for filename in [r'D:/Carla/Data/picture/example2/{0}.png'.format(i) for i in range(67)]:
+    for filename in [r'D:/Python/Pycharm Programs/AutonomousDrivingSimulation/store/scenario/img/{0}.png'.format(i) for i in range(67)]:
         img = cv2.imread(filename)
         if img is None:
             print(filename + " is error!")
@@ -66,7 +66,7 @@ if __name__ == "__main__":
     args = parse_args()
     print(f'args: {args}')
     carla_simulator = CarlaSimulator(args['scenario_img_path'], args['mp4_path'], address=args['ip'],
-                                     port=args['port'], record=args['recorder'])
+                                     port=args['port'], record=args['recorder'], data_path=args['csv_path'])
     if args['scene'] == -1:
         simulation_result = carla_simulator.simulate(path=args['path'])
         print(simulation_result)

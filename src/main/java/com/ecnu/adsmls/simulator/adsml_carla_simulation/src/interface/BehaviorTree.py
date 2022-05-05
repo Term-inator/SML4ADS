@@ -208,6 +208,7 @@ class BehaviorTree:
             node = BehaviorNode()
             node.state = VehicleState.KEEP
             node.duration = 5
+            node.target_vel = self.current.target_vel
             return node
         if not is_force and isinstance(self.current, BehaviorNode):
             transitions = self.current.transitions
