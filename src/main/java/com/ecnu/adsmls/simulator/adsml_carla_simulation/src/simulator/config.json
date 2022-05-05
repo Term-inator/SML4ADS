@@ -33,5 +33,11 @@
     "vehicle.toyota.prius",
     "vehicle.volkswagen.t2",
     "vehicle.volkswagen.t2_2021"
-  ]
+  ],
+  "camera": {
+    "size": [
+      1000,
+      1000
+    ]
+  }
 }

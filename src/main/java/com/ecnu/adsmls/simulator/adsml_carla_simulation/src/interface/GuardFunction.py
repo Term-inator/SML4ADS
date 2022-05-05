@@ -10,8 +10,8 @@ import sys
 
 try:
     curr_dir = os.getcwd()
-    parent_dir = curr_dir[:curr_dir.rfind('\\')]
-    src_dir = parent_dir[:parent_dir.rfind('\\')]
+    parent_dir = curr_dir[:curr_dir.rfind(os.path.sep)]
+    src_dir = parent_dir[:parent_dir.rfind(os.path.sep)]
     sys.path.append(parent_dir)
 except IndexError:
     print('append path error!')
@@ -34,16 +34,18 @@ def hasObjWithinDisInLane(car: CarInfo, dis):
     dis = float(dis)
     for k, v in guard_args.items():
         car_loc: carla.Location = car.waypoint.transform.location
-        if isinstance(v, CarInfo):
+        if isinstance(v, CarInfo) and v.name != car.name:
             v_loc = v.waypoint.transform.location
             if car_loc.distance(v_loc) <= dis:
                 if v.laneId == car.laneId and v.roadId == car.roadId:
+                    print(f'dis {car_loc.distance(v_loc)}; car_loc:{car_loc}; v_loc:{v_loc}')
                     return True
                 else:
                     i = 1
                     wp: carla.Waypoint = car.waypoint.next(1)[0]
                     while i <= dis + 1:
                         if wp.road_id == v.roadId and wp.lane_id == v.laneId:
+                            print(f'dis {i}')
                             return True
                         wp: carla.Waypoint = wp.next(1)[0]
                         i += 1
@@ -62,7 +64,7 @@ def hasObjWithinDisInLeftLane(car: CarInfo, dis):
         return False
     for k, v in guard_args.items():
         car_loc: carla.Location = car.waypoint.transform.location
-        if isinstance(v, CarInfo):
+        if isinstance(v, CarInfo) and v.name != car.name:
             v_loc = v.waypoint.transform.location
             if car_loc.distance(v_loc) <= dis:
                 if abs(v.laneId) < abs(car.laneId) and v.roadId == car.roadId:
@@ -90,7 +92,7 @@ def hasObjWithinDisInRightLane(car, dis):
         return False
     for k, v in guard_args.items():
         car_loc: carla.Location = car.waypoint.transform.location
-        if isinstance(v, CarInfo):
+        if isinstance(v, CarInfo) and v.name != car.name:
             v_loc = v.waypoint.transform.location
             if car_loc.distance(v_loc) <= dis:
                 if abs(v.laneId) > abs(car.laneId) and v.roadId == car.roadId:

@@ -35,8 +35,7 @@ public class LocationRegister extends FunctionRegister {
 
         Function roadPosition = new Function("Road Position");
         roadPosition.addParam("roadId", Function.DataType.INT, Function.Necessity.REQUIRED);
-        roadPosition.addParam("minLateralOffset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
-                new NotNegative());
+        roadPosition.addParam("minLateralOffset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED);
         // 根据 lateral 偏移确定 lane
         roadPosition.addParam("maxLateralOffset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
                 new Between(new Reference("minLateralOffset"), new Value(Double.MAX_VALUE), "[)"));

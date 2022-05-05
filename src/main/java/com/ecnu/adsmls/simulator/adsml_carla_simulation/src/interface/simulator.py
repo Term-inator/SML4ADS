@@ -63,6 +63,7 @@ class Car:
         self.max_speed = 10.0
         self.model = 'vehicle.tesla.model3'
         self.name = 'car0'
+        self.actor_ref = ''
         self.road_min_offset = 0.0
         self.road_max_offset = 0.0
         self.min_lateral_offset = 0.0
@@ -197,7 +198,8 @@ class Simulator:
         scene = Scenario()
         scene.mapType = json_data['mapType']
         if scene.mapType == 'custom':
-            scene.map = path[:path.rfind("/")+1] + json_data['map']
+            print(f'map type: custom; file path:{path}')
+            scene.map = path[:path.rfind(os.path.sep)+1] + json_data['map']
         else:
             scene.map = json_data['map']
         scene.time_step = json_data['timeStep']
@@ -207,7 +209,8 @@ class Simulator:
             scene.endTrigger = json_data['endTrigger']
         else:
             scene.endTrigger = 'False'
-        # scene.guardLibrary = json_data['guardLibrary']
+        if 'guardLibrary' in json_data.keys():
+            scene.guardLibrary = json_data['guardLibrary']
         json_cars = json_data['cars']
         cars = []
         for json_car in json_cars:
@@ -223,18 +226,22 @@ class Simulator:
             car.behavior_tree_path = json_car['treePath']
             car.behavior_tree = BehaviorTree()
             car.behavior_tree.build_tree_from_json(json_dict=json_car['mTree'])
-            if json_car['locationType'] == 'Lane Position':
-                car.location_type = 'Lane Position'
+            car.location_type = json_car['locationType']
+            if car.location_type == 'Lane Position':
                 car.init_road_id = int(location_params['roadId'])
                 car.init_lane_id = int(location_params['laneId'])
+            elif car.location_type == 'Road Position':
+                car.init_road_id = int(location_params['roadId'])
+            elif car.location_type == 'Related Position':
+                car.actor_ref = location_params['actorRef']
+            else:
+                car.x = float(json_car['x'])
+                car.y = float(json_car['y'])
+            if json_car['locationType'] != 'Global Position':
                 car.min_lateral_offset = float(location_params['minLateralOffset'])
                 car.max_lateral_offset = float(location_params['maxLateralOffset'])
                 car.road_min_offset = float(location_params['minLongitudinalOffset'])
                 car.road_max_offset = float(location_params['maxLongitudinalOffset'])
-            else:
-                car.location_type = ''
-                car.x = float(json_car['x'])
-                car.y = float(json_car['y'])
             cars.append(car)
             print(car)
         scene.cars = cars

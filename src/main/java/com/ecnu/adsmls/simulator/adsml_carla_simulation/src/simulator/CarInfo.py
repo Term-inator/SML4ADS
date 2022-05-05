@@ -13,6 +13,7 @@ class CarInfo:
     """
 
     def __init__(self):
+        self.name = ''
         self.roadId = -1
         self.laneSectionId = -1
         self.laneId = -1
@@ -28,6 +29,7 @@ class CarInfo:
         self.model = ''
         self.t = 0.0
         self.waypoint: carla.Waypoint = None
+        self.vehicle = None
 
     def __repr__(self):
         return f'CarInfo[acceleration:{self.acceleration};speed:{self.speed}]'

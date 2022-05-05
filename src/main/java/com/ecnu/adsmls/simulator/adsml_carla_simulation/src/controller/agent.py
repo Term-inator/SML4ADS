@@ -12,8 +12,8 @@ import sys
 
 try:
     curr_dir = os.getcwd()
-    parent_dir = curr_dir[:curr_dir.rfind('\\')]
-    src_dir = parent_dir[:parent_dir.rfind('\\')]
+    parent_dir = curr_dir[:curr_dir.rfind(os.path.sep)]
+    src_dir = parent_dir[:parent_dir.rfind(os.path.sep)]
     sys.path.append(parent_dir)
 except IndexError:
     print('append path error!')
@@ -127,14 +127,9 @@ class Agent:
         # 执行命令
         control = self.controller.run_step(self.behavior_node.acc, self.behavior_node.target_vel, self.next_wp)
         if state != VehicleState.KEEP and (control.throttle > 0 or control.brake > 0):
+            print(f'disable constant velocity')
             self.vehicle.disable_constant_velocity()
-        if self.behavior_node.acc > 0 and get_speed(self.vehicle)/3.6 < self.behavior_node.target_vel:
-            control.throttle = 0
-            control.brake = 0
-            print(f'control[throttle:{control.throttle};brake:{control.brake};steer:{control.steer}]')
-            self.vehicle.apply_control(control)
-            self.vehicle.add_force(self.compute_force_from_acceleration(self.behavior_node.acc))
-        elif self.behavior_node.acc < 0 and get_speed(self.vehicle)/3.6 > self.behavior_node.target_vel:
+        if self.behavior_node.acc != 0 and abs(get_speed(self.vehicle)/3.6 - self.behavior_node.target_vel) > 1:
             control.throttle = 0
             control.brake = 0
             print(f'control[throttle:{control.throttle};brake:{control.brake};steer:{control.steer}]')
