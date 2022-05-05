@@ -231,7 +231,7 @@ class Simulator:
                 car.init_lane_id = int(location_params['laneId'])
             elif car.location_type == 'Road Position':
                 car.init_road_id = int(location_params['roadId'])
-            elif car.location_type == 'Relate Position':
+            elif car.location_type == 'Related Position':
                 car.actor_ref = location_params['actorRef']
             else:
                 car.x = float(json_car['x'])
