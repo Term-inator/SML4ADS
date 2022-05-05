@@ -198,7 +198,8 @@ class Simulator:
         scene = Scenario()
         scene.mapType = json_data['mapType']
         if scene.mapType == 'custom':
-            scene.map = path[:path.rfind("/")+1] + json_data['map']
+            print(path)
+            scene.map = path[:path.rfind(os.path.sep)+1] + json_data['map']
         else:
             scene.map = json_data['map']
         scene.time_step = json_data['timeStep']

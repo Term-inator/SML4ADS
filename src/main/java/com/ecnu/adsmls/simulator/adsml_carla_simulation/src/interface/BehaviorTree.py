@@ -12,8 +12,8 @@ import os
 
 try:
     curr_dir = os.getcwd()
-    parent_dir = curr_dir[:curr_dir.rfind('\\')]
-    src_dir = parent_dir[:parent_dir.rfind('\\')]
+    parent_dir = curr_dir[:curr_dir.rfind(os.path.sep)]
+    src_dir = parent_dir[:parent_dir.rfind(os.path.sep)]
     sys.path.append(parent_dir)
 except IndexError:
     print('append path error!')
@@ -217,7 +217,7 @@ class BehaviorTree:
             # 导入用户自定义guard文件
             if _args['guardLibrary'] != '':
                 def_path = _args['guardLibrary']
-                index = def_path.rfind("/")
+                index = def_path.rfind(os.path.sep)
                 print(index)
                 path = def_path[:index]
                 module = def_path[index + 1:def_path.find('.', index)]

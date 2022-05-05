@@ -4,13 +4,14 @@
 @Author : zheng_chenghang
 @Date : 2022/4/21 14:56 
 """
+import os
 import sys
 
 file = 'D:/Python/custom.py'
 
 
 def import_test():
-    index = file.rfind("/")
+    index = file.rfind(os.path.sep)
     print(index)
     path = file[:index]
     module = file[index + 1:file.find('.', index)]

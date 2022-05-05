@@ -394,7 +394,7 @@ public class CodePageController implements Initializable, Route {
             outputPath = outputPath + FileSystem.Suffix.XML.value;
         }
         // TODO 所有的 log 都会在该函数完成时全部出现，可能得开个线程来 log
-        Verifier.verify(new String[] {projectPath + "/",
+        Verifier.verify(new String[] {projectPath + File.separator,
                 FileSystem.getRelativePath(projectPath, FileSystem.removeSuffix(file) + FileSystem.Suffix.ADSML.value),
                 outputPath});
 

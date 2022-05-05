@@ -354,7 +354,7 @@ class CarlaSimulation(Simulation):
         set_guard_args(args)
         if args['guardLibrary'] != '':
             def_path = args['guardLibrary']
-            index = def_path.rfind("/")
+            index = def_path.rfind(os.path.sep)
             print(index)
             path = def_path[:index]
             module = def_path[index + 1:def_path.find('.', index)]

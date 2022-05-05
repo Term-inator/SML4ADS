@@ -34,7 +34,7 @@ def parse_args() -> dict:
     :return:
     """
     curr_folder = os.getcwd()
-    project_path = curr_folder[:curr_folder.rfind("\\") + 1]
+    project_path = curr_folder[:curr_folder.rfind(os.path.sep) + 1]
     scenario_img_path = project_path + 'store/scenario/img'
     mp4_path = project_path + 'store/scenario/mp4/default.mp4'
     scene_path = project_path + 'store/scene'
@@ -51,6 +51,20 @@ def parse_args() -> dict:
     return vars(parser.parse_args())
 
 
+def pre_process_args(args: dict):
+    """
+    对参数进行预处理
+    :param args:
+    :return:
+    """
+    args['path'] = args['path'].replace('\\', '/')
+    args['scenario_img_path'] = args['scenario_img_path'].replace('\\', '/')
+    args['mp4_path'] = args['mp4_path'].replace('\\', '/')
+    args['scene_img_path'] = args['scene_img_path'].replace('\\', '/')
+    args['recorder'] = args['recorder'].replace('\\', '/')
+    args['csv_path'] = args['csv_path'].replace('\\', '/')
+
+
 """
 调用可能需要传递的参数：
 1：仿真时存储rgb camera记录的图片的路径
@@ -64,6 +78,7 @@ def parse_args() -> dict:
 """
 if __name__ == "__main__":
     args = parse_args()
+    pre_process_args(args)
     print(f'args: {args}')
     carla_simulator = CarlaSimulator(args['scenario_img_path'], args['mp4_path'], address=args['ip'],
                                      port=args['port'], record=args['recorder'], data_path=args['csv_path'])
