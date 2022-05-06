@@ -14,7 +14,7 @@ def parse_args():
     :return:
     """
     curr_folder = os.getcwd()
-    project_path = curr_folder[:curr_folder.rfind(os.path.sep)+1]
+    project_path = curr_folder[:curr_folder.rfind("\\")+1]
     scenario_img_path = project_path + 'store/scenario/img/'
     mp4_path = project_path + 'store/scenario/mp4/default.mp4'
     scene_path = project_path + 'store/scene/'

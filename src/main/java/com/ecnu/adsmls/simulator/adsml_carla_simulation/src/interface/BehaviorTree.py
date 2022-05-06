@@ -217,7 +217,7 @@ class BehaviorTree:
             # 导入用户自定义guard文件
             if _args['guardLibrary'] != '':
                 def_path = _args['guardLibrary']
-                index = def_path.rfind(os.path.sep)
+                index = def_path.rfind("/")
                 print(index)
                 path = def_path[:index]
                 module = def_path[index + 1:def_path.find('.', index)]

@@ -16,10 +16,10 @@ import traceback
 
 try:
     curr_dir = os.getcwd()
-#     parent_dir = curr_dir[:curr_dir.rfind('\\')]
-#     src_dir = parent_dir[:parent_dir.rfind('\\')]
+#     parent_dir = curr_dir[:curr_dir.rfind(os.path.sep)]
+#     src_dir = parent_dir[:parent_dir.rfind(os.path.sep)]
 #     sys.path.append(parent_dir)
-    sys.path.append(curr_dir + "/src/main/java/com/ecnu/adsmls/simulator/adsml_carla_simulation")
+    sys.path.append(curr_dir + "/src/main/java/com/ecnu/adsmls/simulator/adsml_carla_simulation/")
 except IndexError:
     print('append path error!')
 
@@ -256,8 +256,9 @@ class CarlaSimulation(Simulation):
                 vehicle.enable_constant_velocity(vel)
             self.vehicles.append(vehicle)
             model = 'asy' if self.time_step == 0 else 'sy'
-            agent = Agent(self.map, self.parser, vehicle, car.behavior_tree, self.action,
-                          args_lateral=args_lateral_dict, args_longitudinal=args_longitudinal_dict, model=model)
+            agent = Agent(self.map, self.parser, vehicle, car.behavior_tree, self.action, max_speed=car.max_speed,
+                          min_speed=car.min_speed, args_lateral=args_lateral_dict,
+                          args_longitudinal=args_longitudinal_dict, model=model)
             self.agents[car.name] = agent
             print(f'generate car {index} finished')
         return self.vehicles
@@ -357,7 +358,7 @@ class CarlaSimulation(Simulation):
         set_guard_args(args)
         if args['guardLibrary'] != '':
             def_path = args['guardLibrary']
-            index = def_path.rfind(os.path.sep)
+            index = def_path.rfind("/")
             print(index)
             path = def_path[:index]
             module = def_path[index + 1:def_path.find('.', index)]
@@ -524,7 +525,7 @@ class CarlaSimulation(Simulation):
         :return:
         """
         print('read config')
-        with open(os.path.abspath('./src/main/java/com/ecnu/adsmls/simulator/adsml_carla_simulation/src/simulator/config.json'), 'r', encoding='utf-8') as file:
+        with open(os.path.abspath('./simulator/config.json'), 'r', encoding='utf-8') as file:
             json_file = json.load(file)
             self.models = json_file['models']
         print('read config finished')
