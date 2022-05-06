@@ -9,10 +9,9 @@ import sys
 
 try:
     curr_dir = os.getcwd()
-#     parent_dir = curr_dir[:curr_dir.rfind('\\')]
-#     src_dir = parent_dir[:parent_dir.rfind('\\')]
-#     sys.path.append(parent_dir)
-    sys.path.append(curr_dir + "/src/main/java/com/ecnu/adsmls/simulator/adsml_carla_simulation/src/")
+    parent_dir = curr_dir[:curr_dir.rfind(os.path.sep)]
+    src_dir = parent_dir[:parent_dir.rfind(os.path.sep)]
+    sys.path.append(parent_dir)
 except IndexError:
     print('append path error!')
 
@@ -61,6 +60,7 @@ class Car:
         self.init_lane_id = 0
         self.behavior_tree = None
         self.max_speed = 10.0
+        self.min_speed = 0.0
         self.model = 'vehicle.tesla.model3'
         self.name = 'car0'
         self.actor_ref = ''
@@ -199,14 +199,14 @@ class Simulator:
         scene.mapType = json_data['mapType']
         if scene.mapType == 'custom':
             print(f'map type: custom; file path:{path}')
-            scene.map = path[:path.rfind(os.path.sep)+1] + json_data['map']
+            scene.map = path[:path.rfind('/')+1] + json_data['map']
         else:
             scene.map = json_data['map']
         scene.time_step = json_data['timeStep']
         scene.weather = json_data['weather']
         scene.simulationTime = int(json_data['simulationTime'])
-        if 'endTrigger' in json_data.keys():
-            scene.endTrigger = json_data['endTrigger']
+        if 'scenarioEndTrigger' in json_data.keys() and json_data['scenarioEndTrigger'] != "":
+            scene.endTrigger = json_data['scenarioEndTrigger']
         else:
             scene.endTrigger = 'False'
         if 'guardLibrary' in json_data.keys():
@@ -214,13 +214,13 @@ class Simulator:
         json_cars = json_data['cars']
         cars = []
         for json_car in json_cars:
-            print(json_car)
             car = Car()
             location_params = json_car['locationParams']
             car.name = json_car['name']
             car.heading = bool(json_car['heading'])
             car.init_speed = float(json_car['initSpeed'])
             car.max_speed = float(json_car['maxSpeed'])
+#             car.min_speed = float(json_car['minSpeed'])
             car.model = json_car['model']
             car.road_deviation = float(json_car['roadDeviation'])
             car.behavior_tree_path = json_car['treePath']

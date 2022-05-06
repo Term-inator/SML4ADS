@@ -2,6 +2,7 @@ package com.ecnu.adsmls.views.codepage;
 
 import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.editor.Editor;
+import com.ecnu.adsmls.service.SimulatorService;
 import com.ecnu.adsmls.utils.ProcessStreamReader;
 import com.ecnu.adsmls.utils.log.MyStaticOutputStreamAppender;
 import com.ecnu.adsmls.utils.register.impl.LocationRegister;
@@ -20,6 +21,7 @@ import com.ecnu.adsmls.router.params.CodePageParams;
 import com.ecnu.adsmls.router.params.Global;
 import com.ecnu.adsmls.utils.FileSystem;
 import com.ecnu.adsmls.verifier.Verifier;
+import hprose.client.HproseHttpClient;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -61,6 +63,8 @@ public class CodePageController implements Initializable, Route {
     private String directory;
     // 项目名
     private String projectName;
+
+    private HproseHttpClient client = new HproseHttpClient();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -439,49 +443,20 @@ public class CodePageController implements Initializable, Route {
 
         this.infoArea.clear();
 
-        StringBuilder params = new StringBuilder();
+        Map<String, String> params = new HashMap<>();
+        params.put("path", FileSystem.removeSuffix(file) + FileSystem.Suffix.ADSML.value);
         if(sm.isScene()) {
-            params.append("-");
-            params.append(sm.getMode());
-            params.append(" ");
-            params.append(sm.getScenarioNum());
+            params.put("scene", sm.getScenarioNum());
         }
 
-//        Map<String, Boolean> carConfig = sm.getCarConfiguration();
-//        StringBuilder params = new StringBuilder();
-//        int i = carConfig.size() - 1;
-//        int res = 0;
-//        for(Map.Entry<String, Boolean> param : carConfig.entrySet()) {
-//            if(param.getValue() == true) {
-//                res += (1 << i);
-//            }
-//            --i;
-//        }
-//        params.append("--car ");
-//        params.append(res);
+        this.client.close();
+        this.client = new HproseHttpClient();
+        client.setKeepAlive(false);
+        client.useService("http://127.0.0.1:20225/RPC");
 
-        System.out.println(FileSystem.removeSuffix(file));
-        try {
-            Process process = Runtime.getRuntime().exec(pythonEnv +
-                    " ./src/main/java/com/ecnu/adsmls/simulator/adsml_carla_simulation/src/main.py " +
-                    FileSystem.removeSuffix(file) + FileSystem.Suffix.ADSML.value + " " + params);
-
-            Thread outputThread = new ProcessStreamReader(process.getInputStream());
-            Thread errorThread = new ProcessStreamReader(process.getErrorStream());
-            outputThread.start();
-            errorThread.start();
-
-            if (process.waitFor() != 0) {
-                if (process.exitValue() == 1) {
-                    System.out.println("==================================命令执行失败!");
-                }
-            }
-            outputThread.join();
-            errorThread.join();
-            System.out.println("Simulation finished");
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
+        SimulatorService service = client.useService(SimulatorService.class);
+        service.run(params);
+        System.out.println("Simulation finished");
     }
 
     private void openFile(File file, String suffix) {

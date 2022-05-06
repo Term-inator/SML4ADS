@@ -8,6 +8,7 @@ import argparse
 import os
 from simulator.carla_simulator import CarlaSimulator
 import cv2
+import hprose
 
 
 def generate_mp4():
@@ -57,7 +58,26 @@ def pre_process_args(args: dict):
     :param args:
     :return:
     """
-#     args['path'] = args['path'].replace('\\', '/')
+    curr_folder = os.getcwd()
+    project_path = curr_folder[:curr_folder.rfind(os.path.sep) + 1]
+    scenario_img_path = project_path + 'store/scenario/img'
+    mp4_path = project_path + 'store/scenario/mp4/default.mp4'
+    scene_path = project_path + 'store/scene'
+    default_args = {
+        'path': '',
+        'scene': -1,
+        'scenario_img_path': scenario_img_path,
+        'mp4_path': mp4_path,
+        'scene_img_path': scene_path,
+        'recorder': '',
+        'ip': '127.0.0.1',
+        'port': 2000,
+        'csv_path': ''
+    }
+    for key in default_args:
+        args.setdefault(key, default_args[key])
+
+    args['path'] = args['path'].replace('\\', '/')
     args['scenario_img_path'] = args['scenario_img_path'].replace('\\', '/')
     args['mp4_path'] = args['mp4_path'].replace('\\', '/')
     args['scene_img_path'] = args['scene_img_path'].replace('\\', '/')
@@ -76,8 +96,7 @@ def pre_process_args(args: dict):
 7：CARLA服务器所在IP和端口（默认本地：2000）
 8：是否记录时空轨道数据，如果是，存储文件的路径
 """
-if __name__ == "__main__":
-    args = parse_args()
+def run(args):
     pre_process_args(args)
     print(f'args: {args}')
     carla_simulator = CarlaSimulator(args['scenario_img_path'], args['mp4_path'], address=args['ip'],
@@ -89,3 +108,16 @@ if __name__ == "__main__":
         carla_simulator.static_scene(path=args['path'], img_path=args['scene_img_path'], count=args['scene'])
     print('simulation finished.')
     # generate_mp4()
+
+
+def main():
+    server = hprose.HttpServer(port=20225)
+    server.addFunction(run)
+    server.handle('RPC')
+    server.start()
+
+
+if __name__ == "__main__":
+    main()
+#     args = parse_args()
+#     run(args)

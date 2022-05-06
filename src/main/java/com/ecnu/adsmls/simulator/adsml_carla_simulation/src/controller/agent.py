@@ -129,7 +129,7 @@ class Agent:
         if state != VehicleState.KEEP and (control.throttle > 0 or control.brake > 0):
             print(f'disable constant velocity')
             self.vehicle.disable_constant_velocity()
-        if self.behavior_node.acc != 0 and abs(get_speed(self.vehicle)/3.6 - self.behavior_node.target_vel) > 1:
+        if self.behavior_node.acc != 0 and abs(get_speed(self.vehicle)/3.6 - self.behavior_node.target_vel) > 2:
             control.throttle = 0
             control.brake = 0
             print(f'control[throttle:{control.throttle};brake:{control.brake};steer:{control.steer}]')
