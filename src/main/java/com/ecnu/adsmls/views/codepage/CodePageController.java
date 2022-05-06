@@ -434,6 +434,20 @@ public class CodePageController implements Initializable, Route {
         }
         String pythonEnv = Global.pythonEnv;
 
+        // TODO 依旧死锁, 直接cmd运行main.py需要修改carla_simulator.py的sys.path.append()
+//        try {
+//            Process process = Runtime.getRuntime().exec(
+//                    pythonEnv + " ./src/main/java/com/ecnu/adsmls/simulator/adsml_carla_simulation/src/main.py");
+//
+//            ProcessStreamReader output = new ProcessStreamReader(process.getInputStream());
+//            ProcessStreamReader error = new ProcessStreamReader(process.getErrorStream());
+//            output.start();
+//            error.start();
+//            process.waitFor();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+
         // 模拟选项
         SimulateModal sm = new SimulateModal();
         sm.getWindow().showAndWait();
@@ -452,6 +466,7 @@ public class CodePageController implements Initializable, Route {
         this.client.close();
         this.client = new HproseHttpClient();
         client.setKeepAlive(false);
+        // TODO 设置端口?
         client.useService("http://127.0.0.1:20225/RPC");
 
         SimulatorService service = client.useService(SimulatorService.class);
