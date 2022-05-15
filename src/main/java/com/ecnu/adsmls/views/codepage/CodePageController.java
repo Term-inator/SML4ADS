@@ -124,13 +124,7 @@ public class CodePageController implements Initializable, Route {
             String config = JSON.toJSONString(mConfig);
             System.out.println(config);
             String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
-            try {
-                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(FileSystem.concatAbsolutePath(projectPath, ".adsml"), "config" + FileSystem.Suffix.JSON.value), false), StandardCharsets.UTF_8));
-                bw.write(config);
-                bw.close();
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
+            FileSystem.JSONWriter(new File(FileSystem.concatAbsolutePath(projectPath, ".adsml"), "config" + FileSystem.Suffix.JSON.value), config);
         });
 
         MenuItem closeProject = new MenuItem("Close Project");
@@ -186,14 +180,7 @@ public class CodePageController implements Initializable, Route {
             FileSystem.createFile(dir, "config" + FileSystem.Suffix.JSON.value);
         }
         else {
-            String config = null;
-            try {
-                BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(dir, "config" + FileSystem.Suffix.JSON.value)), StandardCharsets.UTF_8));
-                config = br.readLine();
-                br.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            String config = FileSystem.JSONReader(new File(dir, "config" + FileSystem.Suffix.JSON.value));
             this.mConfig = JSON.parseObject(config, MConfig.class);
             if(this.mConfig == null) {
                 this.mConfig = new MConfig();
@@ -285,14 +272,7 @@ public class CodePageController implements Initializable, Route {
         this.infoArea.clear();
 
 
-        String model = null;
-        try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
-            model = br.readLine();
-            br.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String model = FileSystem.JSONReader(file);
         MModel mModel = JSON.parseObject(model, MModel.class);
         if(mModel == null) {
             return;
@@ -304,14 +284,7 @@ public class CodePageController implements Initializable, Route {
             String treePath = mCar.getTreePath();
             MTree mTree = null;
             if(!treePath.isEmpty()) {
-                String tree = null;
-                try {
-                    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(projectPath, treePath)), StandardCharsets.UTF_8));
-                    tree = br.readLine();
-                    br.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                String tree = FileSystem.JSONReader(new File(projectPath, treePath));
                 mTree = JSON.parseObject(tree, MTree.class);
                 if (mTree == null) {
                     return;
@@ -327,16 +300,10 @@ public class CodePageController implements Initializable, Route {
 
         model = JSON.toJSONString(mModel);
         System.out.println(model);
-        try {
-            String outFilename = FileSystem.removeSuffix(file) + FileSystem.Suffix.ADSML.value;
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFilename,false), StandardCharsets.UTF_8));
-            bw.write(model);
-            bw.close();
-            // 更新同级目录
-            this.multiLevelDirectory.updateSameLevel(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String outFilename = FileSystem.removeSuffix(file) + FileSystem.Suffix.ADSML.value;
+        FileSystem.JSONWriter(new File(outFilename), model);
+        // 更新同级目录
+        this.multiLevelDirectory.updateSameLevel(file);
     }
 
     @FXML
@@ -350,14 +317,7 @@ public class CodePageController implements Initializable, Route {
         // 当前显示的 tab
         File file = ((Editor) this.tabPane.getSelectionModel().getSelectedItem().getUserData()).getFile();
 
-        String model = null;
-        try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
-            model = br.readLine();
-            br.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String model = FileSystem.JSONReader(file);
         MModel mModel = JSON.parseObject(model, MModel.class);
         if(mModel == null) {
             return;
@@ -381,13 +341,7 @@ public class CodePageController implements Initializable, Route {
 
         model = JSON.toJSONString(mModel);
         System.out.println(model);
-        try {
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file,false), StandardCharsets.UTF_8));
-            bw.write(model);
-            bw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        FileSystem.JSONWriter(file, model);
 
         String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
         String outputPath = vrm.getOutputPath();

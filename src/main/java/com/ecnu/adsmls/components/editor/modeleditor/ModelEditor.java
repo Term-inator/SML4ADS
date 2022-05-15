@@ -87,14 +87,7 @@ public class ModelEditor extends Editor {
     // 由于关闭自动保存，其他在打开 Editor 后修改的内容会在关闭时被覆盖，所以 save 前要先 load
     @Override
     public void save() {
-        String model = null;
-        try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(this.projectPath, this.relativePath)), StandardCharsets.UTF_8));
-            model = br.readLine();
-            br.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String model = FileSystem.JSONReader(new File(this.projectPath, this.relativePath));
         MModel mModel = JSON.parseObject(model, MModel.class);
         if (mModel == null) {
             mModel = new MModel();
@@ -139,25 +132,12 @@ public class ModelEditor extends Editor {
         mModel.setCars(cars);
         model = JSON.toJSONString(mModel);
         System.out.println(model);
-        try {
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(this.projectPath, this.relativePath), false), StandardCharsets.UTF_8));
-            bw.write(model);
-            bw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        FileSystem.JSONWriter(new File(this.projectPath, this.relativePath), model);
     }
 
     @Override
     public void load() {
-        String model = null;
-        try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(this.projectPath, this.relativePath)), StandardCharsets.UTF_8));
-            model = br.readLine();
-            br.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String model = FileSystem.JSONReader(new File(this.projectPath, this.relativePath));
         MModel mModel = JSON.parseObject(model, MModel.class);
         if (mModel == null) {
             return;

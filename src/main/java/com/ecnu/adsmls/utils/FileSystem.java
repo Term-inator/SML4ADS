@@ -2,8 +2,8 @@ package com.ecnu.adsmls.utils;
 
 import javafx.util.Pair;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
@@ -247,5 +247,32 @@ public class FileSystem {
 
     public static String getRegSuffix(Suffix suffix) {
         return "*" + suffix.value;
+    }
+
+    /**
+     * 读取单行 JSON
+     * @param file
+     * @return
+     */
+    public static String JSONReader(File file) {
+        String content = null;
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
+            content = br.readLine();
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return content;
+    }
+
+    public static void JSONWriter(File file, String content) {
+        try {
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file,false), StandardCharsets.UTF_8));
+            bw.write(content);
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

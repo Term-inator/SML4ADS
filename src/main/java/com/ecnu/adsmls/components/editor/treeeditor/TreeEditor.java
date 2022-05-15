@@ -5,6 +5,7 @@ import com.ecnu.adsmls.components.editor.Editor;
 import com.ecnu.adsmls.components.editor.treeeditor.impl.*;
 import com.ecnu.adsmls.model.*;
 import com.ecnu.adsmls.utils.Converter;
+import com.ecnu.adsmls.utils.FileSystem;
 import com.ecnu.adsmls.utils.Position;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -457,27 +458,15 @@ public class TreeEditor extends Editor {
         }
         String tree = JSON.toJSONString(mTree);
         System.out.println(tree);
-        try {
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(this.projectPath, this.relativePath),false), StandardCharsets.UTF_8));
-            bw.write(tree);
-            bw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        FileSystem.JSONWriter(new File(this.projectPath, this.relativePath), tree);
     }
 
     @Override
     public void load() {
         // 算出当前最大 id
         long componentId = 0;
-        String tree = null;
-        try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(this.projectPath, this.relativePath)), StandardCharsets.UTF_8));
-            tree = br.readLine();
-            br.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String tree = FileSystem.JSONReader(new File(this.projectPath, this.relativePath));
+
         MTree mTree = JSON.parseObject(tree, MTree.class);
         if(mTree == null) {
             return;
