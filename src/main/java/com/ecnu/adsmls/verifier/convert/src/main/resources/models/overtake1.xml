@@ -4,7 +4,7 @@
 	<declaration>
 /************************************* 地图类型定义 *************************************/
 
-/**  
+/**
     Road的结构体
 
     elementType = 1        表示Road类型
@@ -671,8 +671,8 @@ void turnRight(Car&amp; car){
     *2：车道是否是前后继关系(其他车辆在当前车的前方, car1可能会撞上car2)
 **/
 bool isInSameLane(Car car1, Car car2) {
-    return car1.laneIndex == car2.laneIndex 
-            || (!car1.heading &amp;&amp; lanes[car1.laneIndex].predecessorIndex == car2.laneIndex) 
+    return car1.laneIndex == car2.laneIndex
+            || (!car1.heading &amp;&amp; lanes[car1.laneIndex].predecessorIndex == car2.laneIndex)
             || (car1.heading &amp;&amp; lanes[car1.laneIndex].successorIndex == car2.laneIndex);
 }
 

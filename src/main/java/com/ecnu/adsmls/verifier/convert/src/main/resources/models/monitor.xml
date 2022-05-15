@@ -428,13 +428,13 @@ double speed_up(double v_e){
 			<name x="-146" y="-136">m1</name>
 			<label kind="invariant" x="-178" y="-85">loc_e' == v_e &amp;&amp;
 loc_1b' == v_1b &amp;&amp;
-loc_0f' == v_0f &amp;&amp; 
+loc_0f' == v_0f &amp;&amp;
 loc_1f' == v_1f</label>
 		</location>
 		<location id="id23" x="0" y="-102">
 			<name x="-10" y="-136">m2</name>
 			<label kind="invariant" x="-25" y="-85">loc_e' == 0 &amp;&amp;
-loc_1b' == 0 &amp;&amp; 
+loc_1b' == 0 &amp;&amp;
 loc_0f' == 0 &amp;&amp;
 loc_1f' == 0</label>
 		</location>

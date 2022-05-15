@@ -29,7 +29,7 @@ public class Function {
         return functionName;
     }
 
-    public void addParam(String paramName, DataType dataType, Necessity necessity, Requirement ...requirements) {
+    public void addParam(String paramName, DataType dataType, Necessity necessity, Requirement... requirements) {
         this.params.add(new FunctionParam(paramName, dataType, necessity, requirements));
     }
 
@@ -42,20 +42,17 @@ public class Function {
     }
 
     public void check() throws EmptyParamException, DataTypeException, RequirementException {
-        for(FunctionParam functionParam : params) {
+        for (FunctionParam functionParam : params) {
             String value = this.context.get(functionParam.getParamName());
             try {
                 functionParam.check(this.context, value);
-            }
-            catch (EmptyParamException e) {
+            } catch (EmptyParamException e) {
                 this.context.clear();
                 throw new EmptyParamException(e);
-            }
-            catch (DataTypeException e) {
+            } catch (DataTypeException e) {
                 this.context.clear();
                 throw new DataTypeException(e);
-            }
-            catch (RequirementException e) {
+            } catch (RequirementException e) {
                 this.context.clear();
                 throw new RequirementException(e);
             }
@@ -70,7 +67,7 @@ public class Function {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof FunctionParam) {
+        if (obj instanceof FunctionParam) {
             Function other = (Function) obj;
             return Objects.equals(this.functionName, other.functionName);
         }

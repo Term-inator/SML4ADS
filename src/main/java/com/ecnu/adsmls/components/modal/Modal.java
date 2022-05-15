@@ -40,20 +40,19 @@ public abstract class Modal {
     // 是否点击了确认
     protected boolean confirm = true;
 
-    public Modal() {}
+    public Modal() {
+    }
 
     public boolean isConfirm() {
         return this.confirm;
     }
 
     public void setStyle(String key, Object obj) {
-        if(Objects.equals(key, "stageStyle")) {
+        if (Objects.equals(key, "stageStyle")) {
             this.stageStyle = (StageStyle) obj;
-        }
-        else if(Objects.equals(key, "opacity")) {
+        } else if (Objects.equals(key, "opacity")) {
             this.opacity = (Double) obj;
-        }
-        else if(Objects.equals(key, "background")) {
+        } else if (Objects.equals(key, "background")) {
             this.background = (Background) obj;
         }
     }
@@ -71,7 +70,7 @@ public abstract class Modal {
 
         // Enter -> Confirm
         this.window.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
-            if(e.getCode() == KeyCode.ENTER) {
+            if (e.getCode() == KeyCode.ENTER) {
                 this.confirm();
             }
         });
@@ -113,12 +112,11 @@ public abstract class Modal {
         this.update();
         // 检查填写是否合法
         this.check();
-        if(valid) {
+        if (valid) {
             // 填写合法后做的操作
             this.then();
             this.window.close();
-        }
-        else {
+        } else {
             this.valid = true;
         }
     }

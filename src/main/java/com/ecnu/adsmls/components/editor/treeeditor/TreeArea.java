@@ -103,10 +103,10 @@ public abstract class TreeArea extends TreeComponent implements Draggable, Linka
     @Override
     public List<Node> remove() {
         List<Node> res = new ArrayList<>(super.remove());
-        for(int i = this.inTransitions.size() - 1; i >= 0; --i) {
+        for (int i = this.inTransitions.size() - 1; i >= 0; --i) {
             res.addAll(this.inTransitions.get(i).remove());
         }
-        for(int i = this.outTransitions.size() - 1; i >= 0; --i) {
+        for (int i = this.outTransitions.size() - 1; i >= 0; --i) {
             res.addAll(this.outTransitions.get(i).remove());
         }
         return res;

@@ -65,11 +65,11 @@
 			<source ref="id0"/>
 			<target ref="id2"/>
 			<label kind="guard" x="110" y="-68">112</label>
-			<label kind="assignment" x="170" y="-161">The numbers on the edges represent the triplet identification of the edges (level, group, number). 
+			<label kind="assignment" x="170" y="-161">The numbers on the edges represent the triplet identification of the edges (level, group, number).
 For example, 213 indicates that level=2, group=1, and number=3。
-That is, the edge is in 
-- the 2nd layer of the tree, 
-- the 1st node of the layer, 
+That is, the edge is in
+- the 2nd layer of the tree,
+- the 1st node of the layer,
 - the 3rd edge of all the next edges of the node</label>
 		</transition>
 		<transition>

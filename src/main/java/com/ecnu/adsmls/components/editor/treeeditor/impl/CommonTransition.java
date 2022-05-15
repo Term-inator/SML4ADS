@@ -19,7 +19,7 @@ public class CommonTransition extends Transition {
     @Override
     public String getInfo() {
         StringBuilder res = new StringBuilder();
-        if(this.guard != null) {
+        if (this.guard != null) {
             res.append(this.guard);
         }
         return res.toString();

@@ -7,7 +7,7 @@
     int offset;
 }Car;
 
-Car car = {15, 15, 0}; 
+Car car = {15, 15, 0};
 int timestep = 10;
 
 clock time;

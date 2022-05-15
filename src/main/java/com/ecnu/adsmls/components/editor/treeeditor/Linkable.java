@@ -8,6 +8,7 @@ import com.ecnu.adsmls.utils.Position;
 public interface Linkable {
     /**
      * 获取连接点
+     *
      * @param adjacentPoint 相邻的那一个点
      * @return adjacentPoint 和设定点（一般为图形中点）连线与图形边框的交点
      */

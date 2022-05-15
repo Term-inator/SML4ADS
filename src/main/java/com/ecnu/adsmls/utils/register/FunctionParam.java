@@ -12,7 +12,7 @@ public class FunctionParam {
     Function.Necessity necessity;
     Set<Requirement> requirements = new HashSet<>();
 
-    public FunctionParam(String paramName, Function.DataType dataType, Function.Necessity necessity, Requirement ...requirements) {
+    public FunctionParam(String paramName, Function.DataType dataType, Function.Necessity necessity, Requirement... requirements) {
         this.paramName = paramName;
         this.dataType = dataType;
         this.necessity = necessity;
@@ -36,8 +36,7 @@ public class FunctionParam {
             case INT: {
                 try {
                     Integer.parseInt(value);
-                }
-                catch (Exception ignored) {
+                } catch (Exception ignored) {
                     throw new DataTypeException(this.paramName + " should be Integer.");
                 }
                 break;
@@ -45,8 +44,7 @@ public class FunctionParam {
             case DOUBLE: {
                 try {
                     Double.parseDouble(value);
-                }
-                catch (Exception ignored) {
+                } catch (Exception ignored) {
                     throw new DataTypeException(this.paramName + " should be Double.");
                 }
                 break;
@@ -63,24 +61,22 @@ public class FunctionParam {
 
     private boolean checkRequirements(Map<String, String> context, String value) throws RequirementException {
         context.put(this.paramName, value);
-        for(Requirement requirement : this.requirements) {
+        for (Requirement requirement : this.requirements) {
             requirement.check(context, value);
         }
         return true;
     }
 
     public void check(Map<String, String> context, String value) throws EmptyParamException, DataTypeException, RequirementException {
-        if(value == null || value.isEmpty()) {
-            if(!Objects.equals(this.necessity, Function.Necessity.OPTIONAL)) {
+        if (value == null || value.isEmpty()) {
+            if (!Objects.equals(this.necessity, Function.Necessity.OPTIONAL)) {
                 throw new EmptyParamException(this.paramName + " is required.");
             }
-        }
-        else {
+        } else {
             this.checkType(value);
             try {
                 this.checkRequirements(context, value);
-            }
-            catch (RequirementException e) {
+            } catch (RequirementException e) {
                 String errMsg = e.getMessage();
                 throw new RequirementException(this.paramName + errMsg);
             }
@@ -94,7 +90,7 @@ public class FunctionParam {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof FunctionParam) {
+        if (obj instanceof FunctionParam) {
             FunctionParam other = (FunctionParam) obj;
             return Objects.equals(this.paramName, other.paramName);
         }

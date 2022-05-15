@@ -1,13 +1,18 @@
 package com.ecnu.adsmls.components.mutileveldirectory;
 
-import com.ecnu.adsmls.utils.FileSystem;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.TextFieldTreeCell;
-import javafx.scene.input.MouseEvent;
 import javafx.util.StringConverter;
+
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 树形多级目录
@@ -80,10 +85,11 @@ public class MultiLevelDirectory {
 
     /**
      * 为该组件设置菜单内容，外部调用
+     *
      * @param menuItems 菜单项
      */
     public void setMenu(List<MenuItem> menuItems) {
-        for(MenuItem menuItem :menuItems) {
+        for (MenuItem menuItem : menuItems) {
             this.menu.getItems().add(menuItem);
         }
         System.out.println(this.menu.getItems());
@@ -99,21 +105,20 @@ public class MultiLevelDirectory {
         List<File> fileBuffer = new ArrayList<>();
         List<TreeItem<File>> treeItems = new ArrayList<>();
         assert fileList != null;
-        for(File file : fileList) {
-            if(file.isFile()) {
+        for (File file : fileList) {
+            if (file.isFile()) {
                 fileBuffer.add(file);
-            }
-            else if(file.isDirectory()) {
+            } else if (file.isDirectory()) {
                 TreeItem<File> treeItem = new TreeItem<>(file);
                 // 为了让文件夹有展开箭头（能被展开），对内部有文件的文件夹进行填充
-                if(file.listFiles() != null && file.listFiles().length != 0) {
+                if (file.listFiles() != null && file.listFiles().length != 0) {
                     treeItem.getChildren().add(new TreeItem<>());
                 }
                 treeItems.add(treeItem);
                 this.index.put(file.getAbsolutePath(), treeItem);
             }
         }
-        for(File file : fileBuffer) {
+        for (File file : fileBuffer) {
             TreeItem<File> treeItem = new TreeItem<>(file);
             treeItems.add(treeItem);
             this.index.put(file.getAbsolutePath(), treeItem);
@@ -141,7 +146,7 @@ public class MultiLevelDirectory {
         // 文件新建在哪取决于当前哪个节点是 active 的
         TreeItem<File> focusedItem = this.treeView.getFocusModel().getFocusedItem();
         // 如果 active 的不是文件夹，则新建在和该文件同级的位置
-        if(focusedItem.getValue().isFile()) {
+        if (focusedItem.getValue().isFile()) {
             focusedItem = focusedItem.getParent();
         }
         this.updateNode(focusedItem);
@@ -149,6 +154,7 @@ public class MultiLevelDirectory {
 
     /**
      * 删除文件
+     *
      * @param itemDeleted 删除的文件对应的 TreeItem
      */
     public void deleteFile(TreeItem<File> itemDeleted) {

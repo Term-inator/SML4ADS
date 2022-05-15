@@ -3,7 +3,6 @@ package com.ecnu.adsmls.components.editor.treeeditor.impl;
 
 import com.ecnu.adsmls.components.modal.Modal;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Background;
@@ -72,8 +71,7 @@ public class ProbabilityTransitionModal extends Modal {
     private void checkWeight() {
         try {
             Integer.parseInt(this.weight);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
 //            e.printStackTrace();
             System.out.println("Weight should be Integer.");
             this.valid = false;

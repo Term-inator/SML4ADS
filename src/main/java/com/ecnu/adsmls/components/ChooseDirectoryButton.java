@@ -41,11 +41,11 @@ public class ChooseDirectoryButton {
             Stage stage = (Stage) rootLayout.getScene().getWindow();
             DirectoryChooser dirChooser = new DirectoryChooser();
             dirChooser.setTitle("Choose Directory");
-            if(this.initDir != null) {
+            if (this.initDir != null) {
                 dirChooser.setInitialDirectory(new File(this.initDir));
             }
             this.folder = dirChooser.showDialog(stage);
-            if(this.folder != null) {
+            if (this.folder != null) {
                 this.lbDirName.setText(folder.getAbsolutePath());
             }
             // 自适应大小

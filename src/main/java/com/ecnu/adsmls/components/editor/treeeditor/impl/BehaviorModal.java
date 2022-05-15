@@ -11,7 +11,10 @@ import com.ecnu.adsmls.utils.register.impl.BehaviorRegister;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -22,7 +25,10 @@ import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
 import javafx.stage.StageStyle;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 
 public class BehaviorModal extends Modal {
@@ -70,11 +76,11 @@ public class BehaviorModal extends Modal {
 
         this.behaviorFunction = BehaviorRegister.getBehaviorFunction(this.behaviorName);
         int row = 0;
-        for(Map.Entry<String, String> param : this.paramsValue.entrySet()) {
+        for (Map.Entry<String, String> param : this.paramsValue.entrySet()) {
             FunctionParam functionParam = this.behaviorFunction.getParams().get(row);
             String labelName = param.getKey();
-            if(Objects.equals(functionParam.getNecessity(), Function.Necessity.REQUIRED)) {
-                labelName =  labelName + "*";
+            if (Objects.equals(functionParam.getNecessity(), Function.Necessity.REQUIRED)) {
+                labelName = labelName + "*";
             }
             Label lbParamName = new Label(labelName);
             TextField tfParamValue = new TextField(param.getValue());
@@ -111,10 +117,10 @@ public class BehaviorModal extends Modal {
             this.behaviorFunction = BehaviorRegister.getBehaviorFunction(this.behaviorName);
             // 生成界面
             int row = 0;
-            for(FunctionParam param : this.behaviorFunction.getParams()) {
+            for (FunctionParam param : this.behaviorFunction.getParams()) {
                 String labelName = param.getParamName();
-                if(Objects.equals(param.getNecessity(), Function.Necessity.REQUIRED)) {
-                    labelName =  labelName + "*";
+                if (Objects.equals(param.getNecessity(), Function.Necessity.REQUIRED)) {
+                    labelName = labelName + "*";
                 }
                 Label lbParamName = new Label(labelName);
                 TextField tfParamValue = new TextField();
@@ -158,15 +164,14 @@ public class BehaviorModal extends Modal {
         this.paramsValue.clear();
         String paramName = "";
         String paramValue = "";
-        for(Node node : this.behaviorParamsGridPane.getChildren()) {
-            if(node instanceof Label) {
+        for (Node node : this.behaviorParamsGridPane.getChildren()) {
+            if (node instanceof Label) {
                 paramName = ((Label) node).getText();
                 // 必填的参数对应的参数名
-                if(paramName.charAt(paramName.length() - 1) == '*') {
+                if (paramName.charAt(paramName.length() - 1) == '*') {
                     paramName = paramName.substring(0, paramName.length() - 1);
                 }
-            }
-            else if(node instanceof TextField) {
+            } else if (node instanceof TextField) {
                 paramValue = ((TextField) node).getText();
                 this.paramsValue.put(paramName, paramValue);
                 // 更新上下文

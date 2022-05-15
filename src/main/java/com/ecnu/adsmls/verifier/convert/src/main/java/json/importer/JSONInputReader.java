@@ -11,9 +11,9 @@ public class JSONInputReader {
 
     public static String readFromFile(String JSONPath) {
 
-        if(JSONPath.endsWith(".tree")) {
+        if (JSONPath.endsWith(".tree")) {
             int start = 0;
-            if(JSONPath.contains("/")) { // Mac, Linux
+            if (JSONPath.contains("/")) { // Mac, Linux
                 start = JSONPath.lastIndexOf('/');
             } else if (JSONPath.contains("\\")) { // Windows
                 start = JSONPath.lastIndexOf("\\");
@@ -21,7 +21,7 @@ public class JSONInputReader {
 //            log.info("开始解析{}的动态行为模型(JSON)...",
 //                    JSONPath.substring(start+1, JSONPath.lastIndexOf('.')));
             log.info("Start parsing the dynamic model(JSON) of {}...",
-                    JSONPath.substring(start+1, JSONPath.lastIndexOf('.')));
+                    JSONPath.substring(start + 1, JSONPath.lastIndexOf('.')));
         } else {
 //            log.info("开始解析JSON文件：{}...", JSONPath);
             log.info("Start parsing JSON file: {}...", JSONPath);

@@ -27,7 +27,7 @@ public abstract class Component {
         });
         this.graphicNode.addEventHandler(MouseEvent.MOUSE_EXITED, e -> {
             this.graphicNode.setCursor(Cursor.DEFAULT);
-            if(this.selected) {
+            if (this.selected) {
                 System.out.println("selected");
                 return;
             }
@@ -48,13 +48,13 @@ public abstract class Component {
     }
 
     protected void addNode(Node node) {
-        if(!this.graphicNode.getChildren().contains(node)) {
+        if (!this.graphicNode.getChildren().contains(node)) {
             this.graphicNode.getChildren().add(node);
         }
     }
 
     protected void addNodes(Node... nodes) {
-        for(Node node : nodes) {
+        for (Node node : nodes) {
             this.addNode(node);
         }
     }
@@ -66,12 +66,16 @@ public abstract class Component {
     // 被激活
     public void active() {
         this.shape.setStroke(Color.ORANGE);
-    };
+    }
+
+    ;
 
     // 非激活
     public void inactive() {
         this.shape.setStroke(Color.ROYALBLUE);
-    };
+    }
+
+    ;
 
     /**
      * 创建节点

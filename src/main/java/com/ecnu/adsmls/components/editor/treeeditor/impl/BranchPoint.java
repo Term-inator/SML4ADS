@@ -25,7 +25,7 @@ public class BranchPoint extends TreeArea {
         Vector2D vector = new Vector2D(center, adjacentPoint);
         double rad = vector.radWithXAxis();
         double x = this.r * Math.cos(rad);
-        double y = - this.r * Math.sin(rad);
+        double y = -this.r * Math.sin(rad);
         return new Position(center.x + x, center.y + y);
     }
 

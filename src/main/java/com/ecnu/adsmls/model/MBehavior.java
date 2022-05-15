@@ -24,7 +24,8 @@ public class MBehavior {
         this.treeTextPosition = treeTextPosition;
     }
 
-    public MBehavior() {}
+    public MBehavior() {
+    }
 
     public long getId() {
         return id;

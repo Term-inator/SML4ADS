@@ -43,7 +43,7 @@ public class TreeText extends Area {
     @Override
     public void inactive() {
         // 依附的节点被选中则不进入 inactive 状态
-        if(this.component.isSelected()) {
+        if (this.component.isSelected()) {
             return;
         }
         this.shape.setFill(Color.BLACK);

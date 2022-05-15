@@ -11,6 +11,7 @@ public class ProcessStreamReader extends Thread {
     public ProcessStreamReader(InputStream inputStream) {
         this.inputStream = inputStream;
     }
+
     public void run() {
         InputStreamReader inputStreamReader = null;
         BufferedReader br = null;
@@ -27,7 +28,7 @@ public class ProcessStreamReader extends Thread {
 //            while (br.readLine() != null);
         } catch (IOException ioe) {
             ioe.printStackTrace();
-        }finally {
+        } finally {
             try {
                 br.close();
                 inputStreamReader.close();

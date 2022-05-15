@@ -17,8 +17,7 @@ public enum BehaviorType {
     IDLE("Idle"),
     LANE_OFFSET("laneOffset"),
     START("Start"),
-    END("End")
-    ;
+    END("End");
 
     private String value;
 

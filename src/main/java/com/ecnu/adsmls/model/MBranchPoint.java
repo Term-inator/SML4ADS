@@ -10,7 +10,8 @@ public class MBranchPoint {
         this.position = position;
     }
 
-    public MBranchPoint() {}
+    public MBranchPoint() {
+    }
 
     public long getId() {
         return id;

@@ -25,12 +25,13 @@ public abstract class TreeComponent extends Component {
 
     /**
      * 依附文字的初始位置
+     *
      * @return Position 对象
      */
     public abstract Position getTextPosition();
 
     public void initTreeText() {
-        if(this.treeText == null) {
+        if (this.treeText == null) {
             this.treeText = new TreeText(this);
             this.treeText.updateNode();
         }
@@ -46,6 +47,7 @@ public abstract class TreeComponent extends Component {
 
     /**
      * 获取描述信息，显示在 TreeText 中
+     *
      * @return
      */
     public abstract String getInfo();
@@ -62,7 +64,7 @@ public abstract class TreeComponent extends Component {
     @Override
     public void active() {
         super.active();
-        if(this.treeText != null) {
+        if (this.treeText != null) {
             this.treeText.active();
         }
     }
@@ -70,7 +72,7 @@ public abstract class TreeComponent extends Component {
     @Override
     public void inactive() {
         super.inactive();
-        if(this.treeText != null) {
+        if (this.treeText != null) {
             this.treeText.inactive();
         }
     }
@@ -82,7 +84,7 @@ public abstract class TreeComponent extends Component {
          BranchPoint 没有 TreeText
          所以这里有 TreeText 就删，没有就不删
          */
-        if(this.treeText != null) {
+        if (this.treeText != null) {
             res.add(this.treeText.getNode());
         }
         return res;

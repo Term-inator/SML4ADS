@@ -25,7 +25,8 @@ public class MCommonTransition {
         this.treeTextPosition = treeTextPosition;
     }
 
-    public MCommonTransition() {}
+    public MCommonTransition() {
+    }
 
     public long getId() {
         return id;

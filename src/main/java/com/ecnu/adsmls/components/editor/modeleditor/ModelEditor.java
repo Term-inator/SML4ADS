@@ -19,8 +19,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.File;
 import java.util.*;
 
 public class ModelEditor extends Editor {
@@ -36,7 +35,7 @@ public class ModelEditor extends Editor {
     private ComboBox<String> cbDefaultMap;
     // 天气
     private ComboBox<String> cbWeather;
-    
+
     private double timeStepMin = 0.1;
     private double timeStepMax = 10.0;
     private Spinner<Double> spTimeStep;
@@ -71,15 +70,15 @@ public class ModelEditor extends Editor {
 
     @Override
     public void check() throws EmptyParamException, DataTypeException, RequirementException {
-        if(this.tfSimulationTime.getText().isEmpty()) {
+        if (this.tfSimulationTime.getText().isEmpty()) {
             throw new EmptyParamException("Simulation Time is required.");
         }
         // simulation time 是 time step 的倍数
-        if(Double.parseDouble(this.tfSimulationTime.getText()) / this.spTimeStep.getValue() !=
+        if (Double.parseDouble(this.tfSimulationTime.getText()) / this.spTimeStep.getValue() !=
                 Math.floor(Double.parseDouble(this.tfSimulationTime.getText()) / this.spTimeStep.getValue())) {
             throw new RequirementException("Simulation Time should be a multiple of Time Step");
         }
-        for(Map.Entry<Integer, CarPane> entry: this.carPanes.entrySet()) {
+        for (Map.Entry<Integer, CarPane> entry : this.carPanes.entrySet()) {
             entry.getValue().check();
         }
     }
@@ -87,14 +86,7 @@ public class ModelEditor extends Editor {
     // 由于关闭自动保存，其他在打开 Editor 后修改的内容会在关闭时被覆盖，所以 save 前要先 load
     @Override
     public void save() {
-        String model = null;
-        try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(this.projectPath, this.relativePath)), StandardCharsets.UTF_8));
-            model = br.readLine();
-            br.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String model = FileSystem.JSONReader(new File(this.projectPath, this.relativePath));
         MModel mModel = JSON.parseObject(model, MModel.class);
         if (mModel == null) {
             mModel = new MModel();
@@ -104,7 +96,7 @@ public class ModelEditor extends Editor {
         mModel.setSimulatorType(this.cbSimulatorType.getValue());
 
         mModel.setMapType(this.cbMapType.getValue());
-        if(Objects.equals(this.cbMapType.getValue(), "custom")) {
+        if (Objects.equals(this.cbMapType.getValue(), "custom")) {
             File map = ((ChooseFileButton) this.btMap.getUserData()).getFile();
             if (map == null) {
                 mModel.setMap("");
@@ -114,8 +106,7 @@ public class ModelEditor extends Editor {
                 String relativePath = FileSystem.getRelativePath(this.projectPath, path);
                 mModel.setMap(relativePath);
             }
-        }
-        else if(Objects.equals(this.cbMapType.getValue(), "default")) {
+        } else if (Objects.equals(this.cbMapType.getValue(), "default")) {
             mModel.setMap(this.cbDefaultMap.getValue() + FileSystem.Suffix.MAP.value);
         }
 
@@ -124,8 +115,7 @@ public class ModelEditor extends Editor {
 
         try {
             mModel.setSimulationTime(Double.parseDouble(this.tfSimulationTime.getText()));
-        }
-        catch (Exception ignored) {
+        } catch (Exception ignored) {
             mModel.setSimulationTime(null);
         }
 
@@ -139,25 +129,12 @@ public class ModelEditor extends Editor {
         mModel.setCars(cars);
         model = JSON.toJSONString(mModel);
         System.out.println(model);
-        try {
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(this.projectPath, this.relativePath), false), StandardCharsets.UTF_8));
-            bw.write(model);
-            bw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        FileSystem.JSONWriter(new File(this.projectPath, this.relativePath), model);
     }
 
     @Override
     public void load() {
-        String model = null;
-        try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(this.projectPath, this.relativePath)), StandardCharsets.UTF_8));
-            model = br.readLine();
-            br.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String model = FileSystem.JSONReader(new File(this.projectPath, this.relativePath));
         MModel mModel = JSON.parseObject(model, MModel.class);
         if (mModel == null) {
             return;
@@ -167,13 +144,12 @@ public class ModelEditor extends Editor {
         this.cbSimulatorType.getSelectionModel().select(mModel.getSimulatorType());
 
         this.cbMapType.getSelectionModel().select(mModel.getMapType());
-        if(Objects.equals(mModel.getMapType(), "custom")) {
+        if (Objects.equals(mModel.getMapType(), "custom")) {
             if (!Objects.equals(mModel.getMap(), "")) {
                 // 恢复绝对路径
                 ((ChooseFileButton) this.btMap.getUserData()).setFile(new File(this.projectPath, mModel.getMap()));
             }
-        }
-        else if(Objects.equals(mModel.getMapType(), "default")) {
+        } else if (Objects.equals(mModel.getMapType(), "default")) {
             this.cbDefaultMap.getSelectionModel().select(FileSystem.removeSuffix(mModel.getMap()));
         }
 
@@ -182,8 +158,8 @@ public class ModelEditor extends Editor {
 
         try {
             this.tfSimulationTime.setText(Double.toString(mModel.getSimulationTime()));
+        } catch (Exception ignored) {
         }
-        catch (Exception ignored) {}
 
         this.taScenarioEndTrigger.setText(mModel.getScenarioEndTrigger());
 
@@ -227,28 +203,26 @@ public class ModelEditor extends Editor {
         this.cbMapType.getSelectionModel().select(0);
         Map<String, String> mapFilter = new HashMap<>();
         mapFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.MAP), FileSystem.Suffix.MAP.toString());
-        this.btMap =  new ChooseFileButton(this.gridPane, this.projectPath, mapFilter).getNode();
+        this.btMap = new ChooseFileButton(this.gridPane, this.projectPath, mapFilter).getNode();
         this.defaultMaps = new String[]{"Town01", "Town02", "Town03", "Town04", "Town05", "Town06", "Town07", "Town10"};
         this.cbDefaultMap = new ComboBox<>(FXCollections.observableArrayList(this.defaultMaps));
         this.cbDefaultMap.getSelectionModel().select(0);
         this.mapPane.setHgap(8);
         this.mapPane.addRow(0, this.cbMapType, this.btMap);
         this.cbMapType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if(Objects.equals(newValue, "custom")) {
+            if (Objects.equals(newValue, "custom")) {
                 this.mapPane.getChildren().remove(this.cbDefaultMap);
                 this.mapPane.add(this.btMap, 1, 0);
-            }
-            else if(Objects.equals(newValue, "default")) {
+            } else if (Objects.equals(newValue, "default")) {
                 this.mapPane.getChildren().remove(this.btMap);
                 this.mapPane.add(this.cbDefaultMap, 1, 0);
             }
         });
 
         this.cbSimulatorType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if(Objects.equals(newValue, simulators[0])) {
+            if (Objects.equals(newValue, simulators[0])) {
                 this.defaultMaps = new String[]{"Town01", "Town02", "Town03", "Town04", "Town05", "Town06", "Town07", "Town10"};
-            }
-            else if(Objects.equals(newValue, simulators[1])) {
+            } else if (Objects.equals(newValue, simulators[1])) {
                 this.defaultMaps = new String[]{};
             }
             this.cbDefaultMap.setItems(FXCollections.observableArrayList(this.defaultMaps));

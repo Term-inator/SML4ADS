@@ -67,14 +67,13 @@ public class NewProjectModal extends Modal {
     private void updateDirectory() {
         try {
             this.directory = ((ChooseDirectoryButton) btDir.getUserData()).getFolder().getAbsolutePath();
-        }
-        catch (Exception ignored) {
+        } catch (Exception ignored) {
 
         }
     }
 
     private void checkDirectory() {
-        if(this.directory == null) {
+        if (this.directory == null) {
             this.valid = false;
         }
     }
@@ -84,7 +83,7 @@ public class NewProjectModal extends Modal {
     }
 
     private void checkProjectName() {
-        if(Objects.equals(this.projectName, "")) {
+        if (Objects.equals(this.projectName, "")) {
             this.valid = false;
         }
     }

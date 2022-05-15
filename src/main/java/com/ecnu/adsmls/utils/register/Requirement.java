@@ -7,6 +7,7 @@ import java.util.Map;
 public interface Requirement {
     /**
      * 检查 value 是否满足要求
+     *
      * @param value
      * @return
      */

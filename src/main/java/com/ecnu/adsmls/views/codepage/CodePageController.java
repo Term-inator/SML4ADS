@@ -2,24 +2,23 @@ package com.ecnu.adsmls.views.codepage;
 
 import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.editor.Editor;
-import com.ecnu.adsmls.service.SimulatorService;
-import com.ecnu.adsmls.utils.ProcessStreamReader;
-import com.ecnu.adsmls.utils.log.MyStaticOutputStreamAppender;
-import com.ecnu.adsmls.utils.register.impl.LocationRegister;
 import com.ecnu.adsmls.components.editor.modeleditor.ModelEditor;
 import com.ecnu.adsmls.components.editor.treeeditor.TreeEditor;
-import com.ecnu.adsmls.utils.register.impl.BehaviorRegister;
 import com.ecnu.adsmls.components.modal.*;
 import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
-import com.ecnu.adsmls.model.MConfig;
 import com.ecnu.adsmls.model.MCar;
+import com.ecnu.adsmls.model.MConfig;
 import com.ecnu.adsmls.model.MModel;
 import com.ecnu.adsmls.model.MTree;
 import com.ecnu.adsmls.router.Route;
 import com.ecnu.adsmls.router.Router;
 import com.ecnu.adsmls.router.params.CodePageParams;
 import com.ecnu.adsmls.router.params.Global;
+import com.ecnu.adsmls.service.SimulatorService;
 import com.ecnu.adsmls.utils.FileSystem;
+import com.ecnu.adsmls.utils.log.MyStaticOutputStreamAppender;
+import com.ecnu.adsmls.utils.register.impl.BehaviorRegister;
+import com.ecnu.adsmls.utils.register.impl.LocationRegister;
 import com.ecnu.adsmls.verifier.Verifier;
 import hprose.client.HproseHttpClient;
 import javafx.event.Event;
@@ -27,11 +26,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 
@@ -115,7 +116,7 @@ public class CodePageController implements Initializable, Route {
         setting.setOnAction(e -> {
             SettingsModal sm = new SettingsModal(this.mConfig);
             sm.getWindow().showAndWait();
-            if(!sm.isConfirm()) {
+            if (!sm.isConfirm()) {
                 return;
             }
             // 写入配置文件
@@ -124,13 +125,7 @@ public class CodePageController implements Initializable, Route {
             String config = JSON.toJSONString(mConfig);
             System.out.println(config);
             String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
-            try {
-                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(FileSystem.concatAbsolutePath(projectPath, ".adsml"), "config" + FileSystem.Suffix.JSON.value), false), StandardCharsets.UTF_8));
-                bw.write(config);
-                bw.close();
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
+            FileSystem.JSONWriter(new File(FileSystem.concatAbsolutePath(projectPath, ".adsml"), "config" + FileSystem.Suffix.JSON.value), config);
         });
 
         MenuItem closeProject = new MenuItem("Close Project");
@@ -181,21 +176,13 @@ public class CodePageController implements Initializable, Route {
     private void loadEnvConfig() {
         System.out.println("load env configurations");
         File dir = new File(FileSystem.concatAbsolutePath(this.directory, this.projectName), ".adsml");
-        if(!dir.exists()) {
+        if (!dir.exists()) {
             FileSystem.createDir(dir.getAbsolutePath());
             FileSystem.createFile(dir, "config" + FileSystem.Suffix.JSON.value);
-        }
-        else {
-            String config = null;
-            try {
-                BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(dir, "config" + FileSystem.Suffix.JSON.value)), StandardCharsets.UTF_8));
-                config = br.readLine();
-                br.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        } else {
+            String config = FileSystem.JSONReader(new File(dir, "config" + FileSystem.Suffix.JSON.value));
             this.mConfig = JSON.parseObject(config, MConfig.class);
-            if(this.mConfig == null) {
+            if (this.mConfig == null) {
                 this.mConfig = new MConfig();
                 return;
             }
@@ -223,10 +210,10 @@ public class CodePageController implements Initializable, Route {
 
         this.multiLevelDirectory.getTreeView().setOnMouseClicked(e -> {
             TreeItem<File> selectedItem = this.multiLevelDirectory.getTreeView().getSelectionModel().getSelectedItem();
-            if(selectedItem == null || !selectedItem.getValue().isFile()) {
+            if (selectedItem == null || !selectedItem.getValue().isFile()) {
                 return;
             }
-            if(e.getClickCount() == 2) {
+            if (e.getClickCount() == 2) {
                 String suffix = FileSystem.getSuffix(selectedItem.getValue());
                 this.openFile(selectedItem.getValue(), suffix);
             }
@@ -260,102 +247,78 @@ public class CodePageController implements Initializable, Route {
     protected void preprocess() {
         System.out.println("preprocessing");
         boolean modelOpened = true; // 是否打开了 model 文件
-        if(this.tabPane.getTabs().size() == 0) {
+        if (this.tabPane.getTabs().size() == 0) {
             modelOpened = false;
         }
         // 当前显示的 tab
         Editor editor = (Editor) this.tabPane.getSelectionModel().getSelectedItem().getUserData();
         File file = editor.getFile();
-        if(!Objects.equals(FileSystem.getSuffix(file), FileSystem.Suffix.MODEL.value)) {
+        if (!Objects.equals(FileSystem.getSuffix(file), FileSystem.Suffix.MODEL.value)) {
             modelOpened = false;
         }
 
-        if(!modelOpened) {
+        if (!modelOpened) {
             this.showInfo("Please open model files first");
             return;
         }
 
         try {
             editor.check();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             this.showInfo(e.getMessage());
             return;
         }
         this.infoArea.clear();
 
 
-        String model = null;
-        try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
-            model = br.readLine();
-            br.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String model = FileSystem.JSONReader(file);
         MModel mModel = JSON.parseObject(model, MModel.class);
-        if(mModel == null) {
+        if (mModel == null) {
             return;
         }
         System.out.println(model);
 
         String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
-        for(MCar mCar : mModel.getCars()) {
+        for (MCar mCar : mModel.getCars()) {
             String treePath = mCar.getTreePath();
             MTree mTree = null;
-            if(!treePath.isEmpty()) {
-                String tree = null;
-                try {
-                    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(projectPath, treePath)), StandardCharsets.UTF_8));
-                    tree = br.readLine();
-                    br.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            if (!treePath.isEmpty()) {
+                String tree = FileSystem.JSONReader(new File(projectPath, treePath));
                 mTree = JSON.parseObject(tree, MTree.class);
                 if (mTree == null) {
                     return;
                 }
                 System.out.println(tree);
             }
+            if (!mTree.getErrMsg().isEmpty()) {
+                this.showInfo(mTree.getErrMsg());
+                return;
+            }
             mCar.setMTree(mTree);
         }
 
         model = JSON.toJSONString(mModel);
         System.out.println(model);
-        try {
-            String outFilename = FileSystem.removeSuffix(file) + FileSystem.Suffix.ADSML.value;
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFilename,false), StandardCharsets.UTF_8));
-            bw.write(model);
-            bw.close();
-            // 更新同级目录
-            this.multiLevelDirectory.updateSameLevel(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String outFilename = FileSystem.removeSuffix(file) + FileSystem.Suffix.ADSML.value;
+        FileSystem.JSONWriter(new File(outFilename), model);
+        // 更新同级目录
+        this.multiLevelDirectory.updateSameLevel(file);
     }
 
     @FXML
     private void verify() {
         System.out.println("verifying");
 
-        if(this.tabPane.getTabs().size() == 0) {
+        if (this.tabPane.getTabs().size() == 0) {
             this.showInfo("Please open model files first");
             return;
         }
         // 当前显示的 tab
         File file = ((Editor) this.tabPane.getSelectionModel().getSelectedItem().getUserData()).getFile();
 
-        String model = null;
-        try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
-            model = br.readLine();
-            br.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String model = FileSystem.JSONReader(file);
         MModel mModel = JSON.parseObject(model, MModel.class);
-        if(mModel == null) {
+        if (mModel == null) {
             return;
         }
         System.out.println(model);
@@ -363,7 +326,7 @@ public class CodePageController implements Initializable, Route {
         // 用于验证的 requirements
         VerifyRequirementsModal vrm = new VerifyRequirementsModal(mModel);
         vrm.getWindow().showAndWait();
-        if(!vrm.isConfirm()) {
+        if (!vrm.isConfirm()) {
             return;
         }
 
@@ -377,29 +340,23 @@ public class CodePageController implements Initializable, Route {
 
         model = JSON.toJSONString(mModel);
         System.out.println(model);
-        try {
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file,false), StandardCharsets.UTF_8));
-            bw.write(model);
-            bw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        FileSystem.JSONWriter(file, model);
 
         String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
         String outputPath = vrm.getOutputPath();
-        if(outputPath.isEmpty()) {
+        if (outputPath.isEmpty()) {
             outputPath = FileSystem.removeSuffix(file.getAbsolutePath());
         }
         File outputFile = new File(outputPath);
-        if(!outputFile.isAbsolute()) {
+        if (!outputFile.isAbsolute()) {
             outputPath = FileSystem.concatAbsolutePath(file.getParent(), outputPath);
         }
         System.out.println(outputPath);
-        if(!Objects.equals(FileSystem.getSuffix(outputPath), FileSystem.Suffix.XML.value)) {
+        if (!Objects.equals(FileSystem.getSuffix(outputPath), FileSystem.Suffix.XML.value)) {
             outputPath = outputPath + FileSystem.Suffix.XML.value;
         }
         // TODO 所有的 log 都会在该函数完成时全部出现，可能得开个线程来 log
-        Verifier.verify(new String[] {projectPath + File.separator,
+        Verifier.verify(new String[]{projectPath + File.separator,
                 FileSystem.getRelativePath(projectPath, FileSystem.removeSuffix(file) + FileSystem.Suffix.ADSML.value),
                 outputPath});
 
@@ -413,22 +370,22 @@ public class CodePageController implements Initializable, Route {
         System.out.println("simulating");
 
         boolean modelOpened = true; // 是否打开了 model 文件
-        if(this.tabPane.getTabs().size() == 0) {
+        if (this.tabPane.getTabs().size() == 0) {
             modelOpened = false;
         }
         // 当前显示的 tab
         Editor editor = (Editor) this.tabPane.getSelectionModel().getSelectedItem().getUserData();
         File file = editor.getFile();
-        if(!Objects.equals(FileSystem.getSuffix(file), FileSystem.Suffix.MODEL.value)) {
+        if (!Objects.equals(FileSystem.getSuffix(file), FileSystem.Suffix.MODEL.value)) {
             modelOpened = false;
         }
 
-        if(!modelOpened) {
+        if (!modelOpened) {
             this.showInfo("Please open model files first");
             return;
         }
 
-        if(Global.pythonEnv == null) {
+        if (Global.pythonEnv == null) {
             this.showInfo("set python environment first");
             return;
         }
@@ -451,7 +408,7 @@ public class CodePageController implements Initializable, Route {
         // 模拟选项
         SimulateModal sm = new SimulateModal();
         sm.getWindow().showAndWait();
-        if(!sm.isConfirm()) {
+        if (!sm.isConfirm()) {
             return;
         }
 
@@ -459,7 +416,7 @@ public class CodePageController implements Initializable, Route {
 
         Map<String, String> params = new HashMap<>();
         params.put("path", FileSystem.removeSuffix(file) + FileSystem.Suffix.ADSML.value);
-        if(sm.isScene()) {
+        if (sm.isScene()) {
             params.put("scene", sm.getScenarioNum());
         }
 
@@ -475,18 +432,18 @@ public class CodePageController implements Initializable, Route {
     }
 
     private void openFile(File file, String suffix) {
-        if(this.filesOpened.containsKey(file)) {
+        if (this.filesOpened.containsKey(file)) {
             System.out.println("This file has already been opened");
             // 选择对应的 tab
-            for(Tab tab : this.tabPane.getTabs()) {
-                if(Objects.equals(file, ((Editor) tab.getUserData()).getFile())) {
+            for (Tab tab : this.tabPane.getTabs()) {
+                if (Objects.equals(file, ((Editor) tab.getUserData()).getFile())) {
                     this.tabPane.getSelectionModel().select(tab);
                     break;
                 }
             }
             return;
         }
-        
+
         Tab tab = new Tab(file.getName());
         tab.setOnClosed(e -> {
             System.out.println(tab.getText() + " closed");
@@ -495,13 +452,11 @@ public class CodePageController implements Initializable, Route {
             this.filesOpened.remove(file);
         });
 
-        if(Objects.equals(suffix, FileSystem.Suffix.MODEL.value)) {
+        if (Objects.equals(suffix, FileSystem.Suffix.MODEL.value)) {
             this.openModel(tab, file);
-        }
-        else if(Objects.equals(suffix, FileSystem.Suffix.TREE.value)) {
+        } else if (Objects.equals(suffix, FileSystem.Suffix.TREE.value)) {
             this.openTree(tab, file);
-        }
-        else {
+        } else {
             this.showInfo("Unsupported file");
             return;
         }
@@ -514,53 +469,50 @@ public class CodePageController implements Initializable, Route {
 
     private void newFile(String suffix) {
         NewFileModal nfm;
-        if(Objects.equals(suffix, FileSystem.Suffix.MODEL.value)) {
+        if (Objects.equals(suffix, FileSystem.Suffix.MODEL.value)) {
             nfm = new NewModelModal();
-        }
-        else if(Objects.equals(suffix, FileSystem.Suffix.TREE.value)) {
+        } else if (Objects.equals(suffix, FileSystem.Suffix.TREE.value)) {
             nfm = new NewTreeModal();
-        }
-        else if(Objects.equals(suffix, FileSystem.Suffix.DIR.value)) {
+        } else if (Objects.equals(suffix, FileSystem.Suffix.DIR.value)) {
             nfm = new NewDirectoryModal();
-        }
-        else {
+        } else {
             this.showInfo("Unsupported file");
             return;
         }
 
         nfm.setDirectory(this.multiLevelDirectory.getTreeView().getFocusModel().getFocusedItem().getValue());
         nfm.getWindow().showAndWait();
-        if(!nfm.isConfirm()) {
+        if (!nfm.isConfirm()) {
             return;
         }
-        if(!nfm.isSucceed()) {
+        if (!nfm.isSucceed()) {
             this.showInfo("File or directory already exists");
             return;
         }
         this.multiLevelDirectory.newFile();
 
-        if(!Objects.equals(suffix, FileSystem.Suffix.DIR.value)) {
+        if (!Objects.equals(suffix, FileSystem.Suffix.DIR.value)) {
             this.openFile(new File(nfm.getDirectory(), nfm.getFilename() + suffix), suffix);
         }
     }
 
     /**
      * 删除文件夹时递归关闭涉及到的已经打开的文件
+     *
      * @param file 文件/文件夹
      */
     private void closeFile(File file) {
-        if(file.isFile()) {
-            if(this.filesOpened.containsKey(file)) {
+        if (file.isFile()) {
+            if (this.filesOpened.containsKey(file)) {
                 System.out.println("opened");
                 Tab tab = this.filesOpened.get(file);
                 Event.fireEvent(tab, new Event(Tab.CLOSED_EVENT));
                 this.tabPane.getTabs().remove(tab);
             }
-        }
-        else if(file.isDirectory()) {
+        } else if (file.isDirectory()) {
             File[] files = file.listFiles();
-            if(files != null) {
-                for(File f : files) {
+            if (files != null) {
+                for (File f : files) {
                     this.closeFile(f);
                 }
             }
@@ -576,10 +528,9 @@ public class CodePageController implements Initializable, Route {
         // 如果文件已被打开，先将其关闭（递归关闭）
         this.closeFile(file);
 
-        if(file.isFile()) {
+        if (file.isFile()) {
             System.out.println("file " + FileSystem.deleteFile(file));
-        }
-        else if(file.isDirectory()) {
+        } else if (file.isDirectory()) {
             System.out.println("dir " + FileSystem.deleteDirectory(file));
         }
 

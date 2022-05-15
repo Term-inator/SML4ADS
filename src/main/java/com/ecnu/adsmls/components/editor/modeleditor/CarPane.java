@@ -12,10 +12,12 @@ import com.ecnu.adsmls.utils.register.impl.LocationRegister;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
-import java.io.*;
+import java.io.File;
 import java.util.*;
 
 /**
@@ -52,34 +54,33 @@ public class CarPane {
     }
 
     public void check() throws EmptyParamException, DataTypeException, RequirementException {
-        if(this.tfName.getText().isEmpty()) {
+        if (this.tfName.getText().isEmpty()) {
             throw new EmptyParamException("car.name is required");
         }
-        if(this.tfMaxSpeed.getText().isEmpty()) {
+        if (this.tfMaxSpeed.getText().isEmpty()) {
             throw new EmptyParamException("car.maxSpeed is required.");
         }
-        if(this.tfInitSpeed.getText().isEmpty()) {
+        if (this.tfInitSpeed.getText().isEmpty()) {
             throw new EmptyParamException("car.initSpeed is required.");
         }
-        if(Double.parseDouble(this.tfInitSpeed.getText()) > Double.parseDouble(this.tfMaxSpeed.getText())) {
+        if (Double.parseDouble(this.tfInitSpeed.getText()) > Double.parseDouble(this.tfMaxSpeed.getText())) {
             throw new RequirementException("car.initSpeed should not be larger than car.maxSpeed.");
         }
         this.locationParams.clear();
         Function locationFunction = LocationRegister.getLocationFunction(this.cbLocation.getValue());
         String locationParamName = "";
         String locationParamValue = "";
-        for(Node node : this.gridPaneLocationParams.getChildren()) {
-            if(node instanceof Label) {
+        for (Node node : this.gridPaneLocationParams.getChildren()) {
+            if (node instanceof Label) {
                 locationParamName = ((Label) node).getText();
-            }
-            else if(node instanceof TextField) {
+            } else if (node instanceof TextField) {
                 locationParamValue = ((TextField) node).getText();
                 this.locationParams.put(locationParamName, locationParamValue);
                 locationFunction.updateContext(locationParamName, locationParamValue);
             }
         }
         locationFunction.check();
-        if(this.tfRoadDeviation.getText().isEmpty()) {
+        if (this.tfRoadDeviation.getText().isEmpty()) {
             throw new EmptyParamException("car.roadDeviation is required");
         }
     }
@@ -90,25 +91,22 @@ public class CarPane {
         car.setModel(this.cbModel.getValue());
         try {
             car.setMaxSpeed(Double.parseDouble(this.tfMaxSpeed.getText()));
-        }
-        catch (Exception ignored) {
+        } catch (Exception ignored) {
             car.setMaxSpeed(null);
         }
         try {
             car.setInitSpeed(Double.parseDouble(this.tfInitSpeed.getText()));
-        }
-        catch (Exception ignored) {
+        } catch (Exception ignored) {
             car.setInitSpeed(null);
         }
         car.setLocationType(this.cbLocation.getValue());
 
         String locationParamName = "";
         String locationParamValue = "";
-        for(Node node : this.gridPaneLocationParams.getChildren()) {
-            if(node instanceof Label) {
+        for (Node node : this.gridPaneLocationParams.getChildren()) {
+            if (node instanceof Label) {
                 locationParamName = ((Label) node).getText();
-            }
-            else if(node instanceof TextField) {
+            } else if (node instanceof TextField) {
                 locationParamValue = ((TextField) node).getText();
                 this.locationParams.put(locationParamName, locationParamValue);
             }
@@ -118,8 +116,7 @@ public class CarPane {
         car.setHeading(Objects.equals("same", this.cbHeading.getValue()));
         try {
             car.setRoadDeviation(Double.parseDouble(this.tfRoadDeviation.getText()));
-        }
-        catch (Exception ignored) {
+        } catch (Exception ignored) {
             car.setRoadDeviation(null);
         }
 
@@ -140,21 +137,20 @@ public class CarPane {
         this.cbModel.getSelectionModel().select(mCar.getModel());
         try {
             this.tfMaxSpeed.setText(Double.toString(mCar.getMaxSpeed()));
+        } catch (Exception ignored) {
         }
-        catch (Exception ignored) {}
         try {
             this.tfInitSpeed.setText(Double.toString(mCar.getInitSpeed()));
+        } catch (Exception ignored) {
         }
-        catch (Exception ignored) {}
         this.cbLocation.getSelectionModel().select(mCar.getLocationType());
 
         String locationParamName = "";
         String locationParamValue = "";
-        for(Node node : this.gridPaneLocationParams.getChildren()) {
-            if(node instanceof Label) {
+        for (Node node : this.gridPaneLocationParams.getChildren()) {
+            if (node instanceof Label) {
                 locationParamName = ((Label) node).getText();
-            }
-            else if(node instanceof TextField) {
+            } else if (node instanceof TextField) {
                 locationParamValue = mCar.getLocationParams().get(locationParamName);
                 ((TextField) node).setText(locationParamValue);
             }
@@ -163,8 +159,8 @@ public class CarPane {
         this.cbHeading.getSelectionModel().select(mCar.getHeading() ? "same" : "opposite");
         try {
             this.tfRoadDeviation.setText(Double.toString(mCar.getRoadDeviation()));
+        } catch (Exception ignored) {
         }
-        catch (Exception ignored) {}
         if (!Objects.equals(mCar.getTreePath(), "")) {
             // 恢复绝对路径
             ((ChooseFileButton) this.btDynamic.getUserData()).setFile(new File(this.projectPath, mCar.getTreePath()));
@@ -203,7 +199,7 @@ public class CarPane {
             Function locationFunction = LocationRegister.getLocationFunction(newValue);
             // 生成界面
             int row = 0;
-            for(FunctionParam param : locationFunction.getParams()) {
+            for (FunctionParam param : locationFunction.getParams()) {
                 Label lbParamName = new Label(param.getParamName());
                 TextField tfParamValue = new TextField();
                 gridPaneLocationParams.addRow(row++, lbParamName, tfParamValue);

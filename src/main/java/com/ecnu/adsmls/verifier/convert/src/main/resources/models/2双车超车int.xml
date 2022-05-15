@@ -10,7 +10,7 @@ double roadLengths[1000];
 // 路的最大限速列表 单位m/s
 double  roadMaxSpeeds[1000];
 
-/**  
+/**
     Road的结构体
 
     elementType = 1        表示Road类型
@@ -46,9 +46,9 @@ double  laneSectionLengths[1000];
 
 /**
     LaneSection结构体
-    
+
     elementType = 2          表示LaneSection类型
-    roadIndex                索引值 表示当前LaneSection属于那一条道路 可以在roads数组中查找 
+    roadIndex                索引值 表示当前LaneSection属于那一条道路 可以在roads数组中查找
     roadId                   唯一标志当前LaneSection所属Road
     LaneSectionId            唯一标志一个LaneSection
     startPositionIndex       起始偏移位置索引值  可以在startPositions数组中找到当前LaneSection是距离Road起始位置多少m开始
@@ -67,7 +67,7 @@ typedef struct {
 
 /**
     Lane结构体
-    
+
     elementType = 3          表示Lane类型
     roadId                   当前Lane所属Road的id
     roadIndex                当前Lane所属Road的索引值
@@ -77,7 +77,7 @@ typedef struct {
     predecessorIndex         前继Lane的索引值
     successorIndex           后继Lane的索引值
     laneChange               int类型 由于车道从右到左id递增 用该变量表示当前lane是否允许变道 -1表示不知道 1表示允许向左变道 2表示允许向右变道 3表示两边都允许 4表示两边都不允许
-    
+
 **/
 typedef struct{
     int elementType;
@@ -93,11 +93,11 @@ typedef struct{
 
 /**
     Junction结构体
-    
+
     elementType = 4          表示Junction类型
     junctionId               唯一标志一个junction
     connections[]            Connection结构体数组 表示当前junction连接的 incomingRoad 和 connectingRoad
-    
+
 **/
 typedef struct {
     int elementType;
@@ -107,8 +107,8 @@ typedef struct {
 
 /**
     Connection结构体
-        
-    incomingRoadId          驶入Road的id  
+
+    incomingRoadId          驶入Road的id
     connectingRoadId        驶出Road的id
     incomingRoadIndex       索引值 表示当前Connection连接的驶入Road
     connectingRoadIndex     索引值 表示当前Connection连接Road
@@ -124,7 +124,7 @@ typedef struct {
 
 /**
     LaneLink结构体
-        
+
     from                    表示当前LaneLink连接的 驶入lane的下标索引
     to                      表示当前LaneLink连接的 驶出lane的下标索引
     laneLinks               表示当前连接Road的Lane 连接 驶入Road的Lane的信息
@@ -141,7 +141,7 @@ typedef struct {
 broadcast chan c_update;
 broadcast chan c_end;
 
-broadcast chan c_speedUp; 
+broadcast chan c_speedUp;
 broadcast chan c_speedDown;
 broadcast chan c_keep;
 broadcast chan c_changeToLeftLane;
@@ -165,13 +165,13 @@ typedef struct {
     int id;
     int widthIndex;
     int lengthIndex;
-    
+
     //车的动态信息: 速度, 加速度
     bool heading;
     int speedIndex;
     int accelerationIndex;
-    
-    //车的车道信息: 所在road, lanesection, lane及在road和lane上的偏移量 
+
+    //车的车道信息: 所在road, lanesection, lane及在road和lane上的偏移量
     int roadId;
     int laneSectionId;
     int laneId;
@@ -180,25 +180,25 @@ typedef struct {
     int laneIndex;
     int roadOffsetIndex;
     int laneOffsetIndex;
- 
+
     //为了初始化简便, 可以将id和后面所有的Index设置为同一个, 按序号来, 找索引时直接使用id
 }Car;
 //Car c = {1,1,1,true,2,2,3,3,3,3,3,3,3,3};
 
 /*************************************************************************************** 变量和数据 ************************************************************************************************/
-/** 
+/**
     time                         时钟
     timestep                     时间步长
 
-    MIN_DISTANCE_TO_OVERTAKE     超车的最小距离 
+    MIN_DISTANCE_TO_OVERTAKE     超车的最小距离
     MIN_DISTANCE_TO_CLOSE        两车最小的距离
-    ACCELERATION                 加速加速度 
+    ACCELERATION                 加速加速度
     DECELERATION                 减速加速度
 **/
 clock time;
 const double TIMESTEP = 1.0;
 
-const double MIN_DISTANCE_TO_OVERTAKE = 30.0; 
+const double MIN_DISTANCE_TO_OVERTAKE = 30.0;
 const double MIN_DISTANCE_TO_CLOSE = 20.0;
 const double ACCELERATION = 5.0;
 const double DECELERATION = -5.0;
@@ -206,7 +206,7 @@ const double DECELERATION = -5.0;
 Lane tempLane;
 // ?
 Road roads[1000];
-LaneSection laneSections[1000]; 
+LaneSection laneSections[1000];
 Lane lanes[1000];
 Junction junctions[1000];
 Connection connections[1000];
@@ -214,7 +214,7 @@ LaneLink laneLinks[1000];
 Car cars[2];
 
 /**
-    道路信息和车辆信息初始化: 尚未完成. 
+    道路信息和车辆信息初始化: 尚未完成.
 **/
 LaneLink test = {1, 2};
 int ll[10] = {1,2,3,4,5,6,7,8,9,10};
@@ -252,7 +252,7 @@ int leftLaneIndex(Lane lane){
         int index = laneSections[roads[lane.roadIndex].laneSections[lane.laneSectionIndex]].lanes[i];
         tempLane = lanes[index];
         if(tempLane.laneId - lane.laneId == -1) {
-            return index;            
+            return index;
         }
     }
     return -1;
@@ -268,7 +268,7 @@ int rightLaneIndex(Lane lane){
         int index = laneSections[roads[lane.roadIndex].laneSections[lane.laneSectionIndex]].lanes[i];
         tempLane = lanes[index];
         if(tempLane.laneId - lane.laneId == -1) {
-            return index;            
+            return index;
         }
     }
     return -1;
@@ -329,7 +329,7 @@ int sucLaneSectionIndex(LaneSection laneSection){
     - double offset				车辆在当前lane上的位置
     - double speed             	当前速度大小
     - double accelaration        	当前加速度(包含方向)
-    
+
     全局的属性:
     - double timestep 			设置的时间步长
     - clock time				时钟
@@ -337,13 +337,13 @@ int sucLaneSectionIndex(LaneSection laneSection){
 
 
 /**
-	辅助函数: 
-	accelerate_s	匀加速直线运动位移公式; 加速度a为负代表减速 
+	辅助函数:
+	accelerate_s	匀加速直线运动位移公式; 加速度a为负代表减速
 	accelerate_v 	匀加速直线运动速度公式
 	modifyRoadLane 	运动一段时间后可能改变了road和lane信息, 这时根据偏移修改
 **/
 double accelerate_s(double v, double a, double t) {
-    return v*t + 0.5 * a * t * t; 
+    return v*t + 0.5 * a * t * t;
 }
 
 double accelerate_v(double v, double a, double t) {
@@ -391,8 +391,8 @@ void speedUp(Car car){
     laneOffsets[car.laneOffsetIndex] = laneOffsets[car.laneOffsetIndex] + movement;
     modifyRoadLane(car);
 }
- 
- 
+
+
 /**
 	减速:
     0. 与加速逻辑同理, 此时acclation大小为负
