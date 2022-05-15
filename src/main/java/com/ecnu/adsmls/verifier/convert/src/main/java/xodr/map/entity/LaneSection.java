@@ -5,15 +5,15 @@ import lombok.Data;
 import java.util.List;
 
 /**
- LaneSection结构体
-
- elementType = 2          表示LaneSection类型
- roadIndex                索引值 表示当前LaneSection属于那一条道路 可以在roads数组中查找
- roadId                   唯一标志当前LaneSection所属Road
- LaneSectionId            唯一标志一个LaneSection
- startPosition            起始偏移位置, 距离Road起始位置多少m开始
- lanes                    LaneSection的道路Lane的索引值列表
- length                   LaneSection长度
+ * LaneSection结构体
+ * <p>
+ * elementType = 2          表示LaneSection类型
+ * roadIndex                索引值 表示当前LaneSection属于那一条道路 可以在roads数组中查找
+ * roadId                   唯一标志当前LaneSection所属Road
+ * LaneSectionId            唯一标志一个LaneSection
+ * startPosition            起始偏移位置, 距离Road起始位置多少m开始
+ * lanes                    LaneSection的道路Lane的索引值列表
+ * length                   LaneSection长度
  **/
 
 @Data

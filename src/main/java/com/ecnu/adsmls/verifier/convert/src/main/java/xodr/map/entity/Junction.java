@@ -5,12 +5,11 @@ import lombok.Data;
 import java.util.List;
 
 /**
- Junction结构体
-
- elementType = 4          表示Junction类型
- junctionId               唯一标志一个junction
- connections[]            Connection结构体数组 表示当前junction连接的 incomingRoad 和 connectingRoad
-
+ * Junction结构体
+ * <p>
+ * elementType = 4          表示Junction类型
+ * junctionId               唯一标志一个junction
+ * connections[]            Connection结构体数组 表示当前junction连接的 incomingRoad 和 connectingRoad
  **/
 
 @Data

@@ -4,7 +4,7 @@
 	<declaration>
 /************************************* 地图类型定义 *************************************/
 
-/**  
+/**
     Road的结构体
 
     elementType = 1        表示Road类型
@@ -35,9 +35,9 @@ typedef struct {
 
 /**
     LaneSection结构体
-    
+
     elementType = 2          表示LaneSection类型
-    roadIndex                索引值 表示当前LaneSection属于那一条道路 可以在roads数组中查找 
+    roadIndex                索引值 表示当前LaneSection属于那一条道路 可以在roads数组中查找
     roadId                   唯一标志当前LaneSection所属Road
     LaneSectionId            唯一标志一个LaneSection
     startPosition            起始偏移位置, 当前LaneSection是距离Road起始位置多少m开始
@@ -56,7 +56,7 @@ typedef struct {
 
 /**
     Lane结构体
-    
+
     elementType = 3          表示Lane类型
     roadId                   当前Lane所属Road的id
     roadIndex                当前Lane所属Road的索引值
@@ -66,7 +66,7 @@ typedef struct {
     predecessorIndex         前继Lane的索引值
     successorIndex           后继Lane的索引值
     laneChange               int类型 由于车道从右到左id递增 用该变量表示当前lane是否允许变道 -1表示不知道 1表示允许向左变道 2表示允许向右变道 3表示两边都允许 4表示两边都不允许
-    
+
 **/
 typedef struct{
     int elementType;
@@ -82,11 +82,11 @@ typedef struct{
 
 /**
     Junction结构体
-    
+
     elementType = 4          表示Junction类型
     junctionId               唯一标志一个junction
     connections[]            Connection结构体数组 表示当前junction连接的 incomingRoad 和 connectingRoad
-    
+
 **/
 typedef struct {
     int elementType;
@@ -96,9 +96,9 @@ typedef struct {
 
 /**
     Connection结构体
-        
+
     direction               1 left, 2 straight, 3 right, 4 none
-    incomingRoadId          驶入Road的id  
+    incomingRoadId          驶入Road的id
     connectingRoadId        驶出Road的id
     incomingRoadIndex       索引值 表示当前Connection连接的驶入Road
     connectingRoadIndex     索引值 表示当前Connection连接Road
@@ -115,7 +115,7 @@ typedef struct {
 
 /**
     LaneLink结构体
-        
+
     from                    表示当前LaneLink连接的 驶入lane的下标索引
     to                      表示当前LaneLink连接的 驶出lane的下标索引
     laneLinks               表示当前连接Road的Lane 连接 驶入Road的Lane的信息
@@ -184,7 +184,7 @@ bool safeModifyRoadLane = true;
 bool safe = true;
 
 // 函数中不能声明结构体，在这里临时声明
-Lane tempLane; 
+Lane tempLane;
 Connection tempConnection;
 
 Road roads[2];
@@ -239,7 +239,7 @@ bool isSafeSameDirection(Car car1, Car car2){
 int oppsiteSafeDistance(Car car1, Car car2){
     int v1p = car1.speed+maxAcc*ret, v2p = abs(car2.speed)+maxAcc*ret;
     int v1 = car1.speed, v2 = car2.speed;
-    return (v1+v1p)*ret/2 + v1p*v1p/(2*minCor) + (abs(v2)+v2p)*ret/2 + v2p*v2p/(2*minBra); 
+    return (v1+v1p)*ret/2 + v1p*v1p/(2*minCor) + (abs(v2)+v2p)*ret/2 + v2p*v2p/(2*minBra);
 }
 
 /**
@@ -677,8 +677,8 @@ void turnRight(Car&amp; car){
     *2：车道是否是前后继关系(其他车辆在当前车的前方, car1可能会撞上car2)
 **/
 bool isInSameLane(Car car1, Car car2) {
-    return car1.laneIndex == car2.laneIndex 
-            || (!car1.heading &amp;&amp; lanes[car1.laneIndex].predecessorIndex == car2.laneIndex) 
+    return car1.laneIndex == car2.laneIndex
+            || (!car1.heading &amp;&amp; lanes[car1.laneIndex].predecessorIndex == car2.laneIndex)
             || (car1.heading &amp;&amp; lanes[car1.laneIndex].successorIndex == car2.laneIndex);
 }
 

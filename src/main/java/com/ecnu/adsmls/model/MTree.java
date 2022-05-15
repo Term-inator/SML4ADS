@@ -25,7 +25,8 @@ public class MTree {
         this.errMsg = errMsg;
     }
 
-    public MTree() {}
+    public MTree() {
+    }
 
     public long getRootId() {
         return rootId;

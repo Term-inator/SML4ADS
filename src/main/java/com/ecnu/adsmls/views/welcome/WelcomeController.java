@@ -34,11 +34,11 @@ public class WelcomeController implements Initializable, Route {
         this.newProject.setOnAction(e -> {
             NewProjectModal npm = new NewProjectModal();
             npm.getWindow().showAndWait();
-            if(!npm.isConfirm()) {
+            if (!npm.isConfirm()) {
                 return;
             }
             // 文件夹创建失败
-            if(!npm.isSucceed()) {
+            if (!npm.isSucceed()) {
                 System.out.println("Directory already exists");
                 return;
             }
@@ -51,7 +51,7 @@ public class WelcomeController implements Initializable, Route {
         this.openProject.setOnAction(e -> {
             OpenProjectModal opm = new OpenProjectModal();
             opm.getWindow().showAndWait();
-            if(!opm.isConfirm()) {
+            if (!opm.isConfirm()) {
                 return;
             }
             // 设置 codepage 所需的参数

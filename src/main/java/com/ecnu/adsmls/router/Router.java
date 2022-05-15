@@ -6,7 +6,10 @@ import javafx.scene.Scene;
 import org.kordamp.bootstrapfx.BootstrapFX;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 路由，负责页面跳转
@@ -61,6 +64,7 @@ public class Router {
 
     /**
      * 页面跳转
+     *
      * @param pageName 页面名
      */
     public static void linkTo(String pageName) {

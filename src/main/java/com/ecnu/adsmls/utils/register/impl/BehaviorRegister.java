@@ -77,8 +77,8 @@ public class BehaviorRegister extends FunctionRegister {
     }
 
     public static Function getBehaviorFunction(String behaviorName) {
-        for(Function function : behaviorFunctions) {
-            if(Objects.equals(function.getFunctionName(), behaviorName)) {
+        for (Function function : behaviorFunctions) {
+            if (Objects.equals(function.getFunctionName(), behaviorName)) {
                 return function;
             }
         }

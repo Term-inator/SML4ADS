@@ -1,12 +1,11 @@
 package com.ecnu.adsmls.components.modal;
 
 
-import javafx.scene.control.*;
-import javafx.scene.control.cell.CheckBoxTreeCell;
+import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Objects;
 
 
@@ -24,6 +23,7 @@ public class SimulateModal extends Modal {
         SCENARIO("scenario");
 
         public String value;
+
         Mode(String value) {
             this.value = value;
         }
@@ -110,11 +110,10 @@ public class SimulateModal extends Modal {
         this.tfScenarioNum.setPromptText("Integer");
 
         rbGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
-            if(Objects.equals(newValue, this.rbScene)) {
+            if (Objects.equals(newValue, this.rbScene)) {
                 this.slot.add(lbScenarioNum, 1, 1, 1, 1);
                 this.slot.add(this.tfScenarioNum, 2, 1, 1, 1);
-            }
-            else if(Objects.equals(newValue, this.rbScenario)) {
+            } else if (Objects.equals(newValue, this.rbScenario)) {
                 this.slot.getChildren().removeAll(lbScenarioNum, tfScenarioNum);
             }
         });
@@ -127,18 +126,17 @@ public class SimulateModal extends Modal {
 
     @Override
     protected void update() {
-        if(this.rbScene.isSelected()) {
+        if (this.rbScene.isSelected()) {
             this.mode = Mode.SCENE;
             this.scenarioNum = this.tfScenarioNum.getText();
-        }
-        else if(this.rbScenario.isSelected()) {
+        } else if (this.rbScenario.isSelected()) {
             this.mode = Mode.SCENARIO;
         }
     }
 
     @Override
     protected void check() {
-        if(this.isScene()) {
+        if (this.isScene()) {
             this.scenarioNumCheck();
         }
     }
@@ -150,8 +148,7 @@ public class SimulateModal extends Modal {
     private void scenarioNumCheck() {
         try {
             Integer.parseInt(this.scenarioNum);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             this.valid = false;
         }

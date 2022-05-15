@@ -31,6 +31,7 @@ public abstract class Editor {
 
     /**
      * 检查文件
+     *
      * @return
      */
     public abstract void check() throws EmptyParamException, RequirementException, DataTypeException;

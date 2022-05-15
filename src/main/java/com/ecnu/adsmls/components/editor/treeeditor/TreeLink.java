@@ -52,7 +52,7 @@ public abstract class TreeLink extends TreeComponent {
     }
 
     public boolean setTarget(TreeArea target) {
-        if(!loop && this.source == target) {
+        if (!loop && this.source == target) {
             return false;
         }
         this.target = target;
@@ -65,7 +65,7 @@ public abstract class TreeLink extends TreeComponent {
     }
 
     public void finish() {
-        if(this.finish) {
+        if (this.finish) {
             return;
         }
         this.finish = true;
@@ -97,12 +97,11 @@ public abstract class TreeLink extends TreeComponent {
     public Position getTextPosition() {
         int size = this.linkPoints.size();
         assert (size >= 2);
-        if(size % 2 == 0) {
+        if (size % 2 == 0) {
             Position p1 = this.linkPoints.get(size / 2 - 1).getCenterPoint();
             Position p2 = this.linkPoints.get(size / 2).getCenterPoint();
             return Geometry.centerOf(p1, p2);
-        }
-        else {
+        } else {
             Position p = this.linkPoints.get((size - 1) / 2).getCenterPoint();
             return new Position(p.x, p.y);
         }
@@ -121,7 +120,7 @@ public abstract class TreeLink extends TreeComponent {
      * 修正最后一个点的坐标为 source 的连接点
      */
     private void modifyLastPoint() {
-        if(this.target != null) {
+        if (this.target != null) {
             int size = this.linkPoints.size();
             if (size >= 2) {
                 Position p = this.target.getLinkPoint(this.linkPoints.get(size - 2).getCenterPoint());
@@ -146,7 +145,7 @@ public abstract class TreeLink extends TreeComponent {
 
     private void hidePoints() {
         // 拖动过快会导致点击到画布空白背景，使该 TreeLink 进入 inactive 状态，进而调用该函数隐藏点
-        if(!this.dragging) {
+        if (!this.dragging) {
             this.graphicNode.getChildren().remove(this.linkPointLayer);
         }
     }
@@ -155,7 +154,7 @@ public abstract class TreeLink extends TreeComponent {
     public void active() {
         System.out.println("active");
         super.active();
-        if(arrow != null) {
+        if (arrow != null) {
             this.arrow.active();
         }
         this.showPoints();
@@ -165,7 +164,7 @@ public abstract class TreeLink extends TreeComponent {
     public void inactive() {
         System.out.println("inactive");
         super.inactive();
-        if(arrow != null) {
+        if (arrow != null) {
             this.arrow.inactive();
         }
         this.hidePoints();
@@ -174,10 +173,9 @@ public abstract class TreeLink extends TreeComponent {
     @Override
     public void createNode() {
         Path path;
-        if(this.shape == null) {
+        if (this.shape == null) {
             path = new Path();
-        }
-        else {
+        } else {
             path = (Path) this.shape;
             path.getElements().clear();
         }
@@ -200,23 +198,21 @@ public abstract class TreeLink extends TreeComponent {
         path.setStrokeWidth(2);
         path.setStrokeLineJoin(StrokeLineJoin.ROUND);
 
-        if(size >= 2) {
+        if (size >= 2) {
             Position p1 = this.linkPoints.get(size - 2).getCenterPoint();
             Position p2 = this.linkPoints.get(size - 1).getCenterPoint();
             Vector2D vector = new Vector2D(p2, p1);
             // 以末端为原点
             double rad = vector.radWithXAxis();
 
-            if(this.arrow == null) {
+            if (this.arrow == null) {
                 this.arrow = new Arrow(this, p2, rad, 12);
-            }
-            else {
+            } else {
                 this.arrow.relocate(p2, rad);
             }
             this.arrow.updateNode();
             this.addNodes(this.shape, this.arrow.getNode());
-        }
-        else {
+        } else {
             this.addNode(this.shape);
         }
     }

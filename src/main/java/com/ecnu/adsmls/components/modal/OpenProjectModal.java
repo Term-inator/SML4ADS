@@ -14,7 +14,6 @@ public class OpenProjectModal extends Modal {
     }
 
 
-
     public String getDirectory() {
         return directory;
     }
@@ -29,6 +28,7 @@ public class OpenProjectModal extends Modal {
 
         this.slot.addRow(0, lbDirName, this.btDir);
     }
+
     @Override
     protected void update() {
         this.updateDirectory();
@@ -46,14 +46,13 @@ public class OpenProjectModal extends Modal {
     private void updateDirectory() {
         try {
             this.directory = ((ChooseDirectoryButton) this.btDir.getUserData()).getFolder().getAbsolutePath();
-        }
-        catch (Exception ignored) {
+        } catch (Exception ignored) {
 
         }
     }
 
     private void checkDirectory() {
-        if(this.directory == null) {
+        if (this.directory == null) {
             this.valid = false;
         }
     }

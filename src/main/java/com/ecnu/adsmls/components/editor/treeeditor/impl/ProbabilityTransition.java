@@ -14,7 +14,7 @@ public class ProbabilityTransition extends Transition {
 
     @Override
     public boolean setTarget(TreeArea target) {
-        if(target instanceof BranchPoint) {
+        if (target instanceof BranchPoint) {
             System.out.println("Target of ProbabilityTransition cannot be BranchPoint");
             return false;
         }

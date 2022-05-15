@@ -57,7 +57,7 @@ broadcast chan dontCare, ped, cy, car, yd, nd, ad_request_op;
 bool leftUp = false, leftDown = false, downLeft = false, downRight = false, rightUp = false, rightDown = false, upLeft = false, upRight = false;
 
 //bool sl = false, el = false, ss = false, es = false, ns = false, nl = false, ws = false, wl = false;
-// 
+//
 
 
 /***vechicle配置**/
@@ -98,21 +98,21 @@ bool lane2junction(const int id){
     double locx = 1.0 * v_traj[id][0][0];
     double locy = 1.0 * v_traj[id][0][1];
     if (dir == 0 || dir == 1 || dir == 2)
-        return locx &gt;= lane_length;    
+        return locx &gt;= lane_length;
     else if (dir == 3 || dir == 4 || dir == 5)
         return locy &gt;= lane_length;
     else if (dir == 6 || dir == 7 || dir == 8)
         return locx &lt;= lane_length + lane_height * 4;
     else if (dir == 9 || dir == 10 || dir == 11)
         return locy &lt;= lane_length + lane_height * 4;
-    return false; 
+    return false;
 }
 bool junction2end(const int id){
     int dir = dirs[id];
     double locx = 1.0 * v_traj[id][0][0];
     double locy = 1.0 * v_traj[id][0][1];
     if (dir == 0 || dir == 1 || dir == 5)
-        return locy &gt;= lane_length + lane_height * 4;    
+        return locy &gt;= lane_length + lane_height * 4;
     else if (dir == 2 || dir == 9 || dir == 10)
         return locx &gt;= lane_length + lane_height * 4;
     else if (dir == 3 || dir == 4 || dir == 8)
@@ -120,7 +120,7 @@ bool junction2end(const int id){
     else if (dir == 6 || dir == 7 || dir == 11)
         return locy &lt;= lane_length;
 
-    return false; 
+    return false;
 }
 void __setKS(const int id){
     double a, b;
@@ -131,14 +131,14 @@ void __setKS(const int id){
     else if (dir == 1 || dir == 4 || dir == 7 || dir == 10){
         a = 3.5 * lane_height;
         b = 2.5 * lane_height;
-        ks[id] = (a * a + b * b)  / (b * 2);//(a^2+b^2)/(2b)   
+        ks[id] = (a * a + b * b)  / (b * 2);//(a^2+b^2)/(2b)
     }
 }
 double getDx(const int id, const int tp){
     //stage:0表示车道线，1表示交叉路口
     int dir = dirs[id];
     int st = stage[id];
-    
+
     if (dir == 0 || dir == 1)
         return st == 0 ? 1.0 * v_velocity[id] : 1.0 * v_velocity[id] * cos(1.0 * (t[id] + tp) * v_velocity[id] / ks[id]);
     else if (dir == 2)
@@ -148,7 +148,7 @@ double getDx(const int id, const int tp){
     else if (dir == 5)
         return 0.0;
     else if (dir == 6 || dir == 7)
-        return st == 0 ? - 1.0 * v_velocity[id] : - 1.0 * v_velocity[id] * cos(1.0 * (t[id] + tp) * v_velocity[id] / ks[id]);    
+        return st == 0 ? - 1.0 * v_velocity[id] : - 1.0 * v_velocity[id] * cos(1.0 * (t[id] + tp) * v_velocity[id] / ks[id]);
     else if (dir == 8)
         return - 1.0 * v_velocity[id];
     else if (dir == 9 || dir == 10)
@@ -172,13 +172,13 @@ double getDy(const int id, const int tp){
         return 0.0;
     else if (dir == 9 || dir == 10)
         return st == 0 ? - 1.0 * v_velocity[id] : - v_velocity[id] * cos(1.0 * (t[id] + tp) * v_velocity[id] / ks[id]);
-    else return - v_velocity[id]; 
+    else return - v_velocity[id];
 }
 void initialLoc(const int id){
     int dir = dirs[id];
     if (dir == 0 || dir == 1 || dir == 2){
         v_traj[id][0][0] = 0.0;
-        v_traj[id][0][1] = lane_length + 1.5 * lane_height; 
+        v_traj[id][0][1] = lane_length + 1.5 * lane_height;
 
         //上偏移轨迹
         v_traj[id][1][0] = 0.0;
@@ -190,7 +190,7 @@ void initialLoc(const int id){
     }
     else if (dir == 3 || dir == 4 || dir == 5){
         v_traj[id][0][0] = lane_length + 2.5 * lane_height;
-        v_traj[id][0][1] = 0.0; 
+        v_traj[id][0][1] = 0.0;
 
         //上偏移轨迹
         v_traj[id][1][0] = lane_length + 2.5 * lane_height - v_offset[id];
@@ -202,27 +202,27 @@ void initialLoc(const int id){
     }
     else if (dir == 6 || dir == 7 || dir == 8){
         v_traj[id][0][0] = lane_length * 2 + lane_height * 4;
-        v_traj[id][0][1] = lane_length + lane_height * 2.5; 
+        v_traj[id][0][1] = lane_length + lane_height * 2.5;
 
         //上偏移轨迹
         v_traj[id][1][0] = lane_length * 2 + lane_height * 4;
-        v_traj[id][1][1] = lane_length + lane_height * 2.5 - v_offset[id]; 
+        v_traj[id][1][1] = lane_length + lane_height * 2.5 - v_offset[id];
         //下偏移轨迹
         v_traj[id][2][0] = lane_length * 2 + lane_height * 4;
-        v_traj[id][2][1] = lane_length + lane_height * 2.5 + v_offset[id]; 
+        v_traj[id][2][1] = lane_length + lane_height * 2.5 + v_offset[id];
 
     }
     else if (dir == 9 || dir == 10 || dir == 11){
         v_traj[id][0][0] = lane_length + 1.5 * lane_height;
-        v_traj[id][0][1] = lane_length * 2 + lane_height * 4; 
+        v_traj[id][0][1] = lane_length * 2 + lane_height * 4;
 
         //上偏移轨迹
         v_traj[id][1][0] = lane_length + 1.5 * lane_height + v_velocity[id];
-        v_traj[id][1][1] = lane_length * 2 + lane_height * 4; 
+        v_traj[id][1][1] = lane_length * 2 + lane_height * 4;
 
         //下偏移轨迹
         v_traj[id][2][0] = lane_length + 1.5 * lane_height - v_velocity[id];
-        v_traj[id][2][1] = lane_length * 2 + lane_height * 4; 
+        v_traj[id][2][1] = lane_length * 2 + lane_height * 4;
 
     }
 }
@@ -244,7 +244,7 @@ void setEnvir(const int[0, 6] mode){
         upLeft = true; upRight = true; downLeft = true; downRight = true;
     }
     else if (mode == 2) {
-        upLeft = true; upRight = true; downLeft = true; downRight = true; leftUp = true; leftDown = true; 
+        upLeft = true; upRight = true; downLeft = true; downRight = true; leftUp = true; leftDown = true;
     }
     else if (mode == 3) {
         leftUp = true; leftDown = true; rightUp = true; rightDown = true; upLeft = true; upRight = true;
@@ -327,7 +327,7 @@ void initialVocAndOs(const int v, const int o){
     v_offset[id] = o;//随机偏移
     vQue[idx ++] = id;//环境车辆入队列
     stage[id] = 0;
-} 
+}
 void getRandomLoc(const int l){
     if (l == dirs[0]) return;
 
@@ -345,12 +345,12 @@ void getRandomLoc(const int l){
         randLoc = leftUp &amp;&amp; rightUp;
     else if (l == 9 || l == 10)
         randLoc = upLeft &amp;&amp; rightDown;
-    else randLoc = upLeft &amp;&amp; downLeft;  
+    else randLoc = upLeft &amp;&amp; downLeft;
 
 
     if (randLoc){
        dirs[id] = l;//存储车辆的方向
-       __setKS(id);     
+       __setKS(id);
     }
 }
 </declaration>
@@ -360,7 +360,7 @@ void getRandomLoc(const int l){
 v_traj[id][0][1]' == getDy(id, 0)  &amp;&amp;
 v_traj[id][1][0]' == getDx(id, 0) &amp;&amp;
 v_traj[id][1][1]' == getDy(id, 0) &amp;&amp;
-v_traj[id][2][0]' == getDx(id, 0) &amp;&amp; 
+v_traj[id][2][0]' == getDx(id, 0) &amp;&amp;
 v_traj[id][2][1]' == getDy(id, 0) &amp;&amp;
 v_velocity[id]' == 0</label>
 		</location>
@@ -467,7 +467,7 @@ stage[id] = 1</label>
 		<declaration>const int id = 0;
 
 double dx, dy, a, b;
-double poly1[M][2], poly2[M][2]; 
+double poly1[M][2], poly2[M][2];
 bool brake = false;
 bool collision = false;
 
@@ -482,15 +482,15 @@ void initialVocAndOs(const int v, const int o){
     __setKS(id);
 
     stage[id] = 0;
-} 
+}
 
 void setPoly(const int _id, double &amp;poly[M][2]){
     const int _dir = dirs[_id];
 
     poly[0][0] = v_traj[_id][1][0]; poly[0][1] = v_traj[_id][1][1];
-    poly[1][0] = v_traj[_id][2][0]; poly[1][1] = v_traj[_id][2][1];        
+    poly[1][0] = v_traj[_id][2][0]; poly[1][1] = v_traj[_id][2][1];
     poly[2][0] = v_traj[_id][2][0] - getDx(_id, - timestep); poly[2][1] = v_traj[_id][2][1] -  getDy(_id, - timestep);
-    poly[3][0] = v_traj[_id][1][0] - getDx(_id, - timestep); poly[3][1] = v_traj[_id][1][1] -  getDy(_id, - timestep);    
+    poly[3][0] = v_traj[_id][1][0] - getDx(_id, - timestep); poly[3][1] = v_traj[_id][1][1] -  getDy(_id, - timestep);
 }
 
 void checkCollision(){
@@ -898,7 +898,7 @@ void __computeProj(int id){
 void updateDis(){
     int i, c_id;
     __computeKB();
-    
+
     _min = INT32_MAX*1.0;
     ven = false;
     for (i = 0; i &lt; idx; i ++){
@@ -907,7 +907,7 @@ void updateDis(){
         _min = fmin(_min, hypot((v_traj[0][0][0] - mx), (v_traj[0][0][1] - my)));
         if (hypot((v_traj[0][0][0] - v_traj[c_id][0][0]), (v_traj[0][0][1] - v_traj[c_id][0][1])) &lt;= visRange)
             ven = true;
-        
+
     }
     rd = _min / 10.0;
 }
@@ -1048,7 +1048,7 @@ system  e0, v1, ctrl, ob;
 	v_traj[1][0][0],v_traj[1][0][1],
 	v_traj[1][1][0],v_traj[1][1][1],
 	v_traj[1][2][0],v_traj[1][2][1]
-	
+
 }</formula>
 			<comment></comment>
 		</query>
@@ -1059,7 +1059,7 @@ system  e0, v1, ctrl, ob;
 	v_traj[0][1][0],v_traj[0][1][1],
 	v_traj[0][2][0],v_traj[0][2][1]
 
-	
+
 }</formula>
 			<comment></comment>
 		</query>

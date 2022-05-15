@@ -1,7 +1,5 @@
 package com.ecnu.adsmls.model;
 
-import com.alibaba.fastjson.annotation.JSONField;
-
 public class MPosition {
     private double x;
 

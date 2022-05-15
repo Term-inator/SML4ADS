@@ -1,7 +1,5 @@
 package com.ecnu.adsmls.utils;
 
-import javafx.util.Pair;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -33,26 +31,25 @@ public class FileSystem {
 
     /**
      * 创建文件
+     *
      * @param directory 目录路径名
-     * @param filename 文件名
+     * @param filename  文件名
      * @return 是否创建成功
      */
     public static boolean createFile(String directory, String filename) {
         File file = new File(directory, filename);
-        if(!file.getParentFile().exists()) {
-            if(!file.getParentFile().mkdirs()) {
+        if (!file.getParentFile().exists()) {
+            if (!file.getParentFile().mkdirs()) {
                 return false;
             }
         }
         try {
-            if(file.createNewFile()) {
+            if (file.createNewFile()) {
                 return true;
-            }
-            else {
+            } else {
                 return false;
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
@@ -64,38 +61,39 @@ public class FileSystem {
 
     /**
      * 创建目录
+     *
      * @param directory 目录路径名
      * @return 是否创建成功
      */
     public static boolean createDir(String directory) {
-        if(!directory.endsWith(File.separator)) {
+        if (!directory.endsWith(File.separator)) {
             directory = directory + File.separator;
         }
         File dir = new File(directory);
-        if(dir.mkdirs()) {
+        if (dir.mkdirs()) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
 
     /**
      * 删除文件
+     *
      * @param file 文件对象
      * @return 是否删除成功
      */
     public static boolean deleteFile(File file) {
-        if(file.isFile()) {
+        if (file.isFile()) {
             return file.delete();
-        }
-        else {
+        } else {
             return false;
         }
     }
 
     /**
      * 删除文件
+     *
      * @param filename 文件名
      * @return 是否删除成功
      */
@@ -106,35 +104,32 @@ public class FileSystem {
 
     /**
      * 删除文件夹及其子文件和子文件夹
+     *
      * @param file 文件对象
      * @return 是否删除成功
      */
     public static boolean deleteDirectory(File file) {
         boolean success = true;
-        if(file.isDirectory()) {
+        if (file.isDirectory()) {
             File[] files = file.listFiles();
-            if(files != null) {
+            if (files != null) {
                 for (File f : files) {
-                    if(f.isFile()) {
+                    if (f.isFile()) {
                         success = deleteFile(f);
-                    }
-                    else if(f.isDirectory()) {
+                    } else if (f.isDirectory()) {
                         success = deleteDirectory(f);
-                    }
-                    else {
+                    } else {
                         success = false;
                     }
 
-                    if(!success) {
+                    if (!success) {
                         return false;
                     }
                 }
-            }
-            else {
+            } else {
                 return false;
             }
-        }
-        else {
+        } else {
             return false;
         }
         return file.delete();
@@ -147,19 +142,18 @@ public class FileSystem {
 
     /**
      * 获取文件的后缀
+     *
      * @param file File 对象
      * @return 后缀字符串，含 .
      */
     public static String getSuffix(File file) {
-        if(file.isFile()) {
+        if (file.isFile()) {
             String filename = file.getName();
             int lastIndexOf = filename.lastIndexOf(".");
             return filename.substring(lastIndexOf);
-        }
-        else if(file.isDirectory()) {
+        } else if (file.isDirectory()) {
             return Suffix.DIR.value;
-        }
-        else {
+        } else {
             System.out.println("invalid file");
             return null;
         }
@@ -167,26 +161,25 @@ public class FileSystem {
 
     /**
      * 不管是不是文件, 获取其后缀
+     *
      * @param filename
      * @return
      */
     public static String getSuffix(String filename) {
         int lastIndexOf = filename.lastIndexOf(".");
-        if(lastIndexOf != -1) {
+        if (lastIndexOf != -1) {
             return filename.substring(lastIndexOf);
-        }
-        else {
+        } else {
             return null;
         }
     }
 
     public static String removeSuffix(File file) {
-        if(file.isFile()) {
+        if (file.isFile()) {
             String filename = file.getAbsolutePath();
             filename = filename.replaceAll("\\..*$", "");
             return filename;
-        }
-        else {
+        } else {
             System.out.println("invalid file");
             return null;
         }
@@ -199,13 +192,14 @@ public class FileSystem {
 
     /**
      * 打开 Project 时，获取 Project 名称
+     *
      * @param projectPath Project 路径
      * @return Project 名称
      */
     public static String getProjectName(String projectPath) {
         File project = new File(projectPath);
         String name = project.getName();
-        if(Objects.equals(name, "")) {
+        if (Objects.equals(name, "")) {
             name = project.getPath();
         }
         return name;
@@ -213,6 +207,7 @@ public class FileSystem {
 
     /**
      * 打开 Project 时，获取 Project 所在文件夹路径
+     *
      * @param projectPath Project 路径
      * @return
      */
@@ -225,6 +220,7 @@ public class FileSystem {
 
     /**
      * 获取文件/文件夹以 basePath 为根的相对路径
+     *
      * @param basePath 根路径
      * @param filePath 文件/文件夹路径
      * @return 文件/文件夹相对根目录的路径
@@ -251,6 +247,7 @@ public class FileSystem {
 
     /**
      * 读取单行 JSON
+     *
      * @param file
      * @return
      */
@@ -268,7 +265,7 @@ public class FileSystem {
 
     public static void JSONWriter(File file, String content) {
         try {
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file,false), StandardCharsets.UTF_8));
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, false), StandardCharsets.UTF_8));
             bw.write(content);
             bw.close();
         } catch (IOException e) {

@@ -5,6 +5,7 @@ import com.ecnu.adsmls.utils.Position;
 import com.ecnu.adsmls.utils.Vector2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -32,7 +33,7 @@ public class Behavior extends TreeArea {
         Vector2D vector = new Vector2D(center, adjacentPoint);
         double rad = vector.radWithXAxis();
         double x = this.r * Math.cos(rad);
-        double y = - this.r * Math.sin(rad);
+        double y = -this.r * Math.sin(rad);
         return new Position(center.x + x, center.y + y);
     }
 
@@ -51,7 +52,7 @@ public class Behavior extends TreeArea {
         this.name = name;
     }
 
-    public LinkedHashMap<String, String > getParams() {
+    public LinkedHashMap<String, String> getParams() {
         return params;
     }
 
@@ -64,8 +65,8 @@ public class Behavior extends TreeArea {
     public String getInfo() {
         StringBuilder res = new StringBuilder();
         res.append(this.name).append("\n");
-        for(Map.Entry<String, String> param : params.entrySet()) {
-            if(!Objects.equals(param.getValue(), "")) {
+        for (Map.Entry<String, String> param : params.entrySet()) {
+            if (!Objects.equals(param.getValue(), "")) {
                 res.append(param.getKey()).append(" = ").append(param.getValue()).append("\n");
             }
         }

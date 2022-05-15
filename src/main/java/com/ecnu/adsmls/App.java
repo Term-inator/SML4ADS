@@ -1,11 +1,9 @@
 package com.ecnu.adsmls;
 
 import com.ecnu.adsmls.router.Router;
-import com.ecnu.adsmls.router.params.Global;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-import java.io.File;
 import java.io.IOException;
 
 public class App extends Application {

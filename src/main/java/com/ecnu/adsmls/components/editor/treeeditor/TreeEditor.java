@@ -19,8 +19,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.File;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -54,10 +53,11 @@ public class TreeEditor extends Editor {
 
     /**
      * 选中组件
+     *
      * @param component 选中的那个 component
      */
     private void chooseComponent(Group component) {
-        if(componentChose != null) {
+        if (componentChose != null) {
             ((TreeComponent) this.componentChose.getUserData()).unselect();
             ((TreeComponent) this.componentChose.getUserData()).inactive();
         }
@@ -69,6 +69,7 @@ public class TreeEditor extends Editor {
 
     /**
      * 使 component 浮于顶层
+     *
      * @param component 需要浮于顶层的那个 component
      */
     private void raise(Group component) {
@@ -101,17 +102,16 @@ public class TreeEditor extends Editor {
         palette.addRow(1, tb0);
         palette.addRow(2, tb1);
         palette.addRow(3, tb2);
-        for(Node n : palette.getChildren()) {
-            if(n instanceof ToggleButton) {
+        for (Node n : palette.getChildren()) {
+            if (n instanceof ToggleButton) {
                 ((ToggleButton) n).setToggleGroup(group);
             }
         }
 
         group.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue == null) {
+            if (newValue == null) {
                 componentSelected = null;
-            }
-            else {
+            } else {
                 componentSelected = (String) newValue.getUserData();
             }
         });
@@ -133,8 +133,8 @@ public class TreeEditor extends Editor {
         canvasWrapper.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             System.out.println(e);
             // Delete 删除事件
-            if(e.getCode() == KeyCode.DELETE) {
-                if(this.componentChose == null) {
+            if (e.getCode() == KeyCode.DELETE) {
+                if (this.componentChose == null) {
                     return;
                 }
                 System.out.println("delete");
@@ -144,7 +144,7 @@ public class TreeEditor extends Editor {
                 this.componentChose = null;
             }
             // Ctrl + S 保存
-            else if(e.isControlDown() && e.getCode() == KeyCode.S) {
+            else if (e.isControlDown() && e.getCode() == KeyCode.S) {
                 this.save();
             }
         });
@@ -162,9 +162,9 @@ public class TreeEditor extends Editor {
             // 点击 canvas 就激活键盘事件
             canvasWrapper.requestFocus();
             // 点击空白区域
-            if(event.getTarget() instanceof Pane) {
+            if (event.getTarget() instanceof Pane) {
                 System.out.println("click nothing");
-                if(this.componentChose != null) {
+                if (this.componentChose != null) {
                     System.out.println("inactive");
                     ((TreeComponent) this.componentChose.getUserData()).unselect();
                     ((TreeComponent) this.componentChose.getUserData()).inactive();
@@ -172,31 +172,28 @@ public class TreeEditor extends Editor {
                 this.componentChose = null;
             }
             // 未选择画板上的组件
-            if(componentSelected == null) {
+            if (componentSelected == null) {
                 return;
-            }
-            else {
+            } else {
                 var lambdaContext = new Object() {
                     Node node = null;
                 };
-                if(Objects.equals(componentSelected, "Transition")) {
+                if (Objects.equals(componentSelected, "Transition")) {
                     System.out.println(this.componentChose);
-                    if(this.componentChose != null) {
+                    if (this.componentChose != null) {
                         // 未实例化 || 未选起点
-                        if(transition.get() == null || transition.get().getSource() == null) {
+                        if (transition.get() == null || transition.get().getSource() == null) {
                             // 必须实现 Linkable
                             TreeArea source;
                             try {
                                 source = (TreeArea) this.componentChose.getUserData();
-                            }
-                            catch (ClassCastException e) {
+                            } catch (ClassCastException e) {
                                 System.out.println("not linkable");
                                 return;
                             }
-                            if(source instanceof Behavior) {
+                            if (source instanceof Behavior) {
                                 transition.set(new CommonTransition(this.componentId++));
-                            }
-                            else if(source instanceof BranchPoint) {
+                            } else if (source instanceof BranchPoint) {
                                 transition.set(new ProbabilityTransition(this.componentId++));
                             }
                             transition.get().setSource(source);
@@ -206,35 +203,31 @@ public class TreeEditor extends Editor {
                             lambdaContext.node.setUserData(transition.get());
 
                             this.transitionBindClick(lambdaContext.node);
-                        }
-                        else {
+                        } else {
                             TreeArea target;
                             try {
                                 target = (TreeArea) this.componentChose.getUserData();
-                            }
-                            catch (ClassCastException e) {
+                            } catch (ClassCastException e) {
                                 System.out.println("not linkable");
                                 return;
                             }
                             boolean success = transition.get().setTarget(target);
-                            if(success) {
+                            if (success) {
                                 transition.get().finish();
                             }
                         }
-                    }
-                    else {
+                    } else {
                         // 未实例化 或 未选起点
-                        if(transition.get() == null || transition.get().getSource() == null) {
+                        if (transition.get() == null || transition.get().getSource() == null) {
                             return;
                         }
                         System.out.println("linking");
                         transition.get().getLinkPoints().add(new TreeLinkPoint(new Position(event.getX(), event.getY()), transition.get()));
                     }
                     transition.get().updateNode();
-                }
-                else {
+                } else {
                     // 已经创建了 Transition
-                    if(transition.get() != null) {
+                    if (transition.get() != null) {
                         System.out.println("remove unfinished transition");
                         this.canvas.getChildren().remove(transition.get().getNode());
                         transition.get().rollback();
@@ -259,16 +252,15 @@ public class TreeEditor extends Editor {
                     }
                 }
 
-                if(lambdaContext.node != null) {
+                if (lambdaContext.node != null) {
                     canvas.getChildren().add(lambdaContext.node);
                     // BranchPoint 不创建 TreeText
-                    if(!(lambdaContext.node.getUserData() instanceof BranchPoint)) {
+                    if (!(lambdaContext.node.getUserData() instanceof BranchPoint)) {
                         ((TreeComponent) lambdaContext.node.getUserData()).initTreeText();
                         canvas.getChildren().add(((TreeComponent) lambdaContext.node.getUserData()).getTreeText().getNode());
                     }
                     this.chooseComponent((Group) lambdaContext.node);
-                }
-                else {
+                } else {
                     if (transition.get().isFinish()) {
                         this.chooseComponent(transition.get().getNode());
                         transition.set(null);
@@ -284,13 +276,13 @@ public class TreeEditor extends Editor {
             int clickCount = e.getClickCount();
             System.out.println("choose behavior");
             this.chooseComponent((Group) behaviorNode);
-            if(clickCount == 2) {
+            if (clickCount == 2) {
                 System.out.println("set behavior");
 
                 BehaviorModal bm = new BehaviorModal((Behavior) behaviorNode.getUserData());
                 bm.getWindow().showAndWait();
 
-                if(!bm.isConfirm()) {
+                if (!bm.isConfirm()) {
                     return;
                 }
                 ((Behavior) behaviorNode.getUserData()).setName(bm.getBehaviorName());
@@ -311,29 +303,28 @@ public class TreeEditor extends Editor {
             int clickCount = e.getClickCount();
             System.out.println("choose transition");
             this.chooseComponent((Group) transitionNode);
-            if(clickCount == 2) {
+            if (clickCount == 2) {
                 // 保证 Transition 已经完成
-                if(!((TreeLink) transitionNode.getUserData()).isFinish()) {
+                if (!((TreeLink) transitionNode.getUserData()).isFinish()) {
                     return;
                 }
-                if(transitionNode.getUserData() instanceof CommonTransition) {
+                if (transitionNode.getUserData() instanceof CommonTransition) {
                     System.out.println("set common transition");
 
                     CommonTransitionModal ctm = new CommonTransitionModal((CommonTransition) transitionNode.getUserData());
                     ctm.getWindow().showAndWait();
 
-                    if(!ctm.isConfirm()) {
+                    if (!ctm.isConfirm()) {
                         return;
                     }
                     ((CommonTransition) transitionNode.getUserData()).setGuard(ctm.getGuard());
-                }
-                else if(transitionNode.getUserData() instanceof ProbabilityTransition) {
+                } else if (transitionNode.getUserData() instanceof ProbabilityTransition) {
                     System.out.println("set probability transition");
 
                     ProbabilityTransitionModal ptm = new ProbabilityTransitionModal((ProbabilityTransition) transitionNode.getUserData());
                     ptm.getWindow().showAndWait();
 
-                    if(!ptm.isConfirm()) {
+                    if (!ptm.isConfirm()) {
                         return;
                     }
                     ((ProbabilityTransition) transitionNode.getUserData()).setWeight(ptm.getWeight());
@@ -344,6 +335,7 @@ public class TreeEditor extends Editor {
 
     /**
      * 判断图是否有环
+     *
      * @param root 树根
      * @return
      */
@@ -351,22 +343,22 @@ public class TreeEditor extends Editor {
         Stack<TreeArea> s = new Stack<>();
         s.push(root);
         Map<Long, Boolean> mark = new HashMap<>();
-        for(Node node : this.canvas.getChildren()) {
+        for (Node node : this.canvas.getChildren()) {
             if (node.getUserData() instanceof TreeArea) {
                 TreeArea treeArea = (TreeArea) node.getUserData();
                 mark.put(treeArea.getId(), false);
             }
         }
-        while(!s.isEmpty()) {
+        while (!s.isEmpty()) {
             TreeArea treeArea = s.pop();
             // 若已访问则有环
-            if(mark.get(treeArea.getId()) == true) {
+            if (mark.get(treeArea.getId()) == true) {
                 this.errorMsg.append("The tree has at least one ring, in file ").append(this.file.getName()).append("\n");
                 return false;
             }
             mark.put(treeArea.getId(), true);
 
-            for(TreeLink treeLink : treeArea.getOutTransitions()) {
+            for (TreeLink treeLink : treeArea.getOutTransitions()) {
                 s.push(treeLink.getTarget());
             }
         }
@@ -375,33 +367,32 @@ public class TreeEditor extends Editor {
 
     /**
      * 获取树的根节点
+     *
      * @return
      */
     private TreeArea getRoot() {
         Stack<TreeArea> s = new Stack<>();
-        for(Node node : this.canvas.getChildren()) {
+        for (Node node : this.canvas.getChildren()) {
             if (node.getUserData() instanceof TreeArea) {
                 TreeArea treeArea = (TreeArea) node.getUserData();
-                if(treeArea.getInTransitions().isEmpty()) {
+                if (treeArea.getInTransitions().isEmpty()) {
                     s.push(treeArea);
                 }
             }
         }
-        if(s.isEmpty()) {
+        if (s.isEmpty()) {
             this.errorMsg.append("The tree has at least one ring, in file ").append(this.file.getName()).append("\n");
             return null;
         }
         // 若图入度为 0 的节点多于一个，则一定不是树
-        else if(s.size() != 1) {
+        else if (s.size() != 1) {
             this.errorMsg.append("The tree has more than one root, in file ").append(this.file.getName()).append("\n");
             return null;
-        }
-        else {
+        } else {
             TreeArea root = s.pop();
-            if(this.noRing(root)) {
+            if (this.noRing(root)) {
                 return root;
-            }
-            else {
+            } else {
                 return null;
             }
         }
@@ -409,13 +400,12 @@ public class TreeEditor extends Editor {
 
     @Override
     public void check() {
-        for(Node node : this.canvas.getChildren()) {
+        for (Node node : this.canvas.getChildren()) {
             if (node.getUserData() instanceof BranchPoint) {
                 BranchPoint branchPoint = (BranchPoint) node.getUserData();
-                if(branchPoint.getInTransitions().isEmpty()) {
+                if (branchPoint.getInTransitions().isEmpty()) {
                     this.errorMsg.append("The BranchPoint in file ").append(this.file.getName()).append(" has no parent node.\n");
-                }
-                else if(branchPoint.getOutTransitions().isEmpty()) {
+                } else if (branchPoint.getOutTransitions().isEmpty()) {
                     this.errorMsg.append("The BranchPoint in file ").append(this.file.getName()).append(" should have at least one child node.\n");
                 }
             }
@@ -429,29 +419,25 @@ public class TreeEditor extends Editor {
 
         MTree mTree = new MTree();
         TreeArea root = this.getRoot();
-        if(root == null) {
+        if (root == null) {
             mTree.setRootId(-1);
-        }
-        else {
+        } else {
             mTree.setRootId(root.getId());
         }
         mTree.setErrMsg(this.errorMsg.toString());
         List<Node> nodes = this.canvas.getChildren();
-        for(Node node : nodes) {
+        for (Node node : nodes) {
             Component component = (Component) node.getUserData();
-            if(component instanceof Behavior) {
+            if (component instanceof Behavior) {
                 Behavior behavior = (Behavior) component;
                 mTree.getBehaviors().add(Converter.cast(behavior));
-            }
-            else if(component instanceof BranchPoint) {
+            } else if (component instanceof BranchPoint) {
                 BranchPoint branchPoint = (BranchPoint) component;
                 mTree.getBranchPoints().add(Converter.cast(branchPoint));
-            }
-            else if(component instanceof CommonTransition) {
+            } else if (component instanceof CommonTransition) {
                 CommonTransition commonTransition = (CommonTransition) component;
                 mTree.getCommonTransitions().add(Converter.cast(commonTransition));
-            }
-            else if(component instanceof ProbabilityTransition) {
+            } else if (component instanceof ProbabilityTransition) {
                 ProbabilityTransition probabilityTransition = (ProbabilityTransition) component;
                 mTree.getProbabilityTransitions().add(Converter.cast(probabilityTransition));
             }
@@ -468,13 +454,13 @@ public class TreeEditor extends Editor {
         String tree = FileSystem.JSONReader(new File(this.projectPath, this.relativePath));
 
         MTree mTree = JSON.parseObject(tree, MTree.class);
-        if(mTree == null) {
+        if (mTree == null) {
             return;
         }
         System.out.println(tree);
 
         List<TreeArea> treeAreaList = new ArrayList<>();
-        for(MBehavior mBehavior : mTree.getBehaviors()) {
+        for (MBehavior mBehavior : mTree.getBehaviors()) {
             Behavior behavior = Converter.cast(mBehavior);
 
             componentId = Math.max(componentId, behavior.getId());
@@ -485,7 +471,7 @@ public class TreeEditor extends Editor {
             this.behaviorBindClick(node);
             this.canvas.getChildren().addAll(node, behavior.getTreeText().getNode());
         }
-        for(MBranchPoint mBranchPoint : mTree.getBranchPoints()) {
+        for (MBranchPoint mBranchPoint : mTree.getBranchPoints()) {
             BranchPoint branchPoint = Converter.cast(mBranchPoint);
 
             componentId = Math.max(componentId, branchPoint.getId());
@@ -496,7 +482,7 @@ public class TreeEditor extends Editor {
             this.branchPointBindClick(node);
             this.canvas.getChildren().add(node);
         }
-        for(MCommonTransition mCommonTransition : mTree.getCommonTransitions()) {
+        for (MCommonTransition mCommonTransition : mTree.getCommonTransitions()) {
             CommonTransition commonTransition = Converter.cast(treeAreaList, mCommonTransition);
 
             componentId = Math.max(componentId, commonTransition.getId());
@@ -506,7 +492,7 @@ public class TreeEditor extends Editor {
             this.transitionBindClick(node);
             this.canvas.getChildren().addAll(node, commonTransition.getTreeText().getNode());
         }
-        for(MProbabilityTransition mProbabilityTransition : mTree.getProbabilityTransitions()) {
+        for (MProbabilityTransition mProbabilityTransition : mTree.getProbabilityTransitions()) {
             ProbabilityTransition probabilityTransition = Converter.cast(treeAreaList, mProbabilityTransition);
 
             componentId = Math.max(componentId, probabilityTransition.getId());

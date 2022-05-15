@@ -2,7 +2,6 @@ package com.ecnu.adsmls.verifier.convert.src.main.java.json.tree;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * @author wei
@@ -37,7 +36,7 @@ public class GuardType {
     public static final String AND_GUARD = ".*&&.*";
     public static final String NOT_GUARD = "!.*";
 
-    public static final List<String> allGuards = new ArrayList<String>(){{
+    public static final List<String> allGuards = new ArrayList<String>() {{
         add(DISTANCE);
         add(DISTANCE_TO_END);
         add(CAN_CHANGE_LEFT);

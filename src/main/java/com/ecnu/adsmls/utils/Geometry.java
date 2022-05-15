@@ -10,6 +10,7 @@ public class Geometry {
 
     /**
      * 平面上两点间距离
+     *
      * @param p1
      * @param p2
      * @return
@@ -21,6 +22,7 @@ public class Geometry {
 
     /**
      * 向量 p1p2 与 x 轴的夹角（弧度）
+     *
      * @param p1
      * @param p2
      * @return
@@ -28,7 +30,7 @@ public class Geometry {
     public static double radWithXAxis(Position p1, Position p2) {
         double r = distanceBetween(p1, p2);
         double rad = Math.acos((p2.x - p1.x) / r);
-        if(p2.y > p1.y) {
+        if (p2.y > p1.y) {
             rad = 2 * Math.PI - rad;
         }
         return rad;
@@ -36,6 +38,7 @@ public class Geometry {
 
     /**
      * p1 p1 的中点
+     *
      * @param p1
      * @param p2
      * @return
@@ -46,6 +49,7 @@ public class Geometry {
 
     /**
      * 判断 p 是否在 left right 之间（闭区间）
+     *
      * @param p
      * @param left
      * @param right
@@ -57,6 +61,7 @@ public class Geometry {
 
     /**
      * 支持所有区间
+     *
      * @param p
      * @param left
      * @param right
@@ -67,16 +72,14 @@ public class Geometry {
         boolean res = true;
         char op1 = op.charAt(0);
         char op2 = op.charAt(1);
-        if(op1 == '(') {
+        if (op1 == '(') {
             res &= (p > left);
-        }
-        else if(op1 == '[') {
+        } else if (op1 == '[') {
             res &= (p >= left);
         }
-        if(op2 == ')') {
+        if (op2 == ')') {
             res &= (p < right);
-        }
-        else if(op2 == ']') {
+        } else if (op2 == ']') {
             res &= (p <= right);
         }
         return res;
@@ -84,20 +87,18 @@ public class Geometry {
 
     /**
      * 判断弧度为 rad 的向量所在的象限
+     *
      * @param rad
      * @return
      */
     public static Quadrant inQuadrant(double rad) {
-        if(between(rad, 0, Math.PI / 2, "[)")) {
+        if (between(rad, 0, Math.PI / 2, "[)")) {
             return Quadrant.FIRST;
-        }
-        else if(between(rad, Math.PI / 2, Math.PI, "[)")) {
+        } else if (between(rad, Math.PI / 2, Math.PI, "[)")) {
             return Quadrant.SECOND;
-        }
-        else if(between(rad, Math.PI, 3 * Math.PI / 2, "[)")) {
+        } else if (between(rad, Math.PI, 3 * Math.PI / 2, "[)")) {
             return Quadrant.THIRD;
-        }
-        else {
+        } else {
             return Quadrant.FOURTH;
         }
     }

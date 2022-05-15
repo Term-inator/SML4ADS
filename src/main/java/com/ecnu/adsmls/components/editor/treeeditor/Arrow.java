@@ -36,10 +36,9 @@ public class Arrow extends Component {
     @Override
     public void createNode() {
         Path path;
-        if(this.shape == null) {
+        if (this.shape == null) {
             path = new Path();
-        }
-        else {
+        } else {
             path = (Path) this.shape;
             path.getElements().clear();
         }
@@ -54,7 +53,7 @@ public class Arrow extends Component {
 
     @Override
     public void inactive() {
-        if(this.treeLink.isSelected()) {
+        if (this.treeLink.isSelected()) {
             return;
         }
         super.inactive();
@@ -67,9 +66,9 @@ public class Arrow extends Component {
         double rad1 = this.rad - Math.PI / 6;
         double rad2 = this.rad + Math.PI / 6;
         double x1 = this.arrowLen * Math.cos(rad1) + this.endPoint.x;
-        double y1 = - this.arrowLen * Math.sin(rad1) + this.endPoint.y;
+        double y1 = -this.arrowLen * Math.sin(rad1) + this.endPoint.y;
         double x2 = this.arrowLen * Math.cos(rad2) + this.endPoint.x;
-        double y2 = - this.arrowLen * Math.sin(rad2) + this.endPoint.y;
+        double y2 = -this.arrowLen * Math.sin(rad2) + this.endPoint.y;
 
         path.setStrokeWidth(2);
         path.getElements().add(new MoveTo(x1, y1));

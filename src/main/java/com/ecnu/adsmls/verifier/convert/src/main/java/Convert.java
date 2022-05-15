@@ -9,13 +9,13 @@ public class Convert {
 
     /**
      * @param ADSML_PATH 项目路径，例如："src/main/resources/ADSML/Example/"
-     * @param JSON_PATH 项目路径下需要解析的.model文件路径，例如："example.model"
-     * @param XML_PATH 生成的XML文件路径，例如："src/main/resources/models/Example.xml"
+     * @param JSON_PATH  项目路径下需要解析的.model文件路径，例如："example.model"
+     * @param XML_PATH   生成的XML文件路径，例如："src/main/resources/models/Example.xml"
      * @description 该函数将输入的ADSML文件转化为Uppaal SMC支持的XML文件
      */
     public static void ADSML2Uppaal(String ADSML_PATH, String JSON_PATH, String XML_PATH) {
 
-        try{
+        try {
             // 1. 读取
             String input = JSONInputReader.readFromFile(JSON_PATH);
             // 2. 解析

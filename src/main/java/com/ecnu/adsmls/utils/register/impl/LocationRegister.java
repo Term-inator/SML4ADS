@@ -65,8 +65,8 @@ public class LocationRegister extends FunctionRegister {
     }
 
     public static Function getLocationFunction(String locationType) {
-        for(Function function : locationFunctions) {
-            if(Objects.equals(function.getFunctionName(), locationType)) {
+        for (Function function : locationFunctions) {
+            if (Objects.equals(function.getFunctionName(), locationType)) {
                 return function;
             }
         }

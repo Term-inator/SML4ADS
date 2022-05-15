@@ -2,7 +2,6 @@ package com.ecnu.adsmls.components.editor.treeeditor.impl;
 
 import com.ecnu.adsmls.components.modal.Modal;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.Background;
@@ -13,10 +12,6 @@ import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
 import javafx.stage.StageStyle;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 
 public class CommonTransitionModal extends Modal {

@@ -25,7 +25,8 @@ public class MProbabilityTransition {
         this.treeTextPosition = treeTextPosition;
     }
 
-    public MProbabilityTransition() {}
+    public MProbabilityTransition() {
+    }
 
     public long getId() {
         return id;

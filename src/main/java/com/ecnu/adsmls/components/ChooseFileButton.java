@@ -11,7 +11,6 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ChooseFileButton {
@@ -59,11 +58,11 @@ public class ChooseFileButton {
             Stage stage = (Stage) rootLayout.getScene().getWindow();
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Choose File");
-            if(this.initDir != null) {
+            if (this.initDir != null) {
                 System.out.println(this.initDir);
                 fileChooser.setInitialDirectory(new File(this.initDir));
             }
-            for(Map.Entry<String, String> filter : fileFilter.entrySet()) {
+            for (Map.Entry<String, String> filter : fileFilter.entrySet()) {
                 String extension = filter.getKey();
                 String description = filter.setValue(extension);
                 fileChooser.getExtensionFilters().add(
@@ -71,7 +70,7 @@ public class ChooseFileButton {
                 );
             }
             this.file = fileChooser.showOpenDialog(stage);
-            if(this.file != null) {
+            if (this.file != null) {
                 this.lbFilename.setText(file.getAbsolutePath());
             }
             stage.sizeToScene();

@@ -22,20 +22,18 @@ public class Between implements Requirement {
     @Override
     public void check(Map<String, String> context, String value) throws RequirementException {
         double lVal = .0, rVal = .0;
-        if(this.l instanceof Value) {
+        if (this.l instanceof Value) {
             lVal = ((Value) l).getValue().doubleValue();
-        }
-        else if(this.l instanceof Reference) {
+        } else if (this.l instanceof Reference) {
             lVal = Double.parseDouble(context.get(((Reference) l).getId()));
         }
 
-        if(this.r instanceof Value) {
+        if (this.r instanceof Value) {
             rVal = (Double) ((Value) r).getValue();
-        }
-        else if(this.r instanceof Reference) {
+        } else if (this.r instanceof Reference) {
             rVal = Double.parseDouble(context.get(((Reference) r).getId()));
         }
-        if(!Geometry.between(Double.parseDouble(value), lVal, rVal, this.op)) {
+        if (!Geometry.between(Double.parseDouble(value), lVal, rVal, this.op)) {
             throw new RequirementException(" should be in range " + this.op.charAt(0) + lVal + ", " + rVal + this.op.charAt(1));
         }
     }

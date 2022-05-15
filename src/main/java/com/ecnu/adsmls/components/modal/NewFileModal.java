@@ -30,10 +30,9 @@ public class NewFileModal extends Modal {
     }
 
     public void setDirectory(File directory) {
-        if(directory.isFile()) {
+        if (directory.isFile()) {
             this.directory = directory.getParentFile();
-        }
-        else {
+        } else {
             this.directory = directory;
         }
     }
@@ -77,16 +76,15 @@ public class NewFileModal extends Modal {
 
     private void checkFilename() {
         // 非空
-        if(Objects.equals(this.filename, "")) {
+        if (Objects.equals(this.filename, "")) {
             this.valid = false;
         }
     }
 
     private void createTree() {
-        if(Objects.equals(this.suffix, "")) {
+        if (Objects.equals(this.suffix, "")) {
             this.succeed = FileSystem.createDir(FileSystem.concatAbsolutePath(this.directory.getAbsolutePath(), this.filename));
-        }
-        else {
+        } else {
             this.succeed = FileSystem.createFile(this.directory, this.filename + this.suffix);
         }
     }

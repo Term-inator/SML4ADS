@@ -4,8 +4,6 @@ import com.ecnu.adsmls.verifier.convert.src.main.java.json.tree.BehaviorType;
 import com.ecnu.adsmls.verifier.convert.src.main.java.json.tree.GuardType;
 import com.ecnu.adsmls.verifier.convert.src.main.java.json.tree.TreeDataContainer;
 import com.ecnu.adsmls.verifier.convert.src.main.java.json.tree.entity.*;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import com.ecnu.adsmls.verifier.convert.src.main.java.xodr.exporter.BufferWriter;
 import com.ecnu.adsmls.verifier.convert.src.main.java.xodr.importer.XODRInputReader;
 import com.ecnu.adsmls.verifier.convert.src.main.java.xodr.importer.XODRParser;
@@ -13,6 +11,8 @@ import com.ecnu.adsmls.verifier.convert.src.main.java.xodr.map.MapDataContainer;
 import com.ecnu.adsmls.verifier.convert.src.main.java.xodr.map.entity.Lane;
 import com.ecnu.adsmls.verifier.convert.src.main.java.xodr.map.entity.LaneSection;
 import com.ecnu.adsmls.verifier.convert.src.main.java.xodr.map.entity.Road;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -50,7 +50,7 @@ public class XMLWriter {
 
         addDeclaration(buffer);
         addTimer(buffer); //已定义好的自动机
-        for(int i = 0; i < cars.size(); i++) { // 车辆的自动机
+        for (int i = 0; i < cars.size(); i++) { // 车辆的自动机
             addTemplate(buffer, i);
         }
         addEndTrigger(buffer);
@@ -100,7 +100,7 @@ public class XMLWriter {
 
     // 1.2.4 根据地图信息更新车辆的索引；另外，通过偏移重新计算laneId
     private static void initCarFromMap(MapDataContainer container) {
-        if(container == null) {
+        if (container == null) {
 //            log.warn("地图解析发生错误，返回了null对象！");
             log.warn("An error occurred while paring tha map. Received null.");
 
@@ -119,22 +119,22 @@ public class XMLWriter {
         Map<Integer, Lane> laneMap = new HashMap<>();
 
         // 初始化映射: id -> index，便于查找
-        for(Road road : roads) {
+        for (Road road : roads) {
             roadMap.put(road.getRoadId(), road);
         }
-        for(LaneSection laneSection : laneSections) {
+        for (LaneSection laneSection : laneSections) {
             laneSectionMap.put(laneSection.getLaneSectionId(), laneSection);
         }
-        for(Lane lane : lanes) {
+        for (Lane lane : lanes) {
             laneMap.put(lane.getSingleId(), lane);
         }
 
-        for(Car car : cars) {
+        for (Car car : cars) {
             // 1、解析laneSectionId和laneSingleId
             int laneSectionId = 0;
 
             Road road;
-            if(roadMap.containsKey(car.getRoadId())) {
+            if (roadMap.containsKey(car.getRoadId())) {
                 road = roadMap.get(car.getRoadId());
                 car.setRoadIndex(roadMap.get(car.getRoadId()).getIndex());
             } else {
@@ -144,8 +144,8 @@ public class XMLWriter {
             }
 
             // 这里会有点问题，因为偏移是不确定的，导致初始laneSectionId无法确定，因此这里用了最小偏移来替代；在uppaal中需要再判定一次
-            for(LaneSection laneSection : road.getLaneSections()) {
-                if(car.getMinOffset() >= laneSection.getStartPosition()) { // 偏移在该段起始位置后和下一个起始位置之前即为相应的laneSection
+            for (LaneSection laneSection : road.getLaneSections()) {
+                if (car.getMinOffset() >= laneSection.getStartPosition()) { // 偏移在该段起始位置后和下一个起始位置之前即为相应的laneSection
                     laneSectionId = laneSection.getLaneSectionId();
                     car.setLaneSectionId(laneSectionId);
                     car.setLaneSectionIndex(laneSectionMap.get(laneSectionId).getIndex());
@@ -157,8 +157,8 @@ public class XMLWriter {
             // 同样也可能因为不确定性导致初始化出现一些问题
             LaneSection laneSection = laneSectionMap.get(laneSectionId);
             List<Lane> currentLanes = laneSection.getLanes();
-            for(Lane lane : currentLanes) { // 这里还需要根据偏移更新laneId
-                if(lane.getLaneId() == car.getLaneId()) {
+            for (Lane lane : currentLanes) { // 这里还需要根据偏移更新laneId
+                if (lane.getLaneId() == car.getLaneId()) {
                     int singleId = lane.getSingleId();
                     car.setLaneSingleId(singleId);
                     car.setLaneIndex(laneMap.get(singleId).getIndex());
@@ -171,13 +171,13 @@ public class XMLWriter {
             int laneId = car.getLaneId();
             int direction = -laneId / Math.abs(laneId); // 索引增加的方向：-1为左，1为右（因为解析时先解析左再解析右）
             int centerLaneIndex = 0;
-            for(Lane lane : currentLanes) { //找到中心线车道的索引
-                if(lane.getLaneId() == 0) {
+            for (Lane lane : currentLanes) { //找到中心线车道的索引
+                if (lane.getLaneId() == 0) {
                     centerLaneIndex = lane.getIndex();
                 }
             }
-            for(int i = centerLaneIndex; i < lanes.size() && i < LANESECTION_LANE; i += direction) { // lane的singleId和index相同，往两边叠加
-                if(i != laneId) {
+            for (int i = centerLaneIndex; i < lanes.size() && i < LANESECTION_LANE; i += direction) { // lane的singleId和index相同，往两边叠加
+                if (i != laneId) {
                     totalLateralOffset += currentLanes.get(i).getWidth();
                 } else {
                     totalLateralOffset += currentLanes.get(i).getWidth() / 2; // 如果对应的lane，则实际偏移取中心线位置的
@@ -188,8 +188,8 @@ public class XMLWriter {
             double lateralOffset = totalLateralOffset + car.getMinLateralOffset();
             // 3 根据偏移比较，计算相应的lane
             double tempOffset = 0.0;
-            for(int i = 0; i < lanes.size() && i < LANESECTION_LANE; i += direction) {
-                if(lateralOffset >= tempOffset) {
+            for (int i = 0; i < lanes.size() && i < LANESECTION_LANE; i += direction) {
+                if (lateralOffset >= tempOffset) {
                     int singleId = currentLanes.get(i).getSingleId();
                     car.setLaneId(currentLanes.get(i).getLaneId());
                     car.setLaneSingleId(singleId);
@@ -215,7 +215,7 @@ public class XMLWriter {
         int countOfCar = cars.size();
         buffer.append("//id, width, length, heading, speed, acceleration, maxSpeed, ..., offset\n");
         buffer.append("Car cars[" + countOfCar + "] = {\n");
-        for(int i = 0; i < countOfCar; i++) {
+        for (int i = 0; i < countOfCar; i++) {
 //            System.out.println(cars[i].toString());
             buffer.append("{");
             buffer.append(i + ", ");
@@ -236,7 +236,7 @@ public class XMLWriter {
             buffer.append(f(cars.get(i).getOffset()));
             buffer.append("}");
 
-            buffer.append(i != countOfCar-1? ",\n" : "\n");
+            buffer.append(i != countOfCar - 1 ? ",\n" : "\n");
         }
         buffer.append("};\n");
     }
@@ -266,7 +266,7 @@ public class XMLWriter {
         try {
             String definedContent = FileUtils.readFileToString(new File(END_TRIGGER_PATH), "UTF-8");
             String endGuard = resolveGuard(scenarioEndTrigger);
-            if(endGuard.equals("")) {
+            if (endGuard.equals("")) {
                 endGuard = "false";
             } else {
                 endGuard = "(true " + endGuard + ")";
@@ -333,7 +333,7 @@ public class XMLWriter {
         List<Behavior> behaviors = cars.get(index).getMTree().getBehaviors();
         Map<Integer, Boolean> exist = new HashMap<>();
         for (Behavior behavior : behaviors) {
-            if(!exist.containsKey(behavior.getId())) {
+            if (!exist.containsKey(behavior.getId())) {
                 exist.put(behavior.getId(), true);
                 String id = "id" + behavior.getId(), name = behavior.getName();
 
@@ -397,14 +397,14 @@ public class XMLWriter {
                     addGuard(commonTransition.getGuard()) + "</label>\n");
 
             // sync 普通迁移也需要信号，否则在验证时可能会无法迁出
-             buffer.append("\t\t\t<label kind=\"synchronisation\">update?</label>\n");
+            buffer.append("\t\t\t<label kind=\"synchronisation\">update?</label>\n");
 
             // update/assignment 先更新边的坐标，再更新其他信息
             buffer.append("\t\t\t<label kind=\"assignment\">level = level+1, group = (group-1)*N+k, number=k, lock=true, t=0</label>\n");
             buffer.append("\t\t</transition>\n");
         }
 
-        for(ProbabilityTransition probabilityTransition : probabilityTransitions) {
+        for (ProbabilityTransition probabilityTransition : probabilityTransitions) {
             String from = "id" + probabilityTransition.getSourceId(), to = "id" + probabilityTransition.getTargetId();
             buffer.append("\t\t<transition>\n");
             buffer.append("\t\t\t<source ref=\"" + from + "\"/>\n");
@@ -434,38 +434,38 @@ public class XMLWriter {
      */
     private static String addGuard(List<String> guards) {
         StringBuffer buffer = new StringBuffer();
-        if(guards == null) {
+        if (guards == null) {
             return "";
         }
 
-        for(String guard : guards) {
+        for (String guard : guards) {
             buffer.append(resolveGuard(guard));
         }
         return buffer.toString();
     }
 
     private static String resolveGuard(String guard) {
-        if(guard == null || guard.equals("")) {
+        if (guard == null || guard.equals("")) {
             return "";
         }
 
         String buffer = "";
 
         boolean isMatch = false;
-        for(String guardType : GuardType.allGuards) {
-            if(guard.matches(guardType)) {
+        for (String guardType : GuardType.allGuards) {
+            if (guard.matches(guardType)) {
                 isMatch = true;
                 String s = guard;
-                for(String name : carNameIndexMap.keySet()) {
+                for (String name : carNameIndexMap.keySet()) {
                     s = s.replaceAll(name, "cars[" + carNameIndexMap.get(name) + "]");
                 }
 
                 // guard参数中的数字放大十倍（这里很乱，需要改一下）
                 Pattern numberPattern = Pattern.compile("[+-]?\\d+.?\\d*\\)"); //最后加一个右括号，只匹配最后一个distance的数字
                 Matcher m = numberPattern.matcher(s);
-                if(m.find()) {
+                if (m.find()) {
                     String result = m.group();
-                    String number = result.substring(0, result.length()-1);
+                    String number = result.substring(0, result.length() - 1);
                     s = s.replaceAll(result.replaceAll("\\)", "\\\\)"), f(Double.parseDouble(number)) + ")");
                 }
 
@@ -499,7 +499,7 @@ public class XMLWriter {
      */
     private static void addSelfTransitions(StringBuffer buffer, int index) {
         List<Behavior> behaviors = cars.get(index).getMTree().getBehaviors();
-        for(Behavior behavior : behaviors) {
+        for (Behavior behavior : behaviors) {
             resolveBehavior(buffer, behavior, index);
         }
     }
@@ -539,82 +539,82 @@ public class XMLWriter {
         StringBuffer buffer = new StringBuffer();
 
         Map<String, Double> params = behavior.getParams();
-        if(params == null) {
+        if (params == null) {
             return "";
         }
 
         // 不存在则设置为最大值
-        Double targetSpeed = params.getOrDefault("target speed", INT16_MAX*1.0/K);
-        targetSpeed = (targetSpeed == null? INT16_MAX*1.0/K : targetSpeed);
+        Double targetSpeed = params.getOrDefault("target speed", INT16_MAX * 1.0 / K);
+        targetSpeed = (targetSpeed == null ? INT16_MAX * 1.0 / K : targetSpeed);
         Double acceleration = params.getOrDefault("acceleration", 0.0);
-        acceleration = (acceleration == null? 0.0 : acceleration);
-        Double duration = params.getOrDefault("duration", INT16_MAX*1.0/K);
-        duration = (duration == null? INT16_MAX*1.0/K : duration);
+        acceleration = (acceleration == null ? 0.0 : acceleration);
+        Double duration = params.getOrDefault("duration", INT16_MAX * 1.0 / K);
+        duration = (duration == null ? INT16_MAX * 1.0 / K : duration);
 
-        if(behavior.getName().equals(BehaviorType.ACCELERATE.getValue())) {
+        if (behavior.getName().equals(BehaviorType.ACCELERATE.getValue())) {
             // *acceleration, *target speed, duration
             buffer.append(", cars[" + index + "].acceleration = " + f(acceleration));
             buffer.append(", speedUp(cars[" + index + "]," + f(targetSpeed) + ")");
             String lock = nextGuardAndNot(behavior, index);
-            if(lock == null) {
+            if (lock == null) {
                 buffer.append(", lock = (t&lt;" + f(duration) + " &amp;&amp; cars[" + index + "].speed&lt;" + f(targetSpeed) + ")");
             } else {
                 buffer.append(", lock = " + lock); // 加速减速匀速自循环的条件是：其后面所有迁移guard的和的非
             }
 
-        } else if(behavior.getName().equals(BehaviorType.DECELERATE.getValue())) {
+        } else if (behavior.getName().equals(BehaviorType.DECELERATE.getValue())) {
             // *acceleration, *target speed, duration
             buffer.append(", cars[" + index + "].acceleration = " + f(acceleration));
             buffer.append(", speedDown(cars[" + index + "]," + f(targetSpeed) + ")");
             String lock = nextGuardAndNot(behavior, index);
-            if(lock == null) {
+            if (lock == null) {
                 buffer.append(", lock = (t&lt;" + f(duration) + " &amp;&amp; cars[" + index + "].speed&gt;" + f(targetSpeed) + ")");
             } else {
                 buffer.append(", lock = " + lock); // 加速减速匀速自循环的条件是：其后面所有迁移guard的和的非
             }
 
-        } else if(behavior.getName().equals(BehaviorType.KEEP.getValue())) {
+        } else if (behavior.getName().equals(BehaviorType.KEEP.getValue())) {
             // duration
             // , keep(cars[0])
             //, lock=(t<5)
             buffer.append(", keep(cars[" + index + "])");
             String lock = nextGuardAndNot(behavior, index);
-            if(lock == null) {
+            if (lock == null) {
                 buffer.append(", lock = (t&lt;" + f(duration) + ")");
             } else {
                 buffer.append(", lock = " + lock); // 加速减速匀速自循环的条件是：其后面所有迁移guard的和的非
             }
 
-        } else if(behavior.getName().equals(BehaviorType.TURN_LEFT.getValue())) {
+        } else if (behavior.getName().equals(BehaviorType.TURN_LEFT.getValue())) {
             // *acceleration, *target speed
             buffer.append(", cars[" + index + "].acceleration = " + f(acceleration));
             buffer.append(", turnLeft(cars[" + index + "])");
 //            buffer.append(", lock = (cars[" + index + "].speed&lt;" + f(targetSpeed) + ")");
             buffer.append(", lock = false");
-        } else if(behavior.getName().equals(BehaviorType.TURN_RIGHT.getValue())) {
+        } else if (behavior.getName().equals(BehaviorType.TURN_RIGHT.getValue())) {
             // *acceleration, *target speed
             buffer.append(", cars[" + index + "].acceleration = " + f(acceleration));
             buffer.append(", turnRight(cars[" + index + "])");
 //            buffer.append(", lock = (cars[" + index + "].speed&lt;" + f(targetSpeed) + ")");
             buffer.append(", lock = false");
-        } else if(behavior.getName().equals(BehaviorType.CHANGE_LEFT.getValue())) {
+        } else if (behavior.getName().equals(BehaviorType.CHANGE_LEFT.getValue())) {
             // acceleration, target speed
             buffer.append(", cars[" + index + "].acceleration = " + f(acceleration));
             buffer.append(", changeLeft(cars[" + index + "])");
 //            buffer.append(", lock = (cars[" + index + "].speed&lt;" + f(targetSpeed) + ")");
             buffer.append(", lock = false");
-        } else if(behavior.getName().equals(BehaviorType.CHANGE_RIGHT.getValue())) {
+        } else if (behavior.getName().equals(BehaviorType.CHANGE_RIGHT.getValue())) {
             // acceleration, target speed
             buffer.append(", cars[" + index + "].acceleration = " + f(acceleration));
             buffer.append(", changeRight(cars[" + index + "])");
 //            buffer.append(", lock = (cars[" + index + "].speed&lt;" + f(targetSpeed) + ")");
             buffer.append(", lock = false");
-        } else if(behavior.getName().equals(BehaviorType.IDLE.getValue())) {
+        } else if (behavior.getName().equals(BehaviorType.IDLE.getValue())) {
             // duration
             buffer.append(", cars[" + index + "].speed = 0)");
 //            buffer.append(", lock = (cars[" + index + "].speed&lt;" + f(targetSpeed) + ")");
             buffer.append(", lock = (t&lt;" + f(duration) + ")");
-        } else if(behavior.getName().equals(BehaviorType.LANE_OFFSET.getValue())) {
+        } else if (behavior.getName().equals(BehaviorType.LANE_OFFSET.getValue())) {
             // *offset, acceleration, target speed, duration
             buffer.append(", lock = false");
         }
@@ -630,15 +630,15 @@ public class XMLWriter {
 
         List<CommonTransition> commonTransitions = behavior.getNextTransitions();
 
-        if(commonTransitions.size() == 0) { // 是最后一个节点了，那么不迁出，继续走
+        if (commonTransitions.size() == 0) { // 是最后一个节点了，那么不迁出，继续走
             return "true";
         }
 
         StringBuffer buffer = new StringBuffer("!(true"); // 下面会多一个&&
-        for(CommonTransition commonTransition : commonTransitions) {
+        for (CommonTransition commonTransition : commonTransitions) {
             // 找后面所有的迁移，进行"&&"操作
-            if(level == commonTransition.getLevel() && group == commonTransition.getGroup()) {
-                if(commonTransition.getGuard() != null) {
+            if (level == commonTransition.getLevel() && group == commonTransition.getGroup()) {
+                if (commonTransition.getGuard() != null) {
                     existGuard = true;
                     buffer.append(addGuard(commonTransition.getGuard()));
                 }
@@ -646,7 +646,7 @@ public class XMLWriter {
         }
         buffer.append(")");
 
-        if(!existGuard) { // 后续不存在guard则返回null
+        if (!existGuard) { // 后续不存在guard则返回null
             return null;
         }
         return buffer.toString();
@@ -655,8 +655,8 @@ public class XMLWriter {
     // 2.8 指向End的迁移，接收一个End信号，发生错误时结束
     private static void addTransitionToEnd(StringBuffer buffer, int index) {
         Map<Integer, Integer> behaviorMap = new HashMap<>();
-        for(Behavior behavior : cars.get(index).getMTree().getBehaviors()) {
-            if(behaviorMap.containsKey(behavior.getId())) {
+        for (Behavior behavior : cars.get(index).getMTree().getBehaviors()) {
+            if (behaviorMap.containsKey(behavior.getId())) {
                 continue;
             }
             behaviorMap.put(behavior.getId(), 1);
@@ -701,7 +701,7 @@ public class XMLWriter {
 
         buffer.append("\t\t\t<comment>");
         // 这里是comment的内容
-        buffer.append("</comment>\n" );
+        buffer.append("</comment>\n");
 
         buffer.append("\t\t</query>\n");
     }

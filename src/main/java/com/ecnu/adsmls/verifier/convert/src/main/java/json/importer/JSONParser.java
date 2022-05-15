@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.ecnu.adsmls.verifier.convert.src.main.java.util.ADSMLUtil.*;
+import static com.ecnu.adsmls.verifier.convert.src.main.java.util.ADSMLUtil.N;
 
 @Slf4j
 public class JSONParser {
@@ -57,7 +57,7 @@ public class JSONParser {
     }
 
     private static void initFromRelatedCar(Car car) {
-        if(car.getLocationType().equals(TreeConstant.RELATED_POSITION)) {
+        if (car.getLocationType().equals(TreeConstant.RELATED_POSITION)) {
 //            log.info("{}的关联车辆为{}", car.getName(), car.getActorRef());
             log.info("Car {} is associated with Car {}.", car.getName(), car.getActorRef());
             Car relatedCar = nameCarMap.get(car.getActorRef());
@@ -81,8 +81,8 @@ public class JSONParser {
         Map<Integer, Integer> ids = new HashMap<>(); // 原id -> 去重后id
         Map<String, Integer> locationIds = new HashMap<>(); // 行为（Location）对应的id
 
-        for(Behavior behavior : car.getMTree().getBehaviors()) {
-            if(!locationIds.containsKey(behavior.getName())) {
+        for (Behavior behavior : car.getMTree().getBehaviors()) {
+            if (!locationIds.containsKey(behavior.getName())) {
                 locationIds.put(behavior.getName(), locationId);
                 ids.put(behavior.getId(), locationId);
                 behavior.setId(locationId);
@@ -94,20 +94,20 @@ public class JSONParser {
                 behavior.setId(nowId);
             }
         }
-        
-        for(BranchPoint branchPoint : car.getMTree().getBranchPoints()) {
+
+        for (BranchPoint branchPoint : car.getMTree().getBranchPoints()) {
             ids.put(branchPoint.getId(), id);
             branchPoint.setId(id++);
         }
 
-        for(CommonTransition commonTransition : car.getMTree().getCommonTransitions()) {
+        for (CommonTransition commonTransition : car.getMTree().getCommonTransitions()) {
             ids.put(commonTransition.getId(), id);
             commonTransition.setId(id++);
             commonTransition.setSourceId(ids.get(commonTransition.getSourceId()));
             commonTransition.setTargetId(ids.get(commonTransition.getTargetId()));
         }
 
-        for(ProbabilityTransition probabilityTransition : car.getMTree().getProbabilityTransitions()) {
+        for (ProbabilityTransition probabilityTransition : car.getMTree().getProbabilityTransitions()) {
             ids.put(probabilityTransition.getId(), id);
             probabilityTransition.setId(id++);
             probabilityTransition.setSourceId(ids.get(probabilityTransition.getSourceId()));
@@ -127,24 +127,24 @@ public class JSONParser {
         // id -> Behavior
         Map<Integer, Behavior> idBehaviorMap = new HashMap<>();
         Map<Integer, BranchPoint> idBranchPointMap = new HashMap<>();
-        for(Behavior behavior : behaviors) {
+        for (Behavior behavior : behaviors) {
             idBehaviorMap.put(behavior.getId(), behavior);
         }
-        for(BranchPoint branchPoint : branchPoints) {
+        for (BranchPoint branchPoint : branchPoints) {
             idBranchPointMap.put(branchPoint.getId(), branchPoint);
         }
 
         // 1. init next[]
-        for(Behavior behavior : behaviors) {
+        for (Behavior behavior : behaviors) {
             behavior.setNextBehaviors(new ArrayList<>());
             behavior.setNextTransitions(new ArrayList<>());
             behavior.setNextBranchPoints(new ArrayList<>());
             // 以该behavior id为source的边
-            for(CommonTransition commonTransition : commonTransitions) {
-                if(behavior.getId() == commonTransition.getSourceId()) {
+            for (CommonTransition commonTransition : commonTransitions) {
+                if (behavior.getId() == commonTransition.getSourceId()) {
                     // next commonTransition
                     commonTransition.setSourceBehavior(behavior);
-                    if(idBehaviorMap.containsKey(commonTransition.getTargetId())) { // next behavior
+                    if (idBehaviorMap.containsKey(commonTransition.getTargetId())) { // next behavior
                         Behavior targetBehavior = idBehaviorMap.get(commonTransition.getTargetId());
                         commonTransition.setTargetBehavior(targetBehavior);
                         List<Behavior> nextBehaviors = behavior.getNextBehaviors();
@@ -161,14 +161,14 @@ public class JSONParser {
             }
         }
 
-        for(BranchPoint branchPoint : branchPoints) {
+        for (BranchPoint branchPoint : branchPoints) {
             branchPoint.setNextBehaviors(new ArrayList<>());
             branchPoint.setNextTransitions(new ArrayList<>());
-            for(ProbabilityTransition probabilityTransition : probabilityTransitions) {
-                if(branchPoint.getId() == probabilityTransition.getSourceId()) {
+            for (ProbabilityTransition probabilityTransition : probabilityTransitions) {
+                if (branchPoint.getId() == probabilityTransition.getSourceId()) {
                     // next probabilityTransition
                     probabilityTransition.setSourceBranchPoint(branchPoint);
-                    if(idBehaviorMap.containsKey(probabilityTransition.getTargetId())) {
+                    if (idBehaviorMap.containsKey(probabilityTransition.getTargetId())) {
                         Behavior behavior = idBehaviorMap.get(probabilityTransition.getTargetId());
                         probabilityTransition.setTargetBehavior(behavior);
                         List<Behavior> nextBehaviors = branchPoint.getNextBehaviors();
@@ -181,8 +181,8 @@ public class JSONParser {
         }
 
         // 2. start building tree from root
-        for(Behavior behavior : behaviors) {
-            if(behavior.getId() == mTree.getRootId()) {
+        for (Behavior behavior : behaviors) {
+            if (behavior.getId() == mTree.getRootId()) {
                 behavior.setLevel(1);
                 behavior.setGroup(1);
                 behavior.setNumber(0);
@@ -197,26 +197,26 @@ public class JSONParser {
     private static void initBehavior(Behavior sourceBehavior) {
         int number = 1;
         // 初始化 以该behavior为source的边
-        for(CommonTransition commonTransition : sourceBehavior.getNextTransitions()) {
+        for (CommonTransition commonTransition : sourceBehavior.getNextTransitions()) {
             // 更改对应边的三元组
             commonTransition.setLevel(sourceBehavior.getLevel());
             commonTransition.setGroup(sourceBehavior.getGroup());
             commonTransition.setNumber(number);
-            number ++;
+            number++;
             initCommonTransition(commonTransition);
         }
 
     }
 
     private static void initCommonTransition(CommonTransition commonTransition) {
-        if(commonTransition.getTargetBehavior() != null) {
+        if (commonTransition.getTargetBehavior() != null) {
             Behavior behavior = commonTransition.getTargetBehavior();
             // 更改对应behavior的三元组
             behavior.setLevel(commonTransition.getLevel() + 1);
             behavior.setGroup((commonTransition.getGroup() - 1) * N + commonTransition.getNumber());
             behavior.setNumber(0);
             initBehavior(behavior);
-        } else if(commonTransition.getTargetBranchPoint() != null) {
+        } else if (commonTransition.getTargetBranchPoint() != null) {
             BranchPoint branchPoint = commonTransition.getTargetBranchPoint();
             // 更改对应branchPoint的三元组
             branchPoint.setLevel(commonTransition.getLevel() + 1);
@@ -228,18 +228,18 @@ public class JSONParser {
 
     private static void initBranchPoint(BranchPoint branchPoint) {
         int number = 1;
-        for(ProbabilityTransition probabilityTransition : branchPoint.getNextTransitions()) {
+        for (ProbabilityTransition probabilityTransition : branchPoint.getNextTransitions()) {
             // 更改对应边的三元组
             probabilityTransition.setLevel(branchPoint.getLevel());
             probabilityTransition.setGroup(branchPoint.getGroup());
             probabilityTransition.setNumber(number);
-            number ++;
+            number++;
             initProbabilityTransition(probabilityTransition);
         }
     }
 
     private static void initProbabilityTransition(ProbabilityTransition probabilityTransition) {
-        if(probabilityTransition.getTargetBehavior() != null) {
+        if (probabilityTransition.getTargetBehavior() != null) {
             // 更改该behavior对应的三元组
             Behavior behavior = probabilityTransition.getTargetBehavior();
             behavior.setLevel(probabilityTransition.getLevel() + 1);
@@ -271,16 +271,16 @@ public class JSONParser {
                                   List<ProbabilityTransition> probabilityTransitions, List<BranchPoint> branchPoints) {
         int number = 1;
         // 找出以该behavior为source的边
-        for(CommonTransition commonTransition : commonTransitions) {
-            if(commonTransition.getSourceId() == sourceBehavior.getId()) {
+        for (CommonTransition commonTransition : commonTransitions) {
+            if (commonTransition.getSourceId() == sourceBehavior.getId()) {
                 // 更改对应边的三元组
                 commonTransition.setLevel(sourceBehavior.getLevel());
                 commonTransition.setGroup(sourceBehavior.getGroup());
                 commonTransition.setNumber(number);
-                number ++;
+                number++;
                 // 找出该边targetId对应的behavior
-                for(Behavior behavior : behaviors) {
-                    if(behavior.getId() == commonTransition.getTargetId()) {
+                for (Behavior behavior : behaviors) {
+                    if (behavior.getId() == commonTransition.getTargetId()) {
                         // 更改对应behavior的三元组
                         behavior.setLevel(commonTransition.getLevel() + 1);
                         behavior.setGroup((commonTransition.getGroup() - 1) * N + commonTransition.getNumber());
@@ -289,31 +289,31 @@ public class JSONParser {
                     }
                 }
                 // 找出该边targetId对应的branchPoint
-                for(BranchPoint branchPoint: branchPoints) {
-                    if(branchPoint.getId() == commonTransition.getTargetId()) {
+                for (BranchPoint branchPoint : branchPoints) {
+                    if (branchPoint.getId() == commonTransition.getTargetId()) {
                         // 更改对应branchPoint的三元组
                         branchPoint.setLevel(commonTransition.getLevel() + 1);
                         branchPoint.setGroup((commonTransition.getGroup() - 1) * N + commonTransition.getNumber());
                         branchPoint.setNumber(0);
-                        number ++;
+                        number++;
                         // 找出以该branchPoint为source的commonTransition
                         int number2 = 1;
-                        for(ProbabilityTransition probabilityTransition : probabilityTransitions) {
-                            if(probabilityTransition.getSourceId() == branchPoint.getId()) {
+                        for (ProbabilityTransition probabilityTransition : probabilityTransitions) {
+                            if (probabilityTransition.getSourceId() == branchPoint.getId()) {
                                 // 更改对应边的三元组
                                 probabilityTransition.setLevel(branchPoint.getLevel());
                                 probabilityTransition.setGroup(branchPoint.getGroup());
                                 probabilityTransition.setNumber(number2);
-                                number2 ++;
+                                number2++;
                                 // 找出该边的targetId对应的behavior
                                 int number3 = 1;
-                                for(Behavior behavior : behaviors) {
-                                    if(behavior.getId() == probabilityTransition.getTargetId()) {
+                                for (Behavior behavior : behaviors) {
+                                    if (behavior.getId() == probabilityTransition.getTargetId()) {
                                         // 更改该behavior对应的三元组
                                         behavior.setLevel(probabilityTransition.getLevel() + 1);
                                         behavior.setGroup((probabilityTransition.getGroup() - 1) * N + probabilityTransition.getNumber());
                                         behavior.setNumber(number3);
-                                        number3 ++;
+                                        number3++;
                                         buildTree(behavior, behaviors, commonTransitions, probabilityTransitions, branchPoints);
                                     }
                                 }
@@ -334,7 +334,7 @@ public class JSONParser {
         container.setMap(treePathPrefix + container.getMap());
 
         List<Car> cars = new ArrayList<>();
-        for(Car car : container.getCars()) {
+        for (Car car : container.getCars()) {
             // 从路径中获取行为树
             String treeStr = JSONInputReader.readFromFile(treePathPrefix + car.getTreePath());
             MTree tree = JSONObject.parseObject(treeStr, MTree.class);
