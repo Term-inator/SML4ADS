@@ -4,11 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.editor.Editor;
 import com.ecnu.adsmls.components.editor.treeeditor.impl.*;
 import com.ecnu.adsmls.model.*;
-import com.ecnu.adsmls.router.params.Global;
 import com.ecnu.adsmls.utils.Converter;
 import com.ecnu.adsmls.utils.Position;
-import com.sun.source.tree.Tree;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -20,7 +17,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -46,6 +42,9 @@ public class TreeEditor extends Editor {
     private long componentId = 0;
     // 被选中的组件
     private Group componentChose;
+
+    // 错误信息
+    private StringBuilder errorMsg = new StringBuilder();
 
     public TreeEditor(String projectPath, File file) {
         super(projectPath, file);
@@ -361,7 +360,7 @@ public class TreeEditor extends Editor {
             TreeArea treeArea = s.pop();
             // 若已访问则有环
             if(mark.get(treeArea.getId()) == true) {
-                System.out.println("has at least one ring");
+                this.errorMsg.append("The tree has at least one ring, in file ").append(this.file.getName()).append("\n");
                 return false;
             }
             mark.put(treeArea.getId(), true);
@@ -387,9 +386,13 @@ public class TreeEditor extends Editor {
                 }
             }
         }
+        if(s.isEmpty()) {
+            this.errorMsg.append("The tree has at least one ring, in file ").append(this.file.getName()).append("\n");
+            return null;
+        }
         // 若图入度为 0 的节点多于一个，则一定不是树
-        if(s.size() != 1) {
-            System.out.println("more than one root");
+        else if(s.size() != 1) {
+            this.errorMsg.append("The tree has more than one root, in file ").append(this.file.getName()).append("\n");
             return null;
         }
         else {
@@ -405,11 +408,24 @@ public class TreeEditor extends Editor {
 
     @Override
     public void check() {
-        // empty method
+        for(Node node : this.canvas.getChildren()) {
+            if (node.getUserData() instanceof BranchPoint) {
+                BranchPoint branchPoint = (BranchPoint) node.getUserData();
+                if(branchPoint.getInTransitions().isEmpty()) {
+                    this.errorMsg.append("The BranchPoint in file ").append(this.file.getName()).append(" has no parent node.\n");
+                }
+                else if(branchPoint.getOutTransitions().isEmpty()) {
+                    this.errorMsg.append("The BranchPoint in file ").append(this.file.getName()).append(" should have at least one child node.\n");
+                }
+            }
+        }
     }
 
     @Override
     public void save() {
+        this.errorMsg = new StringBuilder();
+        this.check();
+
         MTree mTree = new MTree();
         TreeArea root = this.getRoot();
         if(root == null) {
@@ -418,6 +434,7 @@ public class TreeEditor extends Editor {
         else {
             mTree.setRootId(root.getId());
         }
+        mTree.setErrMsg(this.errorMsg.toString());
         List<Node> nodes = this.canvas.getChildren();
         for(Node node : nodes) {
             Component component = (Component) node.getUserData();
