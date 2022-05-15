@@ -7,6 +7,7 @@ import com.ecnu.adsmls.model.*;
 import com.ecnu.adsmls.router.params.Global;
 import com.ecnu.adsmls.utils.Converter;
 import com.ecnu.adsmls.utils.Position;
+import com.sun.source.tree.Tree;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -341,6 +342,67 @@ public class TreeEditor extends Editor {
         });
     }
 
+    /**
+     * 判断图是否有环
+     * @param root 树根
+     * @return
+     */
+    private boolean noRing(TreeArea root) {
+        Stack<TreeArea> s = new Stack<>();
+        s.push(root);
+        Map<Long, Boolean> mark = new HashMap<>();
+        for(Node node : this.canvas.getChildren()) {
+            if (node.getUserData() instanceof TreeArea) {
+                TreeArea treeArea = (TreeArea) node.getUserData();
+                mark.put(treeArea.getId(), false);
+            }
+        }
+        while(!s.isEmpty()) {
+            TreeArea treeArea = s.pop();
+            // 若已访问则有环
+            if(mark.get(treeArea.getId()) == true) {
+                System.out.println("has at least one ring");
+                return false;
+            }
+            mark.put(treeArea.getId(), true);
+
+            for(TreeLink treeLink : treeArea.getOutTransitions()) {
+                s.push(treeLink.getTarget());
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 获取树的根节点
+     * @return
+     */
+    private TreeArea getRoot() {
+        Stack<TreeArea> s = new Stack<>();
+        for(Node node : this.canvas.getChildren()) {
+            if (node.getUserData() instanceof TreeArea) {
+                TreeArea treeArea = (TreeArea) node.getUserData();
+                if(treeArea.getInTransitions().isEmpty()) {
+                    s.push(treeArea);
+                }
+            }
+        }
+        // 若图入度为 0 的节点多于一个，则一定不是树
+        if(s.size() != 1) {
+            System.out.println("more than one root");
+            return null;
+        }
+        else {
+            TreeArea root = s.pop();
+            if(this.noRing(root)) {
+                return root;
+            }
+            else {
+                return null;
+            }
+        }
+    }
+
     @Override
     public void check() {
         // empty method
@@ -348,17 +410,19 @@ public class TreeEditor extends Editor {
 
     @Override
     public void save() {
-        List<Node> nodes = this.canvas.getChildren();
         MTree mTree = new MTree();
-        boolean setRoot = false;
+        TreeArea root = this.getRoot();
+        if(root == null) {
+            mTree.setRootId(-1);
+        }
+        else {
+            mTree.setRootId(root.getId());
+        }
+        List<Node> nodes = this.canvas.getChildren();
         for(Node node : nodes) {
             Component component = (Component) node.getUserData();
             if(component instanceof Behavior) {
                 Behavior behavior = (Behavior) component;
-                if(!setRoot) {
-                    mTree.setRootId(behavior.getId());
-                    setRoot = true;
-                }
                 mTree.getBehaviors().add(Converter.cast(behavior));
             }
             else if(component instanceof BranchPoint) {
@@ -452,7 +516,7 @@ public class TreeEditor extends Editor {
 
     @Override
     protected void createNode() {
-        // TODO canvas 一大变大，无法恢复，导致全屏后再缩小会出问题
+        // TODO canvas 一旦变大，无法恢复，导致全屏后再缩小会出问题
         this.initPalette();
         this.initCanvas();
 
