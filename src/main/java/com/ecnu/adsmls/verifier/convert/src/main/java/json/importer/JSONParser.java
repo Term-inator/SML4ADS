@@ -114,9 +114,13 @@ public class JSONParser {
             probabilityTransition.setTargetId(ids.get(probabilityTransition.getTargetId()));
         }
 
+//        log.info(car.getName() + "（转化前id -> 转化后id）:" + ids);
+//        log.info(car.getName() + "（行为名 -> 行为id）:" + locationIds);
+        log.info(car.getName() + "（before id -> after id）:" + ids);
+        log.info(car.getName() + "（behavior name -> behavior id）:" + locationIds);
     }
 
-    private static void initEdge2(Car car) {
+    private static void initEdge(Car car) {
         MTree mTree = car.getMTree();
         List<Behavior> behaviors = mTree.getBehaviors();
         List<CommonTransition> commonTransitions = mTree.getCommonTransitions();
@@ -177,6 +181,18 @@ public class JSONParser {
                     List<ProbabilityTransition> nextTransitions = branchPoint.getNextTransitions();
                     nextTransitions.add(probabilityTransition);
                 }
+            }
+        }
+
+        for (Behavior behavior : behaviors) {
+            for (Behavior behavior1 : behavior.getNextBehaviors()) {
+                log.info("name: " + behavior.getName() + ", id: " + behavior.getId() +
+                        ", next behaviors: " + behavior1.getName() + behavior1.getId());
+
+            }
+            for (CommonTransition commonTransition : behavior.getNextTransitions()) {
+                log.info("name: " + behavior.getName() + ", id: " + behavior.getId() +
+                        ", next transitions: " + commonTransition.getId());
             }
         }
 
@@ -249,82 +265,6 @@ public class JSONParser {
         }
     }
 
-    /**
-     * @description 初始化各边和各自环对应的三元组
-     */
-    @Deprecated
-    private static void initEdge(Car car) {
-        List<Behavior> behaviors = car.getMTree().getBehaviors();
-        List<CommonTransition> commonTransitions = car.getMTree().getCommonTransitions();
-        List<ProbabilityTransition> probabilityTransitions = car.getMTree().getProbabilityTransitions();
-        List<BranchPoint> branchPoints = car.getMTree().getBranchPoints();
-
-        behaviors.get(0).setLevel(1);
-        behaviors.get(0).setGroup(1);
-        behaviors.get(0).setNumber(0);
-        buildTree(behaviors.get(0), behaviors, commonTransitions, probabilityTransitions, branchPoints);
-    }
-
-    // 递归初始化
-    @Deprecated
-    private static void buildTree(Behavior sourceBehavior, List<Behavior> behaviors, List<CommonTransition> commonTransitions,
-                                  List<ProbabilityTransition> probabilityTransitions, List<BranchPoint> branchPoints) {
-        int number = 1;
-        // 找出以该behavior为source的边
-        for (CommonTransition commonTransition : commonTransitions) {
-            if (commonTransition.getSourceId() == sourceBehavior.getId()) {
-                // 更改对应边的三元组
-                commonTransition.setLevel(sourceBehavior.getLevel());
-                commonTransition.setGroup(sourceBehavior.getGroup());
-                commonTransition.setNumber(number);
-                number++;
-                // 找出该边targetId对应的behavior
-                for (Behavior behavior : behaviors) {
-                    if (behavior.getId() == commonTransition.getTargetId()) {
-                        // 更改对应behavior的三元组
-                        behavior.setLevel(commonTransition.getLevel() + 1);
-                        behavior.setGroup((commonTransition.getGroup() - 1) * N + commonTransition.getNumber());
-                        behavior.setNumber(0);
-                        buildTree(behavior, behaviors, commonTransitions, probabilityTransitions, branchPoints);
-                    }
-                }
-                // 找出该边targetId对应的branchPoint
-                for (BranchPoint branchPoint : branchPoints) {
-                    if (branchPoint.getId() == commonTransition.getTargetId()) {
-                        // 更改对应branchPoint的三元组
-                        branchPoint.setLevel(commonTransition.getLevel() + 1);
-                        branchPoint.setGroup((commonTransition.getGroup() - 1) * N + commonTransition.getNumber());
-                        branchPoint.setNumber(0);
-                        number++;
-                        // 找出以该branchPoint为source的commonTransition
-                        int number2 = 1;
-                        for (ProbabilityTransition probabilityTransition : probabilityTransitions) {
-                            if (probabilityTransition.getSourceId() == branchPoint.getId()) {
-                                // 更改对应边的三元组
-                                probabilityTransition.setLevel(branchPoint.getLevel());
-                                probabilityTransition.setGroup(branchPoint.getGroup());
-                                probabilityTransition.setNumber(number2);
-                                number2++;
-                                // 找出该边的targetId对应的behavior
-                                int number3 = 1;
-                                for (Behavior behavior : behaviors) {
-                                    if (behavior.getId() == probabilityTransition.getTargetId()) {
-                                        // 更改该behavior对应的三元组
-                                        behavior.setLevel(probabilityTransition.getLevel() + 1);
-                                        behavior.setGroup((probabilityTransition.getGroup() - 1) * N + probabilityTransition.getNumber());
-                                        behavior.setNumber(number3);
-                                        number3++;
-                                        buildTree(behavior, behaviors, commonTransitions, probabilityTransitions, branchPoints);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     public static TreeDataContainer parse(String input, String treePathPrefix) {
 //        log.info("开始解析各车辆...");
         log.info("Start parsing cars...");
@@ -342,7 +282,7 @@ public class JSONParser {
             // 初始化location
             initLocationParams(car);
             // 初始化（level, group, number）
-            initEdge2(car);
+            initEdge(car);
             // 需要对id进行去重并更改，将同名节点归为同一id，否则会有重名节点
             modifyId(car);
             // 建立名称到车辆的映射

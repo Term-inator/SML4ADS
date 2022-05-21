@@ -195,6 +195,7 @@ Connection connections[2];
 LaneLink laneLinks[2];
 
 const int TIME_STEP = 10;
+int countOfCars = 1;
 Car cars[1] = {{0, 0, 0, true, 0, 0, 1, 10, 0, 0, 0, 0, 0, 0}};
 
 /************************************* 常用函数 *************************************/
@@ -236,7 +237,7 @@ bool isSafeSameDirection(Car car1, Car car2){
 }
 
 
-int oppsiteSafeDistance(Car car1, Car car2){
+int oppositeSafeDistance(Car car1, Car car2){
     int v1p = car1.speed+maxAcc*ret, v2p = abs(car2.speed)+maxAcc*ret;
     int v1 = car1.speed, v2 = car2.speed;
     return (v1+v1p)*ret/2 + v1p*v1p/(2*minCor) + (abs(v2)+v2p)*ret/2 + v2p*v2p/(2*minBra);
@@ -247,7 +248,7 @@ int oppsiteSafeDistance(Car car1, Car car2){
 **/
 bool isSafeOppositeDirection(Car car1, Car car2){
     if(car1.laneIndex == car2.laneIndex &amp;&amp; car1.heading == car2.heading){
-        return max(oppsiteSafeDistance(car1,car2),0) &lt; distance(car1, car2);
+        return max(oppositeSafeDistance(car1,car2),0) &lt; distance(car1, car2);
     }
     return true;
 }
@@ -263,7 +264,7 @@ int changeLaneSafeDistance(Car car1, Car car2){
 **/
 bool isSafeChangeLane(Car car1, Car car2){
     if(car1.laneIndex == car2.laneIndex &amp;&amp; car1.heading == car2.heading){
-        return max(changeLaneSafeDistance(car1,car2),0) &lt; distance(car1, car2);
+        return max(changeLaneSafeDistance(car1,car2),0) &lt; lateralDistance(car1, car2);
     }
     return true;
 }
@@ -472,6 +473,10 @@ void modifyRoadLane(Car&amp; car) {
     int offset = car.offset;
     int ls = car.laneSectionIndex;
     int i = 0, index = 0;
+    if(car.roadIndex == -1 || car.laneIndex == -1 || car.laneSectionIndex == -1) {
+        safeModifyRoadLane = -1;
+        return;
+    }
     for(i = 0; i &lt; 10; i++) {
         if(ls == roads[car.roadIndex].laneSections[i]) {
             index = i;
@@ -589,14 +594,15 @@ void keep(Car&amp; car){
 /**
     转到左车道:
     0. 可视为一个瞬时动作
-    1. speed不变, road不变, lane变为其左侧lane; 若无?
-    2. 设置一个因子k, 因为左转也会前进一部分, k代表左转道前进的路程占直接匀速前进路程的比例
-    3. 若无法左转该?
+    1. speed变为targetSpeed, road不变, lane变为其左侧lane
 **/
-void changeLeft(Car&amp; car){
-    int k = 8;
-    int v = car.speed;
-    int movement = v * TIME_STEP * k / (FACTOR * FACTOR);
+void changeLeft(Car&amp; car, int targetSpeed){
+    int movement;
+    if(targetSpeed == -1) {
+        targetSpeed = car.speed;
+    }
+    movement = (car.speed + targetSpeed)/2 * TIME_STEP / (FACTOR * FACTOR);
+    car.speed = targetSpeed;
     car.offset += (car.heading? movement : -movement);
     if(lanes[car.laneIndex].laneChange == 1 || lanes[car.laneIndex].laneChange == 3) {
      	car.laneIndex = leftLaneIndex(lanes[car.laneIndex]);
@@ -609,10 +615,13 @@ void changeLeft(Car&amp; car){
     转到右车道:
     0. 逻辑同上转到左车道
 **/
-void changeRight(Car&amp; car){
-    int k = 8;
-    int v = car.speed;
-    int movement = v * TIME_STEP * k / (FACTOR * FACTOR);
+void changeRight(Car&amp; car, int targetSpeed){
+    int movement;
+    if(targetSpeed == -1) {
+        targetSpeed = car.speed;
+    }
+    movement = (car.speed + targetSpeed)/2 * TIME_STEP / (FACTOR * FACTOR);
+    car.speed = targetSpeed;
     car.offset += (car.heading? movement : -movement);
     if(lanes[car.laneIndex].laneChange == 2 || lanes[car.laneIndex].laneChange == 3) {
      	car.laneIndex = rightLaneIndex(lanes[car.laneIndex]);
@@ -733,9 +742,9 @@ bool isInRightLane(Car car1, Car car2) {
 bool withinDisToObjsInRoad(Car car1, Car car2, int distance) {
     if(car1.roadId != car2.roadId) {  // 不在同一Road
         return false;
-    } else if(car1.heading &amp;&amp; car2.offset - car1.offset &lt;= distance) { // car1和road同向, 那car2.offset应该在car1.offset到road.length之间
+    } else if(car1.heading &amp;&amp; car2.offset - car1.offset &lt;= distance &amp;&amp; car2.offset &gt; car1.offset) { // car1和road同向, 那car2.offset应该在car1.offset到road.length之间
         return true;
-    } else if(!car1.heading &amp;&amp; car1.offset - car2.offset &lt;= distance) { // car1和road反向, 那car2.offset应该在0到car1.offset之间
+    } else if(!car1.heading &amp;&amp; car1.offset - car2.offset &lt;= distance &amp;&amp; car2.offset &lt; car1.offset) { // car1和road反向, 那car2.offset应该在0到car1.offset之间
         return true;
     }
     return false;
@@ -759,9 +768,9 @@ bool withinDisToObjsInLane(Car car1, Car car2, int distance) {
 **/
 bool hasObjWithinDisInLane(Car car, int distance) {
     int i = 0;
-    int count = car.length;
+    int count = countOfCars;
     for(i = 0; i &lt; count; i++) {
-        if(withinDisToObjsInLane(car, cars[i], distance)) {
+        if(car.id != cars[i].id &amp;&amp; withinDisToObjsInLane(car, cars[i], distance)) {
             return true;
         }
     }
@@ -777,9 +786,9 @@ bool hasObjWithinDisInLane(Car car, int distance) {
 **/
 bool hasObjWithinDisInLeftLane(Car car, int distance) {
     int i = 0;
-    int count = car.length;
+    int count = countOfCars;
     for(i = 0; i &lt; count; i++) {
-        if(isInLeftLane(car, cars[i]) &amp;&amp; abs(car.offset-cars[i].offset) &lt;= distance) {
+        if(car.id != cars[i].id &amp;&amp; isInLeftLane(car, cars[i]) &amp;&amp; abs(car.offset-cars[i].offset) &lt;= distance) {
             return true;
         }
     }
@@ -795,9 +804,9 @@ bool hasObjWithinDisInLeftLane(Car car, int distance) {
 **/
 bool hasObjWithinDisInRightLane(Car car, int distance) {
     int i = 0;
-    int count = car.length;
+    int count = countOfCars;
     for(i = 0; i &lt; count; i++) {
-        if(isInRightLane(car, cars[i]) &amp;&amp; abs(car.offset-cars[i].offset) &lt;= distance) {
+        if(car.id != cars[i].id &amp;&amp; isInRightLane(car, cars[i]) &amp;&amp; abs(car.offset-cars[i].offset) &lt;= distance) {
             return true;
         }
     }

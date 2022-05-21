@@ -300,7 +300,7 @@
       }
     },
     {
-      "guard": "distance(car1,car2)<=30",
+      "guard": "withinDisToObjsInRoad(car1,car2,30)",
       "id": 17,
       "linkPoints": [
         {
@@ -320,7 +320,7 @@
       }
     },
     {
-      "guard": "distance(car1,car2)>=20",
+      "guard": "!withinDisToObjsInRoad(car1,car2,20)",
       "id": 14,
       "linkPoints": [
         {
@@ -340,7 +340,7 @@
       }
     },
     {
-      "guard": "distance(ca1,car2)>=20",
+      "guard": "!withinDisToObjsInRoad(car1,car2,20)",
       "id": 18,
       "linkPoints": [
         {
