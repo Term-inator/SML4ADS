@@ -4,44 +4,45 @@
       "heading": true,
       "initSpeed": 8.0,
       "locationParams": {
-        "road id": "0",
-        "lane id": "-1",
-        "min lateral offset": "0",
-        "max lateral offset": "0",
-        "min longitudinal offset": "0",
-        "max longitudinal offset": "10"
+        "roadId": "0",
+        "laneId": "-2",
+        "minLateralOffset": "0",
+        "maxLateralOffset": "0",
+        "minLongitudinalOffset": "0",
+        "maxLongitudinalOffset": "10"
       },
       "locationType": "Lane Position",
       "maxSpeed": 40.0,
       "model": "random",
       "name": "car1",
       "roadDeviation": 0.0,
-      "treePath": "car1.json"
+      "treePath": "car1.tree"
     },
     {
       "heading": true,
       "initSpeed": 8.0,
       "locationParams": {
-        "road id": "0",
-        "lane id": "-1",
-        "min lateral offset": "0",
-        "max lateral offset": "0",
-        "min longitudinal offset": "40",
-        "max longitudinal offset": "60"
+        "roadId": "0",
+        "laneId": "-2",
+        "minLateralOffset": "0",
+        "maxLateralOffset": "0",
+        "minLongitudinalOffset": "40",
+        "maxLongitudinalOffset": "60"
       },
       "locationType": "Lane Position",
       "maxSpeed": 40.0,
       "model": "random",
       "name": "car2",
       "roadDeviation": 0.0,
-      "treePath": "car2.json"
+      "treePath": "car2.tree"
     }
   ],
-  "map": "src/main/resources/maps/overtake.xodr",
+  "map": "overtake.xodr",
+  "mapType": "custom",
   "requirements": [],
-  "simulationTime": 100.0,
+  "scenarioEndTrigger": "",
+  "simulationTime": 20.0,
   "simulatorType": "Carla",
-  "source": "",
   "timeStep": 0.1,
   "weather": "clear"
 }
