@@ -16,10 +16,10 @@ import traceback
 
 try:
     curr_dir = os.getcwd()
-#     parent_dir = curr_dir[:curr_dir.rfind(os.path.sep)]
-#     src_dir = parent_dir[:parent_dir.rfind(os.path.sep)]
-#     sys.path.append(parent_dir)
-    sys.path.append(curr_dir + "/src/main/java/com/ecnu/adsmls/simulator/adsml_carla_simulation/")
+    parent_dir = curr_dir[:curr_dir.rfind(os.path.sep)]
+    src_dir = parent_dir[:parent_dir.rfind(os.path.sep)]
+    sys.path.append(parent_dir)
+#     sys.path.append(curr_dir + "/src/main/java/com/ecnu/adsmls/simulator/adsml_carla_simulation/")
 except IndexError:
     print('append path error!')
 
