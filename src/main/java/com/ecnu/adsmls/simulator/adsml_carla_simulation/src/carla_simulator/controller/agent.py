@@ -18,10 +18,10 @@ try:
 except IndexError:
     print('append path error!')
 
-from src.controller.vehicle_controller import VehicleController
-from src.controller.action import Action
+from src.carla_simulator.controller.vehicle_controller import VehicleController
+from src.carla_simulator.controller.action import Action
 from src.interface.BehaviorTree import BehaviorTree
-from src.controller.enums import *
+from src.carla_simulator.controller.enums import *
 from src.utils.utils import get_speed
 
 
@@ -125,9 +125,9 @@ class Agent:
         if not current_wp.is_junction:
             self.junction_flag = True
         # 执行命令
-        control = self.controller.run_step(self.behavior_node.acc, self.behavior_node.target_vel, self.next_wp)
+        control = self.controller.run_step(self.behavior_node.target_vel, self.next_wp)
         if state != VehicleState.KEEP and (control.throttle > 0 or control.brake > 0):
-            print(f'disable constant velocity')
+            print(f'--------disable constant velocity-----------------------')
             self.vehicle.disable_constant_velocity()
         if self.behavior_node.acc != 0 and abs(get_speed(self.vehicle)/3.6 - self.behavior_node.target_vel) > 2:
             control.throttle = 0

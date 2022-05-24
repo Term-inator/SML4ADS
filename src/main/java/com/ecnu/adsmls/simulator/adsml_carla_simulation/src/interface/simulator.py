@@ -106,8 +106,10 @@ class Simulator:
     """
     仿真器类，对多种仿真器的抽象
     """
-    def __init__(self):
-        pass
+    def __init__(self, img_path, mp4_path, data_path=''):
+        self.img_path = img_path
+        self.mp4_path = mp4_path
+        self.data_path = data_path
 
     def simulate(self, json_str=None, path=''):
         """
@@ -220,7 +222,8 @@ class Simulator:
             car.heading = bool(json_car['heading'])
             car.init_speed = float(json_car['initSpeed'])
             car.max_speed = float(json_car['maxSpeed'])
-#             car.min_speed = float(json_car['minSpeed'])
+            if 'minSpeed' in json_car.keys():
+                car.min_speed = float(json_car['minSpeed'])
             car.model = json_car['model']
             car.road_deviation = float(json_car['roadDeviation'])
             car.behavior_tree_path = json_car['treePath']

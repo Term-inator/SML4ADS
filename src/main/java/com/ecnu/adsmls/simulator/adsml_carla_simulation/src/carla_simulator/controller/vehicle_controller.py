@@ -19,7 +19,7 @@ try:
 except IndexError:
     print('append path error!')
 
-from src.controller.enums import VehicleState
+from src.carla_simulator.controller.enums import VehicleState
 from src.utils.utils import get_speed, get_acc
 
 
@@ -32,7 +32,7 @@ class VehicleController:
                  max_brake=0.3, max_steering=0.8):
         """
         构造方法
-        :param vehicle: simulator.Vehicle.车辆引用
+        :param vehicle: carla_simulator.Vehicle.车辆引用
         :param args_lateral: dict.横向（转向）控制器参数
             -k_p: 比例项
             -k_d: 差分项
@@ -66,24 +66,25 @@ class VehicleController:
         else:
             self._lat_controller = PIDLateralController(self._vehicle)
 
-    def run_step(self, acc, target_speed, waypoint):
+    def run_step(self, target_speed, waypoint):
         """
         计算下一步车辆的行为，返回控制类
-        :param acc: 加速度
         :param target_speed: float.下一步的目标速度
-        :param waypoint: simulator.WayPoint下一步的目标路径点
-        :return: simulator.VehicleControl
+        :param waypoint: carla_simulator.WayPoint下一步的目标路径点
+        :return: carla_simulator.VehicleControl
         """
-        acceleration = self._lon_controller.run_step(acc, target_speed*3.6)
+        # 调用PID控制器
+        acceleration = self._lon_controller.run_step(target_speed * 3.6)
         current_steering = self._lat_controller.run_step(waypoint)
         control = carla.VehicleControl()
+        # 界定油门或刹车数值
         if acceleration >= 0.0:
-            control.throttle = min(acceleration, self.max_throttle)
+            control.throttle = min(abs(acceleration), self.max_throttle)
             control.brake = 0.0
         else:
             control.throttle = 0.0
             control.brake = min(abs(acceleration), self.max_brake)
-
+        # 界定转向数值
         if current_steering > self.past_steering + 0.1:
             current_steering = self.past_steering + 0.1
         elif current_steering < self.past_steering - 0.1:
@@ -110,7 +111,7 @@ class PIDLongitudinalController:
     def __init__(self, vehicle, k_p=1.0, k_d=0.0, k_i=0.0, dt=0.03):
         """
         构造方法
-        :param vehicle: simulator.Vehicle.被控制车辆
+        :param vehicle: carla_simulator.Vehicle.被控制车辆
         :param k_p: float.比例项
         :param k_d: float.差分项
         :param k_i: float.积分项
@@ -123,10 +124,9 @@ class PIDLongitudinalController:
         self._dt = dt
         self._error_buffer = deque(maxlen=10)
 
-    def run_step(self, acc, target_speed, debug=False):
+    def run_step(self, target_speed, debug=False):
         """
         计算下一步的速度控制
-        :param acc: 加速度
         :param target_speed: float.目标速度（km/h）
         :param debug: bool.是否打印debug日志
         :return: float.油门
@@ -136,23 +136,17 @@ class PIDLongitudinalController:
         if debug:
             print('Current speed = {}'.format(current_speed))
 
-        return self._pid_control(acc, target_speed, current_speed)
+        return self._pid_control(target_speed, current_speed)
 
-    def _pid_control(self, acc, target_speed, current_speed):
+    def _pid_control(self, target_speed, current_speed):
         """
         计算油门/刹车
-        :param acc:加速度
         :param target_speed: float.目标速度（km/h）
         :param current_speed: float.当前速度（km/h）
         :return: float.油门/刹车
         """
         error = target_speed - current_speed
         self._error_buffer.append(error)
-        # if acc < 0 and current_speed > target_speed:
-        #     return -np.clip(-acc/8, 0, 1)
-        # elif acc >= 0 and current_speed < target_speed:
-        #     return np.clip(acc/3, 0, 1)
-        # else:
         if len(self._error_buffer) >= 2:
             _de = (self._error_buffer[-1] - self._error_buffer[-2]) / self._dt
             _ie = sum(self._error_buffer) * self._dt
@@ -171,7 +165,7 @@ class PIDLateralController:
     def __init__(self, vehicle, k_p=1.0, k_d=0.0, k_i=0.0, dt=0.03):
         """
         构造方法
-        :param vehicle: simulator.Vehicle.被控制车辆
+        :param vehicle: carla_simulator.Vehicle.被控制车辆
         :param k_p: float.比例项
         :param k_d: float.差分项
         :param k_i: float.积分项
@@ -187,7 +181,7 @@ class PIDLateralController:
     def run_step(self, waypoint):
         """
         计算下一步转向
-        :param waypoint: simulator.Waypoint下一步目标路径点
+        :param waypoint: carla_simulator.Waypoint下一步目标路径点
         :return: float.方向
         """
         return self._pid_control(waypoint, self._vehicle.get_transform())
@@ -195,8 +189,8 @@ class PIDLateralController:
     def _pid_control(self, waypoint, vehicle_transform):
         """
         计算转向
-        :param waypoint: simulator.Waypoint下一步目标路径点
-        :param vehicle_transform: simulator.Transform汽车当前位置
+        :param waypoint: carla_simulator.Waypoint下一步目标路径点
+        :param vehicle_transform: carla_simulator.Transform汽车当前位置
         :return: float.转向[-1,1]
         """
         v_begin = vehicle_transform.location
@@ -230,7 +224,7 @@ class PIDAccelerationController:
     def __init__(self, vehicle, k_p=1.0, k_d=0.0, k_i=0.0, dt=0.03):
         """
         构造方法
-        :param vehicle: simulator.Vehicle.被控制车辆
+        :param vehicle: carla_simulator.Vehicle.被控制车辆
         :param k_p: float.比例项
         :param k_d: float.差分项
         :param k_i: float.积分项

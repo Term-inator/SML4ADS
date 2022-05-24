@@ -16,7 +16,7 @@ try:
 except IndexError:
     print('append path error!')
 
-from src.controller.enums import VehicleState, RoadOption
+from src.carla_simulator.controller.enums import VehicleState, RoadOption
 from src.utils.utils import get_speed
 
 
@@ -27,7 +27,7 @@ class Action:
     def __init__(self, carla_map: carla.Map, parser, step=5):
         """
         构造方法
-        :param carla_map: simulator.Map. 车辆所在地图
+        :param carla_map: carla_simulator.Map. 车辆所在地图
         :param step: float. 下一个路径点的距离（米）
         """
         assert carla_map is not None
@@ -40,11 +40,11 @@ class Action:
         """
         根据汽车状态（行为）计算下一步路径点和目标速度
         :param is_junction:
-        :param prev_wp: simulator.Waypoint. 如果是在路口，需要提供进入junction之前的waypoint，方便计算方向
+        :param prev_wp: carla_simulator.Waypoint. 如果是在路口，需要提供进入junction之前的waypoint，方便计算方向
         :param prev_road_id: int. 如果是在路口，需要提供进入junction的road_id
-        :param vehicle: simulator.Vehicle.被控制车辆
+        :param vehicle: carla_simulator.Vehicle.被控制车辆
         :param state: structs.VehicleState.汽车状态
-        :return: (simulator.Waypoint, float).目标路径点和目标速度
+        :return: (carla_simulator.Waypoint, float).目标路径点和目标速度
         """
         vel = 0.0
         next_wp = None
@@ -91,7 +91,7 @@ class Action:
         汽车便道，计算下一个路径点
         :param prev_wp: 上一个路径点
         :param direction: bool. True:左；False:右
-        :return: simulator.WayPoint.下一个路径点
+        :return: carla_simulator.WayPoint.下一个路径点
         """
         right_change_wp = None
         left_change_wp = None
@@ -115,8 +115,8 @@ class Action:
     def __keep_forward(self, vehicle):
         """
         向前行驶，计算下一个路径点
-        :param vehicle: simulator.Vehicle.
-        :return:simulator.Waypoint.
+        :param vehicle: carla_simulator.Vehicle.
+        :return:carla_simulator.Waypoint.
         """
         current_tf = vehicle.get_transform()
         current_wpt = self.map.get_waypoint(current_tf.location)
@@ -128,10 +128,10 @@ class Action:
     def __turn_direction(self, vehicle, prev_road_id, prev_wp):
         """
         计算在交叉路口可能的下一个路径点与对应的方向
-        :param vehicle: simulator.Vehicle.控制的车辆
+        :param vehicle: carla_simulator.Vehicle.控制的车辆
         :param prev_road_id:
         :param prev_wp:
-        :return: list(simulator.Waypoint, RoadOption)
+        :return: list(carla_simulator.Waypoint, RoadOption)
         """
         options = []
         current_wp = self.map.get_waypoint(vehicle.get_transform().location)
@@ -151,8 +151,8 @@ class Action:
         """
         在要转弯的时候，计算当前路径点和目标路径点之间的连线和车辆向前的方向的夹角，从而判断是否是
         转弯的路径点
-        :param current_wpt: simulator.waypoint.当前路径点
-        :param target_wpt: simulator.waypoint.下一个目标路径点
+        :param current_wpt: carla_simulator.waypoint.当前路径点
+        :param target_wpt: carla_simulator.waypoint.下一个目标路径点
         :param threshold: int.判断是否转弯的角度阈值
         :return: RoadOption.方向
         """
@@ -180,8 +180,8 @@ class Action:
     def compute_relative_angle(current_wpt, target_wpt, threshold=25):
         """
         给定两个路径点，计算两个路径点方向向量的夹角，从而判断是直走、左转还是右转
-        :param current_wpt: simulator.Waypoint. 当前路径点
-        :param target_wpt: simulator.Waypoint. 目标路径点
+        :param current_wpt: carla_simulator.Waypoint. 当前路径点
+        :param target_wpt: carla_simulator.Waypoint. 目标路径点
         :param threshold: int. 判断一个方向的左右偏差阈值
         :return: structs.RoadOption
         """

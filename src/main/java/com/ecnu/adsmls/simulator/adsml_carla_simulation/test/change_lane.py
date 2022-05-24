@@ -1,8 +1,5 @@
-import math
 import numpy as np
-import carla
 import time
-from src.controller.enums import RoadOption
 from src.utils.utils import *
 
 client = None
@@ -93,8 +90,8 @@ def keep_forward(vehicle):
 def calculate_steer(waypoint, vehicle_transform, k_p=1.0, k_d=0.0, k_i=0.0, dt=0.03):
     """
     根据当前位置和下一个目标位置计算汽车转向
-    :param waypoint: simulator.Waypoint 下一个路径点
-    :param vehicle_transform: simulator.Transform 汽车当前位置
+    :param waypoint: carla_simulator.Waypoint 下一个路径点
+    :param vehicle_transform: carla_simulator.Transform 汽车当前位置
     :param k_p: 比例系数
     :param k_d: 微分系数
     :param k_i: 积分系数

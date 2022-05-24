@@ -11,10 +11,10 @@ import carla
 import queue
 from datetime import datetime
 from src.interface.BehaviorTree import BehaviorTree
-from src.controller.enums import VehicleState
-from src.controller.action import Action
-from src.simulator.carla_simulator import args_lateral_dict, args_lateral_dict_junction, args_longitudinal_dict
-from src.controller.agent import Agent
+from src.carla_simulator.controller.enums import VehicleState
+from src.carla_simulator.controller.action import Action
+from src.carla_simulator.carla_simulator import args_lateral_dict, args_longitudinal_dict
+from src.carla_simulator.controller.agent import Agent
 from src.utils.MyTimer import MyTimer
 from src.utils.utils import destroy_all_actors
 from src.parser.map_parser import MapParser
@@ -84,7 +84,7 @@ def action_turn():
     behavior_tree = BehaviorTree()
     behavior_tree.build_tree_from_json(path='../test2.tree')
     agent = Agent(carlaMap, parser, ego, behavior_tree, action, args_lateral=args_lateral_dict,
-                  args_longitudinal=args_longitudinal_dict, args_lateral_junction=args_lateral_dict_junction)
+                  args_longitudinal=args_longitudinal_dict)
     global t
     t = 0
     # t_timer.start()

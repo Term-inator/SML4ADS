@@ -28,7 +28,7 @@ class CarInfo:
         self.acceleration = 0.0
         self.model = ''
         self.t = 0.0
-        self.waypoint: carla.Waypoint = None
+        self.waypoint = None
         self.vehicle = None
 
     def __repr__(self):

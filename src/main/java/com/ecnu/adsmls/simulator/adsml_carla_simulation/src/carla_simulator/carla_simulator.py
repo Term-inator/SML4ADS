@@ -6,28 +6,25 @@
 """
 import os
 import queue
-import random
 import sys
-
-import carla
 import cv2
 import csv
 import traceback
 
 try:
     curr_dir = os.getcwd()
-#     parent_dir = curr_dir[:curr_dir.rfind(os.path.sep)]
-#     src_dir = parent_dir[:parent_dir.rfind(os.path.sep)]
-#     sys.path.append(parent_dir)
-    sys.path.append(curr_dir + "/src/main/java/com/ecnu/adsmls/simulator/adsml_carla_simulation/")
+    parent_dir = curr_dir[:curr_dir.rfind(os.path.sep)]
+    src_dir = parent_dir[:parent_dir.rfind(os.path.sep)]
+    sys.path.append(parent_dir)
+#     sys.path.append(curr_dir + "/src/main/java/com/ecnu/adsmls/simulator/adsml_carla_simulation/")
 except IndexError:
     print('append path error!')
 
 from src.interface.simulator import *
 from src.parser.map_filter import MapFilter
 from src.parser.map_parser import MapParser
-from src.controller.action import Action
-from src.controller.agent import Agent
+from src.carla_simulator.controller.action import Action
+from src.carla_simulator.controller.agent import Agent
 from src.utils.utils import *
 from src.interface.GuardFunction import *
 
@@ -45,15 +42,12 @@ class CarlaSimulator(Simulator):
     """
 
     def __init__(self, img_path, mp4_path, address='127.0.0.1', port=2000, render=True, record='', data_path=''):
-        super().__init__()
+        super().__init__(img_path, mp4_path, data_path)
         self.client = carla.Client(address, port)
         self.client.set_timeout(5)
         self.render = render  # 是否渲染仿真
         self.record = record  # 是否运行recorder
         self.scenario_number = 0  # 正在进行仿真的场景数量
-        self.img_path = img_path
-        self.mp4_path = mp4_path
-        self.data_path = data_path
 
     def destroy(self):
         """
@@ -177,8 +171,10 @@ class CarlaSimulation(Simulation):
                 self.client.start_recorder(self.recorder)
             spectator = self.world.get_spectator()
             spectator.set_transform(self.spec_tf)
-            self.camera.set_transform(self.spec_tf)
+            start_time = datetime.now()
             while True:
+                if datetime.now().timestamp() - start_time.timestamp() < 3.0:
+                    continue
                 ego_tf = self.vehicles[0].get_transform()
                 ego_loc = ego_tf.location
                 if ego_loc.x == 0.0 and ego_loc.y == 0.0:
@@ -191,8 +187,6 @@ class CarlaSimulation(Simulation):
                 # spec_rot = ego_tf.rotation
                 # spec_rot.pitch = -90
                 spectator.set_transform(carla.Transform(spec_loc, spec_rot))
-                if self.camera is not None:
-                    self.camera.set_transform(carla.Transform(spec_loc, spec_rot))
 
                 self.current_state()
                 if self.check_end():
@@ -248,30 +242,31 @@ class CarlaSimulation(Simulation):
                 self.spec_tf = tf
                 self.spec_tf.location += self.spec_tf.get_forward_vector() * (-8)
                 self.spec_tf.location.z += 5
+            self.vehicles.append(vehicle)
+            model = 'asy' if self.time_step == 0 else 'sy'
+            agent = Agent(self.map, self.parser, vehicle, car.behavior_tree, self.action, max_speed=car.max_speed,
+                          min_speed=car.min_speed, args_lateral=args_lateral_dict,
+                          args_longitudinal=args_longitudinal_dict, model=model)
             if car.init_speed > 0 and not is_test:
                 vec = vehicle.get_transform().get_forward_vector()
                 vec.z = 0.0
                 vel = car.init_speed * vec
                 print(f'init speed: {car.init_speed}; vel vec: {vel}')
                 vehicle.enable_constant_velocity(vel)
-            self.vehicles.append(vehicle)
-            model = 'asy' if self.time_step == 0 else 'sy'
-            agent = Agent(self.map, self.parser, vehicle, car.behavior_tree, self.action, max_speed=car.max_speed,
-                          min_speed=car.min_speed, args_lateral=args_lateral_dict,
-                          args_longitudinal=args_longitudinal_dict, model=model)
+                agent.is_constant = True
             self.agents[car.name] = agent
             print(f'generate car {index} finished')
         return self.vehicles
 
-    def check_conflict(self, current_tf):
-        """
-        检测多辆车辆生成点是否冲突
-        :return: bool
-        """
-        for tf in self.used_spawn_points:
-            if tf.x == current_tf.x and tf.y == current_tf.y and tf.z == current_tf.z:
-                return True
-        return False
+    # def check_conflict(self, current_tf):
+    #     """
+    #     检测多辆车辆生成点是否冲突
+    #     :return: bool
+    #     """
+    #     for tf in self.used_spawn_points:
+    #         if tf.x == current_tf.x and tf.y == current_tf.y and tf.z == current_tf.z:
+    #             return True
+    #     return False
 
     def get_vehicle_spawn_point(self, allow_junction=False, length=1):
         """
@@ -282,6 +277,8 @@ class CarlaSimulation(Simulation):
         """
         spawn_tfs = list(self.map.get_spawn_points())
         wps = []
+        if len(spawn_tfs) == 0:
+            return wps
         if allow_junction:
             spawn_tfs = random.choices(spawn_tfs, k=length)
             for spawn_tf in spawn_tfs:
@@ -472,14 +469,10 @@ class CarlaSimulation(Simulation):
         blueprint.set_attribute('image_size_x', '1000')
         blueprint.set_attribute('image_size_y', '1000')
         blueprint.set_attribute('fov', '60')
-        # blueprint.set_attribute('sensor_tick', '0.05')
         ego_tf = self.vehicles[0].get_transform()
-        forward_vector = ego_tf.get_forward_vector()
-        spec_loc = ego_tf.location + carla.Location(0, 0, 5)
-        spec_loc += forward_vector * (-5)
+        spec_loc = carla.Location(-12, 0, 5)
         spec_rot = ego_tf.rotation
-        # spec_rot.pitch -= 90
-        sensor = self.world.spawn_actor(blueprint, carla.Transform(spec_loc, spec_rot))
+        sensor = self.world.spawn_actor(blueprint, carla.Transform(spec_loc, spec_rot), self.vehicles[0], carla.AttachmentType.Rigid)
         sensor_queue = queue.Queue()
 
         def sensor_callback(data, q):
@@ -525,7 +518,7 @@ class CarlaSimulation(Simulation):
         :return:
         """
         print('read config')
-        with open(os.path.abspath('./simulator/config.json'), 'r', encoding='utf-8') as file:
+        with open(os.path.abspath('./carla_simulator/config.json'), 'r', encoding='utf-8') as file:
             json_file = json.load(file)
             self.models = json_file['models']
         print('read config finished')
@@ -542,7 +535,7 @@ class CarlaSimulation(Simulation):
         for car in cars:
             print(f'car name: {car.name}, loc type: {car.location_type}')
             if car.location_type == 'Lane Position':
-                if car.init_lane_id == 0:
+                if car.init_lane_id == 0 and len(spawn_wps) != 0:
                     random_wp = random.choice(spawn_wps)
                     chosen_tfs[car.name] = random_wp.transform
                     spawn_wps.remove(random_wp)
@@ -556,7 +549,7 @@ class CarlaSimulation(Simulation):
                         lateral_offset = MapFilter.choice_lane_random(car.min_lateral_offset, car.max_lateral_offset)
                         right_vector = tf.get_right_vector()
                         tf.location += right_vector * lateral_offset
-                        tf.location += carla.Location(0, 0, 0.6)
+                        tf.location += carla.Location(0, 0, 0.4)
                         chosen_tfs[car.name] = tf
                         print(f'long offset:{offset}, lateral offset:{lateral_offset}')
                 print(f'chosen transform: {chosen_tfs[car.name]}')
@@ -565,7 +558,7 @@ class CarlaSimulation(Simulation):
                 if spawn_wp is None:
                     raise RuntimeError('cannot get spawn point from given x and y values.')
                 else:
-                    spawn_wp.transform.location += carla.Location(0, 0, 0.6)
+                    spawn_wp.transform.location += carla.Location(0, 0, 0.4)
                     chosen_tfs[car.name] = spawn_wp.transform
                 print(f'chosen transform: {chosen_tfs[car.name]}')
             elif car.location_type == 'Road Position':
@@ -586,7 +579,7 @@ class CarlaSimulation(Simulation):
                     wp = self.map.get_waypoint_xodr(car.init_road_id, lane_id, offset)
                 tf = wp.transform
                 tf.location += tf.get_right_vector() * (abs_offset - (wp.lane_width / 2))
-                tf.location += carla.Location(0, 0, 0.6)
+                tf.location += carla.Location(0, 0, 0.4)
                 chosen_tfs[car.name] = tf
                 print(f'offset:{offset}; lat_offset:{lateral_offset}; lane_id:{wp.lane_id}')
                 print(f'chosen transform: {chosen_tfs[car.name]}')
@@ -606,7 +599,7 @@ class CarlaSimulation(Simulation):
             spawn_loc = ref_loc + longitudinal_vec + lateral_vec
             spawn_wp = self.map.get_waypoint(spawn_loc, project_to_road=False)
             spawn_tf = spawn_wp.transform
-            spawn_tf.location += carla.Location(0, 0, 0.6)
+            spawn_tf.location += carla.Location(0, 0, 0.4)
             chosen_tfs[car.name] = carla.Transform(spawn_loc, ref_tf.rotation)
             print(f'long offset:{longitudinal_offset}, lateral offset:{lateral_offset}, lane:{spawn_wp.lane_id}')
             print(f'longitudinal vec:{longitudinal_vec}, lateral vec:{lateral_vec}, spawn_loc:{spawn_loc}')

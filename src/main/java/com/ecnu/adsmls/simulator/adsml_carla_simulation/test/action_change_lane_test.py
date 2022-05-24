@@ -6,10 +6,10 @@
 """
 import carla
 import random
-from src.controller.enums import VehicleState
-from src.controller.vehicle_controller import VehicleController
-from src.simulator.carla_simulator import args_lateral_dict, args_longitudinal_dict
-from src.controller.action import Action
+from src.carla_simulator.controller.enums import VehicleState
+from src.carla_simulator.controller.vehicle_controller import VehicleController
+from src.carla_simulator.carla_simulator import args_lateral_dict, args_longitudinal_dict
+from src.carla_simulator.controller.action import Action
 
 client = None
 world = None

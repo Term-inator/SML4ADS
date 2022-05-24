@@ -5,13 +5,12 @@
 @Description : 尝试实现各种功能的脚本文件
 """
 import random
-import time
 
 from src.parser.map_parser import MapParser
-from src.controller.vehicle_controller import VehicleController
-from src.simulator.carla_simulator import args_lateral_dict, args_lateral_dict_junction, args_longitudinal_dict
-from src.controller.action import Action
-from src.controller.enums import VehicleState, RoadOption
+from src.carla_simulator.controller.vehicle_controller import VehicleController
+from src.carla_simulator.carla_simulator import args_lateral_dict, args_longitudinal_dict
+from src.carla_simulator.controller.action import Action
+from src.carla_simulator.controller.enums import VehicleState, RoadOption
 import carla
 
 
@@ -38,8 +37,7 @@ def waypoint_next_try():
     parser = MapParser()
     parser.parse('./Town05.xodr')
     ego = create_car('vehicle.tesla.model3', 'ego', is_junction=False)
-    controller = VehicleController(ego, args_lateral=args_lateral_dict, args_longitudinal=args_longitudinal_dict,
-                                   args_lateral_junction=args_lateral_dict_junction)
+    controller = VehicleController(ego, args_lateral=args_lateral_dict, args_longitudinal=args_longitudinal_dict)
     action = Action(carlaMap, ego, 3)
 
     ego_wp = carlaMap.get_waypoint(ego.get_transform().location)
