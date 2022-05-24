@@ -6,7 +6,7 @@
 """
 import argparse
 import os
-from simulator.carla_simulator import CarlaSimulator
+from carla_simulator.carla_simulator import CarlaSimulator
 import cv2
 import hprose
 

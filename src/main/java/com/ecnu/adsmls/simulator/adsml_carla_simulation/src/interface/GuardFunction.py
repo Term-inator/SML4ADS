@@ -16,7 +16,7 @@ try:
 except IndexError:
     print('append path error!')
 
-from src.simulator.CarInfo import CarInfo
+from src.carla_simulator.CarInfo import CarInfo
 
 
 guard_args = {}

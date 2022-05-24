@@ -7,7 +7,7 @@
 import math
 import carla
 import random
-from src.controller.enums import RoadOption
+from src.carla_simulator.controller.enums import RoadOption
 
 
 def get_speed(vehicle):
@@ -34,8 +34,8 @@ def compute_connection(current_wpt, target_wpt, threshold=35):
     """
     在要转弯的时候，计算当前路径点和目标路径点之间的连线和车辆向前的方向的夹角，从而判断是否是
     转弯的路径点
-    :param current_wpt: simulator.waypoint.当前路径点
-    :param target_wpt: simulator.waypoint.下一个目标路径点
+    :param current_wpt: carla_simulator.waypoint.当前路径点
+    :param target_wpt: carla_simulator.waypoint.下一个目标路径点
     :param threshold: int.判断是否转弯的角度阈值
     :return: RoadOption.方向
     """
@@ -55,8 +55,8 @@ def compute_connection(current_wpt, target_wpt, threshold=35):
 def destroy_all_actors(client, world):
     """
     销毁模拟器中所有车辆
-    :param client: simulator.Client.模拟器客户端
-    :param world: simulator.World
+    :param client: carla_simulator.Client.模拟器客户端
+    :param world: carla_simulator.World
     :return: None
     """
     vehicles = world.get_actors().filter('vehicle.*')

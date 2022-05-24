@@ -18,7 +18,7 @@ try:
 except IndexError:
     print('append path error!')
 
-from src.controller.enums import VehicleState
+from src.carla_simulator.controller.enums import VehicleState
 from src.interface.GuardFunction import *
 
 

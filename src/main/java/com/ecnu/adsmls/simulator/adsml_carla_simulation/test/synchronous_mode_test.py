@@ -4,10 +4,9 @@
 @Author : zheng_chenghang
 @Date : 2022/2/19 12:57 
 '''
-import carla
 import queue
-from src.controller.vehicle_controller import VehicleController
-from src.simulator.carla_simulator import args_lateral_dict, args_lateral_dict_junction, args_longitudinal_dict
+from src.carla_simulator.controller.vehicle_controller import VehicleController
+from src.carla_simulator.carla_simulator import args_lateral_dict, args_longitudinal_dict
 from src.utils.utils import *
 
 
@@ -59,7 +58,6 @@ if __name__ == "__main__":
         spectator = world.get_spectator()
         spectator.set_transform(carla.Transform(ego_tf.location, ego_tf.rotation))
         controller = VehicleController(ego, args_lateral=args_lateral_dict,
-                                       args_lateral_junction=args_lateral_dict_junction,
                                        args_longitudinal=args_longitudinal_dict)
         client.start_recorder('D:/Carla/Data/log/record.log')
         while True:
