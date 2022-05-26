@@ -600,14 +600,14 @@ public class XMLWriter {
             buffer.append(", lock = false");
         } else if (behavior.getName().equals(BehaviorType.CHANGE_LEFT.getValue())) {
             // acceleration, target speed
-            targetSpeed = (targetSpeed == INT16_MAX*1.0/K? -1.0/K : targetSpeed);
+            targetSpeed = (targetSpeed == INT16_MAX * 1.0 / K ? -1.0 / K : targetSpeed);
             buffer.append(", cars[" + index + "].acceleration = " + f(acceleration));
             buffer.append(", changeLeft(cars[" + index + "], " + f(targetSpeed) + ")");
 //            buffer.append(", lock = (cars[" + index + "].speed&lt;" + f(targetSpeed) + ")");
             buffer.append(", lock = false");
         } else if (behavior.getName().equals(BehaviorType.CHANGE_RIGHT.getValue())) {
             // acceleration, target speed
-            targetSpeed = (targetSpeed == INT16_MAX*1.0/K? -1.0/K : targetSpeed);
+            targetSpeed = (targetSpeed == INT16_MAX * 1.0 / K ? -1.0 / K : targetSpeed);
             buffer.append(", cars[" + index + "].acceleration = " + f(acceleration));
             buffer.append(", changeRight(cars[" + index + "], " + f(targetSpeed) + ")");
 //            buffer.append(", lock = (cars[" + index + "].speed&lt;" + f(targetSpeed) + ")");

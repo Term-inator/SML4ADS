@@ -2,7 +2,6 @@ package com.ecnu.adsmls.components.editor.modeleditor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -19,16 +18,14 @@ public class ModelController {
 
     // TODO 有更好的方法
     public void setSimulator(String simulatorType) {
-        if(Objects.equals(simulatorType, "carla")) {
+        if (Objects.equals(simulatorType, "carla")) {
             simulator = ModelConstant.Simulator.CARLA;
-        }
-        else if(Objects.equals(simulatorType, "lgsvl")) {
+        } else if (Objects.equals(simulatorType, "lgsvl")) {
             simulator = ModelConstant.Simulator.LGSVL;
-        }
-        else {
+        } else {
             simulator = ModelConstant.Simulator.CARLA;
         }
-        for(CarPane carPane : this.simulatorListener) {
+        for (CarPane carPane : this.simulatorListener) {
             carPane.notifyModel(this.getModel());
         }
     }

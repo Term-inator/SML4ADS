@@ -44,8 +44,8 @@ public class SettingsModal extends Modal {
     protected void check() {
         try {
             Integer.parseInt(this.simulationPort);
+        } catch (Exception ignored) {
         }
-        catch (Exception ignored) {}
     }
 
     @Override

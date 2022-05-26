@@ -14,7 +14,7 @@ public class ModelConstant {
     }
 
     protected static final Map<Simulator, String[]> weathers = Map.of(
-            Simulator.CARLA, new String[] {
+            Simulator.CARLA, new String[]{
                     "ClearNoon",
                     "CloudyNoon",
                     "WetNoon",
@@ -30,14 +30,14 @@ public class ModelConstant {
                     "MidRainSunset",
                     "HardRainSunset"
             },
-            Simulator.LGSVL, new String[] {
+            Simulator.LGSVL, new String[]{
                     "clear",
                     "rainy"
             }
     );
 
     protected static final Map<Simulator, String[]> models = Map.of(
-            Simulator.CARLA, new String[] {
+            Simulator.CARLA, new String[]{
                     "random",
                     "vehicle.audi.a2",
                     "vehicle.audi.etron",
@@ -73,7 +73,7 @@ public class ModelConstant {
                     "vehicle.volkswagen.t2",
                     "vehicle.volkswagen.t2_2021"
             },
-            Simulator.LGSVL, new String[] {"random"});
+            Simulator.LGSVL, new String[]{"random"});
 
     /**
      * 获取蓝图
