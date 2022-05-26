@@ -120,7 +120,7 @@ public class CodePageController implements Initializable, Route {
                 return;
             }
             // 写入配置文件
-            this.mConfig.setPythonEnv(Global.pythonEnv);
+            this.mConfig.setSimulationPort(Global.simulationPort);
 
             String config = JSON.toJSONString(mConfig);
             System.out.println(config);
@@ -187,9 +187,8 @@ public class CodePageController implements Initializable, Route {
                 return;
             }
 
-            Global.pythonEnv = this.mConfig.getPythonEnv();
+            Global.simulationPort = this.mConfig.getSimulationPort();
         }
-        System.out.println("python env: " + Global.pythonEnv);
     }
 
     private void updateProject() {
@@ -385,26 +384,6 @@ public class CodePageController implements Initializable, Route {
             return;
         }
 
-        if (Global.pythonEnv == null) {
-            this.showInfo("set python environment first");
-            return;
-        }
-        String pythonEnv = Global.pythonEnv;
-
-        // TODO 依旧死锁, 直接cmd运行main.py需要修改carla_simulator.py的sys.path.append()
-//        try {
-//            Process process = Runtime.getRuntime().exec(
-//                    pythonEnv + " ./src/main/java/com/ecnu/adsmls/simulator/adsml_carla_simulation/src/main.py");
-//
-//            ProcessStreamReader output = new ProcessStreamReader(process.getInputStream());
-//            ProcessStreamReader error = new ProcessStreamReader(process.getErrorStream());
-//            output.start();
-//            error.start();
-//            process.waitFor();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-
         // 模拟选项
         SimulateModal sm = new SimulateModal();
         sm.getWindow().showAndWait();
@@ -423,8 +402,8 @@ public class CodePageController implements Initializable, Route {
         this.client.close();
         this.client = new HproseHttpClient();
         client.setKeepAlive(false);
-        // TODO 设置端口?
-        client.useService("http://127.0.0.1:20225/RPC");
+        client.useService("http://127.0.0.1:" + Global.simulationPort + "/RPC");
+        System.out.println("Connecting to port " + Global.simulationPort);
 
         SimulatorService service = client.useService(SimulatorService.class);
         service.run(params);
