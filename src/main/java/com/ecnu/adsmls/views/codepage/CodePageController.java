@@ -179,16 +179,16 @@ public class CodePageController implements Initializable, Route {
         if (!dir.exists()) {
             FileSystem.createDir(dir.getAbsolutePath());
             FileSystem.createFile(dir, "config" + FileSystem.Suffix.JSON.value);
-        } else {
-            String config = FileSystem.JSONReader(new File(dir, "config" + FileSystem.Suffix.JSON.value));
-            this.mConfig = JSON.parseObject(config, MConfig.class);
-            if (this.mConfig == null) {
-                this.mConfig = new MConfig();
-                return;
-            }
-
-            Global.simulationPort = this.mConfig.getSimulationPort();
+            this.mConfig = new MConfig(Global.simulationPort);
+            FileSystem.JSONWriter(new File(dir, "config" + FileSystem.Suffix.JSON.value), JSON.toJSONString(this.mConfig));
         }
+        String config = FileSystem.JSONReader(new File(dir, "config" + FileSystem.Suffix.JSON.value));
+        this.mConfig = JSON.parseObject(config, MConfig.class);
+        if (this.mConfig == null) {
+            this.mConfig = new MConfig();
+            return;
+        }
+        Global.simulationPort = this.mConfig.getSimulationPort();
     }
 
     private void updateProject() {
