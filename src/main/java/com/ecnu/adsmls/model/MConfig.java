@@ -10,7 +10,7 @@ public class MConfig {
     public MConfig() {
     }
 
-    public int getSimulationPort() {
+    public Integer getSimulationPort() {
         return simulationPort;
     }
 
