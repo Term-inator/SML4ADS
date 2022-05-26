@@ -9,6 +9,7 @@ import com.ecnu.adsmls.utils.FileSystem;
 import com.ecnu.adsmls.utils.register.exception.DataTypeException;
 import com.ecnu.adsmls.utils.register.exception.EmptyParamException;
 import com.ecnu.adsmls.utils.register.exception.RequirementException;
+import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -55,9 +56,11 @@ public class ModelEditor extends Editor {
 //    private GridPane gridPaneObstacle = new GridPane();
 //    private Map<Integer, ObstaclePane> obstaclePanes = new LinkedHashMap<>();
 
+    private ModelController modelController;
 
     public ModelEditor(String projectPath, File file) {
         super(projectPath, file);
+        this.modelController = new ModelController();
         this.createNode();
     }
 
@@ -142,6 +145,7 @@ public class ModelEditor extends Editor {
         System.out.println(model);
 
         this.cbSimulatorType.getSelectionModel().select(mModel.getSimulatorType());
+        this.modelController.setSimulator(mModel.getSimulatorType());
 
         this.cbMapType.getSelectionModel().select(mModel.getMapType());
         if (Objects.equals(mModel.getMapType(), "custom")) {
@@ -193,7 +197,7 @@ public class ModelEditor extends Editor {
         this.gridPaneCar.setVgap(8);
 
         Label lbSimulatorType = new Label("simulatorType");
-        String[] simulators = {"Carla", "lgsvl"};
+        String[] simulators = {"carla", "lgsvl"};
         this.cbSimulatorType = new ComboBox<>(FXCollections.observableArrayList(simulators));
         this.cbSimulatorType.getSelectionModel().select(0);
 
@@ -226,6 +230,8 @@ public class ModelEditor extends Editor {
                 this.defaultMaps = new String[]{};
             }
             this.cbDefaultMap.setItems(FXCollections.observableArrayList(this.defaultMaps));
+            // 为了 notify CarPane
+            this.modelController.setSimulator(newValue);
         });
 
 
@@ -291,12 +297,14 @@ public class ModelEditor extends Editor {
     private void newCar(CarPane carPane) {
         this.carPanes.put(this.carId++, carPane);
         this.updateCars();
+        this.modelController.addSimulatorListener(carPane);
     }
 
     private void deleteCar(int index) {
         System.out.println("delete car" + index);
-        this.carPanes.remove(index);
+        CarPane carPane = this.carPanes.remove(index);
         this.updateCars();
+        this.modelController.removeSimulatorListener(carPane);
     }
 
     private void updateCars() {
