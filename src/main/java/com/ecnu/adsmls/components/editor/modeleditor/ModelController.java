@@ -53,4 +53,11 @@ public class ModelController {
     public String[] getModel() {
         return ModelConstant.getModel(this.simulator);
     }
+
+    /**
+     * 获取天气
+     */
+    public String[] getWeather() {
+        return ModelConstant.getWeather(this.simulator);
+    }
 }

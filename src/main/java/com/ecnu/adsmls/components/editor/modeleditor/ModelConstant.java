@@ -13,7 +13,31 @@ public class ModelConstant {
         }
     }
 
-    protected static final Map<Simulator, String[]> models = Map.of(Simulator.CARLA, new String[] {
+    protected static final Map<Simulator, String[]> weathers = Map.of(
+            Simulator.CARLA, new String[] {
+                    "ClearNoon",
+                    "CloudyNoon",
+                    "WetNoon",
+                    "WetCloudyNoon",
+                    "SoftRainNoon",
+                    "MidRainyNoon",
+                    "HardRainNoon",
+                    "ClearSunset",
+                    "CloudySunset",
+                    "WetSunset",
+                    "WetCloudySunset",
+                    "SoftRainSunset",
+                    "MidRainSunset",
+                    "HardRainSunset"
+            },
+            Simulator.LGSVL, new String[] {
+                    "clear",
+                    "rainy"
+            }
+    );
+
+    protected static final Map<Simulator, String[]> models = Map.of(
+            Simulator.CARLA, new String[] {
                     "random",
                     "vehicle.audi.a2",
                     "vehicle.audi.etron",
@@ -56,5 +80,12 @@ public class ModelConstant {
      */
     public static String[] getModel(Simulator simulator) {
         return models.get(simulator);
+    }
+
+    /**
+     * 设置天气
+     */
+    public static String[] getWeather(Simulator simulator) {
+        return weathers.get(simulator);
     }
 }
