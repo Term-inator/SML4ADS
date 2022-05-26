@@ -1,20 +1,20 @@
 package com.ecnu.adsmls.model;
 
 public class MConfig {
-    private String pythonEnv;
+    private int simulationPort;
 
-    public MConfig(String pythonEnv) {
-        this.pythonEnv = pythonEnv;
+    public MConfig(int simulationPort) {
+        this.simulationPort = simulationPort;
     }
 
     public MConfig() {
     }
 
-    public String getPythonEnv() {
-        return pythonEnv;
+    public int getSimulationPort() {
+        return simulationPort;
     }
 
-    public void setPythonEnv(String pythonEnv) {
-        this.pythonEnv = pythonEnv;
+    public void setSimulationPort(int simulationPort) {
+        this.simulationPort = simulationPort;
     }
 }

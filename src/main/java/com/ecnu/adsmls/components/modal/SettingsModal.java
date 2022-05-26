@@ -1,22 +1,16 @@
 package com.ecnu.adsmls.components.modal;
 
-import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.model.MConfig;
 import com.ecnu.adsmls.router.params.Global;
-import com.ecnu.adsmls.utils.FileSystem;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import javafx.scene.control.TextField;
 
 // TODO 暂时使用 Modal
 public class SettingsModal extends Modal {
     private MConfig mConfig;
-    private String pythonInterpreter;
+    private String simulationPort;
 
-    private Node btPythonInterpreter;
+    private TextField tfSimulationPort;
 
     public SettingsModal(MConfig mConfig) {
         super();
@@ -25,43 +19,37 @@ public class SettingsModal extends Modal {
     }
 
     private void loadData() {
-        this.pythonInterpreter = this.mConfig.getPythonEnv();
+        this.simulationPort = String.valueOf(this.mConfig.getSimulationPort());
     }
 
     protected void createWindow() {
         super.createWindow();
         this.window.setTitle("Settings");
 
-        Label lbPythonInterpreter = new Label("Python Interpreter");
-        // 限定选择 *.exe 文件
-        Map<String, String> exeFilter = new HashMap<>();
-        exeFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.EXE), FileSystem.Suffix.EXE.toString());
-        this.btPythonInterpreter = new ChooseFileButton(this.gridPane, exeFilter).getNode();
-        if (this.pythonInterpreter != null) {
-            ((ChooseFileButton) this.btPythonInterpreter.getUserData()).setFile(new File(this.pythonInterpreter));
-        }
+        Label lbSimulationPort = new Label("simulation port");
+        this.tfSimulationPort = new TextField(this.simulationPort);
 
-        this.slot.addRow(0, lbPythonInterpreter, this.btPythonInterpreter);
+        this.slot.addRow(0, lbSimulationPort, this.tfSimulationPort);
     }
 
     @Override
     protected void update() {
         try {
-            this.pythonInterpreter = ((ChooseFileButton) this.btPythonInterpreter.getUserData()).getFile().getAbsolutePath();
+            this.simulationPort = this.tfSimulationPort.getText();
         } catch (Exception ignored) {
         }
     }
 
     @Override
     protected void check() {
-        if (this.pythonInterpreter == null) {
-            this.valid = false;
+        try {
+            Integer.parseInt(this.simulationPort);
+        } catch (Exception ignored) {
         }
-        // TODO 如何判断选择的 exe 是 python?
     }
 
     @Override
     protected void then() {
-        Global.pythonEnv = this.pythonInterpreter;
+        Global.simulationPort = Integer.valueOf(this.simulationPort);
     }
 }

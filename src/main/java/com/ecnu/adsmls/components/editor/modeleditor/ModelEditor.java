@@ -55,9 +55,11 @@ public class ModelEditor extends Editor {
 //    private GridPane gridPaneObstacle = new GridPane();
 //    private Map<Integer, ObstaclePane> obstaclePanes = new LinkedHashMap<>();
 
+    private ModelController modelController;
 
     public ModelEditor(String projectPath, File file) {
         super(projectPath, file);
+        this.modelController = new ModelController();
         this.createNode();
     }
 
@@ -142,6 +144,7 @@ public class ModelEditor extends Editor {
         System.out.println(model);
 
         this.cbSimulatorType.getSelectionModel().select(mModel.getSimulatorType());
+        this.modelController.setSimulator(mModel.getSimulatorType());
 
         this.cbMapType.getSelectionModel().select(mModel.getMapType());
         if (Objects.equals(mModel.getMapType(), "custom")) {
@@ -193,7 +196,7 @@ public class ModelEditor extends Editor {
         this.gridPaneCar.setVgap(8);
 
         Label lbSimulatorType = new Label("simulatorType");
-        String[] simulators = {"Carla", "lgsvl"};
+        String[] simulators = {"carla", "lgsvl"};
         this.cbSimulatorType = new ComboBox<>(FXCollections.observableArrayList(simulators));
         this.cbSimulatorType.getSelectionModel().select(0);
 
@@ -226,12 +229,16 @@ public class ModelEditor extends Editor {
                 this.defaultMaps = new String[]{};
             }
             this.cbDefaultMap.setItems(FXCollections.observableArrayList(this.defaultMaps));
+
+            // 为了 notify CarPane
+            this.modelController.setSimulator(newValue);
+            // 更新天气选项
+            this.cbWeather.setItems(FXCollections.observableArrayList(this.modelController.getWeather()));
         });
 
 
         Label lbWeather = new Label("weather");
-        // TODO 提供不同仿真器支持的天气选项
-        String[] weathers = {"clear", "rainy", "foggy"};
+        String[] weathers = ModelConstant.weathers.get(ModelConstant.Simulator.CARLA);
         this.cbWeather = new ComboBox<>(FXCollections.observableArrayList(weathers));
         this.cbWeather.getSelectionModel().select(0);
 
@@ -291,12 +298,14 @@ public class ModelEditor extends Editor {
     private void newCar(CarPane carPane) {
         this.carPanes.put(this.carId++, carPane);
         this.updateCars();
+        this.modelController.addSimulatorListener(carPane);
     }
 
     private void deleteCar(int index) {
         System.out.println("delete car" + index);
-        this.carPanes.remove(index);
+        CarPane carPane = this.carPanes.remove(index);
         this.updateCars();
+        this.modelController.removeSimulatorListener(carPane);
     }
 
     private void updateCars() {

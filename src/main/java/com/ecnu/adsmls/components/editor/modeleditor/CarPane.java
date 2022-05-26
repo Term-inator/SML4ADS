@@ -175,9 +175,8 @@ public class CarPane {
         this.tfName = new TextField();
 
         Label lbModel = new Label("model");
-        // TODO 根据模拟器类型确定蓝图
-        String[] models = {"random", "vehicle.audi.a2"};
-        this.cbModel = new ComboBox<>(FXCollections.observableArrayList(models));
+
+        this.cbModel = new ComboBox<>();
         this.cbModel.getSelectionModel().select(0);
 
         Label lbMaxSpeed = new Label("maxSpeed");
@@ -229,6 +228,10 @@ public class CarPane {
         this.gridPane.addRow(6, lbHeading, this.cbHeading);
         this.gridPane.addRow(7, lbRoadDeviation, this.tfRoadDeviation);
         this.gridPane.addRow(8, lbDynamic, this.btDynamic);
+    }
+
+    public void notifyModel(String[] model) {
+        this.cbModel.setItems(FXCollections.observableArrayList(model));
     }
 
     public Node getNode() {
