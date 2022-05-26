@@ -16,9 +16,9 @@ OS: windows java: jdk11
 
 #### File types
 
-- *.model
-- *.tree
-- *.adsml
+- \*.model
+- \*.tree
+- \*.adsml
 
 #### How to build a model
 
@@ -70,7 +70,42 @@ $$P(A\rightarrow x) = \frac{weight_x}{\sum_{i=1}^{n}weight_i}$$
 Transitions create bonds between Behaviors, producing a behavior tree to illustrate models' actions.\
 There are two kindsof Transition: Common Transition and Probability Transition.\
 Common Transition is a solid line linking two Behaviors with a guard(optional), conditions of behavior transferring. 
-Probability Transition, a dashed line with a weight, worked with Branch Point. The arrow starts at a Branch Point and ends at a Behavior.
+Probability Transition, a dashed line with a weight, worked with Branch Point. The arrow starts at a Branch Point and ends at a Behavior.\
+There are a lot of properties and functions which can be used in guards, shown in the table below.
+|Property|Meaning|Data type|
+|--|--|--|
+|roadId|Id of the road|int|
+|laneSectionId|Id of the lane section|int|
+|laneId|Id of the lane|int|
+|junctionId|Id of the junction|int|
+|intersection|True if the car is in an intersection|bool|
+|road_s|Offset from the starting position of the road|double|
+|lane_s|Offset from the starting position of the lane|double|
+|offset|Left and right offset in lane (negative number indicates left)|double|
+|width|Width of the car|double|
+|length|Length of the car|double|
+|speed|Speed of the car|double|
+|acceleration|Acceleration of the Car|double|
+|model|blueprint of the car|string|
+|t|The clock of the current car (in the behavior tree, t will be reset when migrating to the child node). It is used to control the time of the current behavior.|int|
+
+Acess these properties by *CarName*.*PropertyName*, such as car1.roadId
+
+|Function Name|Parameters|Return Value|Meaning|
+|--|--|--|--|
+|hasObjWithinDisInLane|1: current car name <br/> 2: distance|bool|Whether there are objects within the distance <br/> 1. objects are in the same or the succesor lane with the current car <br/> 2. objects are within the given distance <br/> 3. objects are in front of the current car. |
+|hasObjWithinDisInLeftLane|1: current car name <br/> 2: distance|bool|Whether there are objects within the distance <br/> 1. objects are in the left or the left succesor lane with the current car <br/> 2. objects are within the given distance <br/> 3. objects are in front of the current car. <br/> 4. return false if the left lane doesn't exist|
+|hasObjWithinDisInRightLane|1: current car name <br/> 2: distance|bool|Whether there are objects within the distance <br/> 1. objects are in the right or the right succesor lane with the current car <br/> 2. objects are within the given distance <br/> 3. objects are in front of the current car. <br/> 4. return false if the right lane doesn't exist|
+|withinDisToObjsInLane|1. current car name(car1) <br/> 2. name of another car(car2) <br/> 3. distance|bool|whether car1 is within the distance of car2 <br/> 1. car2 is in the same or the succesor lane with the car1 <br/> 2. car2 is in front of car1 <br/> 3. car1 is within the distance of car2|
+|withinDisToObjsInRoad|1. current car name(car1) <br/> 2. name of another car(car2) <br/> 3. distance|bool|whether car1 is within the distance of car2 <br/> 1. car2 is in front of car1 <br/> 3. car1 is within the distance of car2|
+|isInSameLane|1. current car name(car1) <br/> 2. name of another car(car2)|bool|suppose that car1 is in lane1 and car2 is in lane2. <br/> whether lane1 is the same with lane2 or lane2 is the predecessor or successor lane of lane1 |
+
+Guard Example
+```
+car1.t > 3             // > < <= >= == is supported
+car1.speed < car2.speed  
+hasObjWithinDisInLane(car1, 5)
+```
 
 #### After editing
 With the \*.model file opend, click the *preprocess* button, generating a \*.adsml file.\
