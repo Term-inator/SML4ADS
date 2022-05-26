@@ -38,13 +38,15 @@ construct behavior of models. There are 3 components: Behavior, BranchPoint and 
 
 Behavior indicates how models act. 9 behaviors are included in SML4ADS
 
-|Behavior|Function|Parameters| |--|--|--| |Keep|Move along the lane at a constant speed|duration(optional)|
-|Accelerate|Move along the lane with speed increasing|acceleration(None negative), target speed| |Decelerate|Move along
-the lane with speed decreasing|acceleration(None negative), target speed| |ChangeLeft|Move to the left
-lane|acceleration(optional), target speed(optional)| |ChangeRight|Move to the right Lane|acceleration(optional), target
-speed(optional)| |TurnLeft|Turn left at intersections|acceleration, target speed| |TurnRight|Turn right at
-intersections|acceleration, target speed| |LaneOffset|Move left or right within the lane|offset, acceleration(optional),
-target speed(optional), duration(optional)| |Idle|Do nothing|duration(optional)|
+|Behavior|Function|Parameters| 
+|--|--|--| 
+|Keep|Move along the lane at a constant speed|duration(optional)|
+|Accelerate|Move along the lane with speed increasing|acceleration(None negative), target speed| 
+|Decelerate|Move along the lane with speed decreasing|acceleration(None negative), target speed| 
+|ChangeLeft|Move to the left lane|acceleration(optional), target speed(optional)| 
+|ChangeRight|Move to the right Lane|acceleration(optional), target speed(optional)| 
+|TurnLeft|Turn left at intersections|acceleration, target speed| |TurnRight|Turn right at intersections|acceleration, target speed| |LaneOffset|Move left or right within the lane|offset, acceleration(optional), target speed(optional), duration(optional)| 
+|Idle|Do nothing|duration(optional)|
 
 Parameters Each Behavior has at least one parameter. In SML4ADS, required params are marked with an asterisk(*). On the
 other hand, those without * are optional params.
@@ -58,25 +60,32 @@ other hand, those without * are optional params.
 - offset(m): In laneOffset, offset means the distance between the model and the center line of the lane.
 
 ###### BranchPoint
+A linkable point cooperates with Transitions, creating a one to n relation. Branch Point serves as a middleman.\
+Suppose that Behavior A has different possibilities to transfer to Behavior 1...n when condition p is satisfied, see figure // TODO. the possibility of transferring from Behavior A to Behavior x can be calculated by the formula below
 
-A linkable point cooperates with Transitions, creating a one to n relation. Branch Point serves as a middleman. Suppose
-that Behavior A has different possibilities to transfer to Behavior 1...n when condition p is satisfied, see figure //
-TODO. the possibility of transferring from Behavior A to Behavior x can be calculated by the formula below
-
-$P(A->x) = \frac{weight_x}{sum_{i=1}^n weight_i}
+$$P(A\rightarrow x) = \frac{weight_x}{\sum_{i=1}^{n}weight_i}$$
 
 ###### Transition
 
-Transitions create bonds between Behaviors, producing a behavior tree to illustrate models' actions. There are two kinds
-of Transition: Common Transition and Probability Transition. Common Transition is a solid line linking two Behaviors
-with a guard(optional), conditions of behavior transferring. Probability Transition, a dashed line with a weight, worked
-with Branch Point. The arrow starts at a Branch Point and ends at a Behavior.
+Transitions create bonds between Behaviors, producing a behavior tree to illustrate models' actions.\
+There are two kindsof Transition: Common Transition and Probability Transition.\
+Common Transition is a solid line linking two Behaviors with a guard(optional), conditions of behavior transferring. 
+Probability Transition, a dashed line with a weight, worked with Branch Point. The arrow starts at a Branch Point and ends at a Behavior.
 
 #### After editing
-
-preprocess
+With the \*.model file opend, click the *preprocess* button, generating a \*.adsml file.\
+This is the prerequisite of simulation and verification.
 
 ### How to do the simulation
+First, go to /src/main/java/com/ecnu/adsmls/simulator/adsml_carla_simulation/src/;\
+Second, open Carla 0.9.13;\
+Third, run main.py in a python enviroment which meets the requirements;\
+Fourth, run this program, open a \*.model file and click the *simluate* button;\
+Finally, choose the simulation type\
+Then you'll see the simulation begins in Carla if no error occurs.
 
 ### How to do the verification
-
+First, open a \*.model file;\
+Second, click the *verify* button.\
+Third, specify your *requirements*(optional) and output *filename*(optional) and click *confirm*\
+Finally, a \*xml file will be generated if no error occurs.
