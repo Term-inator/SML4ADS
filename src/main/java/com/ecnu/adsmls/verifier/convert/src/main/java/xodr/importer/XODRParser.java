@@ -460,21 +460,29 @@ public class XODRParser {
                 2 当前laneSection是当前road的第一个车道段，那么
                 - 找到当前road的前驱road，根据两条road的连接方式判断predecessorLaneId属于前驱road的第一个还是最后一个车道段
             */
-            if (lane.getPredecessorLaneId() != 0) {
-                LaneSection preLaneSection;
-                if (currentLaneSection.getStartPosition() != 0.0) { // 不是第一个车道段
+            if(lane.getPredecessorLaneId() != 0) {
+                LaneSection preLaneSection = null;
+                if(currentLaneSection.getStartPosition() != 0.0) { // 不是第一个车道段
                     preLaneSection = laneSections.get(currentLaneSection.getIndex() - 1);
                 } else { //是第一个车道段
-                    Road preRoad = roads.get(roadMap.get(currentRoad.getPredecessorId())); // 如果是Junction？
-                    int connectType = 0; // TODO: 两个road的连接方式，影响着前一个laneSection是preRoad的第一个还是最后一个
-                    if (connectType == 0) { // 第一个
-                        preLaneSection = preRoad.getLaneSections().get(0);
-                    } else { // 最后一个
-                        int length = preRoad.getLaneSections().size();
-                        preLaneSection = preRoad.getLaneSections().get(length - 1);
+                    int preRoadId = currentRoad.getPredecessorId();
+                    if(!roadMap.containsKey(preRoadId)) { // 地图出错了
+                        log.error("找不到road(id={})的前驱road(id={})", currentRoad.getRoadId(), preRoadId);
+                    } else {
+                        Road preRoad = roads.get(roadMap.get(preRoadId)); // 如果是Junction？
+                        int connectType = 0; // TODO: 两个road的连接方式，影响着前一个laneSection是preRoad的第一个还是最后一个
+                        if(connectType == 0) { // 第一个
+                            preLaneSection = preRoad.getLaneSections().get(0);
+                        } else { // 最后一个
+                            int length = preRoad.getLaneSections().size();
+                            preLaneSection = preRoad.getLaneSections().get(length-1);
+                        }
                     }
+
                 }
-                updatePreLaneIndex(lane, preLaneSection);
+                if (preLaneSection != null) {
+                    updatePreLaneIndex(lane, preLaneSection);
+                }
             }
 
             /*
@@ -484,8 +492,8 @@ public class XODRParser {
                 2 当前laneSection是当前road的最后一个车道段，那么
                 - 找到当前road的后继road，根据两条road的连接方式判断successorLaneId属于后继road的第一个还是最后一个车道段
              */
-            if (lane.getSuccessorLaneId() != 0) {
-                LaneSection sucLaneSection;
+            if(lane.getSuccessorLaneId() != 0) {
+                LaneSection sucLaneSection = null;
                 // 最后一个车道段
                 int lastIndex = currentRoad.getLaneSections().size() - 1;
                 LaneSection lastLaneSection = currentRoad.getLaneSections().get(lastIndex);
@@ -493,16 +501,23 @@ public class XODRParser {
                 if (currentLaneSection.getStartPosition() != lastLaneSection.getStartPosition()) { // 不是最后一个车道段
                     sucLaneSection = laneSections.get(currentLaneSection.getIndex() + 1);
                 } else { //是最后一个车道段
-                    Road sucRoad = roads.get(roadMap.get(currentRoad.getSuccessorId()));
-                    int connectType = 0; // TODO: 两个road的连接方式，影响着前一个laneSection是preRoad的第一个还是最后一个
-                    if (connectType == 0) { // 第一个
-                        sucLaneSection = sucRoad.getLaneSections().get(0);
-                    } else { // 最后一个
-                        int length = sucRoad.getLaneSections().size();
-                        sucLaneSection = sucRoad.getLaneSections().get(length - 1);
+                    int sucRoadId = currentRoad.getSuccessorId();
+                    if(!roadMap.containsKey(sucRoadId)) { // 地图出错了
+                        log.error("找不到road(id={})的后继road(id={})", currentRoad.getRoadId(), sucRoadId);
+                    } else {
+                        Road sucRoad = roads.get(roadMap.get(sucRoadId));
+                        int connectType = 0; // TODO: 两个road的连接方式，影响着前一个laneSection是preRoad的第一个还是最后一个
+                        if (connectType == 0) { // 第一个
+                            sucLaneSection = sucRoad.getLaneSections().get(0);
+                        } else { // 最后一个
+                            int length = sucRoad.getLaneSections().size();
+                            sucLaneSection = sucRoad.getLaneSections().get(length - 1);
+                        }
                     }
                 }
-                updateSucLaneIndex(lane, sucLaneSection);
+                if (sucLaneSection != null) {
+                    updateSucLaneIndex(lane, sucLaneSection);
+                }
             }
 
         }
