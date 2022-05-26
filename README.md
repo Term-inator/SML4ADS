@@ -1,8 +1,20 @@
 # SML4ADS
 
-### This is ...
-
-// TODO introduction
+### Introduction
+This is a tool for autonomous driving scenario modeling, simulation and analysis. It uses a graphical modeling approach to rigorously and accurately represent autonomous driving scenario, which improves comprehensibility for varied users.
+The semantic information of the scenario model is stored in JSON,
+which is a lightweight data exchange format with a concise and
+unambiguous hierarchical structure. By parsing the scenario model,
+ADSML supports interfacing with several popular autonomous
+driving simulators for scenario simulation. It also provides rigorous
+verification and analysis techniques to check whether the scenario
+model satisfies specific property specifications and to identify potentially hazardous scenario, which is crucial for the development
+of safe Autonomous Driving Systems (ADS). Our tool
+can provide a friendly and integrated environment for modeling,
+simulating and analyzing scenarios with other excellent and interrelated tools. For experimental demonstration, we adopt several
+typical and complex scenarios from other studies such as National
+Highway Traffic Safety Administration (NHTSA) and the Chinese
+car company.
 
 ### Environment
 
@@ -10,7 +22,9 @@ OS: windows java: jdk11
 
 - VM option --module-path "${javafx-sdk-path}\lib" --add-modules javafx.controls,javafx.fxml
 
-// TODO python requirements
+- python requirements
+1. carla
+2. hprose
 
 ### Instructions
 
