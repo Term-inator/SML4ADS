@@ -43,8 +43,13 @@ public class SettingsModal extends Modal {
     @Override
     protected void check() {
         try {
-            Integer.parseInt(this.simulationPort);
-        } catch (Exception ignored) {
+            int port = Integer.parseInt(this.simulationPort);
+            if (port < 1 || port > 65535) {
+                this.valid = false;
+                System.out.println("Port should in range[1, 65535]");
+            }
+        } catch (Exception e) {
+            this.valid = false;
         }
     }
 
