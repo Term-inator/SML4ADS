@@ -122,16 +122,24 @@ hasObjWithinDisInLane(car1, 5)
 ```
 
 #### After editing
+Press Ctrl + S or close the tab to save files.
 With the \*.model file opend, click the *preprocess* button, generating a \*.adsml file.\
 This is the prerequisite of simulation and verification.
 
 ### How to do the simulation
 First, go to /src/main/java/com/ecnu/adsmls/simulator/adsml_carla_simulation/src/;\
 Second, open Carla 0.9.13;\
-Third, run main.py in a python enviroment which meets the requirements;\
+Third, run *main.py* in a python enviroment which meets the requirements;\
 Fourth, run this program, open a \*.model file and click the *simluate* button;\
 Finally, choose the simulation type\
 Then you'll see the simulation begins in Carla if no error occurs.
+*note*: The default simulation port is 20225, the same with which in python codes.\
+If you'd like to switch a port, you can click File->settings to change it.\
+Make sure that the one in *main.py* is the same with it.
+```python
+# main.py
+server = hprose.HttpServer(port=${your port})
+```
 
 ### How to do the verification
 First, open a \*.model file;\
