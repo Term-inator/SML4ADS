@@ -67,9 +67,13 @@ There are four ways to determine the position of a car.\
 minLateralOffset, maxLateralOffset, minLongitudinalOffset and maxLongitudinalOffset is shown in the figure below.\
 For **Lane Position** and **Road Position**, the position of the car can be regard as related to the start point of the center line.
 So LongitudinalOffset should not be negative.
-![](https://github.com/Term-inator/SML4ADS/images/location1.png)
+<div align=center>
+  <img src="https://github.com/Term-inator/SML4ADS/blob/main/images/location1.png" height="180"/>
+</div>
 For **Related Position**, it's related to the position of another car.
-![](https://github.com/Term-inator/SML4ADS/images/location2.png)
+<div align=center>
+  <img src="https://github.com/Term-inator/SML4ADS/blob/main/images/location2.png" height="180"/>
+</div>
 The position of the car is a random point in the range determined by minLateralOffset, maxLateralOffset, minLongitudinalOffset and maxLongitudinalOffset.
 
 #### How to build a tree
@@ -112,7 +116,9 @@ other hand, those without \* are optional params.
 ###### BranchPoint
 A linkable point cooperates with Transitions, creating a one to n relation. Branch Point serves as a middleman.\
 Suppose that Behavior A has different possibilities to transfer to Behavior 1...n when condition p is satisfied, see the figure below.
-![](https://github.com/Term-inator/SML4ADS/images/branchpoint.png)
+<div align=center>
+  <img src="https://github.com/Term-inator/SML4ADS/blob/main/images/branchpoint.png" height="160"/>
+</div>
 
 the possibility of transferring from Behavior A to Behavior x can be calculated by the formula below.
 
