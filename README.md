@@ -16,6 +16,9 @@ typical and complex scenarios from other studies such as National
 Highway Traffic Safety Administration (NHTSA) and the Chinese
 car company.
 
+We used CARLA 9.0.13 to generate the scenario 100 times, setting each to last 5 seconds, 0.1 second
+as a frame, and obtaining 5000 images. The first 20 times are included in **Examples/img/**  
+
 ### Environment
 
 OS: windows java: jdk11
