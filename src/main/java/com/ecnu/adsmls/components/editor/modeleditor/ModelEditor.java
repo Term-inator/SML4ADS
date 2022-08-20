@@ -6,6 +6,7 @@ import com.ecnu.adsmls.components.editor.Editor;
 import com.ecnu.adsmls.model.MCar;
 import com.ecnu.adsmls.model.MModel;
 import com.ecnu.adsmls.utils.FileSystem;
+import com.ecnu.adsmls.utils.PropertiesUtil;
 import com.ecnu.adsmls.utils.register.exception.DataTypeException;
 import com.ecnu.adsmls.utils.register.exception.EmptyParamException;
 import com.ecnu.adsmls.utils.register.exception.RequirementException;
@@ -196,7 +197,7 @@ public class ModelEditor extends Editor {
         this.gridPaneCar.setVgap(8);
 
         Label lbSimulatorType = new Label("simulatorType");
-        String[] simulators = {"carla", "lgsvl"};
+        String[] simulators = PropertiesUtil.getSimulators().toArray(new String[0]);
         this.cbSimulatorType = new ComboBox<>(FXCollections.observableArrayList(simulators));
         this.cbSimulatorType.getSelectionModel().select(0);
 
