@@ -1,5 +1,7 @@
 package com.ecnu.adsmls.components.editor.modeleditor;
 
+import com.ecnu.adsmls.utils.PropertiesUtil;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -18,9 +20,10 @@ public class ModelController {
 
     // TODO 有更好的方法
     public void setSimulator(String simulatorType) {
-        if (Objects.equals(simulatorType, "carla")) {
+        String[] simulators = PropertiesUtil.getSimulators().toArray(new String[0]);
+        if (Objects.equals(simulatorType, simulators[0])) {
             simulator = ModelConstant.Simulator.CARLA;
-        } else if (Objects.equals(simulatorType, "lgsvl")) {
+        } else if (Objects.equals(simulatorType, simulators[1])) {
             simulator = ModelConstant.Simulator.LGSVL;
         } else {
             simulator = ModelConstant.Simulator.CARLA;
