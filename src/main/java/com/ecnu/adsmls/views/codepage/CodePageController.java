@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.editor.Editor;
 import com.ecnu.adsmls.components.editor.modeleditor.ModelEditor;
 import com.ecnu.adsmls.components.editor.treeeditor.TreeEditor;
+import com.ecnu.adsmls.components.editor.weathereditor.WeatherEditor;
 import com.ecnu.adsmls.components.modal.*;
 import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
 import com.ecnu.adsmls.model.MCar;
@@ -19,6 +20,7 @@ import com.ecnu.adsmls.utils.FileSystem;
 import com.ecnu.adsmls.utils.log.MyStaticOutputStreamAppender;
 import com.ecnu.adsmls.utils.register.impl.BehaviorRegister;
 import com.ecnu.adsmls.utils.register.impl.LocationRegister;
+import com.ecnu.adsmls.utils.register.impl.WeatherRegister;
 import com.ecnu.adsmls.verifier.Verifier;
 import hprose.client.HproseHttpClient;
 import javafx.event.Event;
@@ -72,6 +74,7 @@ public class CodePageController implements Initializable, Route {
         System.out.println("init");
         new BehaviorRegister().init();
         new LocationRegister().init();
+        new WeatherRegister().init();
         this.initMenu();
 
         OutputStream os = new TextAreaOutputStream(this.infoArea);
@@ -435,6 +438,9 @@ public class CodePageController implements Initializable, Route {
             this.openModel(tab, file);
         } else if (Objects.equals(suffix, FileSystem.Suffix.TREE.value)) {
             this.openTree(tab, file);
+        }
+        else if (Objects.equals(suffix, FileSystem.Suffix.WEATHER.value)) {
+            this.openWeather(tab, file);
         } else {
             this.showInfo("Unsupported file");
             return;
@@ -530,6 +536,23 @@ public class CodePageController implements Initializable, Route {
 
         tab.setContent(scrollPane);
         tab.setUserData(modelEditor);
+    }
+
+    // TODO refactor 和 openModel 合并
+    private void openWeather(Tab tab, File file) {
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+
+        String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
+        WeatherEditor weatherEditor = new WeatherEditor(projectPath, file);
+        weatherEditor.load();
+
+        scrollPane.setContent(weatherEditor.getNode());
+        scrollPane.setUserData(weatherEditor);
+
+        tab.setContent(scrollPane);
+        tab.setUserData(weatherEditor);
     }
 
     private void openTree(Tab tab, File file) {
