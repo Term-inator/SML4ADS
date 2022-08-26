@@ -60,10 +60,12 @@ public class LocationRegister extends FunctionRegister {
         locationFunctions.add(relatedPosition);
     }
 
+    // TODO refactor
     public static List<String> getLocationTypes() {
         return locationFunctions.stream().map(Function::getFunctionName).collect(Collectors.toList());
     }
 
+    // TODO refactor
     public static Function getLocationFunction(String locationType) {
         for (Function function : locationFunctions) {
             if (Objects.equals(function.getFunctionName(), locationType)) {
