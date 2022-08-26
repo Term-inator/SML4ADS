@@ -59,6 +59,8 @@ public class BranchPoint extends TreeArea {
         circle.setRadius(this.r);
         circle.setFill(Color.WHITE);
         circle.setStrokeWidth(2);
+        circle.setSmooth(true);
+        circle.getStrokeDashArray().addAll(3.0, 3.0);
         this.shape = circle;
     }
 

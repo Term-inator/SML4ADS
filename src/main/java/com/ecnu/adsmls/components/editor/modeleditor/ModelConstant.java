@@ -15,6 +15,7 @@ public class ModelConstant {
 
     protected static final Map<Simulator, String[]> weathers = Map.of(
             Simulator.CARLA, new String[]{
+                    "random",
                     "ClearNoon",
                     "CloudyNoon",
                     "WetNoon",
@@ -31,6 +32,7 @@ public class ModelConstant {
                     "HardRainSunset"
             },
             Simulator.LGSVL, new String[]{
+                    "random",
                     "clear",
                     "rainy"
             }

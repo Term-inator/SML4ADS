@@ -87,7 +87,7 @@ public class TreeEditor extends Editor {
         // TODO 什么选择 BehaviorModal 对应显示什么行为
         // TODO 切换选择提示将会清空画布
         // TODO preprocess 检查 tree 类型
-        String[] treeTypes = {"Car", "Pedestrian", "Obstacle"};
+        String[] treeTypes = {"Vehicle", "Pedestrian", "Obstacle"};
         this.cbTreeType = new ComboBox<>(FXCollections.observableArrayList(treeTypes));
         this.cbTreeType.getSelectionModel().select(0);
 

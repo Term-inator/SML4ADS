@@ -252,17 +252,15 @@ public class ModelEditor extends Editor {
         Label lbSimulationTime = new Label("simulationTime");
         this.tfSimulationTime = new TextField();
 
-        Label lbScenarioTrigger = new Label("scenarioTrigger");
+        Label lbScenarioTrigger = new Label("scenarioEndTrigger");
         this.taScenarioEndTrigger = new TextArea();
-        this.taScenarioEndTrigger.setPrefRowCount(10);
-        this.taScenarioEndTrigger.setPrefColumnCount(20);
-        this.taScenarioEndTrigger.setMinHeight(80);
+        this.taScenarioEndTrigger.setPrefRowCount(1);
         //自动换行
         this.taScenarioEndTrigger.setWrapText(true);
 
-        Label lbCars = new Label("cars");
+        Label lbCars = new Label("Vehicles");
 
-        Button btNewCar = new Button("New Car");
+        Button btNewCar = new Button("New Vehicle");
         btNewCar.setOnMouseClicked(e -> {
             this.newCar(new CarPane(this.projectPath));
         });
@@ -303,7 +301,7 @@ public class ModelEditor extends Editor {
     }
 
     private void deleteCar(int index) {
-        System.out.println("delete car" + index);
+        System.out.println("delete vehicle" + index);
         CarPane carPane = this.carPanes.remove(index);
         this.updateCars();
         this.modelController.removeSimulatorListener(carPane);
