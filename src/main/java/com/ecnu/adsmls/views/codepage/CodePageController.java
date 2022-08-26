@@ -112,7 +112,11 @@ public class CodePageController implements Initializable, Route {
         newTree.setOnAction(e -> {
             this.newFile(FileSystem.Suffix.TREE.value);
         });
-        newMenu.getItems().addAll(newDirectory, newModel, newTree);
+        MenuItem newWeather = new MenuItem("Weather");
+        newWeather.setOnAction(e -> {
+            this.newFile(FileSystem.Suffix.WEATHER.value);
+        });
+        newMenu.getItems().addAll(newDirectory, newModel, newTree, newWeather);
 
         // 设置
         MenuItem setting = new MenuItem("Settings");
@@ -458,6 +462,8 @@ public class CodePageController implements Initializable, Route {
             nfm = new NewModelModal();
         } else if (Objects.equals(suffix, FileSystem.Suffix.TREE.value)) {
             nfm = new NewTreeModal();
+        } else if (Objects.equals(suffix, FileSystem.Suffix.WEATHER.value)) {
+            nfm = new NewWeatherModal();
         } else if (Objects.equals(suffix, FileSystem.Suffix.DIR.value)) {
             nfm = new NewDirectoryModal();
         } else {

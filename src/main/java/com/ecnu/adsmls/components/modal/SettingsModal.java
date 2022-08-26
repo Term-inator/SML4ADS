@@ -24,7 +24,7 @@ public class SettingsModal extends Modal {
 
     protected void createWindow() {
         super.createWindow();
-        this.window.setTitle("Settings");
+        this.setTitle("Settings");
 
         Label lbSimulationPort = new Label("simulation port");
         this.tfSimulationPort = new TextField(this.simulationPort);

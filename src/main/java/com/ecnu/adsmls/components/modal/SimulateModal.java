@@ -60,7 +60,7 @@ public class SimulateModal extends Modal {
     @Override
     protected void createWindow() {
         super.createWindow();
-        this.window.setTitle("Configurations");
+        this.setTitle("Configurations");
 
 //        Label lbTrace = new Label("trace options");
 //        this.treeView.setPrefHeight(200);

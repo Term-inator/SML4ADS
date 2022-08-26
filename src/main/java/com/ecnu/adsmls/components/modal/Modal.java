@@ -57,6 +57,10 @@ public abstract class Modal {
         }
     }
 
+    public void setTitle(String modalTitle) {
+        this.window.setTitle(modalTitle);
+    }
+
     protected void createWindow() {
         this.window = new Stage(this.stageStyle);
 
