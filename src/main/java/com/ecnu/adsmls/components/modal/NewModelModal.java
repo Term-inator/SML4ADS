@@ -10,7 +10,7 @@ public class NewModelModal extends NewFileModal {
     @Override
     protected void createWindow() {
         super.createWindow();
-        this.window.setTitle("New Model");
+        this.setTitle("New Model");
     }
 
     @Override

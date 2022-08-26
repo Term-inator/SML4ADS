@@ -8,6 +8,7 @@ import javafx.scene.control.TextField;
 // TODO 暂时使用 Modal
 public class SettingsModal extends Modal {
     private MConfig mConfig;
+    private String simulatorType;
     private String simulationPort;
 
     private TextField tfSimulationPort;
@@ -24,7 +25,7 @@ public class SettingsModal extends Modal {
 
     protected void createWindow() {
         super.createWindow();
-        this.window.setTitle("Settings");
+        this.setTitle("Settings");
 
         Label lbSimulationPort = new Label("simulation port");
         this.tfSimulationPort = new TextField(this.simulationPort);

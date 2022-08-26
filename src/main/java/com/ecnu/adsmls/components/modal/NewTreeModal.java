@@ -11,7 +11,7 @@ public class NewTreeModal extends NewFileModal {
     @Override
     protected void createWindow() {
         super.createWindow();
-        this.window.setTitle("New Project");
+        this.setTitle("New Project");
     }
 
     @Override

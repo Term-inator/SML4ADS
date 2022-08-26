@@ -43,7 +43,7 @@ public class VerifyRequirementsModal extends Modal {
     @Override
     protected void createWindow() {
         super.createWindow();
-        this.window.setTitle("Verify");
+        this.setTitle("Verify");
 
         Label lbRequirements = new Label("requirements");
 

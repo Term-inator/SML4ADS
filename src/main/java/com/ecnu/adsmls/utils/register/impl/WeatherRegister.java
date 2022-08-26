@@ -35,7 +35,7 @@ public class WeatherRegister extends FunctionRegister {
                 new Between(new Value(0), new Value(100), "[]"));
         carla.addParam("fog falloff", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
                 new Between(new Value(0), new Value(Double.MAX_VALUE), "[]"));
-        // TODO problem 以下三个没有明确范围
+        // 以下三个没有明确范围
         carla.addParam("scattering intensity", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
                 new Between(new Value(0), new Value(Double.MAX_VALUE), "[]"));
         carla.addParam("mie scattering scale", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
