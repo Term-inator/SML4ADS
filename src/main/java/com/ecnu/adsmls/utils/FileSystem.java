@@ -16,6 +16,7 @@ public class FileSystem {
         MODEL(".model"),
         JSON(".json"),
         ADSML(".adsml"),
+        WEATHER(".weather"),
         MAP(".xodr"),
         EXE(".exe"),
         XML(".xml"),

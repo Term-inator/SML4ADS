@@ -72,10 +72,12 @@ public class BehaviorRegister extends FunctionRegister {
         behaviorFunctions.add(idle);
     }
 
+    // TODO refactor
     public static List<String> getBehaviorNames() {
         return behaviorFunctions.stream().map(Function::getFunctionName).collect(Collectors.toList());
     }
 
+    // TODO refactor
     public static Function getBehaviorFunction(String behaviorName) {
         for (Function function : behaviorFunctions) {
             if (Objects.equals(function.getFunctionName(), behaviorName)) {

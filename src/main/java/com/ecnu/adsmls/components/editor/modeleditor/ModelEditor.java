@@ -26,16 +26,28 @@ import java.util.*;
 public class ModelEditor extends Editor {
     private GridPane gridPane = new GridPane();
 
-    // 模拟器类型
+    /**
+     * 模拟器类型
+     */
     private ComboBox<String> cbSimulatorType;
-    // 地图文件
+
+    /**
+     * 地图文件
+     */
     private GridPane mapPane = new GridPane();
     private ComboBox<String> cbMapType;
     private Node btMap;
     private String[] defaultMaps = {};
     private ComboBox<String> cbDefaultMap;
+
     // 天气
+    private ComboBox<String> cbWeatherType;
+    private GridPane weatherPane = new GridPane();
     private ComboBox<String> cbWeather;
+    private Node btWeather;
+    private String[] defaultWeathers = {};
+    private ComboBox<String> cbDefaultWeather;
+
 
     private double timeStepMin = 0.1;
     private double timeStepMax = 10.0;
@@ -157,7 +169,17 @@ public class ModelEditor extends Editor {
             this.cbDefaultMap.getSelectionModel().select(FileSystem.removeSuffix(mModel.getMap()));
         }
 
-        this.cbWeather.getSelectionModel().select(mModel.getWeather());
+        this.cbWeatherType.getSelectionModel().select(mModel.getWeatherType());
+        if (Objects.equals(mModel.getWeatherType(), "custom")) {
+            if (!Objects.equals(mModel.getWeather(), "")) {
+                // 恢复绝对路径
+                ((ChooseFileButton) this.btMap.getUserData()).setFile(new File(this.projectPath, mModel.getWeather()));
+            }
+        } else if (Objects.equals(mModel.getWeatherType(), "default")) {
+            this.cbDefaultWeather.getSelectionModel().select(FileSystem.removeSuffix(mModel.getWeather()));
+        }
+
+//        this.cbWeather.getSelectionModel().select(mModel.getWeather());
         this.spTimeStep.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(this.timeStepMin, this.timeStepMax, mModel.getTimeStep(), 0.1));
 
         try {
@@ -201,8 +223,8 @@ public class ModelEditor extends Editor {
         this.cbSimulatorType = new ComboBox<>(FXCollections.observableArrayList(simulators));
         this.cbSimulatorType.getSelectionModel().select(0);
 
+        // 地图模块
         Label lbMap = new Label("map");
-        // 限定选择 *.xodr 文件
         this.cbMapType = new ComboBox<>(FXCollections.observableArrayList("custom", "default"));
         this.cbMapType.getSelectionModel().select(0);
         Map<String, String> mapFilter = new HashMap<>();
@@ -237,11 +259,32 @@ public class ModelEditor extends Editor {
             this.cbWeather.setItems(FXCollections.observableArrayList(this.modelController.getWeather()));
         });
 
-
+        // 天气模块
         Label lbWeather = new Label("weather");
-        String[] weathers = ModelConstant.weathers.get(ModelConstant.Simulator.CARLA);
-        this.cbWeather = new ComboBox<>(FXCollections.observableArrayList(weathers));
-        this.cbWeather.getSelectionModel().select(0);
+        this.cbWeatherType = new ComboBox<>(FXCollections.observableArrayList("custom", "default"));
+        this.cbWeatherType.getSelectionModel().select(0);
+        Map<String, String> weatherFilter = new HashMap<>();
+        weatherFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.WEATHER), FileSystem.Suffix.WEATHER.toString());
+        this.btWeather = new ChooseFileButton(this.gridPane, this.projectPath, weatherFilter).getNode();
+        this.defaultWeathers = ModelConstant.weathers.get(ModelConstant.Simulator.CARLA);
+        this.cbDefaultWeather = new ComboBox<>(FXCollections.observableArrayList(this.defaultWeathers));
+        this.cbDefaultWeather.getSelectionModel().select(0);
+        this.weatherPane.setHgap(8);
+        this.weatherPane.addRow(0, this.cbWeatherType, this.btWeather);
+        this.cbWeatherType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (Objects.equals(newValue, "custom")) {
+                this.weatherPane.getChildren().remove(this.cbDefaultWeather);
+                this.weatherPane.add(this.btWeather, 1, 0);
+            } else if (Objects.equals(newValue, "default")) {
+                this.weatherPane.getChildren().remove(this.btWeather);
+                this.weatherPane.add(this.cbDefaultWeather, 1, 0);
+            }
+        });
+//        this.cbWeatherType = new ComboBox<>(FXCollections.observableArrayList("custom", "default"));
+//        this.cbWeatherType.getSelectionModel().select(0);
+//        String[] weathers = ModelConstant.weathers.get(ModelConstant.Simulator.CARLA);
+//        this.cbWeather = new ComboBox<>(FXCollections.observableArrayList(weathers));
+//        this.cbWeather.getSelectionModel().select(0);
 
         Label lbTimeStep = new Label("timeStep");
         this.spTimeStep = new Spinner<>(this.timeStepMin, this.timeStepMax, 0.1, 0.1);
@@ -252,17 +295,15 @@ public class ModelEditor extends Editor {
         Label lbSimulationTime = new Label("simulationTime");
         this.tfSimulationTime = new TextField();
 
-        Label lbScenarioTrigger = new Label("scenarioTrigger");
+        Label lbScenarioTrigger = new Label("scenarioEndTrigger");
         this.taScenarioEndTrigger = new TextArea();
-        this.taScenarioEndTrigger.setPrefRowCount(10);
-        this.taScenarioEndTrigger.setPrefColumnCount(20);
-        this.taScenarioEndTrigger.setMinHeight(80);
+        this.taScenarioEndTrigger.setPrefRowCount(1);
         //自动换行
         this.taScenarioEndTrigger.setWrapText(true);
 
-        Label lbCars = new Label("cars");
+        Label lbCars = new Label("Vehicles");
 
-        Button btNewCar = new Button("New Car");
+        Button btNewCar = new Button("New Vehicle");
         btNewCar.setOnMouseClicked(e -> {
             this.newCar(new CarPane(this.projectPath));
         });
@@ -276,7 +317,8 @@ public class ModelEditor extends Editor {
         this.gridPane.addRow(0, lbSimulatorType, this.cbSimulatorType);
         this.gridPane.add(lbMap, 0, 1);
         this.gridPane.add(this.mapPane, 1, 1, 2, 1);
-        this.gridPane.addRow(2, lbWeather, this.cbWeather);
+        this.gridPane.add(lbWeather, 0, 2);
+        this.gridPane.add(this.weatherPane, 1, 2, 2, 1);
         this.gridPane.addRow(3, lbTimeStep, this.spTimeStep);
         this.gridPane.addRow(4, lbSimulationTime, this.tfSimulationTime);
         this.gridPane.addRow(5, lbScenarioTrigger, this.taScenarioEndTrigger);
@@ -303,7 +345,7 @@ public class ModelEditor extends Editor {
     }
 
     private void deleteCar(int index) {
-        System.out.println("delete car" + index);
+        System.out.println("delete vehicle" + index);
         CarPane carPane = this.carPanes.remove(index);
         this.updateCars();
         this.modelController.removeSimulatorListener(carPane);

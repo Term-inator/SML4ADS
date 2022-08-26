@@ -89,6 +89,7 @@ public class Behavior extends TreeArea {
         circle.setRadius(this.r);
         circle.setFill(Color.WHITE);
         circle.setStrokeWidth(2);
+        circle.setSmooth(true);
         this.shape = circle;
     }
 
