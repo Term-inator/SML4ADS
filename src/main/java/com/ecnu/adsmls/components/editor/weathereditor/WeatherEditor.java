@@ -1,6 +1,13 @@
 package com.ecnu.adsmls.components.editor.weathereditor;
 
+import com.alibaba.fastjson.JSON;
+import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.components.editor.Editor;
+import com.ecnu.adsmls.components.editor.modeleditor.CarPane;
+import com.ecnu.adsmls.model.MCar;
+import com.ecnu.adsmls.model.MModel;
+import com.ecnu.adsmls.model.MWeather;
+import com.ecnu.adsmls.utils.FileSystem;
 import com.ecnu.adsmls.utils.register.Function;
 import com.ecnu.adsmls.utils.register.FunctionParam;
 import com.ecnu.adsmls.utils.register.exception.DataTypeException;
@@ -17,7 +24,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 
 import java.io.File;
-import java.util.LinkedHashMap;
+import java.util.*;
 
 // TODO 和 ModelEditor 提取父类
 public class WeatherEditor extends Editor {
@@ -52,12 +59,49 @@ public class WeatherEditor extends Editor {
 
     @Override
     public void save() {
+        String weather = FileSystem.JSONReader(new File(this.projectPath, this.relativePath));
+        MWeather mWeather = JSON.parseObject(weather, MWeather.class);
+        if (mWeather == null) {
+            mWeather = new MWeather();
+        }
+        System.out.println(weather);
 
+        String weatherParamName = "";
+        String weatherParamValue = "";
+        for (Node node : this.gridPane.getChildren()) {
+            if (node instanceof Label) {
+                weatherParamName = ((Label) node).getText();
+            } else if (node instanceof TextField) {
+                weatherParamValue = ((TextField) node).getText();
+                this.weatherParams.put(weatherParamName, weatherParamValue);
+            }
+        }
+        mWeather.setWeatherParams(this.weatherParams);
+
+        weather = JSON.toJSONString(mWeather);
+        System.out.println(weather);
+        FileSystem.JSONWriter(new File(this.projectPath, this.relativePath), weather);
     }
 
     @Override
     public void load() {
+        String weather = FileSystem.JSONReader(new File(this.projectPath, this.relativePath));
+        MWeather mWeather = JSON.parseObject(weather, MWeather.class);
+        if (mWeather == null) {
+            return;
+        }
+        System.out.println(weather);
 
+        String weatherParamName = "";
+        String weatherParamValue = "";
+        for (Node node : this.gridPane.getChildren()) {
+            if (node instanceof Label) {
+                weatherParamName = ((Label) node).getText();
+            } else if (node instanceof TextField) {
+                weatherParamValue = mWeather.getWeatherParams().get(weatherParamName);
+                ((TextField) node).setText(weatherParamValue);
+            }
+        }
     }
 
     @Override
