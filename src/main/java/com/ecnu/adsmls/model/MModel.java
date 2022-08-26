@@ -12,6 +12,8 @@ public class MModel {
 
     private String weather;
 
+    private String weatherType;
+
     private double timeStep;
 
     private Double simulationTime;
@@ -32,6 +34,14 @@ public class MModel {
         this.scenarioEndTrigger = scenarioEndTrigger;
         this.cars = cars;
         this.requirements = requirements;
+    }
+
+    public void setWeatherType(String weatherType) {
+        this.weatherType = weatherType;
+    }
+
+    public String getWeatherType() {
+        return weatherType;
     }
 
     public MModel() {

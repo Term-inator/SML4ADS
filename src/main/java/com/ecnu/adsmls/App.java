@@ -15,7 +15,7 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        stage.setTitle("ADSML-S");
+        stage.setTitle("SML4ADS");
         mainStage = stage;
         Router.linkTo("welcome");
     }
