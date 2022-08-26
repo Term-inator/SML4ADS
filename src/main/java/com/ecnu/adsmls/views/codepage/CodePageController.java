@@ -186,7 +186,7 @@ public class CodePageController implements Initializable, Route {
         if (!dir.exists()) {
             FileSystem.createDir(dir.getAbsolutePath());
             FileSystem.createFile(dir, "config" + FileSystem.Suffix.JSON.value);
-            this.mConfig = new MConfig(Global.simulationPort);
+            this.mConfig = new MConfig(Global.simulatorType, Global.simulationPort);
             FileSystem.JSONWriter(new File(dir, "config" + FileSystem.Suffix.JSON.value), JSON.toJSONString(this.mConfig));
         }
         String config = FileSystem.JSONReader(new File(dir, "config" + FileSystem.Suffix.JSON.value));
