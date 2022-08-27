@@ -3,6 +3,7 @@ package com.ecnu.adsmls.components.editor.modeleditor;
 import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.model.MCar;
 import com.ecnu.adsmls.utils.FileSystem;
+import com.ecnu.adsmls.utils.SimulatorConstant;
 import com.ecnu.adsmls.utils.register.Function;
 import com.ecnu.adsmls.utils.register.FunctionParam;
 import com.ecnu.adsmls.utils.register.exception.DataTypeException;
@@ -230,8 +231,8 @@ public class CarPane {
         this.gridPane.addRow(8, lbDynamic, this.btDynamic);
     }
 
-    public void notifyModel(String[] model) {
-        this.cbModel.setItems(FXCollections.observableArrayList(model));
+    public void notifyModel() {
+        this.cbModel.setItems(FXCollections.observableArrayList(SimulatorConstant.getModel()));
     }
 
     public Node getNode() {

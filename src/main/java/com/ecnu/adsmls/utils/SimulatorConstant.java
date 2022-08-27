@@ -1,5 +1,7 @@
 package com.ecnu.adsmls.utils;
 
+import com.ecnu.adsmls.router.params.Global;
+
 import java.util.*;
 
 public class SimulatorConstant {
@@ -36,6 +38,20 @@ public class SimulatorConstant {
                     "clear",
                     "rainy"
             }
+    );
+
+    private static final Map<SimulatorType, String[]> maps = Map.of(
+            SimulatorType.CARLA, new String[]{
+                    "Town01",
+                    "Town02",
+                    "Town03",
+                    "Town04",
+                    "Town05",
+                    "Town06",
+                    "Town07",
+                    "Town10"
+            },
+            SimulatorType.LGSVL, new String[]{}
     );
 
     private static final Map<SimulatorType, String[]> models = Map.of(
@@ -93,16 +109,35 @@ public class SimulatorConstant {
     }
 
     /**
+     * 获取默认地图
+     */
+    public static String[] getMap(SimulatorType simulatorType) {
+        return maps.get(simulatorType);
+    }
+
+    public static String[] getMap() {
+        return maps.get(Global.simulatorType);
+    }
+
+    /**
      * 获取蓝图
      */
-    public static String[] getModel(SimulatorType simulator) {
-        return models.get(simulator);
+    public static String[] getModel(SimulatorType simulatorType) {
+        return models.get(simulatorType);
+    }
+
+    public static String[] getModel() {
+        return models.get(Global.simulatorType);
     }
 
     /**
      * 设置天气
      */
-    public static String[] getWeather(SimulatorType simulator) {
-        return weathers.get(simulator);
+    public static String[] getWeather(SimulatorType simulatorType) {
+        return weathers.get(simulatorType);
+    }
+
+    public static String[] getWeather() {
+        return weathers.get(Global.simulatorType);
     }
 }

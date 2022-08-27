@@ -7,7 +7,9 @@ import com.ecnu.adsmls.components.editor.modeleditor.CarPane;
 import com.ecnu.adsmls.model.MCar;
 import com.ecnu.adsmls.model.MModel;
 import com.ecnu.adsmls.model.MWeather;
+import com.ecnu.adsmls.router.params.Global;
 import com.ecnu.adsmls.utils.FileSystem;
+import com.ecnu.adsmls.utils.SimulatorTypeObserver;
 import com.ecnu.adsmls.utils.register.Function;
 import com.ecnu.adsmls.utils.register.FunctionParam;
 import com.ecnu.adsmls.utils.register.exception.DataTypeException;
@@ -27,7 +29,7 @@ import java.io.File;
 import java.util.*;
 
 // TODO 和 ModelEditor 提取父类
-public class WeatherEditor extends Editor {
+public class WeatherEditor extends Editor implements SimulatorTypeObserver {
     private GridPane gridPane = new GridPane();
 
     LinkedHashMap<String, String> weatherParams = new LinkedHashMap<>();
@@ -41,8 +43,8 @@ public class WeatherEditor extends Editor {
     @Override
     public void check() throws EmptyParamException, RequirementException, DataTypeException {
         this.weatherParams.clear();
-        // TODO refactor
-        Function weatherFunction = WeatherRegister.getFunction("CARLA");
+
+        Function weatherFunction = WeatherRegister.getFunction(Global.simulatorType.value);
         String locationParamName = "";
         String locationParamValue = "";
         for (Node node : this.gridPane.getChildren()) {
@@ -122,8 +124,8 @@ public class WeatherEditor extends Editor {
             this.gridPane.requestFocus();
         });
 
-        // TODO refactor
-        Function weatherFunction = WeatherRegister.getFunction("CARLA");
+        System.out.println(Global.simulatorType.value);
+        Function weatherFunction = WeatherRegister.getFunction(Global.simulatorType.value);
         // 生成界面
         int row = 0;
         for (FunctionParam param : weatherFunction.getParams()) {
@@ -131,6 +133,13 @@ public class WeatherEditor extends Editor {
             TextField tfParamValue = new TextField();
             this.gridPane.addRow(row++, lbParamName, tfParamValue);
         }
+    }
+
+    @Override
+    public void updateSimulatorType() {
+        this.gridPane.getChildren().clear();
+        this.createNode();
+        this.load();
     }
 
     @Override

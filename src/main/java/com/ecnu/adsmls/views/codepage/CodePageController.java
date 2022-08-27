@@ -17,6 +17,8 @@ import com.ecnu.adsmls.router.params.CodePageParams;
 import com.ecnu.adsmls.router.params.Global;
 import com.ecnu.adsmls.service.SimulatorService;
 import com.ecnu.adsmls.utils.FileSystem;
+import com.ecnu.adsmls.utils.SimulatorConstant;
+import com.ecnu.adsmls.utils.SimulatorTypeObserver;
 import com.ecnu.adsmls.utils.log.MyStaticOutputStreamAppender;
 import com.ecnu.adsmls.utils.register.impl.BehaviorRegister;
 import com.ecnu.adsmls.utils.register.impl.LocationRegister;
@@ -134,6 +136,8 @@ public class CodePageController implements Initializable, Route {
             System.out.println(config);
             String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
             FileSystem.JSONWriter(new File(FileSystem.concatAbsolutePath(projectPath, ".adsml"), "config" + FileSystem.Suffix.JSON.value), config);
+
+            this.notifyEditors();
         });
 
         MenuItem closeProject = new MenuItem("Close Project");
@@ -196,6 +200,7 @@ public class CodePageController implements Initializable, Route {
             this.mConfig = new MConfig();
             return;
         }
+        Global.simulatorType = SimulatorConstant.getSimulatorTypeByValue(this.mConfig.getSimulatorType());
         Global.simulationPort = this.mConfig.getSimulationPort();
     }
 
@@ -234,6 +239,16 @@ public class CodePageController implements Initializable, Route {
 
         scrollPane.setContent(anchorPane);
         this.directoryWrapper.getChildren().add(scrollPane);
+    }
+
+    // Global.simulatorType 改变时通知 Editor
+    private void notifyEditors() {
+        for(Map.Entry<File, Tab> entry: this.filesOpened.entrySet()) {
+            Editor editor = (Editor) entry.getValue().getUserData();
+            if(editor instanceof SimulatorTypeObserver) {
+                ((SimulatorTypeObserver) editor).updateSimulatorType();
+            }
+        }
     }
 
     private void showInfo(String info) {
