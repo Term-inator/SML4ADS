@@ -1,23 +1,20 @@
 package com.ecnu.adsmls.utils;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SimulatorConstant {
-    public enum Simulator {
-        CARLA("carla"), LGSVL("lgsvl");
+    public enum SimulatorType {
+        CARLA("CARLA"), LGSVL("LGSVL");
 
         public String value;
 
-        Simulator(String value) {
+        SimulatorType(String value) {
             this.value = value;
         }
     }
 
-    private static final Map<Simulator, String[]> weathers = Map.of(
-            SimulatorConstant.Simulator.CARLA, new String[]{
+    private static final Map<SimulatorType, String[]> weathers = Map.of(
+            SimulatorType.CARLA, new String[]{
                     "random",
                     "ClearNoon",
                     "CloudyNoon",
@@ -34,15 +31,15 @@ public class SimulatorConstant {
                     "MidRainSunset",
                     "HardRainSunset"
             },
-            SimulatorConstant.Simulator.LGSVL, new String[]{
+            SimulatorType.LGSVL, new String[]{
                     "random",
                     "clear",
                     "rainy"
             }
     );
 
-    private static final Map<SimulatorConstant.Simulator, String[]> models = Map.of(
-            SimulatorConstant.Simulator.CARLA, new String[]{
+    private static final Map<SimulatorType, String[]> models = Map.of(
+            SimulatorType.CARLA, new String[]{
                     "random",
                     "vehicle.audi.a2",
                     "vehicle.audi.etron",
@@ -78,27 +75,34 @@ public class SimulatorConstant {
                     "vehicle.volkswagen.t2",
                     "vehicle.volkswagen.t2_2021"
             },
-            SimulatorConstant.Simulator.LGSVL, new String[]{"random"});
+            SimulatorType.LGSVL, new String[]{"random"});
 
-    public static List<String> getSimulatorList() {
+    public static List<String> getSimulatorTypeList() {
         List<String> simulatorList = new ArrayList<>();
-        for(Simulator simulator : EnumSet.allOf(Simulator.class)) {
-            simulatorList.add(simulator.value);
+        for(SimulatorType simulatorType: SimulatorType.values()) {
+            simulatorList.add(simulatorType.value);
         }
         return simulatorList;
+    }
+
+    public static SimulatorType getSimulatorTypeByValue(String simulator) {
+        return Arrays.stream(SimulatorType.values())
+                .filter(simulatorType -> Objects.equals(simulatorType.value, simulator))
+                .findAny()
+                .orElse(SimulatorType.CARLA);
     }
 
     /**
      * 获取蓝图
      */
-    public static String[] getModel(SimulatorConstant.Simulator simulator) {
+    public static String[] getModel(SimulatorType simulator) {
         return models.get(simulator);
     }
 
     /**
      * 设置天气
      */
-    public static String[] getWeather(SimulatorConstant.Simulator simulator) {
+    public static String[] getWeather(SimulatorType simulator) {
         return weathers.get(simulator);
     }
 }

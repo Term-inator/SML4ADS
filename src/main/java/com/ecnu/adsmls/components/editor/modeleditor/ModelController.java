@@ -11,7 +11,7 @@ import java.util.Objects;
  * 建模用到的常量
  */
 public class ModelController {
-    private SimulatorConstant.Simulator simulator;
+    private SimulatorConstant.SimulatorType simulator;
 
     // TODO 如果之后有多种 Pane 的需求，为他们建立父类或接口
     private List<CarPane> simulatorListener = new ArrayList<>();
@@ -23,18 +23,18 @@ public class ModelController {
     public void setSimulator(String simulatorType) {
         String[] simulators = PropertiesUtil.getSimulators().toArray(new String[0]);
         if (Objects.equals(simulatorType, simulators[0])) {
-            simulator = SimulatorConstant.Simulator.CARLA;
+            simulator = SimulatorConstant.SimulatorType.CARLA;
         } else if (Objects.equals(simulatorType, simulators[1])) {
-            simulator = SimulatorConstant.Simulator.LGSVL;
+            simulator = SimulatorConstant.SimulatorType.LGSVL;
         } else {
-            simulator = SimulatorConstant.Simulator.CARLA;
+            simulator = SimulatorConstant.SimulatorType.CARLA;
         }
         for (CarPane carPane : this.simulatorListener) {
             carPane.notifyModel(this.getModel());
         }
     }
 
-    public SimulatorConstant.Simulator getSimulator() {
+    public SimulatorConstant.SimulatorType getSimulator() {
         return simulator;
     }
 

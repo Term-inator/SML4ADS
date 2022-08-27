@@ -220,7 +220,7 @@ public class ModelEditor extends Editor {
         this.gridPaneCar.setVgap(8);
 
         Label lbSimulatorType = new Label("simulatorType");
-        String[] simulators = PropertiesUtil.getSimulators().toArray(new String[0]);
+        String[] simulators = SimulatorConstant.getSimulatorTypeList().toArray(new String[0]);
         this.cbSimulatorType = new ComboBox<>(FXCollections.observableArrayList(simulators));
         this.cbSimulatorType.getSelectionModel().select(0);
 
@@ -267,7 +267,7 @@ public class ModelEditor extends Editor {
         Map<String, String> weatherFilter = new HashMap<>();
         weatherFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.WEATHER), FileSystem.Suffix.WEATHER.toString());
         this.btWeather = new ChooseFileButton(this.gridPane, this.projectPath, weatherFilter).getNode();
-        this.defaultWeathers = SimulatorConstant.getWeather(SimulatorConstant.Simulator.CARLA);
+        this.defaultWeathers = SimulatorConstant.getWeather(SimulatorConstant.SimulatorType.CARLA);
         this.cbDefaultWeather = new ComboBox<>(FXCollections.observableArrayList(this.defaultWeathers));
         this.cbDefaultWeather.getSelectionModel().select(0);
         this.weatherPane.setHgap(8);

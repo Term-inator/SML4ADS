@@ -127,6 +127,7 @@ public class CodePageController implements Initializable, Route {
                 return;
             }
             // 写入配置文件
+            this.mConfig.setSimulatorType(Global.simulatorType.value);
             this.mConfig.setSimulationPort(Global.simulationPort);
 
             String config = JSON.toJSONString(mConfig);
@@ -186,7 +187,7 @@ public class CodePageController implements Initializable, Route {
         if (!dir.exists()) {
             FileSystem.createDir(dir.getAbsolutePath());
             FileSystem.createFile(dir, "config" + FileSystem.Suffix.JSON.value);
-            this.mConfig = new MConfig(Global.simulatorType, Global.simulationPort);
+            this.mConfig = new MConfig(Global.simulatorType.value, Global.simulationPort);
             FileSystem.JSONWriter(new File(dir, "config" + FileSystem.Suffix.JSON.value), JSON.toJSONString(this.mConfig));
         }
         String config = FileSystem.JSONReader(new File(dir, "config" + FileSystem.Suffix.JSON.value));
