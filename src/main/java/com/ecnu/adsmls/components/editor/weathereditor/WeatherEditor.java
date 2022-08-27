@@ -3,6 +3,7 @@ package com.ecnu.adsmls.components.editor.weathereditor;
 import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.components.editor.Editor;
+import com.ecnu.adsmls.components.editor.FormEditor;
 import com.ecnu.adsmls.components.editor.modeleditor.CarPane;
 import com.ecnu.adsmls.model.MCar;
 import com.ecnu.adsmls.model.MModel;
@@ -28,12 +29,9 @@ import javafx.scene.layout.GridPane;
 import java.io.File;
 import java.util.*;
 
-// TODO 和 ModelEditor 提取父类
-public class WeatherEditor extends Editor implements SimulatorTypeObserver {
-    private GridPane gridPane = new GridPane();
 
+public class WeatherEditor extends FormEditor implements SimulatorTypeObserver {
     LinkedHashMap<String, String> weatherParams = new LinkedHashMap<>();
-
 
     public WeatherEditor(String projectPath, File file) {
         super(projectPath, file);
@@ -108,23 +106,10 @@ public class WeatherEditor extends Editor implements SimulatorTypeObserver {
 
     @Override
     protected void createNode() {
-        this.gridPane.setPrefWidth(800);
-        this.gridPane.setPrefWidth(800);
-        this.gridPane.setPadding(new Insets(30, 40, 30, 40));
-        this.gridPane.setHgap(8);
-        this.gridPane.setVgap(8);
+        super.createNode();
+        this.bindKeyEvent();
+        this.bindMouseEvent();
 
-        this.gridPane.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
-            System.out.println(e);
-            if (e.isControlDown() && e.getCode() == KeyCode.S) {
-                this.save();
-            }
-        });
-        this.gridPane.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-            this.gridPane.requestFocus();
-        });
-
-        System.out.println(Global.simulatorType.value);
         Function weatherFunction = WeatherRegister.getFunction(Global.simulatorType.value);
         // 生成界面
         int row = 0;

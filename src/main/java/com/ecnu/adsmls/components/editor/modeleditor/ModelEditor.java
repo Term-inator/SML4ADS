@@ -3,6 +3,7 @@ package com.ecnu.adsmls.components.editor.modeleditor;
 import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.ChooseFileButton;
 import com.ecnu.adsmls.components.editor.Editor;
+import com.ecnu.adsmls.components.editor.FormEditor;
 import com.ecnu.adsmls.model.MCar;
 import com.ecnu.adsmls.model.MModel;
 import com.ecnu.adsmls.utils.FileSystem;
@@ -24,9 +25,7 @@ import javafx.scene.layout.GridPane;
 import java.io.File;
 import java.util.*;
 
-public class ModelEditor extends Editor implements SimulatorTypeObserver {
-    private GridPane gridPane = new GridPane();
-
+public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
     /**
      * 地图文件
      */
@@ -200,20 +199,9 @@ public class ModelEditor extends Editor implements SimulatorTypeObserver {
 
     @Override
     protected void createNode() {
-        this.gridPane.setPrefWidth(800);
-        this.gridPane.setPrefWidth(800);
-        this.gridPane.setPadding(new Insets(30, 40, 30, 40));
-        this.gridPane.setVgap(8);
-
-        this.gridPane.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
-            System.out.println(e);
-            if (e.isControlDown() && e.getCode() == KeyCode.S) {
-                this.save();
-            }
-        });
-        this.gridPane.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-            this.gridPane.requestFocus();
-        });
+        super.createNode();
+        this.bindKeyEvent();
+        this.bindMouseEvent();
 
         this.gridPaneCar.setPadding(new Insets(0, 0, 8, 20));
         this.gridPaneCar.setHgap(8);
