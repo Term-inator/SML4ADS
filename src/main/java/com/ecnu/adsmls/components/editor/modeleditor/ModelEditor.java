@@ -7,6 +7,7 @@ import com.ecnu.adsmls.model.MCar;
 import com.ecnu.adsmls.model.MModel;
 import com.ecnu.adsmls.utils.FileSystem;
 import com.ecnu.adsmls.utils.PropertiesUtil;
+import com.ecnu.adsmls.utils.SimulatorConstant;
 import com.ecnu.adsmls.utils.register.exception.DataTypeException;
 import com.ecnu.adsmls.utils.register.exception.EmptyParamException;
 import com.ecnu.adsmls.utils.register.exception.RequirementException;
@@ -266,7 +267,7 @@ public class ModelEditor extends Editor {
         Map<String, String> weatherFilter = new HashMap<>();
         weatherFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.WEATHER), FileSystem.Suffix.WEATHER.toString());
         this.btWeather = new ChooseFileButton(this.gridPane, this.projectPath, weatherFilter).getNode();
-        this.defaultWeathers = ModelConstant.weathers.get(ModelConstant.Simulator.CARLA);
+        this.defaultWeathers = SimulatorConstant.getWeather(SimulatorConstant.Simulator.CARLA);
         this.cbDefaultWeather = new ComboBox<>(FXCollections.observableArrayList(this.defaultWeathers));
         this.cbDefaultWeather.getSelectionModel().select(0);
         this.weatherPane.setHgap(8);
