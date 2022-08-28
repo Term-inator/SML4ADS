@@ -7,10 +7,7 @@ import com.ecnu.adsmls.components.editor.treeeditor.TreeEditor;
 import com.ecnu.adsmls.components.editor.weathereditor.WeatherEditor;
 import com.ecnu.adsmls.components.modal.*;
 import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
-import com.ecnu.adsmls.model.MCar;
-import com.ecnu.adsmls.model.MConfig;
-import com.ecnu.adsmls.model.MModel;
-import com.ecnu.adsmls.model.MTree;
+import com.ecnu.adsmls.model.*;
 import com.ecnu.adsmls.router.Route;
 import com.ecnu.adsmls.router.Router;
 import com.ecnu.adsmls.router.params.CodePageParams;
@@ -301,6 +298,17 @@ public class CodePageController implements Initializable, Route {
         System.out.println(model);
 
         String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
+        if(Objects.equals(mModel.getWeatherType(), "custom")) {
+            String weatherPath = mModel.getWeather();
+            String weather = FileSystem.JSONReader(new File(projectPath, weatherPath));
+            MWeather mWeather = JSON.parseObject(weather, MWeather.class);
+            if (mWeather == null) {
+                return;
+            }
+            System.out.println(weather);
+            mModel.setMWeather(mWeather);
+        }
+
         for (MCar mCar : mModel.getCars()) {
             String treePath = mCar.getTreePath();
             MTree mTree = null;

@@ -14,6 +14,11 @@ public class MModel {
 
     private String weather;
 
+    /**
+     * custom weather
+     */
+    private MWeather mWeather;
+
     private double timeStep;
 
     private Double simulationTime;
@@ -24,7 +29,7 @@ public class MModel {
 
     private List<String> requirements = new ArrayList<>();
 
-    public MModel(String simulatorType, String mapType, String map, String weatherType, String weather, double timeStep, double simulationTime, String scenarioEndTrigger, List<MCar> cars, List<String> requirements) {
+    public MModel(String simulatorType, String mapType, String map, String weatherType, String weather, MWeather mWeather, double timeStep, double simulationTime, String scenarioEndTrigger, List<MCar> cars, List<String> requirements) {
         this.simulatorType = simulatorType;
         this.mapType = mapType;
         this.map = map;
@@ -78,6 +83,14 @@ public class MModel {
 
     public void setWeather(String weather) {
         this.weather = weather;
+    }
+
+    public MWeather getMWeather() {
+        return mWeather;
+    }
+
+    public void setMWeather(MWeather mWeather) {
+        this.mWeather = mWeather;
     }
 
     public double getTimeStep() {
