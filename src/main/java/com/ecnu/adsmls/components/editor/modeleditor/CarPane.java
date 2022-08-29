@@ -169,6 +169,7 @@ public class CarPane {
     }
 
     private void createNode() {
+        this.gridPane.setPadding(new Insets(0, 0, 12, 0));
         this.gridPane.setVgap(8);
         this.gridPane.setHgap(8);
 
@@ -178,6 +179,7 @@ public class CarPane {
         Label lbModel = new Label("model");
 
         this.cbModel = new ComboBox<>();
+        this.cbModel.setItems(FXCollections.observableArrayList(SimulatorConstant.getModel()));
         this.cbModel.getSelectionModel().select(0);
 
         Label lbMaxSpeed = new Label("maxSpeed");

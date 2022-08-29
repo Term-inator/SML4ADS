@@ -293,7 +293,7 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
         this.gridPane.addRow(4, lbScenarioTrigger, this.taScenarioEndTrigger);
         this.gridPane.addRow(5, lbCars);
         this.gridPane.add(this.gridPaneCar, 0, 6, 2, 1);
-        this.gridPane.addRow(7, btNewCar);
+        this.gridPane.add(btNewCar, 0, 7, 2, 1);
 //        this.gridPane.addRow(8, lbPedestrians);
 //        this.gridPane.add(this.gridPanePedestrian, 0, 9, 2, 1);
 //        this.gridPane.addRow(10, btNewPedestrian);
