@@ -375,18 +375,21 @@ public class TreeEditor extends Editor {
         for (Node node : this.canvas.getChildren()) {
             if (node.getUserData() instanceof TreeArea) {
                 TreeArea treeArea = (TreeArea) node.getUserData();
+                // 入度为 0
                 if (treeArea.getInTransitions().isEmpty()) {
                     s.push(treeArea);
                 }
             }
         }
+        System.out.println(s);
         if (s.isEmpty()) {
-            this.errorMsg.append("The tree has at least one ring, in file ").append(this.file.getName()).append("\n");
+            this.errorMsg.append("The tree has at least one ring or does not have a root, in file ")
+                    .append(this.file.getName()).append("\n");
             return null;
         }
         // 若图入度为 0 的节点多于一个，则一定不是树
         else if (s.size() != 1) {
-            this.errorMsg.append("The tree has more than one root, in file ").append(this.file.getName()).append("\n");
+            this.errorMsg.append("The tree has more than one root, in file ").append(this.file.getName()).append(".\n");
             return null;
         } else {
             TreeArea root = s.pop();

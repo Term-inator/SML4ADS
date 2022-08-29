@@ -33,6 +33,9 @@ import java.util.*;
 public class WeatherEditor extends FormEditor implements SimulatorTypeObserver {
     LinkedHashMap<String, String> weatherParams = new LinkedHashMap<>();
 
+    // 错误信息
+    private StringBuilder errorMsg = new StringBuilder();
+
     public WeatherEditor(String projectPath, File file) {
         super(projectPath, file);
         this.createNode();
@@ -43,15 +46,15 @@ public class WeatherEditor extends FormEditor implements SimulatorTypeObserver {
         this.weatherParams.clear();
 
         Function weatherFunction = WeatherRegister.getFunction(Global.simulatorType.value);
-        String locationParamName = "";
-        String locationParamValue = "";
+        String weatherParamName = "";
+        String weatherParamValue = "";
         for (Node node : this.gridPane.getChildren()) {
             if (node instanceof Label) {
-                locationParamName = ((Label) node).getText();
+                weatherParamName = ((Label) node).getText();
             } else if (node instanceof TextField) {
-                locationParamValue = ((TextField) node).getText();
-                this.weatherParams.put(locationParamName, locationParamValue);
-                weatherFunction.updateContext(locationParamName, locationParamValue);
+                weatherParamValue = ((TextField) node).getText();
+                this.weatherParams.put(weatherParamName, weatherParamValue);
+                weatherFunction.updateContext(weatherParamName, weatherParamValue);
             }
         }
         weatherFunction.check();
@@ -59,12 +62,21 @@ public class WeatherEditor extends FormEditor implements SimulatorTypeObserver {
 
     @Override
     public void save() {
+        this.errorMsg = new StringBuilder();
+        try {
+            this.check();
+        } catch (Exception e) {
+            this.errorMsg.append(e.getMessage()).append('\n');
+        }
+
         String weather = FileSystem.JSONReader(new File(this.projectPath, this.relativePath));
         MWeather mWeather = JSON.parseObject(weather, MWeather.class);
         if (mWeather == null) {
             mWeather = new MWeather();
         }
         System.out.println(weather);
+
+        mWeather.setErrMsg(this.errorMsg.toString());
 
         String weatherParamName = "";
         String weatherParamValue = "";

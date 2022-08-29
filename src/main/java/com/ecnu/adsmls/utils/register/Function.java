@@ -34,7 +34,7 @@ public class Function {
     }
 
     public void updateContext(String paramName, String value) {
-        this.context.put(paramName, value);
+        this.context.put(paramName, value == null ? "" : value);
     }
 
     public List<FunctionParam> getParams() {

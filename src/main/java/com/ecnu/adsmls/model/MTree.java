@@ -3,7 +3,7 @@ package com.ecnu.adsmls.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MTree {
+public class MTree extends AsyncError {
     private long rootId;
 
     private List<MBehavior> behaviors = new ArrayList<>();
@@ -14,15 +14,13 @@ public class MTree {
 
     private List<MProbabilityTransition> probabilityTransitions = new ArrayList<>();
 
-    private String errMsg;
-
     public MTree(long rootId, List<MBehavior> behaviors, List<MBranchPoint> branchPoints, List<MCommonTransition> commonTransitions, List<MProbabilityTransition> probabilityTransitions, String errMsg) {
+        super(errMsg);
         this.rootId = rootId;
         this.behaviors = behaviors;
         this.branchPoints = branchPoints;
         this.commonTransitions = commonTransitions;
         this.probabilityTransitions = probabilityTransitions;
-        this.errMsg = errMsg;
     }
 
     public MTree() {
@@ -66,13 +64,5 @@ public class MTree {
 
     public void setProbabilityTransitions(List<MProbabilityTransition> probabilityTransitions) {
         this.probabilityTransitions = probabilityTransitions;
-    }
-
-    public String getErrMsg() {
-        return errMsg;
-    }
-
-    public void setErrMsg(String errMsg) {
-        this.errMsg = errMsg;
     }
 }

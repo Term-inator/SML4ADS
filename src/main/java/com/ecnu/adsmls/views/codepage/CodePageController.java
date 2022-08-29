@@ -307,6 +307,12 @@ public class CodePageController implements Initializable, Route {
             }
             System.out.println(weather);
             mModel.setMWeather(mWeather);
+            System.out.println(mWeather.getErrMsg());
+
+            if(!mWeather.getErrMsg().isEmpty()) {
+                this.showInfo(mWeather.getErrMsg());
+                return;
+            }
         }
 
         for (MCar mCar : mModel.getCars()) {
@@ -319,10 +325,11 @@ public class CodePageController implements Initializable, Route {
                     return;
                 }
                 System.out.println(tree);
-            }
-            if (!mTree.getErrMsg().isEmpty()) {
-                this.showInfo(mTree.getErrMsg());
-                return;
+
+                if (!mTree.getErrMsg().isEmpty()) {
+                    this.showInfo(mTree.getErrMsg());
+                    return;
+                }
             }
             mCar.setMTree(mTree);
         }

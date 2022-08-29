@@ -29,7 +29,7 @@ public class Between implements Requirement {
         }
 
         if (this.r instanceof Value) {
-            rVal = (Double) ((Value) r).getValue();
+            rVal = ((Value) r).getValue().doubleValue();
         } else if (this.r instanceof Reference) {
             rVal = Double.parseDouble(context.get(((Reference) r).getId()));
         }
