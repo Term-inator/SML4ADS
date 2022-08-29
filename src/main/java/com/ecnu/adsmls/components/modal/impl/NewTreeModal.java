@@ -1,16 +1,18 @@
-package com.ecnu.adsmls.components.modal;
+package com.ecnu.adsmls.components.modal.impl;
 
+import com.ecnu.adsmls.components.modal.NewFileModal;
 import com.ecnu.adsmls.utils.FileSystem;
 
-public class NewWeatherModal extends NewFileModal {
-    public NewWeatherModal() {
-        super("filename", FileSystem.Suffix.WEATHER.value);
+public class NewTreeModal extends NewFileModal {
+
+    public NewTreeModal() {
+        super("filename", FileSystem.Suffix.TREE.value);
     }
 
     @Override
     protected void createWindow() {
         super.createWindow();
-        this.setTitle("New Weather");
+        this.setTitle("New Project");
     }
 
     @Override

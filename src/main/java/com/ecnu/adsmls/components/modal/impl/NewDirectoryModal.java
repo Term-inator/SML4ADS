@@ -1,22 +1,22 @@
-package com.ecnu.adsmls.components.modal;
+package com.ecnu.adsmls.components.modal.impl;
 
+import com.ecnu.adsmls.components.modal.NewFileModal;
 import com.ecnu.adsmls.utils.FileSystem;
 
-public class NewModelModal extends NewFileModal {
-    public NewModelModal() {
-        super("filename", FileSystem.Suffix.MODEL.value);
+public class NewDirectoryModal extends NewFileModal {
+    public NewDirectoryModal() {
+        super("directory name", FileSystem.Suffix.DIR.value);
     }
 
     @Override
     protected void createWindow() {
         super.createWindow();
-        this.setTitle("New Model");
+        this.setTitle("New Directory");
     }
 
     @Override
     protected void check() {
         super.check();
-        this.checkFilename();
     }
 
     @Override
@@ -27,9 +27,5 @@ public class NewModelModal extends NewFileModal {
     @Override
     protected void then() {
         super.then();
-    }
-
-    private void checkFilename() {
-
     }
 }

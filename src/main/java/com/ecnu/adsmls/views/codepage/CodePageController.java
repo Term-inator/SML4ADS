@@ -6,6 +6,7 @@ import com.ecnu.adsmls.components.editor.modeleditor.ModelEditor;
 import com.ecnu.adsmls.components.editor.treeeditor.TreeEditor;
 import com.ecnu.adsmls.components.editor.weathereditor.WeatherEditor;
 import com.ecnu.adsmls.components.modal.*;
+import com.ecnu.adsmls.components.modal.impl.*;
 import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
 import com.ecnu.adsmls.model.*;
 import com.ecnu.adsmls.router.Route;
@@ -16,6 +17,7 @@ import com.ecnu.adsmls.service.SimulatorService;
 import com.ecnu.adsmls.utils.FileSystem;
 import com.ecnu.adsmls.utils.SimulatorConstant;
 import com.ecnu.adsmls.utils.SimulatorTypeObserver;
+import com.ecnu.adsmls.utils.factory.impl.NewFileModalFactory;
 import com.ecnu.adsmls.utils.log.MyStaticOutputStreamAppender;
 import com.ecnu.adsmls.utils.register.impl.BehaviorRegister;
 import com.ecnu.adsmls.utils.register.impl.LocationRegister;
@@ -98,22 +100,27 @@ public class CodePageController implements Initializable, Route {
     private void initMenuBar() {
         Menu fileMenu = new Menu("File");
 
+        // TODO refactor 获取一个 list 用循环做
         Menu newMenu = new Menu("New");
         MenuItem newDirectory = new MenuItem("Directory");
         newDirectory.setOnAction(e -> {
-            this.newFile(FileSystem.Suffix.DIR.value);
+            this.newFile(FileSystem.Suffix.DIR);
         });
         MenuItem newModel = new MenuItem("Model");
         newModel.setOnAction(e -> {
-            this.newFile(FileSystem.Suffix.MODEL.value);
+            this.newFile(FileSystem.Suffix.MODEL);
         });
         MenuItem newTree = new MenuItem("Tree");
         newTree.setOnAction(e -> {
-            this.newFile(FileSystem.Suffix.TREE.value);
+            this.newFile(FileSystem.Suffix.TREE);
         });
         MenuItem newWeather = new MenuItem("Weather");
         newWeather.setOnAction(e -> {
-            this.newFile(FileSystem.Suffix.WEATHER.value);
+            this.newFile(FileSystem.Suffix.WEATHER);
+        });
+        MenuItem newRequirement = new MenuItem("Requirement");
+        newRequirement.setOnAction(e -> {
+            this.newFile(FileSystem.Suffix.REQUIREMENT);
         });
         newMenu.getItems().addAll(newDirectory, newModel, newTree, newWeather);
 
@@ -160,15 +167,15 @@ public class CodePageController implements Initializable, Route {
         Menu newMenu = new Menu("New");
         MenuItem newDirectory = new MenuItem("Directory");
         newDirectory.setOnAction(e -> {
-            this.newFile(FileSystem.Suffix.DIR.value);
+            this.newFile(FileSystem.Suffix.DIR);
         });
         MenuItem newModel = new MenuItem("Model");
         newModel.setOnAction(e -> {
-            this.newFile(FileSystem.Suffix.MODEL.value);
+            this.newFile(FileSystem.Suffix.MODEL);
         });
         MenuItem newTree = new MenuItem("Tree");
         newTree.setOnAction(e -> {
-            this.newFile(FileSystem.Suffix.TREE.value);
+            this.newFile(FileSystem.Suffix.TREE);
         });
         newMenu.getItems().addAll(newDirectory, newModel, newTree);
 
@@ -487,14 +494,12 @@ public class CodePageController implements Initializable, Route {
         this.filesOpened.put(file, tab);
     }
 
-    private void newFile(String suffix) {
+    private void newFile(FileSystem.Suffix suffix) {
         NewFileModal nfm;
-        if (Objects.equals(suffix, FileSystem.Suffix.MODEL.value)) {
-            nfm = new NewModelModal();
-        } else if (Objects.equals(suffix, FileSystem.Suffix.TREE.value)) {
-            nfm = new NewTreeModal();
-        } else if (Objects.equals(suffix, FileSystem.Suffix.WEATHER.value)) {
-            nfm = new NewWeatherModal();
+        List<FileSystem.Suffix> writableFile = FileSystem.getSuffixList(0b110);
+        NewFileModalFactory newFileModalFactory = new NewFileModalFactory();
+        if(writableFile.contains(suffix)) {
+            nfm = newFileModalFactory.getProduct(suffix);
         } else if (Objects.equals(suffix, FileSystem.Suffix.DIR.value)) {
             nfm = new NewDirectoryModal();
         } else {
@@ -514,7 +519,7 @@ public class CodePageController implements Initializable, Route {
         this.multiLevelDirectory.newFile();
 
         if (!Objects.equals(suffix, FileSystem.Suffix.DIR.value)) {
-            this.openFile(new File(nfm.getDirectory(), nfm.getFilename() + suffix), suffix);
+            this.openFile(new File(nfm.getDirectory(), nfm.getFilename() + suffix), suffix.value);
         }
     }
 

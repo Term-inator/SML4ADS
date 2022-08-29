@@ -1,7 +1,7 @@
 package com.ecnu.adsmls.views.welcome;
 
-import com.ecnu.adsmls.components.modal.NewProjectModal;
-import com.ecnu.adsmls.components.modal.OpenProjectModal;
+import com.ecnu.adsmls.components.modal.impl.NewProjectModal;
+import com.ecnu.adsmls.components.modal.impl.OpenProjectModal;
 import com.ecnu.adsmls.router.Route;
 import com.ecnu.adsmls.router.Router;
 import com.ecnu.adsmls.router.params.CodePageParams;

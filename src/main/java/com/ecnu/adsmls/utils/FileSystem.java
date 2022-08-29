@@ -2,7 +2,8 @@ package com.ecnu.adsmls.utils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 文件处理工具类
@@ -12,22 +13,39 @@ public class FileSystem {
      * 文件后缀
      */
     public enum Suffix {
-        TREE(".tree"),
-        MODEL(".model"),
-        JSON(".json"),
-        ADSML(".adsml"),
-        WEATHER(".weather"),
-        MAP(".xodr"),
-        EXE(".exe"),
-        XML(".xml"),
-        PROP(".properties"),
-        DIR("");
+        TREE(".tree", 0b110),
+        MODEL(".model", 0b110),
+        JSON(".json", 0b000),
+        ADSML(".adsml", 0b000),
+        WEATHER(".weather", 0b110),
+        MAP(".xodr", 0b000),
+        REQUIREMENT(".requirement", 0b110),
+        EXE(".exe", 0b001),
+        XML(".xml", 0b000),
+        PROP(".properties", 0b000),
+        DIR("", 0b000);
 
         public String value;
+        // 访问权限 rwx
+        public int access;
 
-        Suffix(String value) {
+        Suffix(String value, int access) {
             this.value = value;
+            this.access = access;
         }
+    }
+
+    public static List<Suffix> getSuffixList(int... accessFilters) {
+        return Arrays.stream(Suffix.values()).filter(suffix -> {
+            boolean matchFilter = false;
+            for(int accessFilter: accessFilters) {
+                if ((suffix.access & accessFilter) == suffix.access) {
+                    matchFilter = true;
+                    break;
+                }
+            }
+            return matchFilter;
+        }).collect(Collectors.toList());
     }
 
     /**
