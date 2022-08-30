@@ -39,13 +39,20 @@ public class FileSystem {
         return Arrays.stream(Suffix.values()).filter(suffix -> {
             boolean matchFilter = false;
             for(int accessFilter: accessFilters) {
-                if ((suffix.access & accessFilter) == suffix.access) {
+                if ((suffix.access & accessFilter) == accessFilter) {
                     matchFilter = true;
                     break;
                 }
             }
             return matchFilter;
         }).collect(Collectors.toList());
+    }
+
+    public static Suffix getSuffixByValue(String suffixValue) {
+        return Arrays.stream(Suffix.values())
+                .filter(suffix -> Objects.equals(suffix.value, suffixValue))
+                .findAny()
+                .orElse(null);
     }
 
     /**

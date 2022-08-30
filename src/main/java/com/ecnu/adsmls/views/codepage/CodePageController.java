@@ -17,6 +17,7 @@ import com.ecnu.adsmls.service.SimulatorService;
 import com.ecnu.adsmls.utils.FileSystem;
 import com.ecnu.adsmls.utils.SimulatorConstant;
 import com.ecnu.adsmls.utils.SimulatorTypeObserver;
+import com.ecnu.adsmls.utils.factory.impl.EditorFactory;
 import com.ecnu.adsmls.utils.factory.impl.NewFileModalFactory;
 import com.ecnu.adsmls.utils.log.MyStaticOutputStreamAppender;
 import com.ecnu.adsmls.utils.register.impl.BehaviorRegister;
@@ -230,7 +231,7 @@ public class CodePageController implements Initializable, Route {
                 return;
             }
             if (e.getClickCount() == 2) {
-                String suffix = FileSystem.getSuffix(selectedItem.getValue());
+                FileSystem.Suffix suffix = FileSystem.getSuffixByValue(FileSystem.getSuffix(selectedItem.getValue()));
                 this.openFile(selectedItem.getValue(), suffix);
             }
         });
@@ -455,7 +456,7 @@ public class CodePageController implements Initializable, Route {
         System.out.println("Simulation finished");
     }
 
-    private void openFile(File file, String suffix) {
+    private void openFile(File file, FileSystem.Suffix suffix) {
         if (this.filesOpened.containsKey(file)) {
             System.out.println("This file has already been opened");
             // 选择对应的 tab
@@ -476,13 +477,12 @@ public class CodePageController implements Initializable, Route {
             this.filesOpened.remove(file);
         });
 
-        if (Objects.equals(suffix, FileSystem.Suffix.MODEL.value)) {
-            this.openModel(tab, file);
-        } else if (Objects.equals(suffix, FileSystem.Suffix.TREE.value)) {
-            this.openTree(tab, file);
-        }
-        else if (Objects.equals(suffix, FileSystem.Suffix.WEATHER.value)) {
-            this.openWeather(tab, file);
+        List<FileSystem.Suffix> writableFile = FileSystem.getSuffixList(0b110);
+        EditorFactory editorFactory = new EditorFactory();
+        if(writableFile.contains(suffix)) {
+            String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
+            Editor editor = editorFactory.getProduct(suffix, projectPath, file);
+            this.displayEditor(tab, editor);
         } else {
             this.showInfo("Unsupported file");
             return;
@@ -519,7 +519,7 @@ public class CodePageController implements Initializable, Route {
         this.multiLevelDirectory.newFile();
 
         if (!Objects.equals(suffix, FileSystem.Suffix.DIR.value)) {
-            this.openFile(new File(nfm.getDirectory(), nfm.getFilename() + suffix), suffix.value);
+            this.openFile(new File(nfm.getDirectory(), nfm.getFilename() + suffix), suffix);
         }
     }
 
@@ -562,6 +562,20 @@ public class CodePageController implements Initializable, Route {
         }
 
         this.multiLevelDirectory.deleteFile(itemDeleted);
+    }
+
+    private void displayEditor(Tab tab, Editor editor) {
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+
+        editor.load();
+
+        scrollPane.setContent(editor.getNode());
+        scrollPane.setUserData(editor);
+
+        tab.setContent(scrollPane);
+        tab.setUserData(editor);
     }
 
     private void openModel(Tab tab, File file) {
