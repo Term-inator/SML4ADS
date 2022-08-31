@@ -1,5 +1,6 @@
 package com.ecnu.adsmls.components.editor.requirementeditor;
 
+import com.ecnu.adsmls.model.MRequirement;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -16,8 +17,8 @@ import java.util.stream.Collectors;
 
 public class RequirementPane {
     public enum RequirementType {
-        EVENTUALLY("eventually"),
-        ALWAYS("always");
+        ALWAYS("always"),
+        EVENTUALLY("eventually");
 
         public String value;
 
@@ -37,11 +38,19 @@ public class RequirementPane {
     }
 
     public void check() {
-
+        // empty
     }
 
-    public void load() {
+    public MRequirement save() {
+        MRequirement mRequirement = new MRequirement();
+        mRequirement.setRequirementType(this.cbRequirementType.getValue());
+        mRequirement.setRequirement(this.taRequirement.getText());
+        return mRequirement;
+    }
 
+    public void load(MRequirement mRequirement) {
+        this.cbRequirementType.getSelectionModel().select(mRequirement.getRequirementType());
+        this.taRequirement.setText(mRequirement.getRequirement());
     }
 
     public void createNode() {
@@ -55,6 +64,7 @@ public class RequirementPane {
                         .map(requirementType -> requirementType.value)
                         .collect(Collectors.toList()).toArray(String[]::new);
         this.cbRequirementType.setItems(FXCollections.observableArrayList(requirementTypes));
+        this.cbRequirementType.getSelectionModel().select(RequirementType.ALWAYS.value);
         requirementTypeWrapper.getChildren().add(this.cbRequirementType);
         AnchorPane.setTopAnchor(this.cbRequirementType, 0.0);
 

@@ -1,7 +1,11 @@
 package com.ecnu.adsmls.components.editor.requirementeditor;
 
+import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.editor.FormEditor;
+import com.ecnu.adsmls.model.MRequirement;
+import com.ecnu.adsmls.model.MRequirements;
 import com.ecnu.adsmls.router.params.Global;
+import com.ecnu.adsmls.utils.FileSystem;
 import com.ecnu.adsmls.utils.GridPaneUtils;
 import com.ecnu.adsmls.utils.register.Function;
 import com.ecnu.adsmls.utils.register.FunctionParam;
@@ -45,12 +49,39 @@ public class RequirementEditor extends FormEditor {
 
     @Override
     public void save() {
+        String requirements = FileSystem.JSONReader(new File(this.projectPath, this.relativePath));
+        MRequirements mRequirements = JSON.parseObject(requirements, MRequirements.class);
+        if(mRequirements == null) {
+            mRequirements = new MRequirements();
+        }
+        System.out.println(mRequirements);
 
+        List<MRequirement> requirementList = new ArrayList<>();
+        for(Map.Entry<Integer, RequirementPane> entry: this.requirementPanes.entrySet()) {
+            RequirementPane requirementPane = entry.getValue();
+            requirementList.add(requirementPane.save());
+        }
+        mRequirements.setRequirements(requirementList);
+        requirements = JSON.toJSONString(mRequirements);
+        System.out.println(requirements);
+        FileSystem.JSONWriter(new File(this.projectPath, this.relativePath), requirements);
     }
 
     @Override
     public void load() {
+        String requirements = FileSystem.JSONReader(new File(this.projectPath, this.relativePath));
+        MRequirements mRequirements = JSON.parseObject(requirements, MRequirements.class);
+        if (mRequirements == null) {
+            return;
+        }
+        System.out.println(requirements);
 
+        for (MRequirement mRequirement: mRequirements.getRequirements()) {
+            RequirementPane requirementPane = new RequirementPane();
+            // 设置 requirementPane 数据
+            requirementPane.load(mRequirement);
+            this.newRequirement(requirementPane);
+        }
     }
 
     @Override
