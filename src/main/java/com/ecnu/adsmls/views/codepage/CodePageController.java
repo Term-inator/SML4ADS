@@ -2,9 +2,6 @@ package com.ecnu.adsmls.views.codepage;
 
 import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.editor.Editor;
-import com.ecnu.adsmls.components.editor.modeleditor.ModelEditor;
-import com.ecnu.adsmls.components.editor.treeeditor.TreeEditor;
-import com.ecnu.adsmls.components.editor.weathereditor.WeatherEditor;
 import com.ecnu.adsmls.components.modal.*;
 import com.ecnu.adsmls.components.modal.impl.*;
 import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
@@ -28,7 +25,6 @@ import hprose.client.HproseHttpClient;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
@@ -256,7 +252,10 @@ public class CodePageController implements Initializable, Route {
         this.infoArea.appendText(info);
     }
 
-    // 将 model 和 tree 拼在一起
+    /**
+     * "编译"
+     * 把 model, tree, weather, requirements 整合在一起
+     */
     @FXML
     protected void preprocess() {
         System.out.println("preprocessing");
@@ -292,6 +291,7 @@ public class CodePageController implements Initializable, Route {
         }
         System.out.println(model);
 
+        // weather
         String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
         if(Objects.equals(mModel.getWeatherType(), "custom")) {
             String weatherPath = mModel.getWeather();
@@ -310,6 +310,21 @@ public class CodePageController implements Initializable, Route {
             }
         }
 
+        // requirements
+        String requirementsPath = mModel.getRequirementsPath();
+        if (!mModel.getRequirementsPath().isEmpty()) {
+            System.out.println(mModel.getRequirementsPath());
+            String requirements = FileSystem.JSONReader(new File(projectPath, requirementsPath));
+            MRequirements mRequirements = JSON.parseObject(requirements, MRequirements.class);
+            if (mRequirements == null) {
+                return;
+            }
+            System.out.println(requirements);
+
+            mModel.setMRequirements(mRequirements);
+        }
+
+        // Car
         for (MCar mCar : mModel.getCars()) {
             String treePath = mCar.getTreePath();
             MTree mTree = null;
@@ -355,20 +370,14 @@ public class CodePageController implements Initializable, Route {
         }
         System.out.println(model);
 
-        // 用于验证的 requirements
-        VerifyRequirementsModal vrm = new VerifyRequirementsModal(mModel);
+        // 验证生成 xml 的路径
+        VerifyModal vrm = new VerifyModal();
         vrm.getWindow().showAndWait();
         if (!vrm.isConfirm()) {
             return;
         }
 
         this.infoArea.clear();
-
-        List<String> requirements = vrm.getRequirements();
-        System.out.println(requirements);
-
-        // 存储 requirements
-        mModel.setRequirements(requirements);
 
         model = JSON.toJSONString(mModel);
         System.out.println(model);

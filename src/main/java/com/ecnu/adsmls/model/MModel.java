@@ -25,11 +25,16 @@ public class MModel {
 
     private String scenarioEndTrigger;
 
+    /**
+     * requirement 文件路径
+     */
+    private String requirementsPath;
+
+    private MRequirements mRequirements;
+
     private List<MCar> cars = new ArrayList<>();
 
-    private List<String> requirements = new ArrayList<>();
-
-    public MModel(String simulatorType, String mapType, String map, String weatherType, String weather, MWeather mWeather, double timeStep, double simulationTime, String scenarioEndTrigger, List<MCar> cars, List<String> requirements) {
+    public MModel(String simulatorType, String mapType, String map, String weatherType, String weather, double timeStep, double simulationTime, String scenarioEndTrigger, String requirementsPath, List<MCar> cars) {
         this.simulatorType = simulatorType;
         this.mapType = mapType;
         this.map = map;
@@ -38,8 +43,8 @@ public class MModel {
         this.timeStep = timeStep;
         this.simulationTime = simulationTime;
         this.scenarioEndTrigger = scenarioEndTrigger;
+        this.requirementsPath = requirementsPath;
         this.cars = cars;
-        this.requirements = requirements;
     }
 
     public MModel() {
@@ -117,6 +122,14 @@ public class MModel {
         this.scenarioEndTrigger = scenarioEndTrigger;
     }
 
+    public MRequirements getMRequirements() {
+        return mRequirements;
+    }
+
+    public void setMRequirements(MRequirements mRequirements) {
+        this.mRequirements = mRequirements;
+    }
+
     public List<MCar> getCars() {
         return cars;
     }
@@ -125,11 +138,11 @@ public class MModel {
         this.cars = cars;
     }
 
-    public List<String> getRequirements() {
-        return requirements;
+    public String getRequirementsPath() {
+        return requirementsPath;
     }
 
-    public void setRequirements(List<String> requirements) {
-        this.requirements = requirements;
+    public void setRequirementsPath(String requirementsPath) {
+        this.requirementsPath = requirementsPath;
     }
 }

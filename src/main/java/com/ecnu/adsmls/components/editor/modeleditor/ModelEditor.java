@@ -53,6 +53,9 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
     // 模拟结束扳机
     private TextArea taScenarioEndTrigger;
 
+    // 验证规则
+    private Node btRequirements;
+
     private GridPane gridPaneCar = new GridPane();
     // 临时 id ，用于删除
     private int carId = 0;
@@ -70,6 +73,16 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
 
     @Override
     public void check() throws EmptyParamException, DataTypeException, RequirementException {
+        if (Objects.equals(this.cbMapType.getValue(), "custom")) {
+            if (((ChooseFileButton) this.btMap.getUserData()).getFile() == null) {
+                throw new EmptyParamException("Map is required.");
+            }
+        }
+        if (Objects.equals(this.cbWeatherType.getValue(), "custom")) {
+            if (((ChooseFileButton) this.btWeather.getUserData()).getFile() == null) {
+                throw new EmptyParamException("Weather is required.");
+            }
+        }
         if (this.tfSimulationTime.getText().isEmpty()) {
             throw new EmptyParamException("Simulation Time is required.");
         }
@@ -133,6 +146,16 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
 
         mModel.setScenarioEndTrigger(this.taScenarioEndTrigger.getText());
 
+        File requirements = ((ChooseFileButton) this.btRequirements.getUserData()).getFile();
+        if (requirements == null) {
+            mModel.setRequirementsPath("");
+        } else {
+            // 转换成相对路径
+            String path = requirements.getAbsolutePath();
+            String relativePath = FileSystem.getRelativePath(this.projectPath, path);
+            mModel.setRequirementsPath(relativePath);
+        }
+
         List<MCar> cars = new ArrayList<>();
         for (Map.Entry<Integer, CarPane> entry : this.carPanes.entrySet()) {
             CarPane carPane = entry.getValue();
@@ -173,7 +196,6 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
             this.cbDefaultWeather.getSelectionModel().select(FileSystem.removeSuffix(mModel.getWeather()));
         }
 
-//        this.cbWeather.getSelectionModel().select(mModel.getWeather());
         this.spTimeStep.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(this.timeStepMin, this.timeStepMax, mModel.getTimeStep(), 0.1));
 
         try {
@@ -182,6 +204,11 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
         }
 
         this.taScenarioEndTrigger.setText(mModel.getScenarioEndTrigger());
+
+        if (!Objects.equals(mModel.getRequirementsPath(), "")) {
+            // 恢复绝对路径
+            ((ChooseFileButton) this.btRequirements.getUserData()).setFile(new File(this.projectPath, mModel.getRequirementsPath()));
+        }
 
         for (MCar mCar : mModel.getCars()) {
             CarPane carPane = new CarPane(this.projectPath);
@@ -244,11 +271,6 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
                 this.weatherPane.add(this.cbDefaultWeather, 1, 0);
             }
         });
-//        this.cbWeatherType = new ComboBox<>(FXCollections.observableArrayList("custom", "default"));
-//        this.cbWeatherType.getSelectionModel().select(0);
-//        String[] weathers = ModelConstant.weathers.get(ModelConstant.Simulator.CARLA);
-//        this.cbWeather = new ComboBox<>(FXCollections.observableArrayList(weathers));
-//        this.cbWeather.getSelectionModel().select(0);
 
         Label lbTimeStep = new Label("timeStep");
         this.spTimeStep = new Spinner<>(this.timeStepMin, this.timeStepMax, 0.1, 0.1);
@@ -264,6 +286,11 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
         this.taScenarioEndTrigger.setPrefRowCount(1);
         //自动换行
         this.taScenarioEndTrigger.setWrapText(true);
+
+        Label lbRequirements = new Label("requirements");
+        Map<String, String> requirementFilter = new HashMap<>();
+        weatherFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.REQUIREMENT), FileSystem.Suffix.REQUIREMENT.toString());
+        this.btRequirements = new ChooseFileButton(this.gridPane, this.projectPath, requirementFilter).getNode();
 
         Label lbCars = new Label("Vehicles");
 
@@ -286,8 +313,9 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
         this.gridPane.addRow(3, lbSimulationTime, this.tfSimulationTime);
         this.gridPane.addRow(4, lbScenarioTrigger, this.taScenarioEndTrigger);
         this.gridPane.addRow(5, lbCars);
-        this.gridPane.add(this.gridPaneCar, 0, 6, 2, 1);
-        this.gridPane.add(btNewCar, 0, 7, 2, 1);
+        this.gridPane.addRow(6, lbRequirements, this.btRequirements);
+        this.gridPane.add(this.gridPaneCar, 0, 7, 2, 1);
+        this.gridPane.add(btNewCar, 0, 8, 2, 1);
 //        this.gridPane.addRow(8, lbPedestrians);
 //        this.gridPane.add(this.gridPanePedestrian, 0, 9, 2, 1);
 //        this.gridPane.addRow(10, btNewPedestrian);
