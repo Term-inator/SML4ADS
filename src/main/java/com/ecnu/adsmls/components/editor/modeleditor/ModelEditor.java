@@ -7,6 +7,7 @@ import com.ecnu.adsmls.components.editor.FormEditor;
 import com.ecnu.adsmls.model.MCar;
 import com.ecnu.adsmls.model.MModel;
 import com.ecnu.adsmls.utils.FileSystem;
+import com.ecnu.adsmls.utils.GridPaneUtils;
 import com.ecnu.adsmls.utils.SimulatorConstant;
 import com.ecnu.adsmls.utils.SimulatorTypeObserver;
 import com.ecnu.adsmls.utils.register.exception.DataTypeException;
@@ -65,13 +66,6 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
     public ModelEditor(String projectPath, File file) {
         super(projectPath, file);
         this.createNode();
-    }
-
-    private void updateGridPane(GridPane gridPane, List<Node[]> page) {
-        gridPane.getChildren().clear();
-        for (int r = 0; r < page.size(); ++r) {
-            gridPane.addRow(r, page.get(r));
-        }
     }
 
     @Override
@@ -313,7 +307,7 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
     }
 
     private void deleteCar(int index) {
-        System.out.println("delete vehicle" + index);
+        System.out.println("delete vehicle " + index);
         CarPane carPane = this.carPanes.remove(index);
         this.updateCars();
     }
@@ -340,7 +334,7 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
             ++i;
         }
 
-        this.updateGridPane(this.gridPaneCar, page);
+        GridPaneUtils.updateGridPane(this.gridPaneCar, page);
     }
 
     @Override
