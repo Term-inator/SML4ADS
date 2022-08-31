@@ -32,6 +32,7 @@ public class RequirementEditor extends FormEditor {
 
     public RequirementEditor(String projectPath, File file) {
         super(projectPath, file);
+        this.createNode();
     }
 
     @Override

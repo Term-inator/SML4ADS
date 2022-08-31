@@ -30,7 +30,9 @@ public class NewWeatherModal extends NewFileModal {
         super.then();
     }
 
-    private void checkFilename() {
-
+    @Override
+    protected void checkFilename() {
+        // empty
+        // super.checkFilename() is called in NewFileModal.check()
     }
 }

@@ -17,6 +17,7 @@ public class NewDirectoryModal extends NewFileModal {
     @Override
     protected void check() {
         super.check();
+        this.checkFilename();
     }
 
     @Override
@@ -27,5 +28,11 @@ public class NewDirectoryModal extends NewFileModal {
     @Override
     protected void then() {
         super.then();
+    }
+
+    @Override
+    protected void checkFilename() {
+        // empty
+        // super.checkFilename() is called in NewFileModal.check()
     }
 }

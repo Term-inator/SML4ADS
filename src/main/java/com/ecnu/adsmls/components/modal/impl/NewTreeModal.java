@@ -12,13 +12,12 @@ public class NewTreeModal extends NewFileModal {
     @Override
     protected void createWindow() {
         super.createWindow();
-        this.setTitle("New Project");
+        this.setTitle("New Tree");
     }
 
     @Override
     protected void check() {
         super.check();
-        this.checkFilename();
     }
 
     @Override
@@ -31,7 +30,9 @@ public class NewTreeModal extends NewFileModal {
         super.then();
     }
 
-    private void checkFilename() {
-
+    @Override
+    protected void checkFilename() {
+        // empty
+        // super.checkFilename() is called in NewFileModal.check()
     }
 }

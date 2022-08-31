@@ -13,24 +13,27 @@ public class FileSystem {
      * 文件后缀
      */
     public enum Suffix {
-        TREE(".tree", 0b110),
-        MODEL(".model", 0b110),
-        JSON(".json", 0b000),
-        ADSML(".adsml", 0b000),
-        WEATHER(".weather", 0b110),
-        MAP(".xodr", 0b000),
-        REQUIREMENT(".requirement", 0b110),
-        EXE(".exe", 0b001),
-        XML(".xml", 0b000),
-        PROP(".properties", 0b000),
-        DIR("", 0b000);
+        TREE(".tree", "Tree", 0b110),
+        MODEL(".model", "Model", 0b110),
+        JSON(".json", "JSON", 0b000),
+        ADSML(".adsml", "ADSML", 0b000),
+        WEATHER(".weather", "Weather", 0b110),
+        MAP(".xodr", "XODR", 0b000),
+        REQUIREMENT(".requirement", "Requirement", 0b110),
+        EXE(".exe", "EXE", 0b001),
+        XML(".xml", "XML",  0b000),
+        PROP(".properties", "Properties", 0b000),
+        DIR("", "Directory", 0b000);
 
         public String value;
+        // 在 label 等中显示的值
+        public String displayValue;
         // 访问权限 rwx
         public int access;
 
-        Suffix(String value, int access) {
+        Suffix(String value, String displayValue, int access) {
             this.value = value;
+            this.displayValue = displayValue;
             this.access = access;
         }
     }

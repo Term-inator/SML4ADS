@@ -17,7 +17,6 @@ public class NewModelModal extends NewFileModal {
     @Override
     protected void check() {
         super.check();
-        this.checkFilename();
     }
 
     @Override
@@ -30,7 +29,9 @@ public class NewModelModal extends NewFileModal {
         super.then();
     }
 
-    private void checkFilename() {
-
+    @Override
+    protected void checkFilename() {
+        // empty
+        // super.checkFilename() is called in NewFileModal.check()
     }
 }

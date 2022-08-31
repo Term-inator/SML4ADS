@@ -101,29 +101,18 @@ public class CodePageController implements Initializable, Route {
     private void initMenuBar() {
         Menu fileMenu = new Menu("File");
 
-        // TODO refactor 获取一个 list 用循环做
         Menu newMenu = new Menu("New");
         MenuItem newDirectory = new MenuItem("Directory");
         newDirectory.setOnAction(e -> {
             this.newFile(FileSystem.Suffix.DIR);
         });
-        MenuItem newModel = new MenuItem("Model");
-        newModel.setOnAction(e -> {
-            this.newFile(FileSystem.Suffix.MODEL);
-        });
-        MenuItem newTree = new MenuItem("Tree");
-        newTree.setOnAction(e -> {
-            this.newFile(FileSystem.Suffix.TREE);
-        });
-        MenuItem newWeather = new MenuItem("Weather");
-        newWeather.setOnAction(e -> {
-            this.newFile(FileSystem.Suffix.WEATHER);
-        });
-        MenuItem newRequirement = new MenuItem("Requirement");
-        newRequirement.setOnAction(e -> {
-            this.newFile(FileSystem.Suffix.REQUIREMENT);
-        });
-        newMenu.getItems().addAll(newDirectory, newModel, newTree, newWeather);
+        newMenu.getItems().add(newDirectory);
+        List<FileSystem.Suffix> writableFiles = FileSystem.getSuffixList(0b110);
+        for(FileSystem.Suffix suffix: writableFiles) {
+            MenuItem menuItem = new MenuItem(suffix.displayValue);
+            menuItem.setOnAction(e -> this.newFile(suffix));
+            newMenu.getItems().add(menuItem);
+        }
 
         // 设置
         MenuItem setting = new MenuItem("Settings");
@@ -170,15 +159,13 @@ public class CodePageController implements Initializable, Route {
         newDirectory.setOnAction(e -> {
             this.newFile(FileSystem.Suffix.DIR);
         });
-        MenuItem newModel = new MenuItem("Model");
-        newModel.setOnAction(e -> {
-            this.newFile(FileSystem.Suffix.MODEL);
-        });
-        MenuItem newTree = new MenuItem("Tree");
-        newTree.setOnAction(e -> {
-            this.newFile(FileSystem.Suffix.TREE);
-        });
-        newMenu.getItems().addAll(newDirectory, newModel, newTree);
+        newMenu.getItems().add(newDirectory);
+        List<FileSystem.Suffix> writableFiles = FileSystem.getSuffixList(0b110);
+        for(FileSystem.Suffix suffix: writableFiles) {
+            MenuItem menuItem = new MenuItem(suffix.displayValue);
+            menuItem.setOnAction(e -> this.newFile(suffix));
+            newMenu.getItems().add(menuItem);
+        }
 
         MenuItem delete = new MenuItem("Delete");
         delete.setOnAction(e -> {
@@ -477,9 +464,9 @@ public class CodePageController implements Initializable, Route {
             this.filesOpened.remove(file);
         });
 
-        List<FileSystem.Suffix> writableFile = FileSystem.getSuffixList(0b110);
+        List<FileSystem.Suffix> writableFiles = FileSystem.getSuffixList(0b110);
         EditorFactory editorFactory = new EditorFactory();
-        if(writableFile.contains(suffix)) {
+        if(writableFiles.contains(suffix)) {
             String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
             Editor editor = editorFactory.getProduct(suffix, projectPath, file);
             this.displayEditor(tab, editor);
@@ -496,9 +483,9 @@ public class CodePageController implements Initializable, Route {
 
     private void newFile(FileSystem.Suffix suffix) {
         NewFileModal nfm;
-        List<FileSystem.Suffix> writableFile = FileSystem.getSuffixList(0b110);
+        List<FileSystem.Suffix> writableFiles = FileSystem.getSuffixList(0b110);
         NewFileModalFactory newFileModalFactory = new NewFileModalFactory();
-        if(writableFile.contains(suffix)) {
+        if(writableFiles.contains(suffix)) {
             nfm = newFileModalFactory.getProduct(suffix);
         } else if (Objects.equals(suffix, FileSystem.Suffix.DIR.value)) {
             nfm = new NewDirectoryModal();
@@ -519,7 +506,7 @@ public class CodePageController implements Initializable, Route {
         this.multiLevelDirectory.newFile();
 
         if (!Objects.equals(suffix, FileSystem.Suffix.DIR.value)) {
-            this.openFile(new File(nfm.getDirectory(), nfm.getFilename() + suffix), suffix);
+            this.openFile(new File(nfm.getDirectory(), nfm.getFilename() + suffix.value), suffix);
         }
     }
 
@@ -576,55 +563,6 @@ public class CodePageController implements Initializable, Route {
 
         tab.setContent(scrollPane);
         tab.setUserData(editor);
-    }
-
-    private void openModel(Tab tab, File file) {
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
-
-        String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
-        ModelEditor modelEditor = new ModelEditor(projectPath, file);
-        modelEditor.load();
-
-        scrollPane.setContent(modelEditor.getNode());
-        scrollPane.setUserData(modelEditor);
-
-        tab.setContent(scrollPane);
-        tab.setUserData(modelEditor);
-    }
-
-    // TODO refactor 和 openModel 合并
-    private void openWeather(Tab tab, File file) {
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
-
-        String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
-        WeatherEditor weatherEditor = new WeatherEditor(projectPath, file);
-        weatherEditor.load();
-
-        scrollPane.setContent(weatherEditor.getNode());
-        scrollPane.setUserData(weatherEditor);
-
-        tab.setContent(scrollPane);
-        tab.setUserData(weatherEditor);
-    }
-
-    private void openTree(Tab tab, File file) {
-        AnchorPane anchorPane = new AnchorPane();
-
-        String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
-        TreeEditor treeEditor = new TreeEditor(projectPath, file);
-        treeEditor.load();
-        Node node = treeEditor.getNode();
-        ((SplitPane) node).prefWidthProperty().bind(anchorPane.widthProperty());
-        ((SplitPane) node).prefHeightProperty().bind(anchorPane.heightProperty());
-
-        anchorPane.getChildren().add(node);
-
-        tab.setContent(anchorPane);
-        tab.setUserData(treeEditor);
     }
 
     /**
