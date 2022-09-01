@@ -19,6 +19,10 @@ public class ChooseFileButton {
 
     private HBox hBox;
     private Label lbFilename;
+    private Button btChoose;
+    // 默认不带清空按钮
+    private boolean clearable = false;
+    private Button btClear;
 
     private String initDir;
     private Map<String, String> fileFilter = new HashMap<>();
@@ -51,32 +55,54 @@ public class ChooseFileButton {
         this.hBox = new HBox();
         this.hBox.setSpacing(5);
         this.hBox.setAlignment(Pos.CENTER_LEFT);
-        Button button = new Button("Choose File");
+        this.btChoose = new Button("Choose File");
         this.lbFilename = new Label();
-        this.hBox.getChildren().addAll(this.lbFilename, button);
-        button.setOnMouseClicked(e -> {
-            Stage stage = (Stage) rootLayout.getScene().getWindow();
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Choose File");
-            if (this.initDir != null) {
-                System.out.println(this.initDir);
-                fileChooser.setInitialDirectory(new File(this.initDir));
-            }
-            for (Map.Entry<String, String> filter : fileFilter.entrySet()) {
-                String extension = filter.getKey();
-                String description = filter.setValue(extension);
-                fileChooser.getExtensionFilters().add(
-                        new FileChooser.ExtensionFilter(description, extension)
-                );
-            }
-            this.file = fileChooser.showOpenDialog(stage);
-            if (this.file != null) {
-                this.lbFilename.setText(file.getAbsolutePath());
-            }
-            stage.sizeToScene();
-        });
-        // 自适应大小
+        this.btChoose.setOnMouseClicked(e -> chooseFile());
+        this.btClear = new Button("Clear");
+        this.btClear.setOnAction(e -> clearFile());
+        this.hBox.getChildren().addAll(this.lbFilename, this.btChoose);
         hBox.setUserData(this);
+    }
+
+    private void chooseFile() {
+        Stage stage = (Stage) this.rootLayout.getScene().getWindow();
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choose File");
+        if (this.initDir != null) {
+            System.out.println(this.initDir);
+            fileChooser.setInitialDirectory(new File(this.initDir));
+        }
+        for (Map.Entry<String, String> filter : fileFilter.entrySet()) {
+            String extension = filter.getKey();
+            String description = filter.setValue(extension);
+            fileChooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter(description, extension)
+            );
+        }
+        File result = fileChooser.showOpenDialog(stage);
+        if (result != null) {
+            this.setFile(result);
+        }
+        // 自适应大小
+        stage.sizeToScene();
+    }
+
+    private void clearFile() {
+        this.setFile(null);
+    }
+
+    private void showClearButton() {
+        if (!this.hBox.getChildren().contains(this.btClear)) {
+            this.hBox.getChildren().add(this.btClear);
+        }
+    }
+
+    private void hideClearButton() {
+        this.hBox.getChildren().remove(this.btClear);
+    }
+
+    public void setClearable(boolean clearable) {
+        this.clearable = clearable;
     }
 
     public Node getNode() {
@@ -89,6 +115,17 @@ public class ChooseFileButton {
 
     public void setFile(File file) {
         this.file = file;
-        this.lbFilename.setText(this.file.getAbsolutePath());
+        if (file != null) {
+            this.lbFilename.setText(this.file.getAbsolutePath());
+            if (this.clearable) {
+                this.showClearButton();
+            }
+        }
+        else {
+            this.lbFilename.setText("");
+            if (this.clearable) {
+                this.hideClearButton();
+            }
+        }
     }
 }

@@ -287,10 +287,12 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
         //自动换行
         this.taScenarioEndTrigger.setWrapText(true);
 
+        // requirement 模块
         Label lbRequirements = new Label("requirements");
         Map<String, String> requirementFilter = new HashMap<>();
-        weatherFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.REQUIREMENT), FileSystem.Suffix.REQUIREMENT.toString());
+        requirementFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.REQUIREMENT), FileSystem.Suffix.REQUIREMENT.toString());
         this.btRequirements = new ChooseFileButton(this.gridPane, this.projectPath, requirementFilter).getNode();
+        ((ChooseFileButton) this.btRequirements.getUserData()).setClearable(true);
 
         Label lbCars = new Label("Vehicles");
 
