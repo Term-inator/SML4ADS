@@ -1,4 +1,4 @@
-package com.ecnu.adsmls.components;
+package com.ecnu.adsmls.components.choosefilebutton;
 
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -103,6 +103,10 @@ public class ChooseFileButton {
 
     public void setClearable(boolean clearable) {
         this.clearable = clearable;
+    }
+
+    public void setFileFilter(Map<String, String> fileFilter) {
+        this.fileFilter = fileFilter;
     }
 
     public Node getNode() {

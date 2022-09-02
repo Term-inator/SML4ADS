@@ -1,8 +1,7 @@
 package com.ecnu.adsmls.components.editor.modeleditor;
 
 import com.alibaba.fastjson.JSON;
-import com.ecnu.adsmls.components.ChooseFileButton;
-import com.ecnu.adsmls.components.editor.Editor;
+import com.ecnu.adsmls.components.choosefilebutton.ChooseFileButton;
 import com.ecnu.adsmls.components.editor.FormEditor;
 import com.ecnu.adsmls.model.MCar;
 import com.ecnu.adsmls.model.MModel;
@@ -17,9 +16,6 @@ import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 

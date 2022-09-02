@@ -71,6 +71,8 @@ public class RequirementPane {
         this.taRequirement = new TextArea();
         this.taRequirement.setPrefRowCount(4);
         this.taRequirement.setMinHeight(76);
+        //自动换行
+        this.taRequirement.setWrapText(true);
 
         this.gridPane.addRow(0, requirementTypeWrapper, this.taRequirement);
     }

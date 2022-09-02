@@ -1,4 +1,4 @@
-package com.ecnu.adsmls.components;
+package com.ecnu.adsmls.components.choosefilebutton;
 
 import javafx.geometry.Pos;
 import javafx.scene.Node;

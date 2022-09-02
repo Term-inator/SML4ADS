@@ -1,12 +1,7 @@
 package com.ecnu.adsmls.components.editor.weathereditor;
 
 import com.alibaba.fastjson.JSON;
-import com.ecnu.adsmls.components.ChooseFileButton;
-import com.ecnu.adsmls.components.editor.Editor;
 import com.ecnu.adsmls.components.editor.FormEditor;
-import com.ecnu.adsmls.components.editor.modeleditor.CarPane;
-import com.ecnu.adsmls.model.MCar;
-import com.ecnu.adsmls.model.MModel;
 import com.ecnu.adsmls.model.MWeather;
 import com.ecnu.adsmls.router.params.Global;
 import com.ecnu.adsmls.utils.FileSystem;
@@ -17,14 +12,9 @@ import com.ecnu.adsmls.utils.register.exception.DataTypeException;
 import com.ecnu.adsmls.utils.register.exception.EmptyParamException;
 import com.ecnu.adsmls.utils.register.exception.RequirementException;
 import com.ecnu.adsmls.utils.register.impl.WeatherRegister;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.GridPane;
 
 import java.io.File;
 import java.util.*;
