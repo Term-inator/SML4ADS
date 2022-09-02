@@ -496,7 +496,7 @@ public class CodePageController implements Initializable, Route {
         NewFileModalFactory newFileModalFactory = new NewFileModalFactory();
         if(writableFiles.contains(suffix)) {
             nfm = newFileModalFactory.getProduct(suffix);
-        } else if (Objects.equals(suffix, FileSystem.Suffix.DIR.value)) {
+        } else if (Objects.equals(suffix, FileSystem.Suffix.DIR)) {
             nfm = new NewDirectoryModal();
         } else {
             this.showInfo("Unsupported file");
@@ -514,7 +514,7 @@ public class CodePageController implements Initializable, Route {
         }
         this.multiLevelDirectory.newFile();
 
-        if (!Objects.equals(suffix, FileSystem.Suffix.DIR.value)) {
+        if (!Objects.equals(suffix, FileSystem.Suffix.DIR)) {
             this.openFile(new File(nfm.getDirectory(), nfm.getFilename() + suffix.value), suffix);
         }
     }
