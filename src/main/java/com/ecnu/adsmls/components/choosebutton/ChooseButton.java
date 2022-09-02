@@ -1,4 +1,4 @@
-package com.ecnu.adsmls.components.choosefilebutton;
+package com.ecnu.adsmls.components.choosebutton;
 
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -13,66 +13,44 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ChooseFileButton {
-    private File file;
-    private Pane rootLayout;
+public abstract class ChooseButton {
+    protected File file;
+    protected Pane rootLayout;
 
-    private HBox hBox;
-    private Label lbFilename;
-    private Button btChoose;
+    protected HBox hBox;
+    protected Label lbFilename;
+    protected Button btChoose;
+    protected Map<String, String> fileFilter = new HashMap<>();
     // 默认不带清空按钮
-    private boolean clearable = false;
-    private Button btClear;
+    protected boolean clearable = false;
+    protected Button btClear;
 
-    private String initDir;
-    private Map<String, String> fileFilter = new HashMap<>();
+    protected String initDir;
 
-    public ChooseFileButton(Pane rootLayout) {
+    public ChooseButton(Pane rootLayout) {
         this.rootLayout = rootLayout;
         this.createNode();
     }
 
-    public ChooseFileButton(Pane rootLayout, String initDir) {
+    public ChooseButton(Pane rootLayout, String initDir) {
         this.rootLayout = rootLayout;
         this.initDir = initDir;
         this.createNode();
     }
 
-    private void createNode() {
+    protected void createNode() {
         this.hBox = new HBox();
         this.hBox.setSpacing(5);
         this.hBox.setAlignment(Pos.CENTER_LEFT);
-        this.btChoose = new Button("Choose File");
+        this.btChoose = new Button();
         this.lbFilename = new Label();
         this.btChoose.setOnMouseClicked(e -> chooseFile());
         this.btClear = new Button("Clear");
         this.btClear.setOnAction(e -> clearFile());
         this.hBox.getChildren().addAll(this.lbFilename, this.btChoose);
-        hBox.setUserData(this);
     }
 
-    private void chooseFile() {
-        Stage stage = (Stage) this.rootLayout.getScene().getWindow();
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Choose File");
-        if (this.initDir != null) {
-            System.out.println(this.initDir);
-            fileChooser.setInitialDirectory(new File(this.initDir));
-        }
-        for (Map.Entry<String, String> filter : fileFilter.entrySet()) {
-            String extension = filter.getKey();
-            String description = filter.setValue(extension);
-            fileChooser.getExtensionFilters().add(
-                    new FileChooser.ExtensionFilter(description, extension)
-            );
-        }
-        File result = fileChooser.showOpenDialog(stage);
-        if (result != null) {
-            this.setFile(result);
-        }
-        // 自适应大小
-        stage.sizeToScene();
-    }
+    protected abstract void chooseFile();
 
     private void clearFile() {
         this.setFile(null);
@@ -90,10 +68,6 @@ public class ChooseFileButton {
 
     public void setClearable(boolean clearable) {
         this.clearable = clearable;
-    }
-
-    public void setFileFilter(Map<String, String> fileFilter) {
-        this.fileFilter = fileFilter;
     }
 
     public Node getNode() {
