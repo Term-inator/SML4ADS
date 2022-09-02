@@ -28,14 +28,14 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
      */
     private GridPane mapPane = new GridPane();
     private ComboBox<String> cbMapType;
-    private Node btMap;
+    private ChooseFileButton btMap;
     private String[] defaultMaps = {};
     private ComboBox<String> cbDefaultMap;
 
     // 天气
     private ComboBox<String> cbWeatherType;
     private GridPane weatherPane = new GridPane();
-    private Node btWeather;
+    private ChooseFileButton btWeather;
     private String[] defaultWeathers = {};
     private ComboBox<String> cbDefaultWeather;
 
@@ -50,7 +50,7 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
     private TextArea taScenarioEndTrigger;
 
     // 验证规则
-    private Node btRequirements;
+    private ChooseFileButton btRequirements;
 
     private GridPane gridPaneCar = new GridPane();
     // 临时 id ，用于删除
@@ -70,12 +70,12 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
     @Override
     public void check() throws EmptyParamException, DataTypeException, RequirementException {
         if (Objects.equals(this.cbMapType.getValue(), "custom")) {
-            if (((ChooseFileButton) this.btMap.getUserData()).getFile() == null) {
+            if (this.btMap.getFile() == null) {
                 throw new EmptyParamException("Map is required.");
             }
         }
         if (Objects.equals(this.cbWeatherType.getValue(), "custom")) {
-            if (((ChooseFileButton) this.btWeather.getUserData()).getFile() == null) {
+            if (this.btWeather.getFile() == null) {
                 throw new EmptyParamException("Weather is required.");
             }
         }
@@ -104,7 +104,7 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
 
         mModel.setMapType(this.cbMapType.getValue());
         if (Objects.equals(this.cbMapType.getValue(), "custom")) {
-            File map = ((ChooseFileButton) this.btMap.getUserData()).getFile();
+            File map = this.btMap.getFile();
             if (map == null) {
                 mModel.setMap("");
             } else {
@@ -119,7 +119,7 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
 
         mModel.setWeatherType(this.cbWeatherType.getValue());
         if (Objects.equals(this.cbWeatherType.getValue(), "custom")) {
-            File weather = ((ChooseFileButton) this.btWeather.getUserData()).getFile();
+            File weather = this.btWeather.getFile();
             if (weather == null) {
                 mModel.setWeather("");
             } else {
@@ -142,7 +142,7 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
 
         mModel.setScenarioEndTrigger(this.taScenarioEndTrigger.getText());
 
-        File requirements = ((ChooseFileButton) this.btRequirements.getUserData()).getFile();
+        File requirements = this.btRequirements.getFile();
         if (requirements == null) {
             mModel.setRequirementsPath("");
         } else {
@@ -176,7 +176,7 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
         if (Objects.equals(mModel.getMapType(), "custom")) {
             if (!Objects.equals(mModel.getMap(), "")) {
                 // 恢复绝对路径
-                ((ChooseFileButton) this.btMap.getUserData()).setFile(new File(this.projectPath, mModel.getMap()));
+                this.btMap.setFile(new File(this.projectPath, mModel.getMap()));
             }
         } else if (Objects.equals(mModel.getMapType(), "default")) {
             this.cbDefaultMap.getSelectionModel().select(FileSystem.removeSuffix(mModel.getMap()));
@@ -186,7 +186,7 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
         if (Objects.equals(mModel.getWeatherType(), "custom")) {
             if (!Objects.equals(mModel.getWeather(), "")) {
                 // 恢复绝对路径
-                ((ChooseFileButton) this.btWeather.getUserData()).setFile(new File(this.projectPath, mModel.getWeather()));
+                this.btWeather.setFile(new File(this.projectPath, mModel.getWeather()));
             }
         } else if (Objects.equals(mModel.getWeatherType(), "default")) {
             this.cbDefaultWeather.getSelectionModel().select(FileSystem.removeSuffix(mModel.getWeather()));
@@ -203,7 +203,7 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
 
         if (!Objects.equals(mModel.getRequirementsPath(), "")) {
             // 恢复绝对路径
-            ((ChooseFileButton) this.btRequirements.getUserData()).setFile(new File(this.projectPath, mModel.getRequirementsPath()));
+            this.btRequirements.setFile(new File(this.projectPath, mModel.getRequirementsPath()));
         }
 
         for (MCar mCar : mModel.getCars()) {
@@ -230,18 +230,19 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
         this.cbMapType.getSelectionModel().select(0);
         Map<String, String> mapFilter = new HashMap<>();
         mapFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.MAP), FileSystem.Suffix.MAP.toString());
-        this.btMap = new ChooseFileButton(this.gridPane, this.projectPath, mapFilter).getNode();
+        this.btMap = new ChooseFileButton(this.gridPane, this.projectPath);
+        this.btMap.setFileFilter(mapFilter);
         this.defaultMaps = SimulatorConstant.getMap();
         this.cbDefaultMap = new ComboBox<>(FXCollections.observableArrayList(this.defaultMaps));
         this.cbDefaultMap.getSelectionModel().select(0);
         this.mapPane.setHgap(8);
-        this.mapPane.addRow(0, this.cbMapType, this.btMap);
+        this.mapPane.addRow(0, this.cbMapType, this.btMap.getNode());
         this.cbMapType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (Objects.equals(newValue, "custom")) {
                 this.mapPane.getChildren().remove(this.cbDefaultMap);
-                this.mapPane.add(this.btMap, 1, 0);
+                this.mapPane.add(this.btMap.getNode(), 1, 0);
             } else if (Objects.equals(newValue, "default")) {
-                this.mapPane.getChildren().remove(this.btMap);
+                this.mapPane.getChildren().remove(this.btMap.getNode());
                 this.mapPane.add(this.cbDefaultMap, 1, 0);
             }
         });
@@ -252,18 +253,19 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
         this.cbWeatherType.getSelectionModel().select(0);
         Map<String, String> weatherFilter = new HashMap<>();
         weatherFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.WEATHER), FileSystem.Suffix.WEATHER.toString());
-        this.btWeather = new ChooseFileButton(this.gridPane, this.projectPath, weatherFilter).getNode();
+        this.btWeather = new ChooseFileButton(this.gridPane, this.projectPath);
+        this.btWeather.setFileFilter(weatherFilter);
         this.defaultWeathers = SimulatorConstant.getWeather();
         this.cbDefaultWeather = new ComboBox<>(FXCollections.observableArrayList(this.defaultWeathers));
         this.cbDefaultWeather.getSelectionModel().select(0);
         this.weatherPane.setHgap(8);
-        this.weatherPane.addRow(0, this.cbWeatherType, this.btWeather);
+        this.weatherPane.addRow(0, this.cbWeatherType, this.btWeather.getNode());
         this.cbWeatherType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (Objects.equals(newValue, "custom")) {
                 this.weatherPane.getChildren().remove(this.cbDefaultWeather);
-                this.weatherPane.add(this.btWeather, 1, 0);
+                this.weatherPane.add(this.btWeather.getNode(), 1, 0);
             } else if (Objects.equals(newValue, "default")) {
-                this.weatherPane.getChildren().remove(this.btWeather);
+                this.weatherPane.getChildren().remove(this.btWeather.getNode());
                 this.weatherPane.add(this.cbDefaultWeather, 1, 0);
             }
         });
@@ -287,8 +289,9 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
         Label lbRequirements = new Label("requirements");
         Map<String, String> requirementFilter = new HashMap<>();
         requirementFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.REQUIREMENT), FileSystem.Suffix.REQUIREMENT.toString());
-        this.btRequirements = new ChooseFileButton(this.gridPane, this.projectPath, requirementFilter).getNode();
-        ((ChooseFileButton) this.btRequirements.getUserData()).setClearable(true);
+        this.btRequirements = new ChooseFileButton(this.gridPane, this.projectPath);
+        this.btRequirements.setFileFilter(requirementFilter);
+        this.btRequirements.setClearable(true);
 
         Label lbCars = new Label("Vehicles");
 
@@ -311,7 +314,7 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
         this.gridPane.addRow(3, lbSimulationTime, this.tfSimulationTime);
         this.gridPane.addRow(4, lbScenarioTrigger, this.taScenarioEndTrigger);
         this.gridPane.addRow(5, lbCars);
-        this.gridPane.addRow(6, lbRequirements, this.btRequirements);
+        this.gridPane.addRow(6, lbRequirements, this.btRequirements.getNode());
         this.gridPane.add(this.gridPaneCar, 0, 7, 2, 1);
         this.gridPane.add(btNewCar, 0, 8, 2, 1);
 //        this.gridPane.addRow(8, lbPedestrians);

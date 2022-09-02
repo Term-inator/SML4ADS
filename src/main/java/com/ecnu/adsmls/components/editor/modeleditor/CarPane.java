@@ -47,7 +47,7 @@ public class CarPane {
     // 偏移程度
     private TextField tfRoadDeviation;
     // 动态信息，一棵树
-    private Node btDynamic;
+    private ChooseFileButton btDynamic;
 
     public CarPane(String projectPath) {
         this.projectPath = projectPath;
@@ -121,12 +121,12 @@ public class CarPane {
             car.setRoadDeviation(null);
         }
 
-        File tree = ((ChooseFileButton) this.btDynamic.getUserData()).getFile();
+        File tree = this.btDynamic.getFile();
         if (tree == null) {
             car.setTreePath("");
         } else {
             // 转换成相对路径
-            String path = ((ChooseFileButton) this.btDynamic.getUserData()).getFile().getAbsolutePath();
+            String path = this.btDynamic.getFile().getAbsolutePath();
             String relativePath = FileSystem.getRelativePath(this.projectPath, path);
             car.setTreePath(relativePath);
         }
@@ -164,7 +164,7 @@ public class CarPane {
         }
         if (!Objects.equals(mCar.getTreePath(), "")) {
             // 恢复绝对路径
-            ((ChooseFileButton) this.btDynamic.getUserData()).setFile(new File(this.projectPath, mCar.getTreePath()));
+            this.btDynamic.setFile(new File(this.projectPath, mCar.getTreePath()));
         }
     }
 
@@ -220,7 +220,8 @@ public class CarPane {
         // 限定选择 *.tree 文件
         Map<String, String> treeFilter = new HashMap<>();
         treeFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.TREE), FileSystem.Suffix.TREE.toString());
-        this.btDynamic = new ChooseFileButton(this.gridPane, this.projectPath, treeFilter).getNode();
+        this.btDynamic = new ChooseFileButton(this.gridPane, this.projectPath);
+        this.btDynamic.setFileFilter(treeFilter);
 
         this.gridPane.addRow(0, lbName, this.tfName);
         this.gridPane.addRow(1, lbModel, this.cbModel);
@@ -230,7 +231,7 @@ public class CarPane {
         this.gridPane.add(gridPaneLocationParams, 0, 5, 2, 1);
         this.gridPane.addRow(6, lbHeading, this.cbHeading);
         this.gridPane.addRow(7, lbRoadDeviation, this.tfRoadDeviation);
-        this.gridPane.addRow(8, lbDynamic, this.btDynamic);
+        this.gridPane.addRow(8, lbDynamic, this.btDynamic.getNode());
     }
 
     public void notifyModel() {
