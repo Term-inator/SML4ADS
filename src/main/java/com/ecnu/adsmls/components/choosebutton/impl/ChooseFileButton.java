@@ -8,9 +8,16 @@ import javafx.stage.Stage;
 
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 文件选择按钮
+ */
 public class ChooseFileButton extends ChooseButton {
+    // 文件过滤器
+    protected Map<String, String> fileFilter = new HashMap<>();
+
     public ChooseFileButton(Pane rootLayout) {
         super(rootLayout);
     }
@@ -47,6 +54,7 @@ public class ChooseFileButton extends ChooseButton {
             );
         }
         File result = fileChooser.showOpenDialog(stage);
+        // 选择 cancel 不改变结果
         if (result != null) {
             this.setFile(result);
         }

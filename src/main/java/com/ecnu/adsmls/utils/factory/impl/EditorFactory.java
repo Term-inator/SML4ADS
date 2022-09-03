@@ -6,6 +6,7 @@ import com.ecnu.adsmls.utils.factory.Factory;
 
 import java.io.File;
 
+
 public class EditorFactory extends Factory<FileSystem.Suffix, Editor> {
     public EditorFactory() {
         this.args = new Class[]{String.class, File.class};

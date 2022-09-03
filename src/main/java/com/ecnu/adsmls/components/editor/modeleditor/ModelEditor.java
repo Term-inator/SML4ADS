@@ -23,9 +23,7 @@ import java.io.File;
 import java.util.*;
 
 public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
-    /**
-     * 地图文件
-     */
+    // 地图
     private GridPane mapPane = new GridPane();
     private ComboBox<String> cbMapType;
     private ChooseFileButton btMap;
@@ -348,6 +346,7 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
         for (Map.Entry<Integer, CarPane> entry : this.carPanes.entrySet()) {
             CarPane car = entry.getValue();
             if (i != 0) {
+                // 不同 Car 之间的分割线
                 Separator separator1 = new Separator();
                 Separator separator2 = new Separator();
                 page.add(new Node[]{separator1, separator2});

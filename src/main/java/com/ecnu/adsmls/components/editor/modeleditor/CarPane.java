@@ -21,8 +21,9 @@ import javafx.scene.layout.GridPane;
 import java.io.File;
 import java.util.*;
 
+
 /**
- * 点击 New Car 显示的内容
+ * 点击 New Vehicle 显示的内容
  */
 public class CarPane {
     // Project 路径
@@ -90,6 +91,7 @@ public class CarPane {
         MCar car = new MCar();
         car.setName(this.tfName.getText());
         car.setModel(this.cbModel.getValue());
+        // TODO refactor 类型检查放入 check()
         try {
             car.setMaxSpeed(Double.parseDouble(this.tfMaxSpeed.getText()));
         } catch (Exception ignored) {
@@ -221,6 +223,7 @@ public class CarPane {
         Map<String, String> treeFilter = new HashMap<>();
         treeFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.TREE), FileSystem.Suffix.TREE.toString());
         this.btDynamic = new ChooseFileButton(this.gridPane, this.projectPath);
+        this.btDynamic.setClearable(true);
         this.btDynamic.setFileFilter(treeFilter);
 
         this.gridPane.addRow(0, lbName, this.tfName);
@@ -234,6 +237,7 @@ public class CarPane {
         this.gridPane.addRow(8, lbDynamic, this.btDynamic.getNode());
     }
 
+    // SimulatorType 改变时被调用
     public void notifyModel() {
         this.cbModel.setItems(FXCollections.observableArrayList(SimulatorConstant.getModel()));
     }

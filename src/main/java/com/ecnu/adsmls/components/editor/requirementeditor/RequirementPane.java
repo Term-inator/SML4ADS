@@ -12,8 +12,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
+
 
 public class RequirementPane {
     public enum RequirementType {
