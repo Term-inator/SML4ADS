@@ -1,20 +1,22 @@
-package com.ecnu.adsmls.components.editor.modeleditor;
+package com.ecnu.adsmls.utils;
 
-import java.util.Map;
+import com.ecnu.adsmls.router.params.Global;
 
-public class ModelConstant {
-    public enum Simulator {
-        CARLA("carla"), LGSVL("lgsvl");
+import java.util.*;
+
+public class SimulatorConstant {
+    public enum SimulatorType {
+        CARLA("CARLA"), LGSVL("LGSVL");
 
         public String value;
 
-        Simulator(String value) {
+        SimulatorType(String value) {
             this.value = value;
         }
     }
 
-    protected static final Map<Simulator, String[]> weathers = Map.of(
-            Simulator.CARLA, new String[]{
+    private static final Map<SimulatorType, String[]> weathers = Map.of(
+            SimulatorType.CARLA, new String[]{
                     "random",
                     "ClearNoon",
                     "CloudyNoon",
@@ -31,15 +33,29 @@ public class ModelConstant {
                     "MidRainSunset",
                     "HardRainSunset"
             },
-            Simulator.LGSVL, new String[]{
+            SimulatorType.LGSVL, new String[]{
                     "random",
                     "clear",
                     "rainy"
             }
     );
 
-    protected static final Map<Simulator, String[]> models = Map.of(
-            Simulator.CARLA, new String[]{
+    private static final Map<SimulatorType, String[]> maps = Map.of(
+            SimulatorType.CARLA, new String[]{
+                    "Town01",
+                    "Town02",
+                    "Town03",
+                    "Town04",
+                    "Town05",
+                    "Town06",
+                    "Town07",
+                    "Town10"
+            },
+            SimulatorType.LGSVL, new String[]{}
+    );
+
+    private static final Map<SimulatorType, String[]> models = Map.of(
+            SimulatorType.CARLA, new String[]{
                     "random",
                     "vehicle.audi.a2",
                     "vehicle.audi.etron",
@@ -75,19 +91,53 @@ public class ModelConstant {
                     "vehicle.volkswagen.t2",
                     "vehicle.volkswagen.t2_2021"
             },
-            Simulator.LGSVL, new String[]{"random"});
+            SimulatorType.LGSVL, new String[]{"random"});
+
+    public static List<String> getSimulatorTypeList() {
+        List<String> simulatorList = new ArrayList<>();
+        for(SimulatorType simulatorType: SimulatorType.values()) {
+            simulatorList.add(simulatorType.value);
+        }
+        return simulatorList;
+    }
+
+    public static SimulatorType getSimulatorTypeByValue(String simulator) {
+        return Arrays.stream(SimulatorType.values())
+                .filter(simulatorType -> Objects.equals(simulatorType.value, simulator))
+                .findAny()
+                .orElse(SimulatorType.CARLA);
+    }
+
+    /**
+     * 获取默认地图
+     */
+    public static String[] getMap(SimulatorType simulatorType) {
+        return maps.get(simulatorType);
+    }
+
+    public static String[] getMap() {
+        return maps.get(Global.simulatorType);
+    }
 
     /**
      * 获取蓝图
      */
-    public static String[] getModel(Simulator simulator) {
-        return models.get(simulator);
+    public static String[] getModel(SimulatorType simulatorType) {
+        return models.get(simulatorType);
+    }
+
+    public static String[] getModel() {
+        return models.get(Global.simulatorType);
     }
 
     /**
      * 设置天气
      */
-    public static String[] getWeather(Simulator simulator) {
-        return weathers.get(simulator);
+    public static String[] getWeather(SimulatorType simulatorType) {
+        return weathers.get(simulatorType);
+    }
+
+    public static String[] getWeather() {
+        return weathers.get(Global.simulatorType);
     }
 }

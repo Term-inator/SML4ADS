@@ -1,5 +1,6 @@
 package com.ecnu.adsmls.utils.register.impl;
 
+import com.ecnu.adsmls.utils.SimulatorConstant;
 import com.ecnu.adsmls.utils.register.Function;
 import com.ecnu.adsmls.utils.register.FunctionRegister;
 import com.ecnu.adsmls.utils.register.Value;
@@ -14,7 +15,7 @@ public class WeatherRegister extends FunctionRegister {
 
     @Override
     public void init() {
-        Function carla = new Function("CARLA");
+        Function carla = new Function(SimulatorConstant.SimulatorType.CARLA.value);
         carla.addParam("cloudiness", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
                 new Between(new Value(0), new Value(100), "[]"));
         carla.addParam("precipitation", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
@@ -42,7 +43,10 @@ public class WeatherRegister extends FunctionRegister {
                 new Between(new Value(0), new Value(Double.MAX_VALUE), "[]"));
         carla.addParam("rayleigh scattering scale", Function.DataType.DOUBLE, Function.Necessity.REQUIRED);
 
+        Function lgsvl = new Function(SimulatorConstant.SimulatorType.LGSVL.value);
+
         weatherFunctions.add(carla);
+        weatherFunctions.add(lgsvl);
     }
 
     public static List<String> getFunctionNames() {

@@ -2,21 +2,20 @@ package com.ecnu.adsmls.views.codepage;
 
 import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.editor.Editor;
-import com.ecnu.adsmls.components.editor.modeleditor.ModelEditor;
-import com.ecnu.adsmls.components.editor.treeeditor.TreeEditor;
-import com.ecnu.adsmls.components.editor.weathereditor.WeatherEditor;
 import com.ecnu.adsmls.components.modal.*;
+import com.ecnu.adsmls.components.modal.impl.*;
 import com.ecnu.adsmls.components.mutileveldirectory.MultiLevelDirectory;
-import com.ecnu.adsmls.model.MCar;
-import com.ecnu.adsmls.model.MConfig;
-import com.ecnu.adsmls.model.MModel;
-import com.ecnu.adsmls.model.MTree;
+import com.ecnu.adsmls.model.*;
 import com.ecnu.adsmls.router.Route;
 import com.ecnu.adsmls.router.Router;
 import com.ecnu.adsmls.router.params.CodePageParams;
 import com.ecnu.adsmls.router.params.Global;
 import com.ecnu.adsmls.service.SimulatorService;
 import com.ecnu.adsmls.utils.FileSystem;
+import com.ecnu.adsmls.utils.SimulatorConstant;
+import com.ecnu.adsmls.utils.SimulatorTypeObserver;
+import com.ecnu.adsmls.utils.factory.impl.EditorFactory;
+import com.ecnu.adsmls.utils.factory.impl.NewFileModalFactory;
 import com.ecnu.adsmls.utils.log.MyStaticOutputStreamAppender;
 import com.ecnu.adsmls.utils.register.impl.BehaviorRegister;
 import com.ecnu.adsmls.utils.register.impl.LocationRegister;
@@ -26,7 +25,6 @@ import hprose.client.HproseHttpClient;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
@@ -102,21 +100,15 @@ public class CodePageController implements Initializable, Route {
         Menu newMenu = new Menu("New");
         MenuItem newDirectory = new MenuItem("Directory");
         newDirectory.setOnAction(e -> {
-            this.newFile(FileSystem.Suffix.DIR.value);
+            this.newFile(FileSystem.Suffix.DIR);
         });
-        MenuItem newModel = new MenuItem("Model");
-        newModel.setOnAction(e -> {
-            this.newFile(FileSystem.Suffix.MODEL.value);
-        });
-        MenuItem newTree = new MenuItem("Tree");
-        newTree.setOnAction(e -> {
-            this.newFile(FileSystem.Suffix.TREE.value);
-        });
-        MenuItem newWeather = new MenuItem("Weather");
-        newWeather.setOnAction(e -> {
-            this.newFile(FileSystem.Suffix.WEATHER.value);
-        });
-        newMenu.getItems().addAll(newDirectory, newModel, newTree, newWeather);
+        newMenu.getItems().add(newDirectory);
+        List<FileSystem.Suffix> writableFiles = FileSystem.getSuffixList(0b110);
+        for(FileSystem.Suffix suffix: writableFiles) {
+            MenuItem menuItem = new MenuItem(suffix.displayValue);
+            menuItem.setOnAction(e -> this.newFile(suffix));
+            newMenu.getItems().add(menuItem);
+        }
 
         // 设置
         MenuItem setting = new MenuItem("Settings");
@@ -127,12 +119,15 @@ public class CodePageController implements Initializable, Route {
                 return;
             }
             // 写入配置文件
+            this.mConfig.setSimulatorType(Global.simulatorType.value);
             this.mConfig.setSimulationPort(Global.simulationPort);
 
             String config = JSON.toJSONString(mConfig);
             System.out.println(config);
             String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
             FileSystem.JSONWriter(new File(FileSystem.concatAbsolutePath(projectPath, ".adsml"), "config" + FileSystem.Suffix.JSON.value), config);
+
+            this.notifyEditors();
         });
 
         MenuItem closeProject = new MenuItem("Close Project");
@@ -158,17 +153,15 @@ public class CodePageController implements Initializable, Route {
         Menu newMenu = new Menu("New");
         MenuItem newDirectory = new MenuItem("Directory");
         newDirectory.setOnAction(e -> {
-            this.newFile(FileSystem.Suffix.DIR.value);
+            this.newFile(FileSystem.Suffix.DIR);
         });
-        MenuItem newModel = new MenuItem("Model");
-        newModel.setOnAction(e -> {
-            this.newFile(FileSystem.Suffix.MODEL.value);
-        });
-        MenuItem newTree = new MenuItem("Tree");
-        newTree.setOnAction(e -> {
-            this.newFile(FileSystem.Suffix.TREE.value);
-        });
-        newMenu.getItems().addAll(newDirectory, newModel, newTree);
+        newMenu.getItems().add(newDirectory);
+        List<FileSystem.Suffix> writableFiles = FileSystem.getSuffixList(0b110);
+        for(FileSystem.Suffix suffix: writableFiles) {
+            MenuItem menuItem = new MenuItem(suffix.displayValue);
+            menuItem.setOnAction(e -> this.newFile(suffix));
+            newMenu.getItems().add(menuItem);
+        }
 
         MenuItem delete = new MenuItem("Delete");
         delete.setOnAction(e -> {
@@ -186,7 +179,7 @@ public class CodePageController implements Initializable, Route {
         if (!dir.exists()) {
             FileSystem.createDir(dir.getAbsolutePath());
             FileSystem.createFile(dir, "config" + FileSystem.Suffix.JSON.value);
-            this.mConfig = new MConfig(Global.simulatorType, Global.simulationPort);
+            this.mConfig = new MConfig(Global.simulatorType.value, Global.simulationPort);
             FileSystem.JSONWriter(new File(dir, "config" + FileSystem.Suffix.JSON.value), JSON.toJSONString(this.mConfig));
         }
         String config = FileSystem.JSONReader(new File(dir, "config" + FileSystem.Suffix.JSON.value));
@@ -195,6 +188,7 @@ public class CodePageController implements Initializable, Route {
             this.mConfig = new MConfig();
             return;
         }
+        Global.simulatorType = SimulatorConstant.getSimulatorTypeByValue(this.mConfig.getSimulatorType());
         Global.simulationPort = this.mConfig.getSimulationPort();
     }
 
@@ -220,7 +214,7 @@ public class CodePageController implements Initializable, Route {
                 return;
             }
             if (e.getClickCount() == 2) {
-                String suffix = FileSystem.getSuffix(selectedItem.getValue());
+                FileSystem.Suffix suffix = FileSystem.getSuffixByValue(FileSystem.getSuffix(selectedItem.getValue()));
                 this.openFile(selectedItem.getValue(), suffix);
             }
         });
@@ -233,6 +227,16 @@ public class CodePageController implements Initializable, Route {
 
         scrollPane.setContent(anchorPane);
         this.directoryWrapper.getChildren().add(scrollPane);
+    }
+
+    // Global.simulatorType 改变时通知 Editor
+    private void notifyEditors() {
+        for(Map.Entry<File, Tab> entry: this.filesOpened.entrySet()) {
+            Editor editor = (Editor) entry.getValue().getUserData();
+            if(editor instanceof SimulatorTypeObserver) {
+                ((SimulatorTypeObserver) editor).updateSimulatorType();
+            }
+        }
     }
 
     private void showInfo(String info) {
@@ -248,7 +252,10 @@ public class CodePageController implements Initializable, Route {
         this.infoArea.appendText(info);
     }
 
-    // 将 model 和 tree 拼在一起
+    /**
+     * "编译"
+     * 把 model, tree, weather, requirements 整合在一起
+     */
     @FXML
     protected void preprocess() {
         System.out.println("preprocessing");
@@ -284,7 +291,40 @@ public class CodePageController implements Initializable, Route {
         }
         System.out.println(model);
 
+        // weather
         String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
+        if(Objects.equals(mModel.getWeatherType(), "custom")) {
+            String weatherPath = mModel.getWeather();
+            String weather = FileSystem.JSONReader(new File(projectPath, weatherPath));
+            MWeather mWeather = JSON.parseObject(weather, MWeather.class);
+            if (mWeather == null) {
+                return;
+            }
+            System.out.println(weather);
+            mModel.setMWeather(mWeather);
+            System.out.println(mWeather.getErrMsg());
+
+            if(!mWeather.getErrMsg().isEmpty()) {
+                this.showInfo(mWeather.getErrMsg());
+                return;
+            }
+        }
+
+        // requirements
+        String requirementsPath = mModel.getRequirementsPath();
+        if (!mModel.getRequirementsPath().isEmpty()) {
+            System.out.println(mModel.getRequirementsPath());
+            String requirements = FileSystem.JSONReader(new File(projectPath, requirementsPath));
+            MRequirements mRequirements = JSON.parseObject(requirements, MRequirements.class);
+            if (mRequirements == null) {
+                return;
+            }
+            System.out.println(requirements);
+
+            mModel.setMRequirements(mRequirements);
+        }
+
+        // Car
         for (MCar mCar : mModel.getCars()) {
             String treePath = mCar.getTreePath();
             MTree mTree = null;
@@ -295,10 +335,11 @@ public class CodePageController implements Initializable, Route {
                     return;
                 }
                 System.out.println(tree);
-            }
-            if (!mTree.getErrMsg().isEmpty()) {
-                this.showInfo(mTree.getErrMsg());
-                return;
+
+                if (!mTree.getErrMsg().isEmpty()) {
+                    this.showInfo(mTree.getErrMsg());
+                    return;
+                }
             }
             mCar.setMTree(mTree);
         }
@@ -329,20 +370,14 @@ public class CodePageController implements Initializable, Route {
         }
         System.out.println(model);
 
-        // 用于验证的 requirements
-        VerifyRequirementsModal vrm = new VerifyRequirementsModal(mModel);
+        // 验证生成 xml 的路径
+        VerifyModal vrm = new VerifyModal();
         vrm.getWindow().showAndWait();
         if (!vrm.isConfirm()) {
             return;
         }
 
         this.infoArea.clear();
-
-        List<String> requirements = vrm.getRequirements();
-        System.out.println(requirements);
-
-        // 存储 requirements
-        mModel.setRequirements(requirements);
 
         model = JSON.toJSONString(mModel);
         System.out.println(model);
@@ -417,7 +452,7 @@ public class CodePageController implements Initializable, Route {
         System.out.println("Simulation finished");
     }
 
-    private void openFile(File file, String suffix) {
+    private void openFile(File file, FileSystem.Suffix suffix) {
         if (this.filesOpened.containsKey(file)) {
             System.out.println("This file has already been opened");
             // 选择对应的 tab
@@ -438,13 +473,12 @@ public class CodePageController implements Initializable, Route {
             this.filesOpened.remove(file);
         });
 
-        if (Objects.equals(suffix, FileSystem.Suffix.MODEL.value)) {
-            this.openModel(tab, file);
-        } else if (Objects.equals(suffix, FileSystem.Suffix.TREE.value)) {
-            this.openTree(tab, file);
-        }
-        else if (Objects.equals(suffix, FileSystem.Suffix.WEATHER.value)) {
-            this.openWeather(tab, file);
+        List<FileSystem.Suffix> writableFiles = FileSystem.getSuffixList(0b110);
+        EditorFactory editorFactory = new EditorFactory();
+        if(writableFiles.contains(suffix)) {
+            String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
+            Editor editor = editorFactory.getProduct(suffix, projectPath, file);
+            this.displayEditor(tab, editor);
         } else {
             this.showInfo("Unsupported file");
             return;
@@ -456,15 +490,13 @@ public class CodePageController implements Initializable, Route {
         this.filesOpened.put(file, tab);
     }
 
-    private void newFile(String suffix) {
+    private void newFile(FileSystem.Suffix suffix) {
         NewFileModal nfm;
-        if (Objects.equals(suffix, FileSystem.Suffix.MODEL.value)) {
-            nfm = new NewModelModal();
-        } else if (Objects.equals(suffix, FileSystem.Suffix.TREE.value)) {
-            nfm = new NewTreeModal();
-        } else if (Objects.equals(suffix, FileSystem.Suffix.WEATHER.value)) {
-            nfm = new NewWeatherModal();
-        } else if (Objects.equals(suffix, FileSystem.Suffix.DIR.value)) {
+        List<FileSystem.Suffix> writableFiles = FileSystem.getSuffixList(0b110);
+        NewFileModalFactory newFileModalFactory = new NewFileModalFactory();
+        if(writableFiles.contains(suffix)) {
+            nfm = newFileModalFactory.getProduct(suffix);
+        } else if (Objects.equals(suffix, FileSystem.Suffix.DIR)) {
             nfm = new NewDirectoryModal();
         } else {
             this.showInfo("Unsupported file");
@@ -482,8 +514,8 @@ public class CodePageController implements Initializable, Route {
         }
         this.multiLevelDirectory.newFile();
 
-        if (!Objects.equals(suffix, FileSystem.Suffix.DIR.value)) {
-            this.openFile(new File(nfm.getDirectory(), nfm.getFilename() + suffix), suffix);
+        if (!Objects.equals(suffix, FileSystem.Suffix.DIR)) {
+            this.openFile(new File(nfm.getDirectory(), nfm.getFilename() + suffix.value), suffix);
         }
     }
 
@@ -528,53 +560,18 @@ public class CodePageController implements Initializable, Route {
         this.multiLevelDirectory.deleteFile(itemDeleted);
     }
 
-    private void openModel(Tab tab, File file) {
+    private void displayEditor(Tab tab, Editor editor) {
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
 
-        String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
-        ModelEditor modelEditor = new ModelEditor(projectPath, file);
-        modelEditor.load();
+        editor.load();
 
-        scrollPane.setContent(modelEditor.getNode());
-        scrollPane.setUserData(modelEditor);
+        scrollPane.setContent(editor.getNode());
+        scrollPane.setUserData(editor);
 
         tab.setContent(scrollPane);
-        tab.setUserData(modelEditor);
-    }
-
-    // TODO refactor 和 openModel 合并
-    private void openWeather(Tab tab, File file) {
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
-
-        String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
-        WeatherEditor weatherEditor = new WeatherEditor(projectPath, file);
-        weatherEditor.load();
-
-        scrollPane.setContent(weatherEditor.getNode());
-        scrollPane.setUserData(weatherEditor);
-
-        tab.setContent(scrollPane);
-        tab.setUserData(weatherEditor);
-    }
-
-    private void openTree(Tab tab, File file) {
-        AnchorPane anchorPane = new AnchorPane();
-
-        String projectPath = FileSystem.concatAbsolutePath(this.directory, this.projectName);
-        TreeEditor treeEditor = new TreeEditor(projectPath, file);
-        treeEditor.load();
-        Node node = treeEditor.getNode();
-        ((SplitPane) node).prefWidthProperty().bind(anchorPane.widthProperty());
-        ((SplitPane) node).prefHeightProperty().bind(anchorPane.heightProperty());
-
-        anchorPane.getChildren().add(node);
-
-        tab.setContent(anchorPane);
-        tab.setUserData(treeEditor);
+        tab.setUserData(editor);
     }
 
     /**

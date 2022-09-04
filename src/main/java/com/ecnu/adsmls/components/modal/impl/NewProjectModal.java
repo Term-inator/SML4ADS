@@ -1,8 +1,8 @@
-package com.ecnu.adsmls.components.modal;
+package com.ecnu.adsmls.components.modal.impl;
 
-import com.ecnu.adsmls.components.ChooseDirectoryButton;
+import com.ecnu.adsmls.components.choosebutton.impl.ChooseDirectoryButton;
+import com.ecnu.adsmls.components.modal.Modal;
 import com.ecnu.adsmls.utils.FileSystem;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
@@ -12,7 +12,7 @@ public class NewProjectModal extends Modal {
     private String directory;
     private String projectName;
 
-    private Node btDir;
+    private ChooseDirectoryButton btDir;
     private TextField tfProjectName;
 
     private boolean succeed = true;
@@ -39,11 +39,11 @@ public class NewProjectModal extends Modal {
         this.setTitle("New Project");
 
         Label lbDirName = new Label("directory");
-        this.btDir = new ChooseDirectoryButton(this.gridPane).getNode();
+        this.btDir = new ChooseDirectoryButton(this.gridPane);
         Label lbProjectName = new Label("project name");
         this.tfProjectName = new TextField();
 
-        this.slot.addRow(0, lbDirName, btDir);
+        this.slot.addRow(0, lbDirName, btDir.getNode());
         this.slot.addRow(1, lbProjectName, tfProjectName);
     }
 
@@ -66,7 +66,7 @@ public class NewProjectModal extends Modal {
 
     private void updateDirectory() {
         try {
-            this.directory = ((ChooseDirectoryButton) btDir.getUserData()).getFolder().getAbsolutePath();
+            this.directory = btDir.getFile().getAbsolutePath();
         } catch (Exception ignored) {
 
         }

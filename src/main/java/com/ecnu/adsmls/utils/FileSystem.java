@@ -2,7 +2,8 @@ package com.ecnu.adsmls.utils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 文件处理工具类
@@ -12,22 +13,49 @@ public class FileSystem {
      * 文件后缀
      */
     public enum Suffix {
-        TREE(".tree"),
-        MODEL(".model"),
-        JSON(".json"),
-        ADSML(".adsml"),
-        WEATHER(".weather"),
-        MAP(".xodr"),
-        EXE(".exe"),
-        XML(".xml"),
-        PROP(".properties"),
-        DIR("");
+        TREE(".tree", "Tree", 0b110),
+        MODEL(".model", "Model", 0b110),
+        JSON(".json", "JSON", 0b000),
+        ADSML(".adsml", "ADSML", 0b000),
+        WEATHER(".weather", "Weather", 0b110),
+        MAP(".xodr", "XODR", 0b000),
+        REQUIREMENT(".requirement", "Requirement", 0b110),
+        EXE(".exe", "EXE", 0b001),
+        XML(".xml", "XML",  0b000),
+        PROP(".properties", "Properties", 0b000),
+        DIR("", "Directory", 0b000);
 
         public String value;
+        // 在 label 等中显示的值
+        public String displayValue;
+        // 访问权限 rwx
+        public int access;
 
-        Suffix(String value) {
+        Suffix(String value, String displayValue, int access) {
             this.value = value;
+            this.displayValue = displayValue;
+            this.access = access;
         }
+    }
+
+    public static List<Suffix> getSuffixList(int... accessFilters) {
+        return Arrays.stream(Suffix.values()).filter(suffix -> {
+            boolean matchFilter = false;
+            for(int accessFilter: accessFilters) {
+                if ((suffix.access & accessFilter) == accessFilter) {
+                    matchFilter = true;
+                    break;
+                }
+            }
+            return matchFilter;
+        }).collect(Collectors.toList());
+    }
+
+    public static Suffix getSuffixByValue(String suffixValue) {
+        return Arrays.stream(Suffix.values())
+                .filter(suffix -> Objects.equals(suffix.value, suffixValue))
+                .findAny()
+                .orElse(null);
     }
 
     /**

@@ -1,13 +1,13 @@
-package com.ecnu.adsmls.components.modal;
+package com.ecnu.adsmls.components.modal.impl;
 
-import com.ecnu.adsmls.components.ChooseDirectoryButton;
-import javafx.scene.Node;
+import com.ecnu.adsmls.components.choosebutton.impl.ChooseDirectoryButton;
+import com.ecnu.adsmls.components.modal.Modal;
 import javafx.scene.control.Label;
 
 public class OpenProjectModal extends Modal {
     private String directory;
 
-    private Node btDir;
+    private ChooseDirectoryButton btDir;
 
     public OpenProjectModal() {
         super();
@@ -24,9 +24,9 @@ public class OpenProjectModal extends Modal {
         this.setTitle("Open Project");
 
         Label lbDirName = new Label("project");
-        this.btDir = new ChooseDirectoryButton(this.gridPane).getNode();
+        this.btDir = new ChooseDirectoryButton(this.gridPane);
 
-        this.slot.addRow(0, lbDirName, this.btDir);
+        this.slot.addRow(0, lbDirName, this.btDir.getNode());
     }
 
     @Override
@@ -45,7 +45,7 @@ public class OpenProjectModal extends Modal {
 
     private void updateDirectory() {
         try {
-            this.directory = ((ChooseDirectoryButton) this.btDir.getUserData()).getFolder().getAbsolutePath();
+            this.directory = this.btDir.getFile().getAbsolutePath();
         } catch (Exception ignored) {
 
         }

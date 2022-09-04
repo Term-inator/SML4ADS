@@ -2,10 +2,11 @@ package com.ecnu.adsmls.model;
 
 import java.util.LinkedHashMap;
 
-public class MWeather {
+public class MWeather extends AsyncError {
     private LinkedHashMap<String, String> weatherParams;
 
-    public MWeather(LinkedHashMap<String, String> weatherParams) {
+    public MWeather(LinkedHashMap<String, String> weatherParams, String errMsg) {
+        super(errMsg);
         this.weatherParams = weatherParams;
     }
 

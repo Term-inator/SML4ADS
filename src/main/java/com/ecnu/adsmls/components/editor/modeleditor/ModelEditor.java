@@ -1,12 +1,14 @@
 package com.ecnu.adsmls.components.editor.modeleditor;
 
 import com.alibaba.fastjson.JSON;
-import com.ecnu.adsmls.components.ChooseFileButton;
-import com.ecnu.adsmls.components.editor.Editor;
+import com.ecnu.adsmls.components.choosebutton.impl.ChooseFileButton;
+import com.ecnu.adsmls.components.editor.FormEditor;
 import com.ecnu.adsmls.model.MCar;
 import com.ecnu.adsmls.model.MModel;
 import com.ecnu.adsmls.utils.FileSystem;
-import com.ecnu.adsmls.utils.PropertiesUtil;
+import com.ecnu.adsmls.utils.GridPaneUtils;
+import com.ecnu.adsmls.utils.SimulatorConstant;
+import com.ecnu.adsmls.utils.SimulatorTypeObserver;
 import com.ecnu.adsmls.utils.register.exception.DataTypeException;
 import com.ecnu.adsmls.utils.register.exception.EmptyParamException;
 import com.ecnu.adsmls.utils.register.exception.RequirementException;
@@ -14,37 +16,26 @@ import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 
 import java.io.File;
 import java.util.*;
 
-public class ModelEditor extends Editor {
-    private GridPane gridPane = new GridPane();
-
-    /**
-     * 模拟器类型
-     */
-    private ComboBox<String> cbSimulatorType;
-
+public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
     /**
      * 地图文件
      */
     private GridPane mapPane = new GridPane();
     private ComboBox<String> cbMapType;
-    private Node btMap;
+    private ChooseFileButton btMap;
     private String[] defaultMaps = {};
     private ComboBox<String> cbDefaultMap;
 
     // 天气
     private ComboBox<String> cbWeatherType;
     private GridPane weatherPane = new GridPane();
-    private ComboBox<String> cbWeather;
-    private Node btWeather;
+    private ChooseFileButton btWeather;
     private String[] defaultWeathers = {};
     private ComboBox<String> cbDefaultWeather;
 
@@ -58,6 +49,9 @@ public class ModelEditor extends Editor {
     // 模拟结束扳机
     private TextArea taScenarioEndTrigger;
 
+    // 验证规则
+    private ChooseFileButton btRequirements;
+
     private GridPane gridPaneCar = new GridPane();
     // 临时 id ，用于删除
     private int carId = 0;
@@ -68,23 +62,23 @@ public class ModelEditor extends Editor {
 //    private GridPane gridPaneObstacle = new GridPane();
 //    private Map<Integer, ObstaclePane> obstaclePanes = new LinkedHashMap<>();
 
-    private ModelController modelController;
-
     public ModelEditor(String projectPath, File file) {
         super(projectPath, file);
-        this.modelController = new ModelController();
         this.createNode();
-    }
-
-    private void updateGridPane(GridPane gridPane, List<Node[]> page) {
-        gridPane.getChildren().clear();
-        for (int r = 0; r < page.size(); ++r) {
-            gridPane.addRow(r, page.get(r));
-        }
     }
 
     @Override
     public void check() throws EmptyParamException, DataTypeException, RequirementException {
+        if (Objects.equals(this.cbMapType.getValue(), "custom")) {
+            if (this.btMap.getFile() == null) {
+                throw new EmptyParamException("Map is required.");
+            }
+        }
+        if (Objects.equals(this.cbWeatherType.getValue(), "custom")) {
+            if (this.btWeather.getFile() == null) {
+                throw new EmptyParamException("Weather is required.");
+            }
+        }
         if (this.tfSimulationTime.getText().isEmpty()) {
             throw new EmptyParamException("Simulation Time is required.");
         }
@@ -108,11 +102,9 @@ public class ModelEditor extends Editor {
         }
         System.out.println(model);
 
-        mModel.setSimulatorType(this.cbSimulatorType.getValue());
-
         mModel.setMapType(this.cbMapType.getValue());
         if (Objects.equals(this.cbMapType.getValue(), "custom")) {
-            File map = ((ChooseFileButton) this.btMap.getUserData()).getFile();
+            File map = this.btMap.getFile();
             if (map == null) {
                 mModel.setMap("");
             } else {
@@ -125,7 +117,21 @@ public class ModelEditor extends Editor {
             mModel.setMap(this.cbDefaultMap.getValue() + FileSystem.Suffix.MAP.value);
         }
 
-        mModel.setWeather(this.cbWeather.getValue());
+        mModel.setWeatherType(this.cbWeatherType.getValue());
+        if (Objects.equals(this.cbWeatherType.getValue(), "custom")) {
+            File weather = this.btWeather.getFile();
+            if (weather == null) {
+                mModel.setWeather("");
+            } else {
+                // 转换成相对路径
+                String path = weather.getAbsolutePath();
+                String relativePath = FileSystem.getRelativePath(this.projectPath, path);
+                mModel.setWeather(relativePath);
+            }
+        } else if (Objects.equals(this.cbWeatherType.getValue(), "default")) {
+            mModel.setWeather(this.cbDefaultWeather.getValue() + FileSystem.Suffix.WEATHER.value);
+        }
+
         mModel.setTimeStep(this.spTimeStep.getValue());
 
         try {
@@ -135,6 +141,16 @@ public class ModelEditor extends Editor {
         }
 
         mModel.setScenarioEndTrigger(this.taScenarioEndTrigger.getText());
+
+        File requirements = this.btRequirements.getFile();
+        if (requirements == null) {
+            mModel.setRequirementsPath("");
+        } else {
+            // 转换成相对路径
+            String path = requirements.getAbsolutePath();
+            String relativePath = FileSystem.getRelativePath(this.projectPath, path);
+            mModel.setRequirementsPath(relativePath);
+        }
 
         List<MCar> cars = new ArrayList<>();
         for (Map.Entry<Integer, CarPane> entry : this.carPanes.entrySet()) {
@@ -156,14 +172,11 @@ public class ModelEditor extends Editor {
         }
         System.out.println(model);
 
-        this.cbSimulatorType.getSelectionModel().select(mModel.getSimulatorType());
-        this.modelController.setSimulator(mModel.getSimulatorType());
-
         this.cbMapType.getSelectionModel().select(mModel.getMapType());
         if (Objects.equals(mModel.getMapType(), "custom")) {
             if (!Objects.equals(mModel.getMap(), "")) {
                 // 恢复绝对路径
-                ((ChooseFileButton) this.btMap.getUserData()).setFile(new File(this.projectPath, mModel.getMap()));
+                this.btMap.setFile(new File(this.projectPath, mModel.getMap()));
             }
         } else if (Objects.equals(mModel.getMapType(), "default")) {
             this.cbDefaultMap.getSelectionModel().select(FileSystem.removeSuffix(mModel.getMap()));
@@ -173,13 +186,12 @@ public class ModelEditor extends Editor {
         if (Objects.equals(mModel.getWeatherType(), "custom")) {
             if (!Objects.equals(mModel.getWeather(), "")) {
                 // 恢复绝对路径
-                ((ChooseFileButton) this.btMap.getUserData()).setFile(new File(this.projectPath, mModel.getWeather()));
+                this.btWeather.setFile(new File(this.projectPath, mModel.getWeather()));
             }
         } else if (Objects.equals(mModel.getWeatherType(), "default")) {
             this.cbDefaultWeather.getSelectionModel().select(FileSystem.removeSuffix(mModel.getWeather()));
         }
 
-//        this.cbWeather.getSelectionModel().select(mModel.getWeather());
         this.spTimeStep.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(this.timeStepMin, this.timeStepMax, mModel.getTimeStep(), 0.1));
 
         try {
@@ -188,6 +200,11 @@ public class ModelEditor extends Editor {
         }
 
         this.taScenarioEndTrigger.setText(mModel.getScenarioEndTrigger());
+
+        if (!Objects.equals(mModel.getRequirementsPath(), "")) {
+            // 恢复绝对路径
+            this.btRequirements.setFile(new File(this.projectPath, mModel.getRequirementsPath()));
+        }
 
         for (MCar mCar : mModel.getCars()) {
             CarPane carPane = new CarPane(this.projectPath);
@@ -199,29 +216,13 @@ public class ModelEditor extends Editor {
 
     @Override
     protected void createNode() {
-        this.gridPane.setPrefWidth(800);
-        this.gridPane.setPrefWidth(800);
-        this.gridPane.setPadding(new Insets(30, 40, 30, 40));
-        this.gridPane.setVgap(8);
-
-        this.gridPane.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
-            System.out.println(e);
-            if (e.isControlDown() && e.getCode() == KeyCode.S) {
-                this.save();
-            }
-        });
-        this.gridPane.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-            this.gridPane.requestFocus();
-        });
+        super.createNode();
+        this.bindKeyEvent();
+        this.bindMouseEvent();
 
         this.gridPaneCar.setPadding(new Insets(0, 0, 8, 20));
         this.gridPaneCar.setHgap(8);
         this.gridPaneCar.setVgap(8);
-
-        Label lbSimulatorType = new Label("simulatorType");
-        String[] simulators = PropertiesUtil.getSimulators().toArray(new String[0]);
-        this.cbSimulatorType = new ComboBox<>(FXCollections.observableArrayList(simulators));
-        this.cbSimulatorType.getSelectionModel().select(0);
 
         // 地图模块
         Label lbMap = new Label("map");
@@ -229,34 +230,21 @@ public class ModelEditor extends Editor {
         this.cbMapType.getSelectionModel().select(0);
         Map<String, String> mapFilter = new HashMap<>();
         mapFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.MAP), FileSystem.Suffix.MAP.toString());
-        this.btMap = new ChooseFileButton(this.gridPane, this.projectPath, mapFilter).getNode();
-        this.defaultMaps = new String[]{"Town01", "Town02", "Town03", "Town04", "Town05", "Town06", "Town07", "Town10"};
+        this.btMap = new ChooseFileButton(this.gridPane, this.projectPath);
+        this.btMap.setFileFilter(mapFilter);
+        this.defaultMaps = SimulatorConstant.getMap();
         this.cbDefaultMap = new ComboBox<>(FXCollections.observableArrayList(this.defaultMaps));
         this.cbDefaultMap.getSelectionModel().select(0);
         this.mapPane.setHgap(8);
-        this.mapPane.addRow(0, this.cbMapType, this.btMap);
+        this.mapPane.addRow(0, this.cbMapType, this.btMap.getNode());
         this.cbMapType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (Objects.equals(newValue, "custom")) {
                 this.mapPane.getChildren().remove(this.cbDefaultMap);
-                this.mapPane.add(this.btMap, 1, 0);
+                this.mapPane.add(this.btMap.getNode(), 1, 0);
             } else if (Objects.equals(newValue, "default")) {
-                this.mapPane.getChildren().remove(this.btMap);
+                this.mapPane.getChildren().remove(this.btMap.getNode());
                 this.mapPane.add(this.cbDefaultMap, 1, 0);
             }
-        });
-
-        this.cbSimulatorType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (Objects.equals(newValue, simulators[0])) {
-                this.defaultMaps = new String[]{"Town01", "Town02", "Town03", "Town04", "Town05", "Town06", "Town07", "Town10"};
-            } else if (Objects.equals(newValue, simulators[1])) {
-                this.defaultMaps = new String[]{};
-            }
-            this.cbDefaultMap.setItems(FXCollections.observableArrayList(this.defaultMaps));
-
-            // 为了 notify CarPane
-            this.modelController.setSimulator(newValue);
-            // 更新天气选项
-            this.cbWeather.setItems(FXCollections.observableArrayList(this.modelController.getWeather()));
         });
 
         // 天气模块
@@ -265,26 +253,22 @@ public class ModelEditor extends Editor {
         this.cbWeatherType.getSelectionModel().select(0);
         Map<String, String> weatherFilter = new HashMap<>();
         weatherFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.WEATHER), FileSystem.Suffix.WEATHER.toString());
-        this.btWeather = new ChooseFileButton(this.gridPane, this.projectPath, weatherFilter).getNode();
-        this.defaultWeathers = ModelConstant.weathers.get(ModelConstant.Simulator.CARLA);
+        this.btWeather = new ChooseFileButton(this.gridPane, this.projectPath);
+        this.btWeather.setFileFilter(weatherFilter);
+        this.defaultWeathers = SimulatorConstant.getWeather();
         this.cbDefaultWeather = new ComboBox<>(FXCollections.observableArrayList(this.defaultWeathers));
         this.cbDefaultWeather.getSelectionModel().select(0);
         this.weatherPane.setHgap(8);
-        this.weatherPane.addRow(0, this.cbWeatherType, this.btWeather);
+        this.weatherPane.addRow(0, this.cbWeatherType, this.btWeather.getNode());
         this.cbWeatherType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (Objects.equals(newValue, "custom")) {
                 this.weatherPane.getChildren().remove(this.cbDefaultWeather);
-                this.weatherPane.add(this.btWeather, 1, 0);
+                this.weatherPane.add(this.btWeather.getNode(), 1, 0);
             } else if (Objects.equals(newValue, "default")) {
-                this.weatherPane.getChildren().remove(this.btWeather);
+                this.weatherPane.getChildren().remove(this.btWeather.getNode());
                 this.weatherPane.add(this.cbDefaultWeather, 1, 0);
             }
         });
-//        this.cbWeatherType = new ComboBox<>(FXCollections.observableArrayList("custom", "default"));
-//        this.cbWeatherType.getSelectionModel().select(0);
-//        String[] weathers = ModelConstant.weathers.get(ModelConstant.Simulator.CARLA);
-//        this.cbWeather = new ComboBox<>(FXCollections.observableArrayList(weathers));
-//        this.cbWeather.getSelectionModel().select(0);
 
         Label lbTimeStep = new Label("timeStep");
         this.spTimeStep = new Spinner<>(this.timeStepMin, this.timeStepMax, 0.1, 0.1);
@@ -301,6 +285,14 @@ public class ModelEditor extends Editor {
         //自动换行
         this.taScenarioEndTrigger.setWrapText(true);
 
+        // requirement 模块
+        Label lbRequirements = new Label("requirements");
+        Map<String, String> requirementFilter = new HashMap<>();
+        requirementFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.REQUIREMENT), FileSystem.Suffix.REQUIREMENT.toString());
+        this.btRequirements = new ChooseFileButton(this.gridPane, this.projectPath);
+        this.btRequirements.setFileFilter(requirementFilter);
+        this.btRequirements.setClearable(true);
+
         Label lbCars = new Label("Vehicles");
 
         Button btNewCar = new Button("New Vehicle");
@@ -314,17 +306,17 @@ public class ModelEditor extends Editor {
 //        Label lbObstacles = new Label("obstacles");
 //        Button btNewObstacle = new Button("New Obstacle");
 
-        this.gridPane.addRow(0, lbSimulatorType, this.cbSimulatorType);
-        this.gridPane.add(lbMap, 0, 1);
-        this.gridPane.add(this.mapPane, 1, 1, 2, 1);
-        this.gridPane.add(lbWeather, 0, 2);
-        this.gridPane.add(this.weatherPane, 1, 2, 2, 1);
-        this.gridPane.addRow(3, lbTimeStep, this.spTimeStep);
-        this.gridPane.addRow(4, lbSimulationTime, this.tfSimulationTime);
-        this.gridPane.addRow(5, lbScenarioTrigger, this.taScenarioEndTrigger);
-        this.gridPane.addRow(6, lbCars);
+        this.gridPane.add(lbMap, 0, 0);
+        this.gridPane.add(this.mapPane, 1, 0, 2, 1);
+        this.gridPane.add(lbWeather, 0, 1);
+        this.gridPane.add(this.weatherPane, 1, 1, 2, 1);
+        this.gridPane.addRow(2, lbTimeStep, this.spTimeStep);
+        this.gridPane.addRow(3, lbSimulationTime, this.tfSimulationTime);
+        this.gridPane.addRow(4, lbScenarioTrigger, this.taScenarioEndTrigger);
+        this.gridPane.addRow(5, lbCars);
+        this.gridPane.addRow(6, lbRequirements, this.btRequirements.getNode());
         this.gridPane.add(this.gridPaneCar, 0, 7, 2, 1);
-        this.gridPane.addRow(8, btNewCar);
+        this.gridPane.add(btNewCar, 0, 8, 2, 1);
 //        this.gridPane.addRow(8, lbPedestrians);
 //        this.gridPane.add(this.gridPanePedestrian, 0, 9, 2, 1);
 //        this.gridPane.addRow(10, btNewPedestrian);
@@ -341,14 +333,12 @@ public class ModelEditor extends Editor {
     private void newCar(CarPane carPane) {
         this.carPanes.put(this.carId++, carPane);
         this.updateCars();
-        this.modelController.addSimulatorListener(carPane);
     }
 
     private void deleteCar(int index) {
-        System.out.println("delete vehicle" + index);
+        System.out.println("delete vehicle " + index);
         CarPane carPane = this.carPanes.remove(index);
         this.updateCars();
-        this.modelController.removeSimulatorListener(carPane);
     }
 
     private void updateCars() {
@@ -373,7 +363,20 @@ public class ModelEditor extends Editor {
             ++i;
         }
 
-        this.updateGridPane(this.gridPaneCar, page);
+        GridPaneUtils.updateGridPane(this.gridPaneCar, page);
+    }
+
+    @Override
+    public void updateSimulatorType() {
+        this.defaultMaps = SimulatorConstant.getMap();
+        this.cbDefaultMap.setItems(FXCollections.observableArrayList(this.defaultMaps));
+
+        // notify CarPane
+        for (Map.Entry<Integer, CarPane> entry : this.carPanes.entrySet()) {
+            entry.getValue().notifyModel();;
+        }
+        // 更新天气选项
+        this.cbDefaultWeather.setItems(FXCollections.observableArrayList(SimulatorConstant.getWeather()));
     }
 
     @Override

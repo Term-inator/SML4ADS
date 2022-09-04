@@ -1,5 +1,6 @@
-package com.ecnu.adsmls.components.modal;
+package com.ecnu.adsmls.components.modal.impl;
 
+import com.ecnu.adsmls.components.modal.NewFileModal;
 import com.ecnu.adsmls.utils.FileSystem;
 
 public class NewDirectoryModal extends NewFileModal {
@@ -16,6 +17,7 @@ public class NewDirectoryModal extends NewFileModal {
     @Override
     protected void check() {
         super.check();
+        this.checkFilename();
     }
 
     @Override
@@ -26,5 +28,11 @@ public class NewDirectoryModal extends NewFileModal {
     @Override
     protected void then() {
         super.then();
+    }
+
+    @Override
+    protected void checkFilename() {
+        // empty
+        // super.checkFilename() is called in NewFileModal.check()
     }
 }

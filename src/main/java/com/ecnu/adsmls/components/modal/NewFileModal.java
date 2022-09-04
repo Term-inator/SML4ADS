@@ -23,6 +23,7 @@ public class NewFileModal extends Modal {
         super();
         this.labelName = labelName;
         this.suffix = suffix;
+        System.out.println(suffix);
     }
 
     public String getFilename() {
@@ -74,7 +75,7 @@ public class NewFileModal extends Modal {
         this.filename = this.tfFilename.getText();
     }
 
-    private void checkFilename() {
+    protected void checkFilename() {
         // 非空
         if (Objects.equals(this.filename, "")) {
             this.valid = false;
