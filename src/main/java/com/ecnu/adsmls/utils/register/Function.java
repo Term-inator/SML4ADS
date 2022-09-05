@@ -3,12 +3,15 @@ package com.ecnu.adsmls.utils.register;
 import com.ecnu.adsmls.utils.register.exception.DataTypeException;
 import com.ecnu.adsmls.utils.register.exception.EmptyParamException;
 import com.ecnu.adsmls.utils.register.exception.RequirementException;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
 
 import java.util.*;
 
 public class Function {
     public enum DataType {
-        INT, DOUBLE, STRING
+        INT, DOUBLE, BOOL, STRING
     }
 
     public enum Necessity {
@@ -58,6 +61,17 @@ public class Function {
             }
         }
         this.context.clear();
+    }
+
+    // 生成界面
+    public GridPane render(GridPane gridPane) {
+        int row = 0;
+        for (FunctionParam param : this.getParams()) {
+            Label lbParamName = new Label(param.getParamName());
+            Input inputParamValue = new Input(param.dataType);
+            gridPane.addRow(row++, lbParamName, inputParamValue.getNode());
+        }
+        return gridPane;
     }
 
     @Override

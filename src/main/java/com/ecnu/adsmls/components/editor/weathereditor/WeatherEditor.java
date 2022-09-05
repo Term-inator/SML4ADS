@@ -113,13 +113,7 @@ public class WeatherEditor extends FormEditor implements SimulatorTypeObserver {
         this.bindMouseEvent();
 
         Function weatherFunction = WeatherRegister.getFunction(Global.simulatorType.value);
-        // 生成界面
-        int row = 0;
-        for (FunctionParam param : weatherFunction.getParams()) {
-            Label lbParamName = new Label(param.getParamName());
-            TextField tfParamValue = new TextField();
-            this.gridPane.addRow(row++, lbParamName, tfParamValue);
-        }
+        weatherFunction.render(this.gridPane);
     }
 
     @Override
