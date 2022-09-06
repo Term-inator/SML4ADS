@@ -34,19 +34,19 @@ public class RuleRegister extends FunctionRegister {
         laneChangeRule.addParam("lane change", Function.DataType.BOOL, Function.Necessity.REQUIRED);
 
         Function overtakeRule = new Function("overtaking");
-        laneChangeRule.addParam("road id", Function.DataType.INT, Function.Necessity.REQUIRED);
-        laneChangeRule.addParam("lane id", Function.DataType.INT, Function.Necessity.REQUIRED);
-        laneChangeRule.addParam("lane section id", Function.DataType.INT, Function.Necessity.REQUIRED);
-        laneChangeRule.addParam("start", Function.DataType.DOUBLE, Function.Necessity.OPTIONAL,
+        overtakeRule.addParam("road id", Function.DataType.INT, Function.Necessity.REQUIRED);
+        overtakeRule.addParam("lane id", Function.DataType.INT, Function.Necessity.REQUIRED);
+        overtakeRule.addParam("lane section id", Function.DataType.INT, Function.Necessity.REQUIRED);
+        overtakeRule.addParam("start", Function.DataType.DOUBLE, Function.Necessity.OPTIONAL,
                 new NotNegative());
-        laneChangeRule.addParam("length", Function.DataType.DOUBLE, Function.Necessity.OPTIONAL,
+        overtakeRule.addParam("length", Function.DataType.DOUBLE, Function.Necessity.OPTIONAL,
                 new NotNegative());
-        laneChangeRule.addParam("overtaking", Function.DataType.BOOL, Function.Necessity.REQUIRED);
+        overtakeRule.addParam("overtaking", Function.DataType.BOOL, Function.Necessity.REQUIRED);
 
         ruleFunctions.add(roadSpeedRule);
         ruleFunctions.add(laneSpeedRule);
         ruleFunctions.add(laneChangeRule);
-        ruleFunctions.add(laneSpeedRule);
+        ruleFunctions.add(overtakeRule);
     }
 
     public static List<String> getFunctionNames() {

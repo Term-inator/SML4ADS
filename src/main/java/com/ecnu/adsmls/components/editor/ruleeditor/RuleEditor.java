@@ -2,6 +2,7 @@ package com.ecnu.adsmls.components.editor.ruleeditor;
 
 import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.editor.FormEditor;
+import com.ecnu.adsmls.components.editor.modeleditor.CarPane;
 import com.ecnu.adsmls.model.MRule;
 import com.ecnu.adsmls.model.MRules;
 import com.ecnu.adsmls.utils.FileSystem;
@@ -14,6 +15,7 @@ import javafx.css.Rule;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 
@@ -36,7 +38,9 @@ public class RuleEditor extends FormEditor {
 
     @Override
     public void check() throws EmptyParamException, RequirementException, DataTypeException {
-        // empty
+        for (Map.Entry<Integer, RulePane> entry : this.rulePanes.entrySet()) {
+            entry.getValue().check();
+        }
     }
 
     @Override
@@ -68,7 +72,7 @@ public class RuleEditor extends FormEditor {
         System.out.println(rules);
 
         for (MRule mRule: mRules.getRules()) {
-            RulePane rulePane = new RulePane(RuleRegister.getFunction(mRule.getRuleType()));
+            RulePane rulePane = new RulePane(mRule.getRuleType());
             // 设置 rulePane 的数据
             rulePane.load(mRule);
             this.newRule(rulePane);
@@ -86,7 +90,7 @@ public class RuleEditor extends FormEditor {
         Button btAddRule = new Button("Add");
         btAddRule.setOnMouseClicked(e -> {
             // 缺省值
-            this.newRule(new RulePane(RuleRegister.getFunction(RuleRegister.getFunctionNames().get(0))));
+            this.newRule(new RulePane(RuleRegister.getFunctionNames().get(0)));
         });
 
         this.gridPane.addRow(0, lbRules);
@@ -111,6 +115,12 @@ public class RuleEditor extends FormEditor {
         int i = 0;
         for(Map.Entry<Integer, RulePane> entry: this.rulePanes.entrySet()) {
             RulePane rule = entry.getValue();
+            if (i != 0) {
+                // 不同 Car 之间的分割线
+                Separator separator1 = new Separator();
+                Separator separator2 = new Separator();
+                page.add(new Node[]{separator1, separator2});
+            }
             AnchorPane buttonWrapper = new AnchorPane();
             Button btDelete = new Button("Delete");
             btDelete.setOnAction(e -> {

@@ -15,5 +15,6 @@ public class EditorFactory extends Factory<FileSystem.Suffix, Editor> {
         this.classNameMap.put(FileSystem.Suffix.TREE, packageName + ".treeeditor.TreeEditor");
         this.classNameMap.put(FileSystem.Suffix.WEATHER, packageName + ".weathereditor.WeatherEditor");
         this.classNameMap.put(FileSystem.Suffix.REQUIREMENT, packageName + ".requirementeditor.RequirementEditor");
+        this.classNameMap.put(FileSystem.Suffix.RULE, packageName + ".ruleeditor.RuleEditor");
     }
 }
