@@ -32,9 +32,16 @@ public class MModel {
 
     private MRequirements mRequirements;
 
+    /**
+     * rule 文件路径
+     */
+    private String rulesPath;
+
+    private MRules mRules;
+
     private List<MCar> cars = new ArrayList<>();
 
-    public MModel(String simulatorType, String mapType, String map, String weatherType, String weather, double timeStep, double simulationTime, String scenarioEndTrigger, String requirementsPath, List<MCar> cars) {
+    public MModel(String simulatorType, String mapType, String map, String weatherType, String weather, double timeStep, double simulationTime, String scenarioEndTrigger, String requirementsPath, String rulesPath, List<MCar> cars) {
         this.simulatorType = simulatorType;
         this.mapType = mapType;
         this.map = map;
@@ -44,6 +51,7 @@ public class MModel {
         this.simulationTime = simulationTime;
         this.scenarioEndTrigger = scenarioEndTrigger;
         this.requirementsPath = requirementsPath;
+        this.rulesPath = rulesPath;
         this.cars = cars;
     }
 
@@ -128,6 +136,22 @@ public class MModel {
 
     public void setMRequirements(MRequirements mRequirements) {
         this.mRequirements = mRequirements;
+    }
+
+    public String getRulesPath() {
+        return rulesPath;
+    }
+
+    public void setRulesPath(String rulesPath) {
+        this.rulesPath = rulesPath;
+    }
+
+    public MRules getMRules() {
+        return mRules;
+    }
+
+    public void setMRules(MRules mRules) {
+        this.mRules = mRules;
     }
 
     public List<MCar> getCars() {

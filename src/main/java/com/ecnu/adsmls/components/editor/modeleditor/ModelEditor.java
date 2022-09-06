@@ -50,6 +50,9 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
     // 验证规则
     private ChooseFileButton btRequirements;
 
+    // 道路规则
+    private ChooseFileButton btRules;
+
     private GridPane gridPaneCar = new GridPane();
     // 临时 id ，用于删除
     private int carId = 0;
@@ -150,6 +153,16 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
             mModel.setRequirementsPath(relativePath);
         }
 
+        File rules = this.btRules.getFile();
+        if (rules == null) {
+            mModel.setRulesPath("");
+        } else {
+            // 转换成相对路径
+            String path = rules.getAbsolutePath();
+            String relativePath = FileSystem.getRelativePath(this.projectPath, path);
+            mModel.setRulesPath(relativePath);
+        }
+
         List<MCar> cars = new ArrayList<>();
         for (Map.Entry<Integer, CarPane> entry : this.carPanes.entrySet()) {
             CarPane carPane = entry.getValue();
@@ -199,9 +212,14 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
 
         this.taScenarioEndTrigger.setText(mModel.getScenarioEndTrigger());
 
-        if (!Objects.equals(mModel.getRequirementsPath(), "")) {
+        if (!mModel.getRequirementsPath().isEmpty()) {
             // 恢复绝对路径
             this.btRequirements.setFile(new File(this.projectPath, mModel.getRequirementsPath()));
+        }
+
+        if (!mModel.getRulesPath().isEmpty()) {
+            // 恢复绝对路径
+            this.btRules.setFile(new File(this.projectPath, mModel.getRulesPath()));
         }
 
         for (MCar mCar : mModel.getCars()) {
@@ -291,6 +309,14 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
         this.btRequirements.setFileFilter(requirementFilter);
         this.btRequirements.setClearable(true);
 
+        // rule 模块
+        Label lbRules = new Label("rules");
+        Map<String, String> ruleFilter = new HashMap<>();
+        requirementFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.RULE), FileSystem.Suffix.RULE.toString());
+        this.btRules = new ChooseFileButton(this.gridPane, this.projectPath);
+        this.btRules.setFileFilter(ruleFilter);
+        this.btRules.setClearable(true);
+
         Label lbCars = new Label("Vehicles");
 
         Button btNewCar = new Button("New Vehicle");
@@ -313,8 +339,9 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
         this.gridPane.addRow(4, lbScenarioTrigger, this.taScenarioEndTrigger);
         this.gridPane.addRow(5, lbCars);
         this.gridPane.addRow(6, lbRequirements, this.btRequirements.getNode());
-        this.gridPane.add(this.gridPaneCar, 0, 7, 2, 1);
-        this.gridPane.add(btNewCar, 0, 8, 2, 1);
+        this.gridPane.addRow(7, lbRules, this.btRules.getNode());
+        this.gridPane.add(this.gridPaneCar, 0, 8, 2, 1);
+        this.gridPane.add(btNewCar, 0, 9, 2, 1);
 //        this.gridPane.addRow(8, lbPedestrians);
 //        this.gridPane.add(this.gridPanePedestrian, 0, 9, 2, 1);
 //        this.gridPane.addRow(10, btNewPedestrian);
