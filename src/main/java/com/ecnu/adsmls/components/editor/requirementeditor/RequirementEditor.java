@@ -34,7 +34,7 @@ public class RequirementEditor extends FormEditor {
 
     @Override
     public void check() throws EmptyParamException, RequirementException, DataTypeException {
-
+        // empty
     }
 
     @Override

@@ -28,6 +28,7 @@ public class Input {
                 this.inputNode = new ComboBox<String>();
                 break;
         }
+        this.inputNode.setUserData(this);
     }
 
     public String getValue() {
