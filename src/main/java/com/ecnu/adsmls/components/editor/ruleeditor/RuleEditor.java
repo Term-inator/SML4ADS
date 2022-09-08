@@ -31,6 +31,9 @@ public class RuleEditor extends FormEditor {
     private Map<Integer, RulePane> rulePanes = new LinkedHashMap<>();
     private int ruleId = 0;
 
+    // 错误信息
+    private StringBuilder errorMsg = new StringBuilder();
+
     public RuleEditor(String projectPath, File file) {
         super(projectPath, file);
         this.createNode();
@@ -45,12 +48,21 @@ public class RuleEditor extends FormEditor {
 
     @Override
     public void save() {
+        this.errorMsg = new StringBuilder();
+        try {
+            this.check();
+        } catch (Exception e) {
+            this.errorMsg.append(e.getMessage()).append('\n');
+        }
+
         String rules = FileSystem.JSONReader(new File(this.projectPath, this.relativePath));
         MRules mRules = JSON.parseObject(rules, MRules.class);
         if(mRules == null) {
             mRules = new MRules();
         }
         System.out.println(mRules);
+
+        mRules.setErrMsg(this.errorMsg.toString());
 
         List<MRule> ruleList = new ArrayList<>();
         for(Map.Entry<Integer, RulePane> entry: this.rulePanes.entrySet()) {

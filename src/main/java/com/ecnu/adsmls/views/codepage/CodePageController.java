@@ -314,8 +314,8 @@ public class CodePageController implements Initializable, Route {
 
         // requirements
         String requirementsPath = mModel.getRequirementsPath();
-        if (!mModel.getRequirementsPath().isEmpty()) {
-            System.out.println(mModel.getRequirementsPath());
+        if (!requirementsPath.isEmpty()) {
+            System.out.println(requirementsPath);
             String requirements = FileSystem.JSONReader(new File(projectPath, requirementsPath));
             MRequirements mRequirements = JSON.parseObject(requirements, MRequirements.class);
             if (mRequirements == null) {
@@ -324,6 +324,26 @@ public class CodePageController implements Initializable, Route {
             System.out.println(requirements);
 
             mModel.setMRequirements(mRequirements);
+        }
+
+        // rules
+        String rulesPath = mModel.getRulesPath();
+        if (!rulesPath.isEmpty()) {
+            System.out.println(rulesPath);
+            String rules = FileSystem.JSONReader(new File(projectPath, rulesPath));
+            MRules mRules = JSON.parseObject(rules, MRules.class);
+            if (mRules == null) {
+                return;
+            }
+            System.out.println(rules);
+
+            mModel.setMRules(mRules);
+            System.out.println(mRules.getErrMsg());
+
+            if(!mRules.getErrMsg().isEmpty()) {
+                this.showInfo(mRules.getErrMsg());
+                return;
+            }
         }
 
         // Car

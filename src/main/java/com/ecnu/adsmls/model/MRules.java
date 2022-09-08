@@ -3,10 +3,11 @@ package com.ecnu.adsmls.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MRules {
+public class MRules extends AsyncError {
     private List<MRule> rules = new ArrayList<>();
 
-    public MRules(List<MRule> rules) {
+    public MRules(List<MRule> rules, String errMsg) {
+        super(errMsg);
         this.rules = rules;
     }
 
