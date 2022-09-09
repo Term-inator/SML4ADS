@@ -3,6 +3,7 @@ package com.ecnu.adsmls.components.editor.ruleeditor;
 import com.ecnu.adsmls.model.MRule;
 import com.ecnu.adsmls.utils.register.Function;
 import com.ecnu.adsmls.utils.register.FunctionParam;
+import com.ecnu.adsmls.utils.register.FunctionRegister;
 import com.ecnu.adsmls.utils.register.Input;
 import com.ecnu.adsmls.utils.register.exception.DataTypeException;
 import com.ecnu.adsmls.utils.register.exception.EmptyParamException;
@@ -30,7 +31,7 @@ public class RulePane {
     LinkedHashMap<String, String> ruleParams = new LinkedHashMap<>();
 
     public RulePane(String ruleType) {
-        this.ruleFunction = RuleRegister.getFunction(ruleType);
+        this.ruleFunction = FunctionRegister.getFunction(FunctionRegister.FunctionCategory.RULE, ruleType);
         this.createNode();
     }
 
@@ -99,11 +100,11 @@ public class RulePane {
         this.gridPaneRule.setVgap(8);
 
         Label lbRuleType = new Label("rule type");
-        List<String> ruleTypes = RuleRegister.getFunctionNames();
+        List<String> ruleTypes = FunctionRegister.getFunctionNames(FunctionRegister.FunctionCategory.RULE);
         this.cbRuleType = new ComboBox<>(FXCollections.observableArrayList(ruleTypes));
         this.cbRuleType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             this.gridPaneRule.getChildren().clear();
-            this.ruleFunction = RuleRegister.getFunction(newValue);
+            this.ruleFunction = FunctionRegister.getFunction(FunctionRegister.FunctionCategory.RULE, newValue);
             this.ruleFunction.render(this.gridPaneRule);
         });
         this.cbRuleType.getSelectionModel().select(this.ruleFunction.getFunctionName());

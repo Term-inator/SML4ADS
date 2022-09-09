@@ -6,12 +6,13 @@ import com.ecnu.adsmls.utils.register.FunctionRegister;
 import com.ecnu.adsmls.utils.register.Value;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class WeatherRegister extends FunctionRegister {
-    private static List<Function> weatherFunctions = new ArrayList<>();
+    private final FunctionCategory functionCategory = FunctionCategory.WEATHER;
 
     @Override
     public void init() {
@@ -45,20 +46,6 @@ public class WeatherRegister extends FunctionRegister {
 
         Function lgsvl = new Function(SimulatorConstant.SimulatorType.LGSVL.value);
 
-        weatherFunctions.add(carla);
-        weatherFunctions.add(lgsvl);
-    }
-
-    public static List<String> getFunctionNames() {
-        return weatherFunctions.stream().map(Function::getFunctionName).collect(Collectors.toList());
-    }
-
-    public static Function getFunction(String functionName) {
-        for (Function function : weatherFunctions) {
-            if (Objects.equals(function.getFunctionName(), functionName)) {
-                return function;
-            }
-        }
-        return null;
+        functions.put(functionCategory, Arrays.asList(carla, lgsvl));
     }
 }

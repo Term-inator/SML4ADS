@@ -6,6 +6,7 @@ import com.ecnu.adsmls.utils.FileSystem;
 import com.ecnu.adsmls.utils.SimulatorConstant;
 import com.ecnu.adsmls.utils.register.Function;
 import com.ecnu.adsmls.utils.register.FunctionParam;
+import com.ecnu.adsmls.utils.register.FunctionRegister;
 import com.ecnu.adsmls.utils.register.exception.DataTypeException;
 import com.ecnu.adsmls.utils.register.exception.EmptyParamException;
 import com.ecnu.adsmls.utils.register.exception.RequirementException;
@@ -69,7 +70,7 @@ public class CarPane {
             throw new RequirementException("car.initSpeed should not be larger than car.maxSpeed.");
         }
         this.locationParams.clear();
-        Function locationFunction = LocationRegister.getLocationFunction(this.cbLocation.getValue());
+        Function locationFunction = FunctionRegister.getFunction(FunctionRegister.FunctionCategory.LOCATION, this.cbLocation.getValue());
         String locationParamName = "";
         String locationParamValue = "";
         for (Node node : this.gridPaneLocationParams.getChildren()) {
@@ -191,7 +192,7 @@ public class CarPane {
         this.tfInitSpeed = new TextField();
 
         Label lbLocation = new Label("location");
-        List<String> locationTypes = LocationRegister.getLocationTypes();
+        List<String> locationTypes = FunctionRegister.getFunctionNames(FunctionRegister.FunctionCategory.LOCATION);
         this.cbLocation = new ComboBox<>(FXCollections.observableArrayList(locationTypes));
         this.gridPaneLocationParams = new GridPane();
         gridPaneLocationParams.setPadding(new Insets(0, 0, 0, 20));
@@ -200,7 +201,7 @@ public class CarPane {
         cbLocation.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             gridPaneLocationParams.getChildren().clear();
 
-            Function locationFunction = LocationRegister.getLocationFunction(newValue);
+            Function locationFunction = FunctionRegister.getFunction(FunctionRegister.FunctionCategory.LOCATION, newValue);
             // 生成界面
             int row = 0;
             for (FunctionParam param : locationFunction.getParams()) {

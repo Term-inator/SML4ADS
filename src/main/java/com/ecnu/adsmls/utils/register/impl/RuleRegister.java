@@ -1,17 +1,13 @@
 package com.ecnu.adsmls.utils.register.impl;
 
-import com.ecnu.adsmls.utils.SimulatorConstant;
 import com.ecnu.adsmls.utils.register.Function;
 import com.ecnu.adsmls.utils.register.FunctionRegister;
-import com.ecnu.adsmls.utils.register.Value;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Arrays;
 
 public class RuleRegister extends FunctionRegister {
-    private static List<Function> ruleFunctions = new ArrayList<>();
+    private final FunctionCategory functionCategory = FunctionCategory.RULE;
 
     @Override
     public void init() {
@@ -43,22 +39,6 @@ public class RuleRegister extends FunctionRegister {
                 new NotNegative());
         overtakeRule.addParam("overtaking", Function.DataType.BOOL, Function.Necessity.REQUIRED);
 
-        ruleFunctions.add(roadSpeedRule);
-        ruleFunctions.add(laneSpeedRule);
-        ruleFunctions.add(laneChangeRule);
-        ruleFunctions.add(overtakeRule);
-    }
-
-    public static List<String> getFunctionNames() {
-        return ruleFunctions.stream().map(Function::getFunctionName).collect(Collectors.toList());
-    }
-
-    public static Function getFunction(String functionName) {
-        for (Function function : ruleFunctions) {
-            if (Objects.equals(function.getFunctionName(), functionName)) {
-                return function;
-            }
-        }
-        return null;
+        functions.put(functionCategory, Arrays.asList(roadSpeedRule, laneSpeedRule, laneChangeRule, overtakeRule));
     }
 }

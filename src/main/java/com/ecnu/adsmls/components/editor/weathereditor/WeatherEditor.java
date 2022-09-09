@@ -8,6 +8,7 @@ import com.ecnu.adsmls.utils.FileSystem;
 import com.ecnu.adsmls.utils.SimulatorTypeObserver;
 import com.ecnu.adsmls.utils.register.Function;
 import com.ecnu.adsmls.utils.register.FunctionParam;
+import com.ecnu.adsmls.utils.register.FunctionRegister;
 import com.ecnu.adsmls.utils.register.exception.DataTypeException;
 import com.ecnu.adsmls.utils.register.exception.EmptyParamException;
 import com.ecnu.adsmls.utils.register.exception.RequirementException;
@@ -35,7 +36,7 @@ public class WeatherEditor extends FormEditor implements SimulatorTypeObserver {
     public void check() throws EmptyParamException, RequirementException, DataTypeException {
         this.weatherParams.clear();
 
-        Function weatherFunction = WeatherRegister.getFunction(Global.simulatorType.value);
+        Function weatherFunction = FunctionRegister.getFunction(FunctionRegister.FunctionCategory.WEATHER ,Global.simulatorType.value);
         String weatherParamName = "";
         String weatherParamValue = "";
         for (Node node : this.gridPane.getChildren()) {
@@ -112,7 +113,7 @@ public class WeatherEditor extends FormEditor implements SimulatorTypeObserver {
         this.bindKeyEvent();
         this.bindMouseEvent();
 
-        Function weatherFunction = WeatherRegister.getFunction(Global.simulatorType.value);
+        Function weatherFunction = FunctionRegister.getFunction(FunctionRegister.FunctionCategory.WEATHER, Global.simulatorType.value);
         weatherFunction.render(this.gridPane);
     }
 

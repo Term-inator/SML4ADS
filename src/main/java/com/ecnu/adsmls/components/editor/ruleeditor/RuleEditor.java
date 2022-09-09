@@ -7,6 +7,7 @@ import com.ecnu.adsmls.model.MRule;
 import com.ecnu.adsmls.model.MRules;
 import com.ecnu.adsmls.utils.FileSystem;
 import com.ecnu.adsmls.utils.GridPaneUtils;
+import com.ecnu.adsmls.utils.register.FunctionRegister;
 import com.ecnu.adsmls.utils.register.exception.DataTypeException;
 import com.ecnu.adsmls.utils.register.exception.EmptyParamException;
 import com.ecnu.adsmls.utils.register.exception.RequirementException;
@@ -102,7 +103,7 @@ public class RuleEditor extends FormEditor {
         Button btAddRule = new Button("Add");
         btAddRule.setOnMouseClicked(e -> {
             // 缺省值
-            this.newRule(new RulePane(RuleRegister.getFunctionNames().get(0)));
+            this.newRule(new RulePane(FunctionRegister.getFunctionNames(FunctionRegister.FunctionCategory.RULE).get(0)));
         });
 
         this.gridPane.addRow(0, lbRules);

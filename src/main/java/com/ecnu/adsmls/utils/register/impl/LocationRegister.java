@@ -6,12 +6,13 @@ import com.ecnu.adsmls.utils.register.Reference;
 import com.ecnu.adsmls.utils.register.Value;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class LocationRegister extends FunctionRegister {
-    private static List<Function> locationFunctions = new ArrayList<>();
+    private final FunctionCategory functionCategory = FunctionCategory.LOCATION;
 
     @Override
     public void init() {
@@ -54,24 +55,6 @@ public class LocationRegister extends FunctionRegister {
         relatedPosition.addParam("maxLongitudinalOffset", Function.DataType.DOUBLE, Function.Necessity.REQUIRED,
                 new Between(new Reference("minLongitudinalOffset"), new Value(Double.MAX_VALUE), "[)"));
 
-        locationFunctions.add(globalPosition);
-        locationFunctions.add(lanePosition);
-        locationFunctions.add(roadPosition);
-        locationFunctions.add(relatedPosition);
-    }
-
-    // TODO refactor
-    public static List<String> getLocationTypes() {
-        return locationFunctions.stream().map(Function::getFunctionName).collect(Collectors.toList());
-    }
-
-    // TODO refactor
-    public static Function getLocationFunction(String locationType) {
-        for (Function function : locationFunctions) {
-            if (Objects.equals(function.getFunctionName(), locationType)) {
-                return function;
-            }
-        }
-        return null;
+        functions.put(functionCategory, Arrays.asList(globalPosition, lanePosition, roadPosition, relatedPosition));
     }
 }

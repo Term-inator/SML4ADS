@@ -4,12 +4,13 @@ import com.ecnu.adsmls.utils.register.Function;
 import com.ecnu.adsmls.utils.register.FunctionRegister;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class BehaviorRegister extends FunctionRegister {
-    private static List<Function> behaviorFunctions = new ArrayList<>();
+    private final FunctionCategory functionCategory = FunctionCategory.BEHAVIOR;
 
     // 初始化内置 behavior 及其参数
     @Override
@@ -61,29 +62,13 @@ public class BehaviorRegister extends FunctionRegister {
         idle.addParam("duration", Function.DataType.INT, Function.Necessity.OPTIONAL,
                 new Positive());
 
-        behaviorFunctions.add(keep);
-        behaviorFunctions.add(accelerate);
-        behaviorFunctions.add(decelerate);
-        behaviorFunctions.add(changeLeft);
-        behaviorFunctions.add(changeRight);
-        behaviorFunctions.add(turnLeft);
-        behaviorFunctions.add(turnRight);
-        behaviorFunctions.add(laneOffset);
-        behaviorFunctions.add(idle);
-    }
-
-    // TODO refactor
-    public static List<String> getBehaviorNames() {
-        return behaviorFunctions.stream().map(Function::getFunctionName).collect(Collectors.toList());
-    }
-
-    // TODO refactor
-    public static Function getBehaviorFunction(String behaviorName) {
-        for (Function function : behaviorFunctions) {
-            if (Objects.equals(function.getFunctionName(), behaviorName)) {
-                return function;
-            }
-        }
-        return null;
+        functions.put(functionCategory, Arrays.asList(
+                keep,
+                accelerate, decelerate,
+                changeLeft, changeRight,
+                turnLeft, turnRight,
+                laneOffset,
+                idle
+        ));
     }
 }
