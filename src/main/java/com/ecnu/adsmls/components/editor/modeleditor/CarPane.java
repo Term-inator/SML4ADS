@@ -89,21 +89,21 @@ public class CarPane {
     }
 
     public MCar save() {
-        MCar car = new MCar();
-        car.setName(this.tfName.getText());
-        car.setModel(this.cbModel.getValue());
+        MCar mCar = new MCar();
+        mCar.setName(this.tfName.getText());
+        mCar.setModel(this.cbModel.getValue());
         // TODO refactor 类型检查放入 check()
         try {
-            car.setMaxSpeed(Double.parseDouble(this.tfMaxSpeed.getText()));
+            mCar.setMaxSpeed(Double.parseDouble(this.tfMaxSpeed.getText()));
         } catch (Exception ignored) {
-            car.setMaxSpeed(null);
+            mCar.setMaxSpeed(null);
         }
         try {
-            car.setInitSpeed(Double.parseDouble(this.tfInitSpeed.getText()));
+            mCar.setInitSpeed(Double.parseDouble(this.tfInitSpeed.getText()));
         } catch (Exception ignored) {
-            car.setInitSpeed(null);
+            mCar.setInitSpeed(null);
         }
-        car.setLocationType(this.cbLocation.getValue());
+        mCar.setLocationType(this.cbLocation.getValue());
 
         String locationParamName = "";
         String locationParamValue = "";
@@ -115,25 +115,18 @@ public class CarPane {
                 this.locationParams.put(locationParamName, locationParamValue);
             }
         }
-        car.setLocationParams(this.locationParams);
+        mCar.setLocationParams(this.locationParams);
 
-        car.setHeading(Objects.equals("same", this.cbHeading.getValue()));
+        mCar.setHeading(Objects.equals("same", this.cbHeading.getValue()));
         try {
-            car.setRoadDeviation(Double.parseDouble(this.tfRoadDeviation.getText()));
+            mCar.setRoadDeviation(Double.parseDouble(this.tfRoadDeviation.getText()));
         } catch (Exception ignored) {
-            car.setRoadDeviation(null);
+            mCar.setRoadDeviation(null);
         }
 
-        File tree = this.btDynamic.getFile();
-        if (tree == null) {
-            car.setTreePath("");
-        } else {
-            // 转换成相对路径
-            String path = this.btDynamic.getFile().getAbsolutePath();
-            String relativePath = FileSystem.getRelativePath(this.projectPath, path);
-            car.setTreePath(relativePath);
-        }
-        return car;
+        mCar.setTreePath(this.btDynamic.getRelativePath(this.projectPath));
+
+        return mCar;
     }
 
     public void load(MCar mCar) {

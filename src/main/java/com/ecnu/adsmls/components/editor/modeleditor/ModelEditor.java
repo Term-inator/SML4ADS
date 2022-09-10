@@ -105,30 +105,14 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
 
         mModel.setMapType(this.cbMapType.getValue());
         if (Objects.equals(this.cbMapType.getValue(), "custom")) {
-            File map = this.btMap.getFile();
-            if (map == null) {
-                mModel.setMap("");
-            } else {
-                // 转换成相对路径
-                String path = map.getAbsolutePath();
-                String relativePath = FileSystem.getRelativePath(this.projectPath, path);
-                mModel.setMap(relativePath);
-            }
+            mModel.setMap(this.btMap.getRelativePath(this.projectPath));
         } else if (Objects.equals(this.cbMapType.getValue(), "default")) {
             mModel.setMap(this.cbDefaultMap.getValue() + FileSystem.Suffix.MAP.value);
         }
 
         mModel.setWeatherType(this.cbWeatherType.getValue());
         if (Objects.equals(this.cbWeatherType.getValue(), "custom")) {
-            File weather = this.btWeather.getFile();
-            if (weather == null) {
-                mModel.setWeather("");
-            } else {
-                // 转换成相对路径
-                String path = weather.getAbsolutePath();
-                String relativePath = FileSystem.getRelativePath(this.projectPath, path);
-                mModel.setWeather(relativePath);
-            }
+            mModel.setWeather(this.btWeather.getRelativePath(this.projectPath));
         } else if (Objects.equals(this.cbWeatherType.getValue(), "default")) {
             mModel.setWeather(this.cbDefaultWeather.getValue() + FileSystem.Suffix.WEATHER.value);
         }
@@ -143,25 +127,9 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
 
         mModel.setScenarioEndTrigger(this.taScenarioEndTrigger.getText());
 
-        File requirements = this.btRequirements.getFile();
-        if (requirements == null) {
-            mModel.setRequirementsPath("");
-        } else {
-            // 转换成相对路径
-            String path = requirements.getAbsolutePath();
-            String relativePath = FileSystem.getRelativePath(this.projectPath, path);
-            mModel.setRequirementsPath(relativePath);
-        }
+        mModel.setRequirementsPath(this.btRequirements.getRelativePath(this.projectPath));
 
-        File rules = this.btRules.getFile();
-        if (rules == null) {
-            mModel.setRulesPath("");
-        } else {
-            // 转换成相对路径
-            String path = rules.getAbsolutePath();
-            String relativePath = FileSystem.getRelativePath(this.projectPath, path);
-            mModel.setRulesPath(relativePath);
-        }
+        mModel.setRulesPath(this.btRules.getRelativePath(this.projectPath));
 
         List<MCar> cars = new ArrayList<>();
         for (Map.Entry<Integer, CarPane> entry : this.carPanes.entrySet()) {
@@ -312,7 +280,7 @@ public class ModelEditor extends FormEditor implements SimulatorTypeObserver {
         // rule 模块
         Label lbRules = new Label("rules");
         Map<String, String> ruleFilter = new HashMap<>();
-        requirementFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.RULE), FileSystem.Suffix.RULE.toString());
+        ruleFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.RULE), FileSystem.Suffix.RULE.toString());
         this.btRules = new ChooseFileButton(this.gridPane, this.projectPath);
         this.btRules.setFileFilter(ruleFilter);
         this.btRules.setClearable(true);
