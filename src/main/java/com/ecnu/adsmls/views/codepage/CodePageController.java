@@ -19,6 +19,7 @@ import com.ecnu.adsmls.utils.factory.impl.NewFileModalFactory;
 import com.ecnu.adsmls.utils.log.MyStaticOutputStreamAppender;
 import com.ecnu.adsmls.utils.register.impl.BehaviorRegister;
 import com.ecnu.adsmls.utils.register.impl.LocationRegister;
+import com.ecnu.adsmls.utils.register.impl.RuleRegister;
 import com.ecnu.adsmls.utils.register.impl.WeatherRegister;
 import com.ecnu.adsmls.verifier.Verifier;
 import hprose.client.HproseHttpClient;
@@ -73,6 +74,7 @@ public class CodePageController implements Initializable, Route {
         new BehaviorRegister().init();
         new LocationRegister().init();
         new WeatherRegister().init();
+        new RuleRegister().init();
         this.initMenu();
 
         OutputStream os = new TextAreaOutputStream(this.infoArea);
@@ -312,8 +314,8 @@ public class CodePageController implements Initializable, Route {
 
         // requirements
         String requirementsPath = mModel.getRequirementsPath();
-        if (!mModel.getRequirementsPath().isEmpty()) {
-            System.out.println(mModel.getRequirementsPath());
+        if (!requirementsPath.isEmpty()) {
+            System.out.println(requirementsPath);
             String requirements = FileSystem.JSONReader(new File(projectPath, requirementsPath));
             MRequirements mRequirements = JSON.parseObject(requirements, MRequirements.class);
             if (mRequirements == null) {
@@ -322,6 +324,26 @@ public class CodePageController implements Initializable, Route {
             System.out.println(requirements);
 
             mModel.setMRequirements(mRequirements);
+        }
+
+        // rules
+        String rulesPath = mModel.getRulesPath();
+        if (!rulesPath.isEmpty()) {
+            System.out.println(rulesPath);
+            String rules = FileSystem.JSONReader(new File(projectPath, rulesPath));
+            MRules mRules = JSON.parseObject(rules, MRules.class);
+            if (mRules == null) {
+                return;
+            }
+            System.out.println(rules);
+
+            mModel.setMRules(mRules);
+            System.out.println(mRules.getErrMsg());
+
+            if(!mRules.getErrMsg().isEmpty()) {
+                this.showInfo(mRules.getErrMsg());
+                return;
+            }
         }
 
         // Car

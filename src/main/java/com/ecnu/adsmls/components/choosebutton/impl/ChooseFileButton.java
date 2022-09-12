@@ -2,15 +2,23 @@ package com.ecnu.adsmls.components.choosebutton.impl;
 
 
 import com.ecnu.adsmls.components.choosebutton.ChooseButton;
+import com.ecnu.adsmls.utils.FileSystem;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 文件选择按钮
+ */
 public class ChooseFileButton extends ChooseButton {
+    // 文件过滤器
+    protected Map<String, String> fileFilter = new HashMap<>();
+
     public ChooseFileButton(Pane rootLayout) {
         super(rootLayout);
     }
@@ -47,10 +55,24 @@ public class ChooseFileButton extends ChooseButton {
             );
         }
         File result = fileChooser.showOpenDialog(stage);
+        // 选择 cancel 不改变结果
         if (result != null) {
             this.setFile(result);
         }
         // 自适应大小
         stage.sizeToScene();
+    }
+
+    /**
+     * 简化调用
+     * 大部分使用场景是获取文件的相对路径
+     * @param basePath
+     * @return
+     */
+    public String getRelativePath(String basePath) {
+        if (this.file == null) {
+            return "";
+        }
+        return FileSystem.getRelativePath(basePath, this.file.getAbsolutePath());
     }
 }

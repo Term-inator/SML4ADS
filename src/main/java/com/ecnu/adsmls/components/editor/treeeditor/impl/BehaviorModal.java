@@ -4,6 +4,7 @@ package com.ecnu.adsmls.components.editor.treeeditor.impl;
 import com.ecnu.adsmls.components.modal.Modal;
 import com.ecnu.adsmls.utils.register.Function;
 import com.ecnu.adsmls.utils.register.FunctionParam;
+import com.ecnu.adsmls.utils.register.FunctionRegister;
 import com.ecnu.adsmls.utils.register.exception.DataTypeException;
 import com.ecnu.adsmls.utils.register.exception.EmptyParamException;
 import com.ecnu.adsmls.utils.register.exception.RequirementException;
@@ -71,10 +72,9 @@ public class BehaviorModal extends Modal {
 
     private void loadData() {
         this.behaviorName = this.behavior.getName();
-        this.behaviorFunction = BehaviorRegister.getBehaviorFunction(this.behaviorName);
         this.paramsValue = (LinkedHashMap<String, String>) this.behavior.getParams().clone();
 
-        this.behaviorFunction = BehaviorRegister.getBehaviorFunction(this.behaviorName);
+        this.behaviorFunction = FunctionRegister.getFunction(FunctionRegister.FunctionCategory.BEHAVIOR, this.behaviorName);
         int row = 0;
         for (Map.Entry<String, String> param : this.paramsValue.entrySet()) {
             FunctionParam functionParam = this.behaviorFunction.getParams().get(row);
@@ -107,14 +107,14 @@ public class BehaviorModal extends Modal {
         this.behaviorParamsGridPane.setHgap(5);
 
         Label lbBehaviorName = new Label("behavior");
-        List<String> behaviorNames = BehaviorRegister.getBehaviorNames();
+        List<String> behaviorNames = FunctionRegister.getFunctionNames(FunctionRegister.FunctionCategory.BEHAVIOR);
         ComboBox<String> cbBehavior = new ComboBox<>(FXCollections.observableArrayList(behaviorNames));
         cbBehavior.getSelectionModel().select(this.behaviorName);
         cbBehavior.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             this.behaviorParamsGridPane.getChildren().clear();
 
             this.behaviorName = newValue;
-            this.behaviorFunction = BehaviorRegister.getBehaviorFunction(this.behaviorName);
+            this.behaviorFunction = FunctionRegister.getFunction(FunctionRegister.FunctionCategory.BEHAVIOR, this.behaviorName);
             // 生成界面
             int row = 0;
             for (FunctionParam param : this.behaviorFunction.getParams()) {

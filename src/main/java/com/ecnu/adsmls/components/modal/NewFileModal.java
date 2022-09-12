@@ -7,6 +7,7 @@ import javafx.scene.control.TextField;
 import java.io.File;
 import java.util.Objects;
 
+
 public class NewFileModal extends Modal {
     private File directory;
     private String filename;
@@ -23,7 +24,6 @@ public class NewFileModal extends Modal {
         super();
         this.labelName = labelName;
         this.suffix = suffix;
-        System.out.println(suffix);
     }
 
     public String getFilename() {

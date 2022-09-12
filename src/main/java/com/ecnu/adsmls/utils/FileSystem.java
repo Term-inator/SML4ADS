@@ -20,6 +20,7 @@ public class FileSystem {
         WEATHER(".weather", "Weather", 0b110),
         MAP(".xodr", "XODR", 0b000),
         REQUIREMENT(".requirement", "Requirement", 0b110),
+        RULE(".rule", "Rule", 0b110),
         EXE(".exe", "EXE", 0b001),
         XML(".xml", "XML",  0b000),
         PROP(".properties", "Properties", 0b000),

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+@Deprecated
 public class ProcessStreamReader extends Thread {
     private InputStream inputStream;
 

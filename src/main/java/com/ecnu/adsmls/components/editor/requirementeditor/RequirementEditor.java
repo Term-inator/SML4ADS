@@ -4,25 +4,16 @@ import com.alibaba.fastjson.JSON;
 import com.ecnu.adsmls.components.editor.FormEditor;
 import com.ecnu.adsmls.model.MRequirement;
 import com.ecnu.adsmls.model.MRequirements;
-import com.ecnu.adsmls.router.params.Global;
 import com.ecnu.adsmls.utils.FileSystem;
 import com.ecnu.adsmls.utils.GridPaneUtils;
-import com.ecnu.adsmls.utils.register.Function;
-import com.ecnu.adsmls.utils.register.FunctionParam;
 import com.ecnu.adsmls.utils.register.exception.DataTypeException;
 import com.ecnu.adsmls.utils.register.exception.EmptyParamException;
 import com.ecnu.adsmls.utils.register.exception.RequirementException;
-import com.ecnu.adsmls.utils.register.impl.WeatherRegister;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,9 +21,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RequirementEditor extends FormEditor {
-    private Label lbRequirements;
 
+public class RequirementEditor extends FormEditor {
     private GridPane gridPaneRequirement = new GridPane();
     private Map<Integer, RequirementPane> requirementPanes = new LinkedHashMap();
     private int requirementId = 0;
@@ -44,7 +34,7 @@ public class RequirementEditor extends FormEditor {
 
     @Override
     public void check() throws EmptyParamException, RequirementException, DataTypeException {
-
+        // empty
     }
 
     @Override
@@ -90,14 +80,14 @@ public class RequirementEditor extends FormEditor {
         this.bindKeyEvent();
         this.bindMouseEvent();
 
-        this.lbRequirements = new Label("requirements");
+        Label lbRequirements = new Label("requirements");
 
         Button btAddRequirement = new Button("Add");
         btAddRequirement.setOnMouseClicked(e -> {
             this.newRequirement(new RequirementPane());
         });
 
-        this.gridPane.addRow(0, this.lbRequirements);
+        this.gridPane.addRow(0, lbRequirements);
         this.gridPane.addRow(1, this.gridPaneRequirement);
         this.gridPane.addRow(2, btAddRequirement);
     }

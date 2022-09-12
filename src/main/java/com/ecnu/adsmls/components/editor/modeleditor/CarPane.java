@@ -6,6 +6,7 @@ import com.ecnu.adsmls.utils.FileSystem;
 import com.ecnu.adsmls.utils.SimulatorConstant;
 import com.ecnu.adsmls.utils.register.Function;
 import com.ecnu.adsmls.utils.register.FunctionParam;
+import com.ecnu.adsmls.utils.register.FunctionRegister;
 import com.ecnu.adsmls.utils.register.exception.DataTypeException;
 import com.ecnu.adsmls.utils.register.exception.EmptyParamException;
 import com.ecnu.adsmls.utils.register.exception.RequirementException;
@@ -21,8 +22,9 @@ import javafx.scene.layout.GridPane;
 import java.io.File;
 import java.util.*;
 
+
 /**
- * 点击 New Car 显示的内容
+ * 点击 New Vehicle 显示的内容
  */
 public class CarPane {
     // Project 路径
@@ -68,7 +70,7 @@ public class CarPane {
             throw new RequirementException("car.initSpeed should not be larger than car.maxSpeed.");
         }
         this.locationParams.clear();
-        Function locationFunction = LocationRegister.getLocationFunction(this.cbLocation.getValue());
+        Function locationFunction = FunctionRegister.getFunction(FunctionRegister.FunctionCategory.LOCATION, this.cbLocation.getValue());
         String locationParamName = "";
         String locationParamValue = "";
         for (Node node : this.gridPaneLocationParams.getChildren()) {
@@ -87,20 +89,21 @@ public class CarPane {
     }
 
     public MCar save() {
-        MCar car = new MCar();
-        car.setName(this.tfName.getText());
-        car.setModel(this.cbModel.getValue());
+        MCar mCar = new MCar();
+        mCar.setName(this.tfName.getText());
+        mCar.setModel(this.cbModel.getValue());
+        // TODO refactor 类型检查放入 check()
         try {
-            car.setMaxSpeed(Double.parseDouble(this.tfMaxSpeed.getText()));
+            mCar.setMaxSpeed(Double.parseDouble(this.tfMaxSpeed.getText()));
         } catch (Exception ignored) {
-            car.setMaxSpeed(null);
+            mCar.setMaxSpeed(null);
         }
         try {
-            car.setInitSpeed(Double.parseDouble(this.tfInitSpeed.getText()));
+            mCar.setInitSpeed(Double.parseDouble(this.tfInitSpeed.getText()));
         } catch (Exception ignored) {
-            car.setInitSpeed(null);
+            mCar.setInitSpeed(null);
         }
-        car.setLocationType(this.cbLocation.getValue());
+        mCar.setLocationType(this.cbLocation.getValue());
 
         String locationParamName = "";
         String locationParamValue = "";
@@ -112,25 +115,18 @@ public class CarPane {
                 this.locationParams.put(locationParamName, locationParamValue);
             }
         }
-        car.setLocationParams(this.locationParams);
+        mCar.setLocationParams(this.locationParams);
 
-        car.setHeading(Objects.equals("same", this.cbHeading.getValue()));
+        mCar.setHeading(Objects.equals("same", this.cbHeading.getValue()));
         try {
-            car.setRoadDeviation(Double.parseDouble(this.tfRoadDeviation.getText()));
+            mCar.setRoadDeviation(Double.parseDouble(this.tfRoadDeviation.getText()));
         } catch (Exception ignored) {
-            car.setRoadDeviation(null);
+            mCar.setRoadDeviation(null);
         }
 
-        File tree = this.btDynamic.getFile();
-        if (tree == null) {
-            car.setTreePath("");
-        } else {
-            // 转换成相对路径
-            String path = this.btDynamic.getFile().getAbsolutePath();
-            String relativePath = FileSystem.getRelativePath(this.projectPath, path);
-            car.setTreePath(relativePath);
-        }
-        return car;
+        mCar.setTreePath(this.btDynamic.getRelativePath(this.projectPath));
+
+        return mCar;
     }
 
     public void load(MCar mCar) {
@@ -189,7 +185,7 @@ public class CarPane {
         this.tfInitSpeed = new TextField();
 
         Label lbLocation = new Label("location");
-        List<String> locationTypes = LocationRegister.getLocationTypes();
+        List<String> locationTypes = FunctionRegister.getFunctionNames(FunctionRegister.FunctionCategory.LOCATION);
         this.cbLocation = new ComboBox<>(FXCollections.observableArrayList(locationTypes));
         this.gridPaneLocationParams = new GridPane();
         gridPaneLocationParams.setPadding(new Insets(0, 0, 0, 20));
@@ -198,7 +194,7 @@ public class CarPane {
         cbLocation.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             gridPaneLocationParams.getChildren().clear();
 
-            Function locationFunction = LocationRegister.getLocationFunction(newValue);
+            Function locationFunction = FunctionRegister.getFunction(FunctionRegister.FunctionCategory.LOCATION, newValue);
             // 生成界面
             int row = 0;
             for (FunctionParam param : locationFunction.getParams()) {
@@ -221,6 +217,7 @@ public class CarPane {
         Map<String, String> treeFilter = new HashMap<>();
         treeFilter.put(FileSystem.getRegSuffix(FileSystem.Suffix.TREE), FileSystem.Suffix.TREE.toString());
         this.btDynamic = new ChooseFileButton(this.gridPane, this.projectPath);
+        this.btDynamic.setClearable(true);
         this.btDynamic.setFileFilter(treeFilter);
 
         this.gridPane.addRow(0, lbName, this.tfName);
@@ -234,6 +231,7 @@ public class CarPane {
         this.gridPane.addRow(8, lbDynamic, this.btDynamic.getNode());
     }
 
+    // SimulatorType 改变时被调用
     public void notifyModel() {
         this.cbModel.setItems(FXCollections.observableArrayList(SimulatorConstant.getModel()));
     }

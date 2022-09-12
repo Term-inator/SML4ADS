@@ -8,6 +8,10 @@ import javafx.stage.Stage;
 
 import java.io.File;
 
+
+/**
+ * 文件夹选择按钮
+ */
 public class ChooseDirectoryButton extends ChooseButton {
     public ChooseDirectoryButton(Pane rootLayout) {
         super(rootLayout);
@@ -34,6 +38,7 @@ public class ChooseDirectoryButton extends ChooseButton {
             directoryChooser.setInitialDirectory(new File(this.initDir));
         }
         File result = directoryChooser.showDialog(stage);
+        // 选择 cancel 不改变结果
         if (result != null) {
             this.setFile(result);
         }
