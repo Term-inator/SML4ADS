@@ -85,6 +85,7 @@ public abstract class Modal {
 
         this.gridPane.setBackground(this.background);
 
+        // TODO 外移
         this.slot.setVgap(8);
         this.slot.setHgap(5);
 
